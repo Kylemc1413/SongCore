@@ -9,14 +9,15 @@ using SongCore.Data;
 using Newtonsoft.Json;
 using UnityEngine;
 using SongCore.Utilities;
-
 namespace SongCore
 {
     public static class Collections
     {
+        internal static CustomBeatmapLevelPack WipLevelPack;
+
+
         internal static string dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"..\LocalLow\Hyperbolic Magnetism\Beat Saber\SongCoreExtraData.dat");
         internal static Dictionary<string, ExtraSongData> customSongsData = new Dictionary<string, ExtraSongData>();
-
         private static List<string> _capabilities = new List<string>();
         public static System.Collections.ObjectModel.ReadOnlyCollection<string> capabilities
         {
@@ -30,24 +31,18 @@ namespace SongCore
         }
 
 
-        public static void AddSong(string levelID, string path, bool replace = false)
+        public static void AddSong(string levelID, string path)
         {
 
             if (!customSongsData.ContainsKey(levelID))
                 customSongsData.Add(levelID, new ExtraSongData(levelID, path));
-            else
-            {
-                if (replace)
-                {
-                    customSongsData[levelID].UpdateData(path);
-                    //     customSongsData.Add(levelID, new ExtraSongData(levelID, path));
-                }
-            }
             //         Utilities.Logging.Log("Entry: :"  + levelID + "    " + customSongsData.Count);
         }
 
         public static ExtraSongData RetrieveExtraSongData(string levelID, string loadIfNullPath = "")
         {
+      //      Logging.Log(levelID);
+      //      Logging.Log(loadIfNullPath);
             if (customSongsData.ContainsKey(levelID))
                 return customSongsData[levelID];
 

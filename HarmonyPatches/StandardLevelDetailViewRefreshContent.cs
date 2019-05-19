@@ -35,7 +35,7 @@ namespace SongCore.HarmonyPatches
         static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
             ref IPlayer ____player, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController)
         {
-            IBeatmapLevel level = ____selectedDifficultyBeatmap?.level;
+            var level = ____selectedDifficultyBeatmap.level is CustomBeatmapLevel ? ____selectedDifficultyBeatmap.level as CustomPreviewBeatmapLevel : null;
 
             ____playButton.interactable = true;
             ____practiceButton.interactable = true;
@@ -46,7 +46,7 @@ namespace SongCore.HarmonyPatches
             ____songNameText.richText = true;
             if (level != null)
             {
-                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(level.levelID);
+                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Utilities.Utils.GetCustomLevelIdentifier(level), level.customLevelPath);
 
                 if (MenuUI.infoButton == null)
                 {
@@ -73,7 +73,7 @@ namespace SongCore.HarmonyPatches
                 bool wipFolderSong = false;
                 IDifficultyBeatmap selectedDiff = ____selectedDifficultyBeatmap;
                 Data.ExtraSongData.DifficultyData diffData = songData.difficulties.FirstOrDefault(x => x.difficulty == selectedDiff.difficulty
-                && x.beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName);
+                && (x.beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName || x.beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));
                 if(diffData != null)
                 {
                     //If no additional information is present

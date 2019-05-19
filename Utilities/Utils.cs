@@ -11,6 +11,34 @@ namespace SongCore.Utilities
 {
     public static class Utils
     {
+
+        public static string GetCustomLevelIdentifier(CustomPreviewBeatmapLevel level)
+        {
+            string combinedData = "";
+            var songfiles = Directory.GetFiles(level.customLevelPath, ".dat", SearchOption.TopDirectoryOnly);
+            foreach(var file in songfiles)
+            {
+   //             Utilities.Logging.Log(file);
+                string json = File.ReadAllText(level.customLevelPath + '/' + file);
+                combinedData += json;
+            }
+            return Utils.CreateSha1FromString(combinedData) + "∎" + string.Join("∎", level.songName, level.songSubName, level.levelAuthorName, level.beatsPerMinute.ToString()) + "∎";
+
+        }
+        public static string GetCustomLevelIdentifier(CustomBeatmapLevel level)
+        {
+            string combinedData = "";
+            var songfiles = Directory.GetFiles(level.customLevelPath, ".dat", SearchOption.TopDirectoryOnly);
+            foreach (var file in songfiles)
+            {
+      //          Utilities.Logging.Log(file);
+                string json = File.ReadAllText(level.customLevelPath + '/' + file);
+                combinedData += json;
+            }
+            return Utils.CreateSha1FromString(combinedData) + "∎" + string.Join("∎", level.songName, level.songSubName, level.levelAuthorName, level.beatsPerMinute.ToString()) + "∎";
+
+        }
+
         public static bool IsModInstalled(string ModName)
         {
      //       Logging.Log($"Checking for Mod: {ModName}");
@@ -37,13 +65,13 @@ namespace SongCore.Utilities
             return (TEnum)Enum.Parse(typeof(TEnum), strEnumValue);
         }
 
-        public static string CreateMD5FromString(string input)
+        public static string CreateSha1FromString(string input)
         {
             // Use input string to calculate MD5 hash
-            using (var md5 = MD5.Create())
+            using (var sha1 = SHA1.Create())
             {
                 var inputBytes = Encoding.ASCII.GetBytes(input);
-                var hashBytes = md5.ComputeHash(inputBytes);
+                var hashBytes = sha1.ComputeHash(inputBytes);
 
                 // Convert the byte array to hexadecimal string
                 var sb = new StringBuilder();
@@ -55,15 +83,15 @@ namespace SongCore.Utilities
             }
         }
 
-        public static bool CreateMD5FromFile(string path, out string hash)
+        public static bool CreateSha1FromFile(string path, out string hash)
         {
             hash = "";
             if (!File.Exists(path)) return false;
-            using (var md5 = MD5.Create())
+            using (var sha1 = SHA1.Create())
             {
                 using (var stream = File.OpenRead(path))
                 {
-                    var hashBytes = md5.ComputeHash(stream);
+                    var hashBytes = sha1.ComputeHash(stream);
 
                     // Convert the byte array to hexadecimal string
                     var sb = new StringBuilder();

@@ -14,6 +14,7 @@ using SongCore.Utilities;
 using BSEvents = CustomUI.Utilities.BSEvents;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
+using System.Threading;
 namespace SongCore
 {
     public class Plugin : IBeatSaberPlugin
@@ -29,15 +30,15 @@ namespace SongCore
         internal static int _currentPlatform = -1;
 
 
-        
+
         public void OnApplicationStart()
         {
             ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
-            PlatformsInstalled = Utils.IsModInstalled("Custom Platforms"); 
+            PlatformsInstalled = Utils.IsModInstalled("Custom Platforms");
             harmony = HarmonyInstance.Create("com.kyle1413.BeatSaber.SongCore");
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
             if (!File.Exists(Collections.dataPath)) File.Create(Collections.dataPath);
-       //     Collections.LoadExtraSongData();
+            //     Collections.LoadExtraSongData();
             UI.BasicUI.GetIcons();
             CustomUI.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
             CustomUI.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
@@ -47,7 +48,6 @@ namespace SongCore
             Collections.RegisterCustomCharacteristic(UI.BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - These difficulties don't follow conventional standards, and should not necessarily be expected to reflect their given names.", "Lawless", "Lawless");
 
 
-
         }
 
         private void BSEvents_gameSceneLoaded()
@@ -55,30 +55,41 @@ namespace SongCore
             SharedCoroutineStarter.instance.StartCoroutine(DelayedNoteJumpMovementSpeedFix());
         }
 
-        private void BSEvents_levelSelected(LevelPackLevelsViewController arg1, IBeatmapLevel level)
+        private void BSEvents_levelSelected(LevelPackLevelsViewController arg1, IPreviewBeatmapLevel level)
         {
-            Data.ExtraSongData songData = Collections.RetrieveExtraSongData(level.levelID);
-            if (songData == null)
+            if (level is CustomPreviewBeatmapLevel)
             {
-      //          Logging.Log("Null song Data");
-                return;
+                var customLevel = level as CustomPreviewBeatmapLevel;
+                Logging.Log((level as CustomPreviewBeatmapLevel).customLevelPath);
+                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Utils.GetCustomLevelIdentifier(customLevel), customLevel.customLevelPath);
+                Collections.SaveExtraSongData();
             }
-      //      Logging.Log($"Platforms Installed: {PlatformsInstalled}. Platforms enabled: {customSongPlatforms}");
-            if (PlatformsInstalled && customSongPlatforms)
+            else
             {
-                if (!string.IsNullOrWhiteSpace(songData.customEnvironmentName))
+                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(level.levelID);
+                if (songData == null)
                 {
-                    if (findCustomEnvironment(songData.customEnvironmentName) == -1)
+                    //          Logging.Log("Null song Data");
+                    return;
+                }
+                //      Logging.Log($"Platforms Installed: {PlatformsInstalled}. Platforms enabled: {customSongPlatforms}");
+                if (PlatformsInstalled && customSongPlatforms)
+                {
+                    if (!string.IsNullOrWhiteSpace(songData.customEnvironmentName))
                     {
-                        Console.WriteLine("CustomPlatform not found: " + songData.customEnvironmentName);
-                        if (!string.IsNullOrWhiteSpace(songData.customEnvironmentHash))
+                        if (findCustomEnvironment(songData.customEnvironmentName) == -1)
                         {
-                            Console.WriteLine("Downloading with hash: " + songData.customEnvironmentHash);
-                            SharedCoroutineStarter.instance.StartCoroutine(downloadCustomPlatform(songData.customEnvironmentHash, songData.customEnvironmentName));
+                            Console.WriteLine("CustomPlatform not found: " + songData.customEnvironmentName);
+                            if (!string.IsNullOrWhiteSpace(songData.customEnvironmentHash))
+                            {
+                                Console.WriteLine("Downloading with hash: " + songData.customEnvironmentHash);
+                                SharedCoroutineStarter.instance.StartCoroutine(downloadCustomPlatform(songData.customEnvironmentHash, songData.customEnvironmentName));
+                            }
                         }
                     }
                 }
             }
+
         }
 
         public void Init(object thisIsNull, IPALogger pluginLogger)
@@ -97,7 +108,55 @@ namespace SongCore
             }
 
         }
+/*
+        internal static async void LoadWipPack()
+        {
+           if(Collections.WipLevelPack == null)
+            {
+                BeatmapLevelsModelSO levelModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
+                CancellationToken cancellationToken = new CancellationTokenSource().Token;
+                Collections.WipLevelPack = await levelModelSO.GetField<CustomLevelLoaderSO>("_customLevelLoader").LoadCustomBeatmapLevelPackAsync(Path.Combine(CustomLevelPathHelper.baseProjectPath,"CustomWIPLevels"), "WIP Levels", cancellationToken);
+                Collections.WipLevelPack.SetField("_coverImage", UI.BasicUI.WIPIcon);
+                if (levelModelSO == null)
+                {
+                    Logging.Log("Null levelModel");
+                    return;
+                }
+                IBeatmapLevelPackCollection loadedLevelPacks = levelModelSO.GetField<IBeatmapLevelPackCollection>("_allLoadedBeatmapLevelPackCollection");
+                List<IBeatmapLevelPack> allLoadedBeatmapLevelPacks = new List<IBeatmapLevelPack>(loadedLevelPacks.beatmapLevelPacks);
+                foreach (IBeatmapLevelPack pack in allLoadedBeatmapLevelPacks)
+                {
+                    Logging.Log(pack.packID);
+      //              Logging.Log(CustomLevelPathHelper.customLevelsDirectoryPath);
+                    if (pack.packID == "custom_levelpack_" + CustomLevelPathHelper.customLevelsDirectoryPath)
+                    {
+                        allLoadedBeatmapLevelPacks.Remove(pack);
+                        break;
+                    }
+                    Logging.Log("");
+                }
+           //     allLoadedBeatmapLevelPacks.Clear();
+                allLoadedBeatmapLevelPacks.Add(Collections.WipLevelPack);
+                //   Logging.Log(Collections.WipLevelPack.packName + Collections.WipLevelPack.packID + Collections.WipLevelPack.beatmapLevelCollection.beatmapLevels.Count());
+                BeatmapLevelPackCollection newCollection = new BeatmapLevelPackCollection(allLoadedBeatmapLevelPacks.ToArray());
+                levelModelSO.SetField("_allLoadedBeatmapLevelPackCollection", newCollection);
+                
+            BeatmapLevelPackCollectionSO newCollection2 = ScriptableObject.CreateInstance<BeatmapLevelPackCollectionSO>();
+            newCollection2.SetField("_allBeatmapLevelPacks", newCollection.beatmapLevelPacks);
 
+            levelModelSO.SetField("_loadedBeatmapLevelPackCollection", newCollection2);
+            levelModelSO.UpdateLoadedPreviewLevels();
+    //        ReflectionUtil.InvokeMethod(levelModelSO, "OnEnable");
+                foreach (IBeatmapLevelPack pack in allLoadedBeatmapLevelPacks)
+                {
+                    Logging.Log(pack.packName);
+                }
+            }
+
+         
+
+        }
+        */
         public void OnSceneUnloaded(Scene scene)
         {
 
@@ -147,7 +206,7 @@ namespace SongCore
                     Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
 
                 AdjustNJS(BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpMovementSpeed, beatmapObjectSpawnController);
-                
+
             }
         }
 
@@ -340,10 +399,10 @@ namespace SongCore
                     var downloadData = JsonConvert.DeserializeObject<Dictionary<string, platformDownloadData>>(www.downloadHandler.text);
                     platformDownloadData data = downloadData.FirstOrDefault().Value;
                     if (data != null)
-                    if (data.name == name)
-                    {
-                        SharedCoroutineStarter.instance.StartCoroutine(_downloadCustomPlatform(data));
-                    }
+                        if (data.name == name)
+                        {
+                            SharedCoroutineStarter.instance.StartCoroutine(_downloadCustomPlatform(data));
+                        }
                 }
             }
         }
