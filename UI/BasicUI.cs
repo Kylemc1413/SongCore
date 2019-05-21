@@ -73,15 +73,15 @@ namespace SongCore.UI
                 foreach (Data.ExtraSongData.Contributor author in songData.contributors)
                 {
                     if (author.icon == null)
-                        if (!string.IsNullOrWhiteSpace(author.iconPath))
+                        if (!string.IsNullOrWhiteSpace(author._iconPath))
                         {
-                            author.icon = Utilities.Utils.LoadSpriteFromFile(songData.songPath + "/" + author.iconPath);
-                            reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, author.icon));
+                            author.icon = Utilities.Utils.LoadSpriteFromFile(songData.songPath + "/" + author._iconPath);
+                            reqViewController.Data.Add(new CustomCellInfo(author._name, author._role, author.icon));
                         }
                         else
-                            reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, InfoIcon));
+                            reqViewController.Data.Add(new CustomCellInfo(author._name, author._role, InfoIcon));
                     else
-                        reqViewController.Data.Add(new CustomCellInfo(author.name, author.role, author.icon));
+                        reqViewController.Data.Add(new CustomCellInfo(author._name, author._role, author.icon));
                 }
             }
             //WIP Check
@@ -90,9 +90,9 @@ namespace SongCore.UI
             //Additional Diff Info
             if(diffData != null)
             {
-                if (diffData.additionalDifficultyData.requirements.Count() > 0)
+                if (diffData.additionalDifficultyData._requirements.Count() > 0)
                 {
-                    foreach (string req in diffData.additionalDifficultyData.requirements)
+                    foreach (string req in diffData.additionalDifficultyData._requirements)
                     {
                         //    Console.WriteLine(req);
                         if (!Collections.capabilities.Contains(req))
@@ -102,9 +102,9 @@ namespace SongCore.UI
                     }
                 }
 
-                if (diffData.additionalDifficultyData.warnings.Count() > 0)
+                if (diffData.additionalDifficultyData._warnings.Count() > 0)
                 {
-                    foreach (string req in diffData.additionalDifficultyData.warnings)
+                    foreach (string req in diffData.additionalDifficultyData._warnings)
                     {
 
                         //    Console.WriteLine(req);
@@ -112,9 +112,9 @@ namespace SongCore.UI
                         reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon));
                     }
                 }
-                if (diffData.additionalDifficultyData.information.Count() > 0)
+                if (diffData.additionalDifficultyData._information.Count() > 0)
                 {
-                    foreach (string req in diffData.additionalDifficultyData.information)
+                    foreach (string req in diffData.additionalDifficultyData._information)
                     {
 
                         //    Console.WriteLine(req);
@@ -122,9 +122,9 @@ namespace SongCore.UI
                         reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Info", InfoIcon));
                     }
                 }
-                if (diffData.additionalDifficultyData.suggestions.Count() > 0)
+                if (diffData.additionalDifficultyData._suggestions.Count() > 0)
                 {
-                    foreach (string req in diffData.additionalDifficultyData.suggestions)
+                    foreach (string req in diffData.additionalDifficultyData._suggestions)
                     {
 
                         //    Console.WriteLine(req);

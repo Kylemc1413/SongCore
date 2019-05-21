@@ -72,28 +72,28 @@ namespace SongCore.HarmonyPatches
                 }
                 bool wipFolderSong = false;
                 IDifficultyBeatmap selectedDiff = ____selectedDifficultyBeatmap;
-                Data.ExtraSongData.DifficultyData diffData = songData.difficulties.FirstOrDefault(x => x.difficulty == selectedDiff.difficulty
-                && (x.beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName || x.beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));
+                Data.ExtraSongData.DifficultyData diffData = songData._difficulties.FirstOrDefault(x => x._difficulty == selectedDiff.difficulty
+                && (x._beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName || x._beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));
                 if(diffData != null)
                 {
                     //If no additional information is present
-                    if (diffData.additionalDifficultyData.requirements.Count() == 0 && diffData.additionalDifficultyData.requirements.Count() == 0
-                        && diffData.additionalDifficultyData.requirements.Count() == 0 && diffData.additionalDifficultyData.requirements.Count() == 0
+                    if (diffData.additionalDifficultyData._requirements.Count() == 0 && diffData.additionalDifficultyData._requirements.Count() == 0
+                        && diffData.additionalDifficultyData._requirements.Count() == 0 && diffData.additionalDifficultyData._requirements.Count() == 0
                         && songData.contributors.Count() == 0)
                     {
                         MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
                         MenuUI.infoButton.interactable = false;
                     }
-                    else if (diffData.additionalDifficultyData.warnings.Count() == 0)
+                    else if (diffData.additionalDifficultyData._warnings.Count() == 0)
                     {
                         MenuUI.infoButton.interactable = true;
                         MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.blue;
                     }
-                    else if (diffData.additionalDifficultyData.warnings.Count() > 0)
+                    else if (diffData.additionalDifficultyData._warnings.Count() > 0)
                     {
                         MenuUI.infoButton.interactable = true;
                         MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
-                        if (diffData.additionalDifficultyData.warnings.Contains("WIP"))
+                        if (diffData.additionalDifficultyData._warnings.Contains("WIP"))
                         {
                             ____playButton.interactable = false;
                             ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
@@ -102,7 +102,7 @@ namespace SongCore.HarmonyPatches
                     }
                 }
              
-                if (songData.songPath.Contains("WIP Songs"))
+                if (songData.songPath.Contains("CustomWIPLevels"))
                 {
                     MenuUI.infoButton.interactable = true;
                     MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
@@ -114,9 +114,9 @@ namespace SongCore.HarmonyPatches
                 if(diffData != null)
                 {
 
-                    for (int i = 0; i < diffData.additionalDifficultyData.requirements.Count(); i++)
+                    for (int i = 0; i < diffData.additionalDifficultyData._requirements.Count(); i++)
                     {
-                        if (!Collections.capabilities.Contains(diffData.additionalDifficultyData.requirements[i]))
+                        if (!Collections.capabilities.Contains(diffData.additionalDifficultyData._requirements[i]))
                         {
                             ____playButton.interactable = false;
                             ____practiceButton.interactable = false;
@@ -145,29 +145,29 @@ namespace SongCore.HarmonyPatches
 
                 //Difficulty Label Handling
                 bool overrideLabels = false;
-                foreach (Data.ExtraSongData.DifficultyData diffLevel in songData.difficulties)
+                foreach (Data.ExtraSongData.DifficultyData diffLevel in songData._difficulties)
                 {
-                    var difficulty = diffLevel.difficulty;
-                    if (!string.IsNullOrWhiteSpace(diffLevel.difficultyLabel))
+                    var difficulty = diffLevel._difficulty;
+                    if (!string.IsNullOrWhiteSpace(diffLevel._difficultyLabel))
                     {
                         //   Console.WriteLine("Diff: " + difficulty + "   Label: " + diffLevel.difficultyLabel);
                         overrideLabels = true;
                         switch (difficulty)
                         {
                             case BeatmapDifficulty.Easy:
-                                EasyOverride = diffLevel.difficultyLabel;
+                                EasyOverride = diffLevel._difficultyLabel;
                                 break;
                             case BeatmapDifficulty.Normal:
-                                NormalOverride = diffLevel.difficultyLabel;
+                                NormalOverride = diffLevel._difficultyLabel;
                                 break;
                             case BeatmapDifficulty.Hard:
-                                HardOverride = diffLevel.difficultyLabel;
+                                HardOverride = diffLevel._difficultyLabel;
                                 break;
                             case BeatmapDifficulty.Expert:
-                                ExpertOverride = diffLevel.difficultyLabel;
+                                ExpertOverride = diffLevel._difficultyLabel;
                                 break;
                             case BeatmapDifficulty.ExpertPlus:
-                                ExpertPlusOverride = diffLevel.difficultyLabel;
+                                ExpertPlusOverride = diffLevel._difficultyLabel;
                                 break;
                         }
                     }

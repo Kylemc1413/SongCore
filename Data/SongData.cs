@@ -1,12 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using UnityEngine;
 namespace SongCore.Data
 {
 
@@ -16,16 +14,16 @@ namespace SongCore.Data
     {
         public string songPath;
         public Contributor[] contributors; //convert legacy mappers/lighters fields into contributors
-        public string customEnvironmentName;
-        public string customEnvironmentHash;
-        public DifficultyData[] difficulties;
+        public string _customEnvironmentName;
+        public string _customEnvironmentHash;
+        public DifficultyData[] _difficulties;
 
         [Serializable]
         public class Contributor
         {
-            public string role;
-            public string name;
-            public string iconPath;
+            public string _role;
+            public string _name;
+            public string _iconPath;
             [NonSerialized]
             public Sprite icon = null;
 
@@ -33,20 +31,20 @@ namespace SongCore.Data
         [Serializable]
         public class DifficultyData
         {
-            public string beatmapCharacteristicName;
-            public BeatmapDifficulty difficulty;
-            public string difficultyLabel;
+            public string _beatmapCharacteristicName;
+            public BeatmapDifficulty _difficulty;
+            public string _difficultyLabel;
             public RequirementData additionalDifficultyData;
-            public MapColor colorLeft;
-            public MapColor colorRight;
+            public MapColor _colorLeft;
+            public MapColor _colorRight;
         }
         [Serializable]
         public class RequirementData
         {
-            public string[] requirements;
-            public string[] suggestions;
-            public string[] warnings;
-            public string[] information;
+            public string[] _requirements;
+            public string[] _suggestions;
+            public string[] _warnings;
+            public string[] _information;
         }
         [Serializable]
         public class MapColor
@@ -72,12 +70,12 @@ namespace SongCore.Data
         [Newtonsoft.Json.JsonConstructor]
         public ExtraSongData(string levelID, string songPath, Contributor[] contributors, string customEnvironmentName, string customEnvironmentHash, DifficultyData[] difficulties)
         {
-      //      Utilities.Logging.Log("SongData full Ctor");
+            //      Utilities.Logging.Log("SongData full Ctor");
             this.songPath = songPath;
             this.contributors = contributors;
-            this.customEnvironmentName = customEnvironmentName;
-            this.customEnvironmentHash = customEnvironmentHash;
-            this.difficulties = difficulties;
+            this._customEnvironmentName = customEnvironmentName;
+            this._customEnvironmentHash = customEnvironmentHash;
+            this._difficulties = difficulties;
 
         }
         public ExtraSongData(string levelID, string songPath)
@@ -93,14 +91,14 @@ namespace SongCore.Data
                 //Check if song uses legacy value for full song One Saber mode
 
                 List<Contributor> levelContributors = new List<Contributor>();
-                if (info.ContainsKey("contributors"))
+                if (info.ContainsKey("_contributors"))
                 {
-                    levelContributors.AddRange(info["contributors"].ToObject<Contributor[]>());
+                    levelContributors.AddRange(info["_contributors"].ToObject<Contributor[]>());
                 }
 
                 contributors = levelContributors.ToArray();
-                if (info.ContainsKey("customEnvironment")) customEnvironmentName = (string)info["customEnvironment"];
-                if (info.ContainsKey("customEnvironmentHash")) customEnvironmentHash = (string)info["customEnvironmentHash"];
+                if (info.ContainsKey("_customEnvironment")) _customEnvironmentName = (string)info["_customEnvironment"];
+                if (info.ContainsKey("_customEnvironmentHash")) _customEnvironmentHash = (string)info["_customEnvironmentHash"];
                 List<DifficultyData> diffData = new List<DifficultyData>();
                 JArray diffSets = (JArray)info["_difficultyBeatmapSets"];
                 foreach (JObject diffSet in diffSets)
@@ -115,38 +113,43 @@ namespace SongCore.Data
                         List<string> diffInfo = new List<string>();
 
                         BeatmapDifficulty diffDifficulty = Utilities.Utils.ToEnum((string)diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
-
                         string diffLabel = "";
-                        if (diffBeatmap.ContainsKey("difficultyLabel")) diffLabel = (string)diffBeatmap["difficultyLabel"];
-
+                        if (diffBeatmap.ContainsKey("_difficultyLabel")) diffLabel = (string)diffBeatmap["_difficultyLabel"];
 
                         //Get difficulty json fields
                         MapColor diffLeft = null;
                         if (diffBeatmap.ContainsKey("_colorLeft"))
                         {
-                            diffLeft = new MapColor(0, 0, 0);
-                            diffLeft.r = (float)diffBeatmap["_colorLeft"]["r"];
-                            diffLeft.g = (float)diffBeatmap["_colorLeft"]["g"];
-                            diffLeft.b = (float)diffBeatmap["_colorLeft"]["b"];
+                            if (diffBeatmap["_colorLeft"].Children().Count() == 3)
+                            {
+                                diffLeft = new MapColor(0, 0, 0);
+                                diffLeft.r = (float)diffBeatmap["_colorLeft"]["r"];
+                                diffLeft.g = (float)diffBeatmap["_colorLeft"]["g"];
+                                diffLeft.b = (float)diffBeatmap["_colorLeft"]["b"];
+                            }
+
+
                         }
                         MapColor diffRight = null;
                         if (diffBeatmap.ContainsKey("_colorRight"))
                         {
-                            diffRight = new MapColor(0, 0, 0);
-                            diffRight.r = (float)diffBeatmap["_colorRight"]["r"];
-                            diffRight.g = (float)diffBeatmap["_colorRight"]["g"];
-                            diffRight.b = (float)diffBeatmap["_colorRight"]["b"];
-                        }
+                            if (diffBeatmap["_colorRight"].Children().Count() == 3)
+                            {
+                                diffRight = new MapColor(0, 0, 0);
+                                diffRight.r = (float)diffBeatmap["_colorRight"]["r"];
+                                diffRight.g = (float)diffBeatmap["_colorRight"]["g"];
+                                diffRight.b = (float)diffBeatmap["_colorRight"]["b"];
+                            }
 
-                        if (diffBeatmap.ContainsKey("_requirements"))
-                            diffRequirements.AddRange(((JArray)diffBeatmap["_requirements"]).Select(c => (string)c));
-                        if (diffBeatmap.ContainsKey("_suggestions"))
-                            diffSuggestions.AddRange(((JArray)diffBeatmap["_suggestions"]).Select(c => (string)c));
+                        }
                         if (diffBeatmap.ContainsKey("_warnings"))
                             diffWarnings.AddRange(((JArray)diffBeatmap["_warnings"]).Select(c => (string)c));
                         if (diffBeatmap.ContainsKey("_information"))
                             diffInfo.AddRange(((JArray)diffBeatmap["_information"]).Select(c => (string)c));
-
+                        if (diffBeatmap.ContainsKey("_suggestions"))
+                            diffSuggestions.AddRange(((JArray)diffBeatmap["_suggestions"]).Select(c => (string)c));
+                        if (diffBeatmap.ContainsKey("_requirements"))
+                            diffRequirements.AddRange(((JArray)diffBeatmap["_requirements"]).Select(c => (string)c));
 
                         if (!File.Exists(songPath + "/" + diffBeatmap["_beatmapFilename"])) continue;
                         string diffText = File.ReadAllText(songPath + "/" + diffBeatmap["_beatmapFilename"]);
@@ -188,26 +191,26 @@ namespace SongCore.Data
 
                         RequirementData diffReqData = new RequirementData
                         {
-                            requirements = diffRequirements.ToArray(),
-                            suggestions = diffSuggestions.ToArray(),
-                            information = diffInfo.ToArray(),
-                            warnings = diffWarnings.ToArray()
+                            _requirements = diffRequirements.ToArray(),
+                            _suggestions = diffSuggestions.ToArray(),
+                            _information = diffInfo.ToArray(),
+                            _warnings = diffWarnings.ToArray()
                         };
 
                         diffData.Add(new DifficultyData
                         {
-                            beatmapCharacteristicName = SetCharacteristic,
-                            difficulty = diffDifficulty,
-                            difficultyLabel = diffLabel,
+                            _beatmapCharacteristicName = SetCharacteristic,
+                            _difficulty = diffDifficulty,
+                            _difficultyLabel = diffLabel,
                             additionalDifficultyData = diffReqData,
-                            colorLeft = diffLeft,
-                            colorRight = diffRight
+                            _colorLeft = diffLeft,
+                            _colorRight = diffRight
 
                         });
                     }
                 }
-                difficulties = diffData.ToArray();
-            
+                _difficulties = diffData.ToArray();
+
             }
             catch (Exception ex)
             {
@@ -218,7 +221,7 @@ namespace SongCore.Data
 
 
 
- 
+
     }
 }
 

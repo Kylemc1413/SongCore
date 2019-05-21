@@ -75,15 +75,15 @@ namespace SongCore
                 //      Logging.Log($"Platforms Installed: {PlatformsInstalled}. Platforms enabled: {customSongPlatforms}");
                 if (PlatformsInstalled && customSongPlatforms)
                 {
-                    if (!string.IsNullOrWhiteSpace(songData.customEnvironmentName))
+                    if (!string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                     {
-                        if (findCustomEnvironment(songData.customEnvironmentName) == -1)
+                        if (findCustomEnvironment(songData._customEnvironmentName) == -1)
                         {
-                            Console.WriteLine("CustomPlatform not found: " + songData.customEnvironmentName);
-                            if (!string.IsNullOrWhiteSpace(songData.customEnvironmentHash))
+                            Console.WriteLine("CustomPlatform not found: " + songData._customEnvironmentName);
+                            if (!string.IsNullOrWhiteSpace(songData._customEnvironmentHash))
                             {
-                                Console.WriteLine("Downloading with hash: " + songData.customEnvironmentHash);
-                                SharedCoroutineStarter.instance.StartCoroutine(downloadCustomPlatform(songData.customEnvironmentHash, songData.customEnvironmentName));
+                                Console.WriteLine("Downloading with hash: " + songData._customEnvironmentHash);
+                                SharedCoroutineStarter.instance.StartCoroutine(downloadCustomPlatform(songData._customEnvironmentHash, songData._customEnvironmentName));
                             }
                         }
                     }
@@ -184,12 +184,15 @@ namespace SongCore
                     if (PlatformsInstalled)
                         CheckCustomSongEnvironment(data.difficultyBeatmap);
 
-                    if (songData.colorLeft != null && songData.colorRight != null)
+                    if (songData._colorLeft != null && songData._colorRight != null)
                     {
                         if (customSongColors)
-                            SetSongColors(songData.colorLeft, songData.colorRight);
+                            SetSongColors(songData._colorLeft, songData._colorRight);
                     }
                 }
+                else
+                    Console.WriteLine("null data");
+
 
             }
         }
@@ -331,8 +334,8 @@ namespace SongCore
         {
             Data.ExtraSongData songData = Collections.RetrieveExtraSongData(song.level.levelID);
             if (songData == null) return;
-            if (string.IsNullOrWhiteSpace(songData.customEnvironmentName)) return;
-            int _customPlatform = customEnvironment(songData.customEnvironmentName);
+            if (string.IsNullOrWhiteSpace(songData._customEnvironmentName)) return;
+            int _customPlatform = customEnvironment(songData._customEnvironmentName);
             if (_customPlatform != -1)
             {
                 _currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;

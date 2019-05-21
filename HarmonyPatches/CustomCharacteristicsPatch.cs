@@ -16,9 +16,9 @@ namespace SongCore.HarmonyPatches
             if(__result == null)
             {
                 if (Collections.customCharacteristics.Any(x => x.characteristicName == serializedName))
-                    __result = Collections.customCharacteristics.First(x => x.characteristicName == serializedName);
+                    __result = Collections.customCharacteristics.FirstOrDefault(x => x.characteristicName == serializedName);
                 else
-                    __result = Collections.customCharacteristics.First(x => x.characteristicName == "Missing Characteristic");
+                    __result = Collections.customCharacteristics.FirstOrDefault(x => x.characteristicName == "Missing Characteristic");
             }
         }
     }
