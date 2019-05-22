@@ -100,14 +100,7 @@ namespace SongCore.Utilities
             {
                 var inputBytes = input;
                 var hashBytes = sha1.ComputeHash(inputBytes);
-
-                // Convert the byte array to hexadecimal string
-                var sb = new StringBuilder();
-                for (int i = 0; i < hashBytes.Length; i++)
-                {
-                    sb.Append(hashBytes[i].ToString("X2"));
-                }
-                return sb.ToString();
+                return string.Concat(hashBytes.Select(b => b.ToString("x2")));
             }
         }
         public static bool CreateSha1FromFile(string path, out string hash)
