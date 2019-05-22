@@ -37,12 +37,14 @@ namespace SongCore
             PlatformsInstalled = Utils.IsModInstalled("Custom Platforms");
             harmony = HarmonyInstance.Create("com.kyle1413.BeatSaber.SongCore");
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
-            if (!File.Exists(Collections.dataPath)) File.Create(Collections.dataPath);
             //     Collections.LoadExtraSongData();
             UI.BasicUI.GetIcons();
             CustomUI.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
             CustomUI.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
-            Collections.LoadExtraSongData();
+            if (!File.Exists(Collections.dataPath))
+                File.Create(Collections.dataPath);
+            else
+                Collections.LoadExtraSongData();
             Collections.RegisterCustomCharacteristic(UI.BasicUI.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic");
             Collections.RegisterCustomCharacteristic(UI.BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow");
             Collections.RegisterCustomCharacteristic(UI.BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - These difficulties don't follow conventional standards, and should not necessarily be expected to reflect their given names.", "Lawless", "Lawless");
@@ -61,7 +63,7 @@ namespace SongCore
             {
                 var customLevel = level as CustomPreviewBeatmapLevel;
                 Logging.Log((level as CustomPreviewBeatmapLevel).customLevelPath);
-                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Utils.GetCustomLevelIdentifier(customLevel), customLevel.customLevelPath);
+                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Utils.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
                 Collections.SaveExtraSongData();
             }
             else

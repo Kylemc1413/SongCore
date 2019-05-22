@@ -10,7 +10,7 @@ namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(CustomLevelLoaderSO))]
     [HarmonyPatch("LoadCustomPreviewBeatmapLevelPacksAsync", MethodType.Normal)]
-    class WipPatch
+    class PackPatches
     {
         static void Prefix(ref CustomLevelLoaderSO.CustomPackFolderInfo[] customPackFolderInfos, CancellationToken cancellationToken)
         {
@@ -36,6 +36,22 @@ namespace SongCore.HarmonyPatches
                 if(Collections.WipLevelPack != null)
                     Collections.WipLevelPack.SetField("_coverImage", UI.BasicUI.WIPIcon);
             }
+        }
+        [HarmonyPatch(typeof(SoloFreePlayFlowCoordinator))]
+        [HarmonyPatch("LoadBeatmapLevelPackCollectionAsync", MethodType.Normal)]
+        class PackLoadingPatch1
+        {
+            static void Postfix(ref IBeatmapLevelPackCollection ____levelPackCollection)
+            {
+
+            }
+
+        }
+        [HarmonyPatch(typeof(PartyFreePlayFlowCoordinator))]
+        [HarmonyPatch("LoadBeatmapLevelPackCollectionAsync", MethodType.Normal)]
+        class PackLoadingPatch2
+        {
+
         }
     }
 }

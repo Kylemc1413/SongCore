@@ -7,50 +7,60 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
 using System.Reflection;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
 namespace SongCore.Utilities
 {
     public static class Utils
     {
 
-        public static string GetCustomLevelIdentifier(CustomPreviewBeatmapLevel level)
+        public static string GetCustomLevelHash(CustomPreviewBeatmapLevel level)
         {
-            string combinedData = "";
-            var songfiles = Directory.GetFiles(level.customLevelPath, ".dat", SearchOption.TopDirectoryOnly);
-            foreach(var file in songfiles)
+            List<byte> combinedBytes = new List<byte>();
+            combinedBytes.AddRange(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat"));
+            for (int i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
             {
-   //             Utilities.Logging.Log(file);
-                string json = File.ReadAllText(level.customLevelPath + '/' + file);
-                combinedData += json;
+                for (int i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
+                    if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
+                    {
+                        combinedBytes.AddRange(File.ReadAllBytes(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename));
+                        Logging.Log(level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].difficulty + " " + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].beatmapCharacteristicName);
+                    }
             }
-            return Utils.CreateSha1FromString(combinedData) + "∎" + string.Join("∎", level.songName, level.songSubName, level.levelAuthorName, level.beatsPerMinute.ToString()) + "∎";
+            Logging.Log("Hash done");
+            return Utils.CreateSha1FromBytes(combinedBytes.ToArray());
 
         }
-        public static string GetCustomLevelIdentifier(CustomBeatmapLevel level)
+
+        public static string GetCustomLevelHash(CustomBeatmapLevel level)
         {
-            string combinedData = "";
-            var songfiles = Directory.GetFiles(level.customLevelPath, ".dat", SearchOption.TopDirectoryOnly);
-            foreach (var file in songfiles)
+            byte[] combinedBytes = new byte[0];
+            combinedBytes = combinedBytes.Concat(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat")).ToArray();
+            for (int i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
             {
-      //          Utilities.Logging.Log(file);
-                string json = File.ReadAllText(level.customLevelPath + '/' + file);
-                combinedData += json;
+                for (int i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
+                    if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
+                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename)).ToArray();
             }
-            return Utils.CreateSha1FromString(combinedData) + "∎" + string.Join("∎", level.songName, level.songSubName, level.levelAuthorName, level.beatsPerMinute.ToString()) + "∎";
+
+            return Utils.CreateSha1FromBytes(combinedBytes);
 
         }
+
 
         public static bool IsModInstalled(string ModName)
         {
-     //       Logging.Log($"Checking for Mod: {ModName}");
+            //       Logging.Log($"Checking for Mod: {ModName}");
             foreach (var mod in IPA.Loader.PluginManager.Plugins)
             {
-        //        Logging.Log($"Comparing to: {mod.Name}");
+                //        Logging.Log($"Comparing to: {mod.Name}");
                 if (mod.Name == ModName)
                     return true;
             }
             foreach (var mod in IPA.Loader.PluginManager.AllPlugins)
             {
-       //         Logging.Log($"Comparing to: {mod.Metadata.Id}");
+                //         Logging.Log($"Comparing to: {mod.Metadata.Id}");
                 if (mod.Metadata.Id == ModName)
                     return true;
             }
@@ -83,6 +93,23 @@ namespace SongCore.Utilities
             }
         }
 
+        public static string CreateSha1FromBytes(byte[] input)
+        {
+            // Use input string to calculate MD5 hash
+            using (var sha1 = SHA1.Create())
+            {
+                var inputBytes = input;
+                var hashBytes = sha1.ComputeHash(inputBytes);
+
+                // Convert the byte array to hexadecimal string
+                var sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("X2"));
+                }
+                return sb.ToString();
+            }
+        }
         public static bool CreateSha1FromFile(string path, out string hash)
         {
             hash = "";
