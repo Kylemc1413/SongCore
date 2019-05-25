@@ -25,10 +25,10 @@ namespace SongCore.Utilities
                     if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
                     {
                         combinedBytes.AddRange(File.ReadAllBytes(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename));
-                        Logging.Log(level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].difficulty + " " + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].beatmapCharacteristicName);
+  //                      Logging.Log(level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].difficulty + " " + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].beatmapCharacteristicName);
                     }
             }
-            Logging.Log("Hash done");
+  //          Logging.Log("Hash done");
             return Utils.CreateSha1FromBytes(combinedBytes.ToArray());
 
         }

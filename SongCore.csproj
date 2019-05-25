@@ -118,7 +118,7 @@
     <Compile Include="HarmonyPatches\CustomCharacteristicsPatch.cs" />
     <Compile Include="HarmonyPatches\LevelSelectionPatch.cs" />
     <Compile Include="HarmonyPatches\StandardLevelDetailViewRefreshContent.cs" />
-    <Compile Include="HarmonyPatches\PackPatches.cs" />
+    <Compile Include="HarmonyPatches\LoadingPatches.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\SongData.cs" />

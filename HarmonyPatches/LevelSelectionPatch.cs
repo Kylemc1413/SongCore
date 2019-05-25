@@ -40,8 +40,9 @@ public class LevelListTableCellSetDataFromLevel
         var customLevel = level as CustomPreviewBeatmapLevel;
 
         ____authorText.richText = true;
-   //     ____authorText.overflowMode = TextOverflowModes.Overflow;
-        ____authorText.text = customLevel.levelAuthorName + " || " + customLevel.songAuthorName;
+        //     ____authorText.overflowMode = TextOverflowModes.Overflow;
+        if (!string.IsNullOrWhiteSpace(customLevel.levelAuthorName)) 
+        ____authorText.text = customLevel.songAuthorName + " <size=80%>[" +customLevel.levelAuthorName + "]</size>";
 
 
 
