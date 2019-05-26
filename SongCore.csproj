@@ -124,6 +124,9 @@
     <Compile Include="HarmonyPatches\StandardLevelDetailViewRefreshContent.cs" />
     <Compile Include="HarmonyPatches\LoadingPatches.cs" />
     <Compile Include="Loader.cs" />
+    <Compile Include="OverrideClasses\SongCoreCustomBeatmapLevelPack.cs" />
+    <Compile Include="OverrideClasses\SongCoreBeatmapLevelPackCollectionSO.cs" />
+    <Compile Include="OverrideClasses\SongCoreCustomLevelCollection.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="ProgressBar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -163,9 +166,7 @@
     <EmbeddedResource Include="Icons\MissingChar.png" />
     <EmbeddedResource Include="Icons\squek.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="OverrideClasses\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetDir)$(TargetFileName)" "C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins"</PostBuildEvent>

@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SongCore.Utilities;
+using SongCore.OverrideClasses;
 using LogSeverity = IPA.Logging.Logger.Level;
 namespace SongCore
 {
@@ -23,6 +24,13 @@ namespace SongCore
         public static event Action<Loader, List<CustomPreviewBeatmapLevel>> SongsLoadedEvent;
         public static List<CustomPreviewBeatmapLevel> CustomLevels = new List<CustomPreviewBeatmapLevel>();
         public static List<CustomPreviewBeatmapLevel> CustomWIPLevels = new List<CustomPreviewBeatmapLevel>();
+        public static SongCoreCustomLevelCollection CustomLevelsCollection { get; private set; }
+        public static SongCoreCustomLevelCollection WIPLevelsCollection { get; private set; }
+        public static SongCoreCustomBeatmapLevelPack CustomLevelsPack { get; private set; }
+        public static SongCoreCustomBeatmapLevelPack WIPLevelsPack { get; private set; }
+        public static SongCoreBeatmapLevelPackCollectionSO CustomBeatmapLevelPackCollectionSO { get; private set; }
+
+
         public static bool AreSongsLoaded { get; private set; }
         public static bool AreSongsLoading { get; private set; }
         public static float LoadingProgress { get; private set; }
@@ -31,6 +39,7 @@ namespace SongCore
         private bool _loadingCancelled;
 
         private static CustomLevelLoaderSO _customLevelLoader;
+        public static BeatmapLevelsModelSO BeatmapLevelsModelSO { get; private set; }
         public static Sprite defaultCoverImage;
         public static CachedMediaAsyncLoaderSO cachedMediaAsyncLoaderSO { get; private set; }
         public static BeatmapCharacteristicCollectionSO beatmapCharacteristicCollection { get; private set; }
@@ -94,8 +103,36 @@ namespace SongCore
                             (float)defaultCoverTex.width, (float)defaultCoverTex.height), new Vector2(0.5f, 0.5f));
                     }
                 }
+                if (BeatmapLevelsModelSO == null)
+                {
+                    BeatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
+                }
                 //Handle LevelPacks
+                if (CustomBeatmapLevelPackCollectionSO == null)
+                {
+                    var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
+                    CustomBeatmapLevelPackCollectionSO = SongCoreBeatmapLevelPackCollectionSO.ReplaceOriginal(beatmapLevelPackCollectionSO);
+                    CustomLevelsCollection = new SongCoreCustomLevelCollection(CustomLevels.ToArray());
+                    WIPLevelsCollection = new SongCoreCustomLevelCollection(CustomWIPLevels.ToArray());
+                    CustomLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoaderSO.kCustomLevelPackPrefixId + "CustomLevels", "Custom Maps", defaultCoverImage, CustomLevelsCollection);
+                    WIPLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoaderSO.kCustomLevelPackPrefixId + "CustomWIPLevels", "WIP Maps", UI.BasicUI.WIPIcon, WIPLevelsCollection);
+                    CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomLevelsPack);
+                    CustomBeatmapLevelPackCollectionSO.AddLevelPack(WIPLevelsPack);
 
+                    //    CustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(CustomLevelCollectionSO);
+                    //    CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomBeatmapLevelPackSO);
+                    //    WIPCustomBeatmapLevelPackSO = CustomBeatmapLevelPackSO.GetPack(WIPCustomLevelCollectionSO, true);
+                    //    CustomBeatmapLevelPackCollectionSO.AddLevelPack(WIPCustomBeatmapLevelPackSO);
+                    CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
+                }
+                else
+                {
+                    CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
+                }
+                RefreshLevelPacks();
+                var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
+                LevelPacksViewController levelPacksViewController = soloFreePlay.GetField<LevelPacksViewController>("_levelPacksViewController");
+                levelPacksViewController.SetData(CustomBeatmapLevelPackCollectionSO, 0);
 
             }
 
@@ -103,7 +140,12 @@ namespace SongCore
 
         }
 
-
+        public void RefreshLevelPacks()
+        {
+            BeatmapLevelsModelSO.SetField("_loadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
+            BeatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
+            BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
+        }
         public void RefreshSongs(bool fullRefresh = true)
         {
             if (SceneManager.GetActiveScene().name != "MenuCore") return;
@@ -128,6 +170,7 @@ namespace SongCore
                 }
             }
 
+
             //LevelPacks Handling
 
 
@@ -141,6 +184,7 @@ namespace SongCore
             if (fullRefresh)
             {
                 CustomLevels.Clear();
+                CustomWIPLevels.Clear();
             }
 
             Action job = delegate
@@ -250,9 +294,13 @@ namespace SongCore
                 var orderedList = CustomLevels.OrderBy(x => x.songName);
                 CustomLevels = orderedList.ToList();
                 CustomWIPLevels.AddRange(wipLevelList);
-                orderedList = CustomWIPLevels.OrderBy(x => x.songName);
-                CustomWIPLevels = orderedList.ToList();
+                var ordereWIPList = CustomWIPLevels.OrderBy(x => x.songName);
+                CustomWIPLevels = ordereWIPList.ToList();
+
                 //Level Packs
+                CustomLevelsCollection.UpdatePreviewLevels(CustomLevels.ToArray());
+                WIPLevelsCollection.UpdatePreviewLevels(CustomWIPLevels.ToArray());
+                RefreshLevelPacks();
 
                 AreSongsLoaded = true;
                 AreSongsLoading = false;
