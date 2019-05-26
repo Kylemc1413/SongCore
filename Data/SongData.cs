@@ -88,17 +88,23 @@ namespace SongCore.Data
                 var infoText = File.ReadAllText(songPath + "/info.dat");
 
                 JObject info = JObject.Parse(infoText);
-                //Check if song uses legacy value for full song One Saber mode
-
+                JObject infoData;
                 List<Contributor> levelContributors = new List<Contributor>();
-                if (info.ContainsKey("_contributors"))
+                //Check if song uses legacy value for full song One Saber mode
+                if (info.ContainsKey("_customData"))
                 {
-                    levelContributors.AddRange(info["_contributors"].ToObject<Contributor[]>());
-                }
+                    infoData = (JObject)info["_customData"];
+                    if (infoData.ContainsKey("_contributors"))
+                    {
+                        levelContributors.AddRange(infoData["_contributors"].ToObject<Contributor[]>());
+                    }
+                    if (infoData.ContainsKey("_customEnvironment")) _customEnvironmentName = (string)infoData["_customEnvironment"];
+                    if (infoData.ContainsKey("_customEnvironmentHash")) _customEnvironmentHash = (string)infoData["_customEnvironmentHash"];
 
+                }
                 contributors = levelContributors.ToArray();
-                if (info.ContainsKey("_customEnvironment")) _customEnvironmentName = (string)info["_customEnvironment"];
-                if (info.ContainsKey("_customEnvironmentHash")) _customEnvironmentHash = (string)info["_customEnvironmentHash"];
+
+
                 List<DifficultyData> diffData = new List<DifficultyData>();
                 JArray diffSets = (JArray)info["_difficultyBeatmapSets"];
                 foreach (JObject diffSet in diffSets)
@@ -111,84 +117,49 @@ namespace SongCore.Data
                         List<string> diffSuggestions = new List<string>();
                         List<string> diffWarnings = new List<string>();
                         List<string> diffInfo = new List<string>();
-
-                        BeatmapDifficulty diffDifficulty = Utilities.Utils.ToEnum((string)diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
                         string diffLabel = "";
-                        if (diffBeatmap.ContainsKey("_difficultyLabel")) diffLabel = (string)diffBeatmap["_difficultyLabel"];
-
-                        //Get difficulty json fields
                         MapColor diffLeft = null;
-                        if (diffBeatmap.ContainsKey("_colorLeft"))
-                        {
-                            if (diffBeatmap["_colorLeft"].Children().Count() == 3)
-                            {
-                                diffLeft = new MapColor(0, 0, 0);
-                                diffLeft.r = (float)diffBeatmap["_colorLeft"]["r"];
-                                diffLeft.g = (float)diffBeatmap["_colorLeft"]["g"];
-                                diffLeft.b = (float)diffBeatmap["_colorLeft"]["b"];
-                            }
-
-
-                        }
                         MapColor diffRight = null;
-                        if (diffBeatmap.ContainsKey("_colorRight"))
+                        BeatmapDifficulty diffDifficulty = Utilities.Utils.ToEnum((string)diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
+                        JObject beatmapData;
+                        if(diffBeatmap.ContainsKey("_customData"))
                         {
-                            if (diffBeatmap["_colorRight"].Children().Count() == 3)
+                            beatmapData = (JObject)diffBeatmap["_customData"];
+                            if (beatmapData.ContainsKey("_difficultyLabel")) diffLabel = (string)beatmapData["_difficultyLabel"];
+
+                            //Get difficulty json fields
+                            if (beatmapData.ContainsKey("_colorLeft"))
                             {
-                                diffRight = new MapColor(0, 0, 0);
-                                diffRight.r = (float)diffBeatmap["_colorRight"]["r"];
-                                diffRight.g = (float)diffBeatmap["_colorRight"]["g"];
-                                diffRight.b = (float)diffBeatmap["_colorRight"]["b"];
+                                if (beatmapData["_colorLeft"].Children().Count() == 3)
+                                {
+                                    diffLeft = new MapColor(0, 0, 0);
+                                    diffLeft.r = (float)beatmapData["_colorLeft"]["r"];
+                                    diffLeft.g = (float)beatmapData["_colorLeft"]["g"];
+                                    diffLeft.b = (float)beatmapData["_colorLeft"]["b"];
+                                }
+
+
                             }
-
-                        }
-                        if (diffBeatmap.ContainsKey("_warnings"))
-                            diffWarnings.AddRange(((JArray)diffBeatmap["_warnings"]).Select(c => (string)c));
-                        if (diffBeatmap.ContainsKey("_information"))
-                            diffInfo.AddRange(((JArray)diffBeatmap["_information"]).Select(c => (string)c));
-                        if (diffBeatmap.ContainsKey("_suggestions"))
-                            diffSuggestions.AddRange(((JArray)diffBeatmap["_suggestions"]).Select(c => (string)c));
-                        if (diffBeatmap.ContainsKey("_requirements"))
-                            diffRequirements.AddRange(((JArray)diffBeatmap["_requirements"]).Select(c => (string)c));
-
-                        if (!File.Exists(songPath + "/" + diffBeatmap["_beatmapFilename"])) continue;
-                        string diffText = File.ReadAllText(songPath + "/" + diffBeatmap["_beatmapFilename"]);
-                        var split = diffText.Split(':');
-                        JObject diffFile = JObject.Parse(diffText);
-                        try
-                        {
-                            for (var i = 0; i < split.Length; i++)
+                            if (beatmapData.ContainsKey("_colorRight"))
                             {
-                                int value;
-                                if (split[i].Contains("_lineIndex"))
+                                if (beatmapData["_colorRight"].Children().Count() == 3)
                                 {
-                                    value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                                    if ((value < 0 || value > 3) && !(value >= 1000 || value <= -1000))
-                                        if (!diffRequirements.Contains("Mapping Extensions-More Lanes")) diffRequirements.Add("Mapping Extensions-More Lanes");
-                                    if (value >= 1000 || value <= -1000)
-                                        if (!diffRequirements.Contains("Mapping Extensions-Precision Placement")) diffRequirements.Add("Mapping Extensions-Precision Placement");
+                                    diffRight = new MapColor(0, 0, 0);
+                                    diffRight.r = (float)beatmapData["_colorRight"]["r"];
+                                    diffRight.g = (float)beatmapData["_colorRight"]["g"];
+                                    diffRight.b = (float)beatmapData["_colorRight"]["b"];
                                 }
-                                if (split[i].Contains("_lineLayer"))
-                                {
-                                    value = Convert.ToInt32(split[i + 1].Split(',')[0], CultureInfo.InvariantCulture);
-                                    if ((value < 0 || value > 2) && !(value >= 1000 || value <= -1000))
-                                        if (!diffRequirements.Contains("Mapping Extensions-More Lanes")) diffRequirements.Add("Mapping Extensions-More Lanes");
-                                    if (value >= 1000 || value <= -1000)
-                                        if (!diffRequirements.Contains("Mapping Extensions-Precision Placement")) diffRequirements.Add("Mapping Extensions-Precision Placement");
-                                }
-                                if (split[i].Contains("_cutDirection"))
-                                {
-                                    value = Convert.ToInt32(split[i + 1].Split(',', '}')[0], CultureInfo.InvariantCulture);
-                                    if ((value >= 1000 && value <= 1360) || (value >= 2000 && value <= 2360))
-                                        if (!diffRequirements.Contains("Mapping Extensions-Extra Note Angles")) diffRequirements.Add("Mapping Extensions-Extra Note Angles");
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Utilities.Logging.Log($"Exception in Parsing Split JSON of: {songPath}", IPA.Logging.Logger.Level.Warning);
-                        }
 
+                            }
+                            if (beatmapData.ContainsKey("_warnings"))
+                                diffWarnings.AddRange(((JArray)beatmapData["_warnings"]).Select(c => (string)c));
+                            if (beatmapData.ContainsKey("_information"))
+                                diffInfo.AddRange(((JArray)beatmapData["_information"]).Select(c => (string)c));
+                            if (beatmapData.ContainsKey("_suggestions"))
+                                diffSuggestions.AddRange(((JArray)beatmapData["_suggestions"]).Select(c => (string)c));
+                            if (beatmapData.ContainsKey("_requirements"))
+                                diffRequirements.AddRange(((JArray)beatmapData["_requirements"]).Select(c => (string)c));
+                        }
                         RequirementData diffReqData = new RequirementData
                         {
                             _requirements = diffRequirements.ToArray(),
