@@ -41,6 +41,7 @@ namespace SongCore
             UI.BasicUI.GetIcons();
             CustomUI.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
             CustomUI.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
+            CustomUI.Utilities.BSEvents.menuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
             if (!File.Exists(Collections.dataPath))
                 File.Create(Collections.dataPath);
             else
@@ -49,7 +50,11 @@ namespace SongCore
             Collections.RegisterCustomCharacteristic(UI.BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow");
             Collections.RegisterCustomCharacteristic(UI.BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - These difficulties don't follow conventional standards, and should not necessarily be expected to reflect their given names.", "Lawless", "Lawless");
 
+        }
 
+        private void BSEvents_menuSceneLoadedFresh()
+        {
+            Loader.OnLoad();
         }
 
         private void BSEvents_gameSceneLoaded()

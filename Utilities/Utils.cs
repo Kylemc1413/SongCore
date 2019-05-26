@@ -33,6 +33,21 @@ namespace SongCore.Utilities
 
         }
 
+        public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
+        {
+            byte[] combinedBytes = new byte[0];
+            combinedBytes = combinedBytes.Concat(File.ReadAllBytes(customLevelPath + '/' + "info.dat")).ToArray();
+            for (int i = 0; i < level.difficultyBeatmapSets.Length; i++)
+            {
+                for (int i2 = 0; i2 < level.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
+                    if (File.Exists(customLevelPath + '/' + level.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
+                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(customLevelPath + '/' + level.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename)).ToArray();
+            }
+
+            return Utils.CreateSha1FromBytes(combinedBytes);
+
+        }
+
         public static string GetCustomLevelHash(CustomBeatmapLevel level)
         {
             byte[] combinedBytes = new byte[0];
