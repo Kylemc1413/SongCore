@@ -43,7 +43,7 @@ namespace SongCore.HarmonyPatches
         {
             static void Postfix(ref IBeatmapLevelPackCollection ____levelPackCollection)
             {
-                Logging.Log("finished loading");
+      //          Logging.Log("finished loading");
             }
 
         }
@@ -53,6 +53,17 @@ namespace SongCore.HarmonyPatches
         {
 
         }
+        [HarmonyPatch(typeof(CustomLevelLoaderSO))]
+        [HarmonyPatch("LoadCustomPreviewBeatmapLevelPacksAsync", MethodType.Normal)]
+        class StopVanillaLoadingPatch
+        {
+            static bool Prefix(ref Task<CustomBeatmapLevelPack[]> __result)
+            {
+                __result = new Task<CustomBeatmapLevelPack[]>(delegate { return new CustomBeatmapLevelPack[0]; });
+                return false;
+            }
+        }
+        /*
         [HarmonyPatch(typeof(CustomLevelLoaderSO))]
         [HarmonyPatch("LoadCustomPreviewBeatmapLevelAsync", MethodType.Normal)]
         class SongLoadingPatch
@@ -76,5 +87,6 @@ namespace SongCore.HarmonyPatches
            //     Logging.Log(Collections._loadedHashes.Count + Collections._loadedHashes.First().Key);
             }
         }
+        */
     }
 }
