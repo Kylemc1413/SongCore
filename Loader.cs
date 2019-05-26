@@ -295,7 +295,7 @@ namespace SongCore
             Action finish = delegate
             {
                 stopwatch.Stop();
-                Logging.Log("Loaded " + levelList.Count + " new songs in " + stopwatch.Elapsed.Seconds + " seconds");
+                Logging.Log("Loaded " + levelList.Count + " new songs in " + stopwatch.Elapsed.TotalSeconds + " seconds");
 
                 CustomLevels.AddRange(levelList);
                 var orderedList = CustomLevels.OrderBy(x => x.songName);
@@ -315,10 +315,10 @@ namespace SongCore
 
                 SongsLoadedEvent?.Invoke(this, CustomLevels);
 
-                foreach (var level in CustomWIPLevels)
-                {
-                    Logging.Log(level.levelID);
-                }
+//                foreach (var level in CustomWIPLevels)
+//                {
+//                    Logging.Log(level.levelID);
+//                }
                 SongCore.Collections.SaveExtraSongData();
 
             };
