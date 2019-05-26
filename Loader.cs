@@ -142,6 +142,8 @@ namespace SongCore
 
         public void RefreshLevelPacks()
         {
+            CustomLevelsCollection.UpdatePreviewLevels(CustomLevels.ToArray());
+            WIPLevelsCollection.UpdatePreviewLevels(CustomWIPLevels.ToArray());
             BeatmapLevelsModelSO.SetField("_loadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
             BeatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
             BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
@@ -224,6 +226,11 @@ namespace SongCore
                             try
                             {
                                 var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
+                                if (Directory.GetParent(songPath).Name == "Backups")
+                                {
+                                    continue;
+                                }
+
                                 if (!fullRefresh)
                                 {
                                     var c = CustomLevels.FirstOrDefault(x => x.customLevelPath == songPath);
@@ -239,15 +246,15 @@ namespace SongCore
                                 StandardLevelInfoSaveData saveData = GetStandardLevelInfoSaveData(songPath);
                                 if (saveData == null)
                                 {
-                             //       Logging.Log("Null save data", LogSeverity.Notice);
+                                    //       Logging.Log("Null save data", LogSeverity.Notice);
                                     continue;
                                 }
-                      //          if (loadedData.Any(x => x == saveData.))
-                      //          {
-                      //              Logging.Log("Duplicate song found at " + songPath, LogSeverity.Notice);
-                      //              continue;
-                      //          }
-                   //             loadedData.Add(saveDat);
+                                //          if (loadedData.Any(x => x == saveData.))
+                                //          {
+                                //              Logging.Log("Duplicate song found at " + songPath, LogSeverity.Notice);
+                                //              continue;
+                                //          }
+                                //             loadedData.Add(saveDat);
 
                                 var count = i;
                                 HMMainThreadDispatcher.instance.Enqueue(delegate
@@ -298,8 +305,6 @@ namespace SongCore
                 CustomWIPLevels = ordereWIPList.ToList();
 
                 //Level Packs
-                CustomLevelsCollection.UpdatePreviewLevels(CustomLevels.ToArray());
-                WIPLevelsCollection.UpdatePreviewLevels(CustomWIPLevels.ToArray());
                 RefreshLevelPacks();
 
                 AreSongsLoaded = true;
@@ -310,7 +315,7 @@ namespace SongCore
 
                 SongsLoadedEvent?.Invoke(this, CustomLevels);
 
-                foreach(var level in CustomWIPLevels)
+                foreach (var level in CustomWIPLevels)
                 {
                     Logging.Log(level.levelID);
                 }
@@ -329,6 +334,68 @@ namespace SongCore
         {
             var text = File.ReadAllText(path + "/info.dat");
             return StandardLevelInfoSaveData.DeserializeFromJSONString(text);
+
+        }
+        public void DeleteSong(string folderPath)
+        {
+            //Remove the level from SongCore Collections
+            try
+            {
+                CustomPreviewBeatmapLevel level = CustomLevels.FirstOrDefault(x => x.customLevelPath == folderPath);
+                if (level != null)
+                {
+                    CustomLevels.Remove(level);
+                }
+                else
+                {
+                    level = CustomWIPLevels.FirstOrDefault(x => x.customLevelPath == folderPath);
+                    if (level != null)
+                    {
+                        CustomWIPLevels.Remove(level);
+                    }
+                }
+                //Delete the directory
+                if (Directory.Exists(folderPath))
+                {
+                    Directory.Delete(folderPath, true);
+                }
+                RefreshLevelPacks();
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("Exception trying to Delete song: " + folderPath, LogSeverity.Error);
+                Logging.Log(ex.ToString(), LogSeverity.Error);
+            }
+
+        }
+
+        public void RetrieveNewSong(string folderPath)
+        {
+            try
+            {
+                bool wip = false;
+                if (folderPath.Contains("CustomWIPLevels"))
+                    wip = true;
+                StandardLevelInfoSaveData saveData = GetStandardLevelInfoSaveData(folderPath);
+                var level = LoadSong(saveData, folderPath);
+                if (level != null)
+                {
+                    if (!wip)
+                        CustomLevels.Add(level);
+                    else
+                        CustomWIPLevels.Add(level);
+                }
+                var orderedList = CustomLevels.OrderBy(x => x.songName);
+                CustomLevels = orderedList.ToList();
+                var ordereWIPList = CustomWIPLevels.OrderBy(x => x.songName);
+                CustomWIPLevels = ordereWIPList.ToList();
+                RefreshLevelPacks();
+            }
+            catch (Exception ex)
+            {
+                Logging.Log("Failed to Retrieve New Song from: " + folderPath, LogSeverity.Error);
+                Logging.Log(ex.ToString(), LogSeverity.Error);
+            }
 
         }
         public static CustomPreviewBeatmapLevel LoadSong(StandardLevelInfoSaveData saveData, string songPath)
