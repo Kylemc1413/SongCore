@@ -18,8 +18,7 @@ namespace SongCore
 
         internal static string dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"..\LocalLow\Hyperbolic Magnetism\Beat Saber\SongCoreExtraData.dat");
         internal static Dictionary<string, ExtraSongData> customSongsData = new Dictionary<string, ExtraSongData>();
-  //      internal static Dictionary<string, List<CustomPreviewBeatmapLevel>> _loadedHashes = new Dictionary<string, List<CustomPreviewBeatmapLevel>>();
-
+        internal static Dictionary<string, List<CustomPreviewBeatmapLevel>> _loadedHashes = new Dictionary<string, List<CustomPreviewBeatmapLevel>>();
         private static List<string> _capabilities = new List<string>();
         public static System.Collections.ObjectModel.ReadOnlyCollection<string> capabilities
         {
@@ -32,7 +31,7 @@ namespace SongCore
             get { return _customCharacteristics.AsReadOnly(); }
         }
 
-/*
+
         public static bool songWithHashPresent(string hash)
         {
             if (_loadedHashes.ContainsKey(hash))
@@ -47,7 +46,7 @@ namespace SongCore
                 return songs;
             return null;
         }
-        */
+        
         public static void AddSong(string levelID, string path)
         {
 

@@ -263,6 +263,17 @@ namespace SongCore
                                     var level = LoadSong(saveData, songPath);
                                     if (level != null)
                                     {
+                                        /*
+                                        string hash = Utils.GetCustomLevelHash(level);
+                                        if (!Collections._loadedHashes.ContainsKey(hash))
+                                        {
+                                            List<CustomPreviewBeatmapLevel> value = new List<CustomPreviewBeatmapLevel>();
+                                            value.Add(level);
+                                            Collections._loadedHashes.Add(hash, value);
+                                        }
+                                        else
+                                            Collections._loadedHashes[hash].Add(level);
+                                            */
                                         if (!wip)
                                             levelList.Add(level);
                                         else
@@ -336,7 +347,7 @@ namespace SongCore
             return StandardLevelInfoSaveData.DeserializeFromJSONString(text);
 
         }
-        public void DeleteSong(string folderPath)
+        public void DeleteSong(string folderPath, bool deleteFolder = true)
         {
             //Remove the level from SongCore Collections
             try
@@ -355,6 +366,7 @@ namespace SongCore
                     }
                 }
                 //Delete the directory
+                if(deleteFolder)
                 if (Directory.Exists(folderPath))
                 {
                     Directory.Delete(folderPath, true);
