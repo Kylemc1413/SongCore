@@ -263,6 +263,19 @@ namespace SongCore
                                     var level = LoadSong(saveData, songPath);
                                     if (level != null)
                                     {
+                                        if(!Collections.levelHashDictionary.ContainsKey(level.levelID))
+                                        {
+                                            string hash = Utils.GetCustomLevelHash(level);
+                                            Collections.levelHashDictionary.Add(level.levelID, hash);
+                                            if (Collections.hashLevelDictionary.ContainsKey(hash))
+                                                Collections.hashLevelDictionary[hash].Add(level.levelID);
+                                            else
+                                            {
+                                                var levels = new List<string>();
+                                                levels.Add(level.levelID);
+                                                Collections.hashLevelDictionary.Add(hash, levels);
+                                            }
+                                        }
                                         /*
                                         string hash = Utils.GetCustomLevelHash(level);
                                         if (!Collections._loadedHashes.ContainsKey(hash))
@@ -363,6 +376,20 @@ namespace SongCore
                     if (level != null)
                     {
                         CustomWIPLevels.Remove(level);
+
+                        if (Collections.levelHashDictionary.ContainsKey(level.levelID))
+                        {
+
+                            string hash = Collections.hashForLevelID(level.levelID);
+
+                            Collections.levelHashDictionary.Remove(level.levelID);
+                            if (Collections.hashLevelDictionary.ContainsKey(hash))
+                            {
+                                Collections.hashLevelDictionary[hash].Remove(level.levelID);
+                                if (Collections.hashLevelDictionary[hash].Count == 0)
+                                    Collections.hashLevelDictionary.Remove(hash);
+                            }
+                        }
                     }
                 }
                 //Delete the directory
@@ -396,6 +423,20 @@ namespace SongCore
                         CustomLevels.Add(level);
                     else
                         CustomWIPLevels.Add(level);
+
+                    if (!Collections.levelHashDictionary.ContainsKey(level.levelID))
+                    {
+                        string hash = Utils.GetCustomLevelHash(level);
+                        Collections.levelHashDictionary.Add(level.levelID, hash);
+                        if (Collections.hashLevelDictionary.ContainsKey(hash))
+                            Collections.hashLevelDictionary[hash].Add(level.levelID);
+                        else
+                        {
+                            var levels = new List<string>();
+                            levels.Add(level.levelID);
+                            Collections.hashLevelDictionary.Add(hash, levels);
+                        }
+                    }
                 }
                 var orderedList = CustomLevels.OrderBy(x => x.songName);
                 CustomLevels = orderedList.ToList();
