@@ -21,9 +21,9 @@ namespace SongCore
     public class Loader : MonoBehaviour
     {
         public static event Action<Loader> LoadingStartedEvent;
-        public static event Action<Loader, List<CustomPreviewBeatmapLevel>> SongsLoadedEvent;
-        public static List<CustomPreviewBeatmapLevel> CustomLevels = new List<CustomPreviewBeatmapLevel>();
-        public static List<CustomPreviewBeatmapLevel> CustomWIPLevels = new List<CustomPreviewBeatmapLevel>();
+        public static event Action<Loader, Dictionary<string, CustomPreviewBeatmapLevel>> SongsLoadedEvent;
+        public static Dictionary<string, CustomPreviewBeatmapLevel> CustomLevels = new Dictionary<string, CustomPreviewBeatmapLevel>();
+        public static Dictionary<string, CustomPreviewBeatmapLevel> CustomWIPLevels = new Dictionary<string, CustomPreviewBeatmapLevel>();
         public static SongCoreCustomLevelCollection CustomLevelsCollection { get; private set; }
         public static SongCoreCustomLevelCollection WIPLevelsCollection { get; private set; }
         public static SongCoreCustomBeatmapLevelPack CustomLevelsPack { get; private set; }
@@ -112,8 +112,8 @@ namespace SongCore
                 {
                     var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
                     CustomBeatmapLevelPackCollectionSO = SongCoreBeatmapLevelPackCollectionSO.ReplaceOriginal(beatmapLevelPackCollectionSO);
-                    CustomLevelsCollection = new SongCoreCustomLevelCollection(CustomLevels.ToArray());
-                    WIPLevelsCollection = new SongCoreCustomLevelCollection(CustomWIPLevels.ToArray());
+                    CustomLevelsCollection = new SongCoreCustomLevelCollection(CustomLevels.Values.ToArray());
+                    WIPLevelsCollection = new SongCoreCustomLevelCollection(CustomWIPLevels.Values.ToArray());
                     CustomLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoaderSO.kCustomLevelPackPrefixId + "CustomLevels", "Custom Maps", defaultCoverImage, CustomLevelsCollection);
                     WIPLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoaderSO.kCustomLevelPackPrefixId + "CustomWIPLevels", "WIP Maps", UI.BasicUI.WIPIcon, WIPLevelsCollection);
                     CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomLevelsPack);
@@ -142,8 +142,8 @@ namespace SongCore
 
         public void RefreshLevelPacks()
         {
-            CustomLevelsCollection.UpdatePreviewLevels(CustomLevels.ToArray());
-            WIPLevelsCollection.UpdatePreviewLevels(CustomWIPLevels.ToArray());
+            CustomLevelsCollection.UpdatePreviewLevels(CustomLevels.Values.ToArray());
+            WIPLevelsCollection.UpdatePreviewLevels(CustomWIPLevels.Values.ToArray());
             BeatmapLevelsModelSO.SetField("_loadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
             BeatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
             BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
@@ -181,8 +181,7 @@ namespace SongCore
         private void RetrieveAllSongs(bool fullRefresh)
         {
             var stopwatch = new Stopwatch();
-            var levelList = new List<CustomPreviewBeatmapLevel>();
-            var wipLevelList = new List<CustomPreviewBeatmapLevel>();
+            int songCount = 0;
             if (fullRefresh)
             {
                 CustomLevels.Clear();
@@ -233,7 +232,7 @@ namespace SongCore
 
                                 if (!fullRefresh)
                                 {
-                                    var c = CustomLevels.FirstOrDefault(x => x.customLevelPath == songPath);
+                                    var c = CustomLevels[songPath];//.FirstOrDefault(x => x.customLevelPath == songPath);
                                     if (c != null)
                                     {
                                         loadedData.Add(c.levelID);
@@ -299,9 +298,10 @@ namespace SongCore
                                             Collections._loadedHashes[hash].Add(level);
                                             */
                                         if (!wip)
-                                            levelList.Add(level);
+                                            CustomLevels[songPath] = level;
                                         else
-                                            wipLevelList.Add(level);
+                                            CustomWIPLevels[songPath] = level;
+                                        songCount++;
                                     }
 
                                     LoadingProgress = count / songFolders.Count;
@@ -330,15 +330,8 @@ namespace SongCore
             Action finish = delegate
             {
                 stopwatch.Stop();
-                Logging.Log("Loaded " + levelList.Count + " new songs in " + stopwatch.Elapsed.TotalSeconds + " seconds");
-
-                CustomLevels.AddRange(levelList);
-                var orderedList = CustomLevels.OrderBy(x => x.songName);
-                CustomLevels = orderedList.ToList();
-                CustomWIPLevels.AddRange(wipLevelList);
-                var ordereWIPList = CustomWIPLevels.OrderBy(x => x.songName);
-                CustomWIPLevels = ordereWIPList.ToList();
-
+                Logging.Log("Loaded " + songCount + " new songs in " + stopwatch.Elapsed.TotalSeconds + " seconds");
+                
                 //Level Packs
                 RefreshLevelPacks();
 
@@ -376,17 +369,17 @@ namespace SongCore
             //Remove the level from SongCore Collections
             try
             {
-                CustomPreviewBeatmapLevel level = CustomLevels.FirstOrDefault(x => x.customLevelPath == folderPath);
+                CustomPreviewBeatmapLevel level = CustomLevels[folderPath];//.FirstOrDefault(x => x.customLevelPath == folderPath);
                 if (level != null)
                 {
-                    CustomLevels.Remove(level);
+                    CustomLevels.Remove(folderPath);
                 }
                 else
                 {
-                    level = CustomWIPLevels.FirstOrDefault(x => x.customLevelPath == folderPath);
+                    level = CustomWIPLevels[folderPath];//.FirstOrDefault(x => x.customLevelPath == folderPath);
                     if (level != null)
                     {
-                        CustomWIPLevels.Remove(level);
+                        CustomWIPLevels.Remove(folderPath);
 
                         if (Collections.levelHashDictionary.ContainsKey(level.levelID))
                         {
@@ -431,9 +424,9 @@ namespace SongCore
                 if (level != null)
                 {
                     if (!wip)
-                        CustomLevels.Add(level);
+                        CustomLevels[folderPath] = level;
                     else
-                        CustomWIPLevels.Add(level);
+                        CustomWIPLevels[folderPath] = level;
 
                     if (!Collections.levelHashDictionary.ContainsKey(level.levelID))
                     {
@@ -449,10 +442,6 @@ namespace SongCore
                         }
                     }
                 }
-                var orderedList = CustomLevels.OrderBy(x => x.songName);
-                CustomLevels = orderedList.ToList();
-                var ordereWIPList = CustomWIPLevels.OrderBy(x => x.songName);
-                CustomWIPLevels = ordereWIPList.ToList();
                 RefreshLevelPacks();
             }
             catch (Exception ex)
