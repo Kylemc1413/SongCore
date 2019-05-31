@@ -267,6 +267,16 @@ namespace SongCore
                                         {
                                             string hash = Utils.GetCustomLevelHash(level);
                                             Collections.levelHashDictionary.Add(level.levelID, hash);
+                                            if (Collections.hashLevelDictionary.TryGetValue(hash, out var levels))
+                                                levels.Add(level.levelID);
+                                            else
+                                            {
+                                                levels = new List<string>();
+                                                levels.Add(level.levelID);
+                                                Collections.hashLevelDictionary.Add(hash, levels);
+                                            }
+
+                                            /*
                                             if (Collections.hashLevelDictionary.ContainsKey(hash))
                                                 Collections.hashLevelDictionary[hash].Add(level.levelID);
                                             else
@@ -275,6 +285,7 @@ namespace SongCore
                                                 levels.Add(level.levelID);
                                                 Collections.hashLevelDictionary.Add(hash, levels);
                                             }
+                                            */
                                         }
                                         /*
                                         string hash = Utils.GetCustomLevelHash(level);
