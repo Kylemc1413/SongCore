@@ -16,6 +16,7 @@ using Newtonsoft.Json.Linq;
 using SongCore.Utilities;
 using SongCore.OverrideClasses;
 using LogSeverity = IPA.Logging.Logger.Level;
+
 namespace SongCore
 {
     public class Loader : MonoBehaviour
@@ -58,9 +59,10 @@ namespace SongCore
             Instance = this;
             _progressBar = ProgressBar.Create();
             OnSceneChanged(SceneManager.GetActiveScene(), SceneManager.GetActiveScene());
+            Hashing.ReadCachedHashes();
             RefreshSongs();
             DontDestroyOnLoad(gameObject);
-
+            
             SceneManager.activeSceneChanged += OnSceneChanged;
         }
 
@@ -264,7 +266,7 @@ namespace SongCore
                                     {
                                         if(!Collections.levelHashDictionary.ContainsKey(level.levelID))
                                         {
-                                            string hash = Utils.GetCustomLevelHash(level);
+                                            string hash = Hashing.GetCustomLevelHash(level);
                                             Collections.levelHashDictionary.Add(level.levelID, hash);
                                             if (Collections.hashLevelDictionary.TryGetValue(hash, out var levels))
                                                 levels.Add(level.levelID);
@@ -339,11 +341,10 @@ namespace SongCore
 
                 SongsLoadedEvent?.Invoke(this, CustomLevels);
 
-//                foreach (var level in CustomWIPLevels)
-//                {
-//                    Logging.Log(level.levelID);
-//                }
+                // Write our cached hash info and 
+                Hashing.UpdateCachedHashes();
                 SongCore.Collections.SaveExtraSongData();
+                
 
             };
 
@@ -424,7 +425,7 @@ namespace SongCore
 
                     if (!Collections.levelHashDictionary.ContainsKey(level.levelID))
                     {
-                        string hash = Utils.GetCustomLevelHash(level);
+                        string hash = Hashing.GetCustomLevelHash(level);
                         Collections.levelHashDictionary.Add(level.levelID, hash);
                         if (Collections.hashLevelDictionary.ContainsKey(hash))
                             Collections.hashLevelDictionary[hash].Add(level.levelID);

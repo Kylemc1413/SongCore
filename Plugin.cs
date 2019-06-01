@@ -42,8 +42,8 @@ namespace SongCore
             CustomUI.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
             CustomUI.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
             CustomUI.Utilities.BSEvents.menuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
-            if (!File.Exists(Collections.dataPath))
-                File.Create(Collections.dataPath);
+            if (!File.Exists(Collections.extraDataPath))
+                File.Create(Collections.extraDataPath);
             else
                 Collections.LoadExtraSongData();
             Collections.RegisterCustomCharacteristic(UI.BasicUI.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic");
@@ -68,7 +68,7 @@ namespace SongCore
             {
                 var customLevel = level as CustomPreviewBeatmapLevel;
                 Logging.Log((level as CustomPreviewBeatmapLevel).customLevelPath);
-                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Utils.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
+                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
                 Collections.SaveExtraSongData();
             }
             else

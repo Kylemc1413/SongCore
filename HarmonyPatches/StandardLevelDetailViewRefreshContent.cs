@@ -46,7 +46,7 @@ namespace SongCore.HarmonyPatches
             ____songNameText.richText = true;
             if (level != null)
             {
-                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Utilities.Utils.GetCustomLevelHash(level), level.customLevelPath);
+                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Utilities.Hashing.GetCustomLevelHash(level), level.customLevelPath);
 
                 if (MenuUI.infoButton == null)
                 {
