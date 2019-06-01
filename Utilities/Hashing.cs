@@ -32,7 +32,7 @@ namespace SongCore.Utilities
         {
             long hash = 0;
             DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-            foreach (FileInfo f in directoryInfo.GetFiles().OrderBy(n => n.Name))
+            foreach (FileInfo f in directoryInfo.GetFiles())
             {
                 hash ^= f.CreationTimeUtc.ToFileTimeUtc();
                 hash ^= f.LastWriteTimeUtc.ToFileTimeUtc();
