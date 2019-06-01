@@ -42,8 +42,8 @@ namespace SongCore
             CustomUI.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
             CustomUI.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
             CustomUI.Utilities.BSEvents.menuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
-            if (!File.Exists(Collections.extraDataPath))
-                File.Create(Collections.extraDataPath);
+            if (!File.Exists(Collections.dataPath))
+                File.Create(Collections.dataPath);
             else
                 Collections.LoadExtraSongData();
             Collections.RegisterCustomCharacteristic(UI.BasicUI.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic");
