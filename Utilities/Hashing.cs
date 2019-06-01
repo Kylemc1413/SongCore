@@ -13,7 +13,7 @@ namespace SongCore.Utilities
     {
         internal static Dictionary<string, SongHashData> cachedSongHashData = new Dictionary<string, SongHashData>();
         internal static string cachedHashDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"..\LocalLow\Hyperbolic Magnetism\Beat Saber\SongHashData.dat");
-        public static void ReadCachedHashes()
+        public static void ReadCachedSongHashes()
         {
             if (File.Exists(cachedHashDataPath))
             {
@@ -22,8 +22,13 @@ namespace SongCore.Utilities
             }
         }
 
-        public static void UpdateCachedHashes()
+        public static void UpdateCachedHashes(HashSet<string> currentSongPaths)
         {
+            foreach (KeyValuePair<string, SongHashData> hashData in cachedSongHashData.ToArray())
+            {
+                if (!currentSongPaths.Contains(hashData.Key))
+                    cachedSongHashData.Remove(hashData.Key);
+            }
             Logging.Log($"Updating cached hashes for {cachedSongHashData.Count} songs!");
             File.WriteAllText(cachedHashDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedSongHashData));
         }
@@ -41,14 +46,27 @@ namespace SongCore.Utilities
             }
             return hash;
         } 
+        
+        private static bool GetCachedSongData(string customLevelPath, out long directoryHash, out string cachedSongHash)
+        {
+            directoryHash = GetDirectoryHash(customLevelPath);
+            cachedSongHash = string.Empty;
+            if (cachedSongHashData.TryGetValue(customLevelPath, out var cachedSong))
+            {
+                if (cachedSong.directoryHash == directoryHash)
+                {
+                    cachedSongHash = cachedSong.songHash;
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public static string GetCustomLevelHash(CustomPreviewBeatmapLevel level)
         {
-            long directoryHash = GetDirectoryHash(level.customLevelPath);
-            if (cachedSongHashData.TryGetValue(level.customLevelPath, out var cachedSong))
-                if (cachedSong.directoryHash == directoryHash)
-                    return cachedSong.songHash;
-            
+            if (GetCachedSongData(level.customLevelPath, out var directoryHash, out var songHash))
+                return songHash;
+
             List<byte> combinedBytes = new List<byte>();
             combinedBytes.AddRange(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat"));
             for (int i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
@@ -67,10 +85,8 @@ namespace SongCore.Utilities
 
         public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
         {
-            long directoryHash = GetDirectoryHash(customLevelPath);
-            if (cachedSongHashData.TryGetValue(customLevelPath, out var cachedSong))
-                if (cachedSong.directoryHash == directoryHash)
-                    return cachedSong.songHash;
+            if (GetCachedSongData(customLevelPath, out var directoryHash, out var songHash))
+                return songHash;
 
             byte[] combinedBytes = new byte[0];
             combinedBytes = combinedBytes.Concat(File.ReadAllBytes(customLevelPath + '/' + "info.dat")).ToArray();
@@ -88,11 +104,9 @@ namespace SongCore.Utilities
 
         public static string GetCustomLevelHash(CustomBeatmapLevel level)
         {
-            long directoryHash = GetDirectoryHash(level.customLevelPath);
-            if (cachedSongHashData.TryGetValue(level.customLevelPath, out var cachedSong))
-                if (cachedSong.directoryHash == directoryHash)
-                    return cachedSong.songHash;
-            
+            if (GetCachedSongData(level.customLevelPath, out var directoryHash, out var songHash))
+                return songHash;
+
             byte[] combinedBytes = new byte[0];
             combinedBytes = combinedBytes.Concat(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat")).ToArray();
             for (int i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)

@@ -59,7 +59,7 @@ namespace SongCore
             Instance = this;
             _progressBar = ProgressBar.Create();
             OnSceneChanged(SceneManager.GetActiveScene(), SceneManager.GetActiveScene());
-            Hashing.ReadCachedHashes();
+            Hashing.ReadCachedSongHashes();
             RefreshSongs();
             DontDestroyOnLoad(gameObject);
             
@@ -188,6 +188,7 @@ namespace SongCore
                 CustomLevels.Clear();
                 CustomWIPLevels.Clear();
             }
+            HashSet<string> foundSongPaths = new HashSet<string>();
 
             Action job = delegate
             {
@@ -302,8 +303,8 @@ namespace SongCore
                                             CustomLevels[songPath] = level;
                                         else
                                             CustomWIPLevels[songPath] = level;
+                                        foundSongPaths.Add(songPath);
                                     }
-
                                     LoadingProgress = count / songFolders.Count;
                                 });
 
@@ -340,7 +341,7 @@ namespace SongCore
                 SongsLoadedEvent?.Invoke(this, CustomLevels);
 
                 // Write our cached hash info and 
-                Hashing.UpdateCachedHashes();
+                Hashing.UpdateCachedHashes(foundSongPaths);
                 SongCore.Collections.SaveExtraSongData();
                 
 

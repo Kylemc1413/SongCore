@@ -47,7 +47,7 @@ namespace SongCore.Utilities
 
             return text.Remove(text.LastIndexOf(value));
         }
-        
+
         public static TextMeshProUGUI CreateText(RectTransform parent, string text, Vector2 anchoredPosition)
         {
             return CreateText(parent, text, anchoredPosition, new Vector2(60f, 10f));
