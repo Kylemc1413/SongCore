@@ -183,7 +183,6 @@ namespace SongCore
         private void RetrieveAllSongs(bool fullRefresh)
         {
             var stopwatch = new Stopwatch();
-            int songCount = 0;
             if (fullRefresh)
             {
                 CustomLevels.Clear();
@@ -303,7 +302,6 @@ namespace SongCore
                                             CustomLevels[songPath] = level;
                                         else
                                             CustomWIPLevels[songPath] = level;
-                                        songCount++;
                                     }
 
                                     LoadingProgress = count / songFolders.Count;
@@ -328,7 +326,7 @@ namespace SongCore
             Action finish = delegate
             {
                 stopwatch.Stop();
-                Logging.Log("Loaded " + songCount + " new songs in " + stopwatch.Elapsed.TotalSeconds + " seconds");
+                Logging.Log("Loaded " + (CustomLevels.Count + CustomWIPLevels.Count) + " new songs in " + stopwatch.Elapsed.TotalSeconds + " seconds");
                 
                 //Level Packs
                 RefreshLevelPacks();
