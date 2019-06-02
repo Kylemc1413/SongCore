@@ -86,7 +86,7 @@ namespace SongCore
             if (beatmap.level is CustomPreviewBeatmapLevel)
             {
                 var customLevel = beatmap.level as CustomPreviewBeatmapLevel;
-                songData = RetrieveExtraSongData(Utils.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
+                songData = RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
             }
             if (songData == null) return null;
             ExtraSongData.DifficultyData diffData = songData._difficulties.FirstOrDefault(x => x._difficulty == beatmap.difficulty && (x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName || x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));

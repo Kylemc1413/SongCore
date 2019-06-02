@@ -106,7 +106,7 @@ namespace SongCore
             _canvas.enabled = true;
         }
 
-        private void SongLoaderOnSongsLoadedEvent(Loader arg1, List<CustomPreviewBeatmapLevel> arg2)
+        private void SongLoaderOnSongsLoadedEvent(Loader arg1, Dictionary<string, CustomPreviewBeatmapLevel> arg2)
         {
             _showingMessage = false;
             _headerText.text = arg2.Count + " songs loaded.";

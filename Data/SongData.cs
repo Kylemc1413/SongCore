@@ -7,8 +7,6 @@ using System.Linq;
 using UnityEngine;
 namespace SongCore.Data
 {
-
-
     [Serializable]
     public class ExtraSongData
     {
@@ -78,6 +76,7 @@ namespace SongCore.Data
             this._difficulties = difficulties;
 
         }
+
         public ExtraSongData(string levelID, string songPath)
         {
             //        Utilities.Logging.Log("SongData Ctor");
@@ -188,11 +187,6 @@ namespace SongCore.Data
                 Utilities.Logging.Log($"Error in Level {songPath}: \n {ex}", IPA.Logging.Logger.Level.Error);
             }
         }
-
-
-
-
-
     }
 }
 

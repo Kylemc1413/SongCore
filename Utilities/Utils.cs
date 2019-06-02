@@ -14,56 +14,6 @@ namespace SongCore.Utilities
 {
     public static class Utils
     {
-
-        public static string GetCustomLevelHash(CustomPreviewBeatmapLevel level)
-        {
-            List<byte> combinedBytes = new List<byte>();
-            combinedBytes.AddRange(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat"));
-            for (int i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
-            {
-                for (int i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
-                    if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
-                    {
-                        combinedBytes.AddRange(File.ReadAllBytes(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename));
-  //                      Logging.Log(level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].difficulty + " " + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].beatmapCharacteristicName);
-                    }
-            }
-  //          Logging.Log("Hash done");
-            return Utils.CreateSha1FromBytes(combinedBytes.ToArray());
-
-        }
-
-        public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
-        {
-            byte[] combinedBytes = new byte[0];
-            combinedBytes = combinedBytes.Concat(File.ReadAllBytes(customLevelPath + '/' + "info.dat")).ToArray();
-            for (int i = 0; i < level.difficultyBeatmapSets.Length; i++)
-            {
-                for (int i2 = 0; i2 < level.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
-                    if (File.Exists(customLevelPath + '/' + level.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
-                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(customLevelPath + '/' + level.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename)).ToArray();
-            }
-
-            return Utils.CreateSha1FromBytes(combinedBytes);
-
-        }
-
-        public static string GetCustomLevelHash(CustomBeatmapLevel level)
-        {
-            byte[] combinedBytes = new byte[0];
-            combinedBytes = combinedBytes.Concat(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat")).ToArray();
-            for (int i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
-            {
-                for (int i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
-                    if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
-                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename)).ToArray();
-            }
-
-            return Utils.CreateSha1FromBytes(combinedBytes);
-
-        }
-
-
         public static bool IsModInstalled(string ModName)
         {
             //       Logging.Log($"Checking for Mod: {ModName}");
@@ -90,56 +40,6 @@ namespace SongCore.Utilities
             return (TEnum)Enum.Parse(typeof(TEnum), strEnumValue);
         }
 
-        public static string CreateSha1FromString(string input)
-        {
-            // Use input string to calculate MD5 hash
-            using (var sha1 = SHA1.Create())
-            {
-                var inputBytes = Encoding.ASCII.GetBytes(input);
-                var hashBytes = sha1.ComputeHash(inputBytes);
-
-                // Convert the byte array to hexadecimal string
-                var sb = new StringBuilder();
-                for (int i = 0; i < hashBytes.Length; i++)
-                {
-                    sb.Append(hashBytes[i].ToString("X2"));
-                }
-                return sb.ToString();
-            }
-        }
-
-        public static string CreateSha1FromBytes(byte[] input)
-        {
-            // Use input string to calculate MD5 hash
-            using (var sha1 = SHA1.Create())
-            {
-                var inputBytes = input;
-                var hashBytes = sha1.ComputeHash(inputBytes);
-                return string.Concat(hashBytes.Select(b => b.ToString("x2")));
-            }
-        }
-        public static bool CreateSha1FromFile(string path, out string hash)
-        {
-            hash = "";
-            if (!File.Exists(path)) return false;
-            using (var sha1 = SHA1.Create())
-            {
-                using (var stream = File.OpenRead(path))
-                {
-                    var hashBytes = sha1.ComputeHash(stream);
-
-                    // Convert the byte array to hexadecimal string
-                    var sb = new StringBuilder();
-                    foreach (var hashByte in hashBytes)
-                    {
-                        sb.Append(hashByte.ToString("X2"));
-                    }
-
-                    hash = sb.ToString();
-                    return true;
-                }
-            }
-        }
         public static string TrimEnd(this string text, string value)
         {
             if (!text.EndsWith(value))

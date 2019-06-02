@@ -21,8 +21,8 @@ namespace SongCore.HarmonyPatches
                 var customLevel = level as CustomPreviewBeatmapLevel;
                 if (customLevel != null)
                 {
-                    Logging.Log(Utilities.Utils.GetCustomLevelHash(customLevel));
-                    SongCore.Collections.AddSong(Utilities.Utils.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
+                    Logging.Log(Utilities.Hashing.GetCustomLevelHash(customLevel));
+                    SongCore.Collections.AddSong(Utilities.Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
                     SongCore.Collections.SaveExtraSongData();
                 }
             }
