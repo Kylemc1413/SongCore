@@ -21,6 +21,9 @@ namespace SongCore
 {
     public class Converter
     {
+        internal static int ConcurrentProcesses = 4;
+        internal static int ActiveProcesses = 0;
+        internal static int ConvertedCount = 0;
         public static Stack<string> ToConvert = new Stack<string>();
         public static string oldFolderPath = Environment.CurrentDirectory + "/CustomSongs";
         public static void PrepareExistingLibrary()
@@ -75,28 +78,46 @@ namespace SongCore
 
         internal static IEnumerator ConvertSongs()
         {
-           
             int totalSongs = ToConvert.Count;
             Loader.Instance._progressBar.ShowMessage($"Converting {totalSongs} Existing Songs");
-         //   Loader.Instance._progressBar._loadingBar.enabled = true;
-         //   Loader.Instance._progressBar._loadingBackg.enabled = true;
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
             while (ToConvert.Count > 0)
             {
-                string newPath = ToConvert.Pop();
-                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                startInfo.FileName = "cmd.exe";
-                startInfo.Arguments = "/C " + "songe-converter.exe" + " -k " + '"' + newPath + '"';
-      //          Logging.Log(startInfo.Arguments);
-                process.StartInfo = startInfo;
-                process.Start();
-                yield return new WaitUntil((delegate { return process.HasExited; }));
-                Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
-            //    Loader.Instance._progressBar._loadingBar.fillAmount = (totalSongs - ToConvert.Count) / totalSongs;
+                while(ActiveProcesses < ConcurrentProcesses)
+                {
+                    ActiveProcesses++;
+                    System.Diagnostics.Process process = new System.Diagnostics.Process();
+                    System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                    if (ToConvert.Count == 0) break;
+                    string newPath = ToConvert.Pop();
+                    startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                    startInfo.FileName = "cmd.exe";
+                    startInfo.Arguments = "/C " + "songe-converter.exe" + " -k " + '"' + newPath + '"';
+                    process.StartInfo = startInfo;
+                    process.EnableRaisingEvents = true;
+                    process.Exited += Process_Exited;
+                    process.Start();
+                    Logging.Log(ActiveProcesses.ToString());
+                }
+                yield return new WaitUntil( (delegate { return ActiveProcesses < ConcurrentProcesses; }));
+                if(ConvertedCount >= 10)
+                {
+                    ConvertedCount = 0;
+                    Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
+                }
+                else if(ToConvert.Count <= 10)
+                    Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
+                //    Loader.Instance._progressBar._loadingBar.fillAmount = (totalSongs - ToConvert.Count) / totalSongs;
             }
             FinishConversion();
         }
+
+        private static void Process_Exited(object sender, EventArgs e)
+        {
+     //       Logging.Log("Ended");
+            ActiveProcesses--;
+            ConvertedCount++;
+        }
+
         internal static void FinishConversion()
         {
             if (Directory.Exists(oldFolderPath))
@@ -105,8 +126,14 @@ namespace SongCore
                 //    Logging.Log((CustomLevelPathHelper.customLevelsDirectoryPath + System.DateTime.Now.ToFileTime().ToString()));
                 //    Logging.Log(oldFolderPath);
                 Logging.Log("Moving CustomSongs folder to new Location");
-                   Directory.Move(CustomLevelPathHelper.customLevelsDirectoryPath, CustomLevelPathHelper.customLevelsDirectoryPath + System.DateTime.Now.ToFileTime().ToString());
-                   Directory.Move(oldFolderPath, CustomLevelPathHelper.customLevelsDirectoryPath);
+                if (Directory.Exists(CustomLevelPathHelper.customLevelsDirectoryPath))
+                {
+                    Utils.GrantAccess(CustomLevelPathHelper.customLevelsDirectoryPath);
+                    Directory.Move(CustomLevelPathHelper.customLevelsDirectoryPath, CustomLevelPathHelper.customLevelsDirectoryPath + System.DateTime.Now.ToFileTime().ToString());
+
+                }
+                Utils.GrantAccess(oldFolderPath);
+                Directory.Move(oldFolderPath, CustomLevelPathHelper.customLevelsDirectoryPath);
                 //    Directory.Delete(oldFolderPath);
             }
             Logging.Log("Conversion Finished. Loading songs");
