@@ -35,8 +35,8 @@ namespace SongCore
 
         public static bool AreSongsLoaded { get; private set; }
         public static bool AreSongsLoading { get; private set; }
-        public static float LoadingProgress { get; private set; }
-        private ProgressBar _progressBar;
+        public static float LoadingProgress { get; internal set; }
+        internal ProgressBar _progressBar;
         private HMTask _loadingTask;
         private bool _loadingCancelled;
 
@@ -59,9 +59,10 @@ namespace SongCore
             Instance = this;
             _progressBar = ProgressBar.Create();
             OnSceneChanged(SceneManager.GetActiveScene(), SceneManager.GetActiveScene());
-   //         if (Directory.Exists(Converter.oldFolderPath)) Converter.ConvertExistingLibrary();
             Hashing.ReadCachedSongHashes();
-            RefreshSongs();
+            if (Directory.Exists(Converter.oldFolderPath)) Converter.PrepareExistingLibrary();
+                else
+                RefreshSongs();
             DontDestroyOnLoad(gameObject);
             
             SceneManager.activeSceneChanged += OnSceneChanged;
