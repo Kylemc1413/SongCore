@@ -39,6 +39,10 @@ namespace SongCore.Utilities
 
             return (TEnum)Enum.Parse(typeof(TEnum), strEnumValue);
         }
+        public static bool IsDirectoryEmpty(string path)
+        {
+            return !Directory.EnumerateFileSystemEntries(path).Any();
+        }
 
         public static string TrimEnd(this string text, string value)
         {

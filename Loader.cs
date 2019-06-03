@@ -59,6 +59,7 @@ namespace SongCore
             Instance = this;
             _progressBar = ProgressBar.Create();
             OnSceneChanged(SceneManager.GetActiveScene(), SceneManager.GetActiveScene());
+   //         if (Directory.Exists(Converter.oldFolderPath)) Converter.ConvertExistingLibrary();
             Hashing.ReadCachedSongHashes();
             RefreshSongs();
             DontDestroyOnLoad(gameObject);

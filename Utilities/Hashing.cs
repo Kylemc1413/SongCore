@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SongCore.Utilities
 {
-    class Hashing
+    public class Hashing
     {
         internal static Dictionary<string, SongHashData> cachedSongHashData = new Dictionary<string, SongHashData>();
         internal static string cachedHashDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"..\LocalLow\Hyperbolic Magnetism\Beat Saber\SongHashData.dat");
