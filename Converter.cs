@@ -71,7 +71,13 @@ namespace SongCore
 
                 }
             }
-            Loader.Instance.StartCoroutine(ConvertSongs());
+            if(File.Exists(oldFolderPath + "/../songe-converter.exe"))
+                Loader.Instance.StartCoroutine(ConvertSongs());
+            else
+            {
+                Logging.Log("Missing Songe converter, not converting", LogSeverity.Notice);
+                Loader.Instance.RefreshSongs();
+            }
 
         }
 
