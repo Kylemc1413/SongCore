@@ -84,8 +84,8 @@ namespace SongCore
 
         internal static IEnumerator ConvertSongs()
         {
-            int totalSongs = ToConvert.Count;
-            Loader.Instance._progressBar.ShowMessage($"Converting {totalSongs} Existing Songs");
+    //        int totalSongs = ToConvert.Count;
+            Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
             while (ToConvert.Count > 0)
             {
                 while(ActiveProcesses < ConcurrentProcesses)
@@ -104,11 +104,11 @@ namespace SongCore
                     process.Start();
                 }
                 yield return new WaitUntil( (delegate { return ActiveProcesses < ConcurrentProcesses; }));
-                if (ConvertedCount % 10 == 0)
-                {
-                    Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
-                }
-                else if(ToConvert.Count <= 10)
+        //        if (ConvertedCount % 10 == 0)
+        //        {
+        //            Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
+        //        }
+        //        else if(ToConvert.Count <= 10)
                     Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
             }
             Logging.Log($"Converted {ConvertedCount} songs.");
