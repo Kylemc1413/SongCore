@@ -96,18 +96,16 @@ namespace SongCore
                     process.EnableRaisingEvents = true;
                     process.Exited += Process_Exited;
                     process.Start();
-                    Logging.Log(ActiveProcesses.ToString());
                 }
                 yield return new WaitUntil( (delegate { return ActiveProcesses < ConcurrentProcesses; }));
-                if(ConvertedCount >= 10)
+                if (ConvertedCount % 10 == 0)
                 {
-                    ConvertedCount = 0;
                     Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
                 }
                 else if(ToConvert.Count <= 10)
                     Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
-                //    Loader.Instance._progressBar._loadingBar.fillAmount = (totalSongs - ToConvert.Count) / totalSongs;
             }
+            Logging.Log($"Converted {ConvertedCount} songs.");
             FinishConversion();
         }
 
