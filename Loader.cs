@@ -217,7 +217,7 @@ namespace SongCore
                     foreach (var folder in songFolders)
                     {
                         i++;
-                        var results = Directory.GetFiles(folder, "info.dat", SearchOption.AllDirectories);
+                        var results = Directory.GetFiles(folder, "info.dat", SearchOption.TopDirectoryOnly);
                         if (results.Length == 0)
                         {
                             Logging.Log("Folder: '" + folder + "' is missing info.dat files!", LogSeverity.Notice);
