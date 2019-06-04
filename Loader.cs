@@ -85,11 +85,10 @@ namespace SongCore
                     Logging.Log("Loading was cancelled by player since they loaded another scene.");
                 }
             }
-
             if (newScene.name == "MenuCore")
             {
                 BS_Utils.Gameplay.Gamemode.Init();
-                if (_customLevelLoader == null)
+                if(_customLevelLoader == null)
                 {
                     _customLevelLoader = Resources.FindObjectsOfTypeAll<CustomLevelLoaderSO>().FirstOrDefault();
                     if (_customLevelLoader)
@@ -108,10 +107,10 @@ namespace SongCore
                             (float)defaultCoverTex.width, (float)defaultCoverTex.height), new Vector2(0.5f, 0.5f));
                     }
                 }
-                if (BeatmapLevelsModelSO == null)
-                {
-                    BeatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
-                }
+
+                if(BeatmapLevelsModelSO == null)
+                BeatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
+                
                 //Handle LevelPacks
                 if (CustomBeatmapLevelPackCollectionSO == null)
                 {
@@ -136,8 +135,8 @@ namespace SongCore
                 }
                 //RefreshLevelPacks();
                 var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
-                LevelPacksViewController levelPacksViewController = soloFreePlay.GetField<LevelPacksViewController>("_levelPacksViewController");
-                levelPacksViewController.SetData(CustomBeatmapLevelPackCollectionSO, 0);
+                LevelPacksViewController levelPacksViewController = soloFreePlay?.GetField<LevelPacksViewController>("_levelPacksViewController");
+                levelPacksViewController?.SetData(CustomBeatmapLevelPackCollectionSO, 0);
             }
         }
 
