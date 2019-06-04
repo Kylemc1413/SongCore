@@ -34,6 +34,7 @@ namespace SongCore
                 Logging.Log("No Existing Library to Convert", LogSeverity.Notice);
                 return;
             }
+            Utils.GrantAccess(oldFolderPath);
             Loader.Instance._progressBar.ShowMessage("Converting Existing Song Library");
             var oldFolders = Directory.GetDirectories(oldFolderPath).ToList();
             float i = 0;
@@ -136,7 +137,6 @@ namespace SongCore
                     Directory.Move(CustomLevelPathHelper.customLevelsDirectoryPath, CustomLevelPathHelper.customLevelsDirectoryPath + System.DateTime.Now.ToFileTime().ToString());
 
                 }
-                Utils.GrantAccess(oldFolderPath);
                 Directory.Move(oldFolderPath, CustomLevelPathHelper.customLevelsDirectoryPath);
                 //    Directory.Delete(oldFolderPath);
             }
