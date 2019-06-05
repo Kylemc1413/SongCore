@@ -10,6 +10,8 @@ using System.Reflection;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.AccessControl;
+using System.Security.Principal;
 namespace SongCore.Utilities
 {
     public static class Utils
@@ -39,7 +41,29 @@ namespace SongCore.Utilities
 
             return (TEnum)Enum.Parse(typeof(TEnum), strEnumValue);
         }
+        public static bool IsDirectoryEmpty(string path)
+        {
+            return !Directory.EnumerateFileSystemEntries(path).Any();
+        }
 
+        public static void GrantAccess(string file)
+        {
+            bool exists = System.IO.Directory.Exists(file);
+            if (!exists)
+            {
+                DirectoryInfo di = System.IO.Directory.CreateDirectory(file);
+        //        Console.WriteLine("The Folder is created Sucessfully");
+            }
+            else
+            {
+        //        Console.WriteLine("The Folder already exists");
+            }
+            DirectoryInfo dInfo = new DirectoryInfo(file);
+            DirectorySecurity dSecurity = dInfo.GetAccessControl();
+            dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.Modify, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
+            dInfo.SetAccessControl(dSecurity);
+
+        }
         public static string TrimEnd(this string text, string value)
         {
             if (!text.EndsWith(value))

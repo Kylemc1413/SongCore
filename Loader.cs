@@ -35,8 +35,8 @@ namespace SongCore
 
         public static bool AreSongsLoaded { get; private set; }
         public static bool AreSongsLoading { get; private set; }
-        public static float LoadingProgress { get; private set; }
-        private ProgressBar _progressBar;
+        public static float LoadingProgress { get; internal set; }
+        internal ProgressBar _progressBar;
         private HMTask _loadingTask;
         private bool _loadingCancelled;
 
@@ -60,7 +60,9 @@ namespace SongCore
             _progressBar = ProgressBar.Create();
             OnSceneChanged(SceneManager.GetActiveScene(), SceneManager.GetActiveScene());
             Hashing.ReadCachedSongHashes();
-            RefreshSongs();
+            if (Directory.Exists(Converter.oldFolderPath)) Converter.PrepareExistingLibrary();
+                else
+                RefreshSongs();
             DontDestroyOnLoad(gameObject);
             
             SceneManager.activeSceneChanged += OnSceneChanged;
@@ -83,11 +85,10 @@ namespace SongCore
                     Logging.Log("Loading was cancelled by player since they loaded another scene.");
                 }
             }
-
             if (newScene.name == "MenuCore")
             {
                 BS_Utils.Gameplay.Gamemode.Init();
-                if (_customLevelLoader == null)
+                if(_customLevelLoader == null)
                 {
                     _customLevelLoader = Resources.FindObjectsOfTypeAll<CustomLevelLoaderSO>().FirstOrDefault();
                     if (_customLevelLoader)
@@ -106,10 +107,10 @@ namespace SongCore
                             (float)defaultCoverTex.width, (float)defaultCoverTex.height), new Vector2(0.5f, 0.5f));
                     }
                 }
-                if (BeatmapLevelsModelSO == null)
-                {
-                    BeatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
-                }
+
+                if(BeatmapLevelsModelSO == null)
+                BeatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
+                
                 //Handle LevelPacks
                 if (CustomBeatmapLevelPackCollectionSO == null)
                 {
@@ -134,8 +135,8 @@ namespace SongCore
                 }
                 //RefreshLevelPacks();
                 var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
-                LevelPacksViewController levelPacksViewController = soloFreePlay.GetField<LevelPacksViewController>("_levelPacksViewController");
-                levelPacksViewController.SetData(CustomBeatmapLevelPackCollectionSO, 0);
+                LevelPacksViewController levelPacksViewController = soloFreePlay?.GetField<LevelPacksViewController>("_levelPacksViewController");
+                levelPacksViewController?.SetData(CustomBeatmapLevelPackCollectionSO, 0);
             }
         }
 
@@ -215,7 +216,7 @@ namespace SongCore
                     foreach (var folder in songFolders)
                     {
                         i++;
-                        var results = Directory.GetFiles(folder, "info.dat", SearchOption.AllDirectories);
+                        var results = Directory.GetFiles(folder, "info.dat", SearchOption.TopDirectoryOnly);
                         if (results.Length == 0)
                         {
                             Logging.Log("Folder: '" + folder + "' is missing info.dat files!", LogSeverity.Notice);
