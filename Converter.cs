@@ -38,11 +38,11 @@ namespace SongCore
             Loader.Instance._progressBar.ShowMessage("Converting Existing Song Library");
             var oldFolders = Directory.GetDirectories(oldFolderPath).ToList();
             float i = 0;
-            foreach(var folder in oldFolders)
+            foreach (var folder in oldFolders)
             {
                 i++;
                 var results = Directory.GetFiles(folder, "info.json", SearchOption.AllDirectories);
-                foreach(var result in results)
+                foreach (var result in results)
                 {
                     var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
                     if (Directory.GetFiles(songPath, "info.dat").Count() > 0)
@@ -52,27 +52,37 @@ namespace SongCore
                     var parent = Directory.GetParent(songPath);
                     if (parent.Name != "CustomSongs")
                     {
-                 //       Logging.Log("SubFolder Song Found: " + songPath, LogSeverity.Notice);
-                 //       Logging.Log("Moving Subfolder to CustomSongs", LogSeverity.Notice);
-                        newPath = oldFolderPath + "/" + parent.Name + " " + new DirectoryInfo(songPath).Name;
-                        if(Directory.Exists(newPath))
+                        try
                         {
-                            int pathNum = 1;
-                            while (Directory.Exists(newPath + $" ({pathNum})")) ++pathNum;
-                            newPath = newPath + $" ({pathNum})";
+                            //       Logging.Log("SubFolder Song Found: " + songPath, LogSeverity.Notice);
+                            //       Logging.Log("Moving Subfolder to CustomSongs", LogSeverity.Notice);
+                            newPath = oldFolderPath + "/" + parent.Name + " " + new DirectoryInfo(songPath).Name;
+                            if (Directory.Exists(newPath))
+                            {
+                                int pathNum = 1;
+                                while (Directory.Exists(newPath + $" ({pathNum})")) ++pathNum;
+                                newPath = newPath + $" ({pathNum})";
+                            }
+                            Directory.Move(songPath, newPath);
+                            if (Utils.IsDirectoryEmpty(parent.FullName))
+                            {
+                                //             Logging.Log("Old parent folder empty, Deleting empty folder.");
+                                Directory.Delete(parent.FullName);
+                            }
+
                         }
-                        Directory.Move(songPath, newPath);
-                        if (Utils.IsDirectoryEmpty(parent.FullName))
+                        catch (Exception ex)
                         {
-               //             Logging.Log("Old parent folder empty, Deleting empty folder.");
-                            Directory.Delete(parent.FullName);
+                            Logging.Log($"Error attempting to correct Subfolder {songPath}: \n {ex}");
                         }
+
+
                     }
                     ToConvert.Push(newPath);
 
                 }
             }
-            if(File.Exists(oldFolderPath + "/../songe-converter.exe"))
+            if (File.Exists(oldFolderPath + "/../songe-converter.exe"))
                 Loader.Instance.StartCoroutine(ConvertSongs());
             else
             {
@@ -85,11 +95,11 @@ namespace SongCore
 
         internal static IEnumerator ConvertSongs()
         {
-    //        int totalSongs = ToConvert.Count;
+            //        int totalSongs = ToConvert.Count;
             Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
             while (ToConvert.Count > 0)
             {
-                while(ActiveProcesses < ConcurrentProcesses)
+                while (ActiveProcesses < ConcurrentProcesses)
                 {
                     ActiveProcesses++;
                     System.Diagnostics.Process process = new System.Diagnostics.Process();
@@ -104,13 +114,13 @@ namespace SongCore
                     process.Exited += Process_Exited;
                     process.Start();
                 }
-                yield return new WaitUntil( (delegate { return ActiveProcesses < ConcurrentProcesses; }));
-        //        if (ConvertedCount % 10 == 0)
-        //        {
-        //            Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
-        //        }
-        //        else if(ToConvert.Count <= 10)
-                    Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
+                yield return new WaitUntil((delegate { return ActiveProcesses < ConcurrentProcesses; }));
+                //        if (ConvertedCount % 10 == 0)
+                //        {
+                //            Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
+                //        }
+                //        else if(ToConvert.Count <= 10)
+                Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
             }
             Logging.Log($"Converted {ConvertedCount} songs.");
             FinishConversion();
@@ -118,7 +128,7 @@ namespace SongCore
 
         private static void Process_Exited(object sender, EventArgs e)
         {
-     //       Logging.Log("Ended");
+            //       Logging.Log("Ended");
             ActiveProcesses--;
             ConvertedCount++;
         }
