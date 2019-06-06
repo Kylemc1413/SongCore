@@ -24,6 +24,7 @@ namespace SongCore
         internal static int ConcurrentProcesses = 4;
         internal static int ActiveProcesses = 0;
         internal static int ConvertedCount = 0;
+        internal static bool doneConverting = false;
         public static Stack<string> ToConvert = new Stack<string>();
         public static string oldFolderPath = Environment.CurrentDirectory + "/CustomSongs";
         public static void PrepareExistingLibrary()
@@ -73,7 +74,7 @@ namespace SongCore
                         }
                         catch (Exception ex)
                         {
-                            Logging.Log($"Error attempting to correct Subfolder {songPath}: \n {ex}");
+                            Logging.Log($"Error attempting to correct Subfolder {songPath}: \n {ex}", LogSeverity.Error);
                         }
 
 
@@ -95,8 +96,19 @@ namespace SongCore
 
         internal static IEnumerator ConvertSongs()
         {
-            //        int totalSongs = ToConvert.Count;
-            Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
+                   int totalSongs = ToConvert.Count;
+            Loader.Instance._progressBar.ShowMessage($"Converting {totalSongs} Existing Songs. Please Wait...");
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
+            startInfo.FileName = "cmd.exe";
+            startInfo.Arguments = "/C " + "songe-converter.exe" + " -k -a " + '"' + oldFolderPath + '"';
+            process.StartInfo = startInfo;
+            process.EnableRaisingEvents = true;
+            process.Exited += Process_Exited;
+            process.Start();
+            yield return new WaitUntil((delegate { return doneConverting; }));
+            /*
             while (ToConvert.Count > 0)
             {
                 while (ActiveProcesses < ConcurrentProcesses)
@@ -106,7 +118,7 @@ namespace SongCore
                     System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
                     if (ToConvert.Count == 0) break;
                     string newPath = ToConvert.Pop();
-                    startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                    startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
                     startInfo.FileName = "cmd.exe";
                     startInfo.Arguments = "/C " + "songe-converter.exe" + " -k " + '"' + newPath + '"';
                     process.StartInfo = startInfo;
@@ -122,15 +134,17 @@ namespace SongCore
                 //        else if(ToConvert.Count <= 10)
                 Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
             }
-            Logging.Log($"Converted {ConvertedCount} songs.");
+            */
+            Logging.Log($"Converted {totalSongs} songs.");
             FinishConversion();
         }
 
         private static void Process_Exited(object sender, EventArgs e)
         {
             //       Logging.Log("Ended");
-            ActiveProcesses--;
-            ConvertedCount++;
+      //      ActiveProcesses--;
+      //      ConvertedCount++;
+            doneConverting = true;
         }
 
         internal static void FinishConversion()
