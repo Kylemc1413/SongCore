@@ -193,7 +193,7 @@ namespace SongCore
 
                     if (songData._colorLeft != null && songData._colorRight != null)
                     {
-                        if (customSongColors)
+                        if (customSongColors && ColorsInstalled)
                             SetSongColors(songData._colorLeft, songData._colorRight);
                     }
                 }
