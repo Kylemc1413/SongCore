@@ -42,46 +42,53 @@ namespace SongCore
             foreach (var folder in oldFolders)
             {
                 i++;
-                var results = Directory.GetFiles(folder, "info.json", SearchOption.AllDirectories);
-                foreach (var result in results)
+                if (Directory.Exists(folder))
                 {
-                    var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
-                    if (Directory.GetFiles(songPath, "info.dat").Count() > 0)
-                        continue;
-                    string newPath = songPath;
-                    //If song is in a subfolder, move it to CustomSongs and correct the name
-                    var parent = Directory.GetParent(songPath);
-                    if (parent.Name != "CustomSongs")
+                    var results = Directory.GetFiles(folder, "info.json", SearchOption.AllDirectories);
+                    foreach (var result in results)
                     {
-                        try
+                        var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
+                        if (!Directory.Exists(songPath)) continue;
+
+                        if (Directory.GetFiles(songPath, "info.dat").Count() > 0)
+                            continue;
+
+                        string newPath = songPath;
+                        //If song is in a subfolder, move it to CustomSongs and correct the name
+                        var parent = Directory.GetParent(songPath);
+                        if (parent.Name != "CustomSongs")
                         {
-                            //       Logging.Log("SubFolder Song Found: " + songPath, LogSeverity.Notice);
-                            //       Logging.Log("Moving Subfolder to CustomSongs", LogSeverity.Notice);
-                            newPath = oldFolderPath + "/" + parent.Name + " " + new DirectoryInfo(songPath).Name;
-                            if (Directory.Exists(newPath))
+                            try
                             {
-                                int pathNum = 1;
-                                while (Directory.Exists(newPath + $" ({pathNum})")) ++pathNum;
-                                newPath = newPath + $" ({pathNum})";
+                                //       Logging.Log("SubFolder Song Found: " + songPath, LogSeverity.Notice);
+                                //       Logging.Log("Moving Subfolder to CustomSongs", LogSeverity.Notice);
+                                newPath = oldFolderPath + "/" + parent.Name + " " + new DirectoryInfo(songPath).Name;
+                                if (Directory.Exists(newPath))
+                                {
+                                    int pathNum = 1;
+                                    while (Directory.Exists(newPath + $" ({pathNum})")) ++pathNum;
+                                    newPath = newPath + $" ({pathNum})";
+                                }
+                                Directory.Move(songPath, newPath);
+                                if (Utils.IsDirectoryEmpty(parent.FullName))
+                                {
+                                    //             Logging.Log("Old parent folder empty, Deleting empty folder.");
+                                    Directory.Delete(parent.FullName);
+                                }
+
                             }
-                            Directory.Move(songPath, newPath);
-                            if (Utils.IsDirectoryEmpty(parent.FullName))
+                            catch (Exception ex)
                             {
-                                //             Logging.Log("Old parent folder empty, Deleting empty folder.");
-                                Directory.Delete(parent.FullName);
+                                Logging.Log($"Error attempting to correct Subfolder {songPath}: \n {ex}", LogSeverity.Error);
                             }
 
-                        }
-                        catch (Exception ex)
-                        {
-                            Logging.Log($"Error attempting to correct Subfolder {songPath}: \n {ex}", LogSeverity.Error);
-                        }
 
+                        }
+                        ToConvert.Push(newPath);
 
                     }
-                    ToConvert.Push(newPath);
-
                 }
+
             }
             if (File.Exists(oldFolderPath + "/../songe-converter.exe"))
                 Loader.Instance.StartCoroutine(ConvertSongs());
@@ -96,7 +103,7 @@ namespace SongCore
 
         internal static IEnumerator ConvertSongs()
         {
-                   int totalSongs = ToConvert.Count;
+            int totalSongs = ToConvert.Count;
             Loader.Instance._progressBar.ShowMessage($"Converting {totalSongs} Existing Songs. Please Wait...");
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
@@ -142,8 +149,8 @@ namespace SongCore
         private static void Process_Exited(object sender, EventArgs e)
         {
             //       Logging.Log("Ended");
-      //      ActiveProcesses--;
-      //      ConvertedCount++;
+            //      ActiveProcesses--;
+            //      ConvertedCount++;
             doneConverting = true;
         }
 
@@ -161,6 +168,7 @@ namespace SongCore
                     Directory.Move(CustomLevelPathHelper.customLevelsDirectoryPath, CustomLevelPathHelper.customLevelsDirectoryPath + System.DateTime.Now.ToFileTime().ToString());
 
                 }
+                Utils.GrantAccess(oldFolderPath);
                 Directory.Move(oldFolderPath, CustomLevelPathHelper.customLevelsDirectoryPath);
                 //    Directory.Delete(oldFolderPath);
             }
