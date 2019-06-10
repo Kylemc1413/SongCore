@@ -182,8 +182,9 @@ namespace SongCore
         {
             if (!_canvas.enabled) return;
             _loadingBar.fillAmount = Loader.LoadingProgress;
-            _loadingBar.color =  HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.4f, 1), 1, 1));
-            _headerText.color = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.4f, 1), 1, 1));
+            
+            _loadingBar.color =  HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
+            _headerText.color = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
         }
     }
 }
