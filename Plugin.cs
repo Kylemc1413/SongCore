@@ -67,7 +67,7 @@ namespace SongCore
             if (level is CustomPreviewBeatmapLevel)
             {
                 var customLevel = level as CustomPreviewBeatmapLevel;
-                Logging.Log((level as CustomPreviewBeatmapLevel).customLevelPath);
+         //       Logging.Log((level as CustomPreviewBeatmapLevel).customLevelPath);
                 Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
                 Collections.SaveExtraSongData();
             }

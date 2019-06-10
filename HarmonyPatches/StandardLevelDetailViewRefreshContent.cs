@@ -102,8 +102,7 @@ namespace SongCore.HarmonyPatches
 
                     }
                 }
-             
-                if (songData.songPath.Contains("CustomWIPLevels"))
+                if (level.customLevelPath.Contains("CustomWIPLevels"))
                 {
                     MenuUI.infoButton.interactable = true;
                     MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
@@ -140,7 +139,7 @@ namespace SongCore.HarmonyPatches
                 MenuUI.infoButton.onClick.AddListener(delegate ()
                 {
                     //Console.WriteLine("Click");
-                    MenuUI.showSongRequirements(songData, diffData, wipFolderSong);
+                    MenuUI.showSongRequirements(level, songData, diffData, wipFolderSong);
                 });
 
 

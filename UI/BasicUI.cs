@@ -62,7 +62,7 @@ namespace SongCore.UI
 
         }
 
-        internal static void showSongRequirements(Data.ExtraSongData songData, Data.ExtraSongData.DifficultyData diffData, bool wipFolder)
+        internal static void showSongRequirements(CustomPreviewBeatmapLevel level, Data.ExtraSongData songData, Data.ExtraSongData.DifficultyData diffData, bool wipFolder)
         {
             //   suggestionsList.text = "";
 
@@ -75,7 +75,7 @@ namespace SongCore.UI
                     if (author.icon == null)
                         if (!string.IsNullOrWhiteSpace(author._iconPath))
                         {
-                            author.icon = Utilities.Utils.LoadSpriteFromFile(songData.songPath + "/" + author._iconPath);
+                            author.icon = Utilities.Utils.LoadSpriteFromFile(level.customLevelPath + "/" + author._iconPath);
                             reqViewController.Data.Add(new CustomCellInfo(author._name, author._role, author.icon));
                         }
                         else

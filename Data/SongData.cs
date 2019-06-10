@@ -10,7 +10,6 @@ namespace SongCore.Data
     [Serializable]
     public class ExtraSongData
     {
-        public string songPath;
         public Contributor[] contributors; //convert legacy mappers/lighters fields into contributors
         public string _customEnvironmentName;
         public string _customEnvironmentHash;
@@ -66,10 +65,9 @@ namespace SongCore.Data
         }
 
         [Newtonsoft.Json.JsonConstructor]
-        public ExtraSongData(string levelID, string songPath, Contributor[] contributors, string customEnvironmentName, string customEnvironmentHash, DifficultyData[] difficulties)
+        public ExtraSongData(string levelID, Contributor[] contributors, string customEnvironmentName, string customEnvironmentHash, DifficultyData[] difficulties)
         {
             //      Utilities.Logging.Log("SongData full Ctor");
-            this.songPath = songPath;
             this.contributors = contributors;
             this._customEnvironmentName = customEnvironmentName;
             this._customEnvironmentHash = customEnvironmentHash;
@@ -82,7 +80,6 @@ namespace SongCore.Data
             //        Utilities.Logging.Log("SongData Ctor");
             try
             {
-                this.songPath = songPath;
                 if (!File.Exists(songPath + "/info.dat")) return;
                 var infoText = File.ReadAllText(songPath + "/info.dat");
 
