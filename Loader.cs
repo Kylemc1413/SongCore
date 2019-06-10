@@ -262,12 +262,11 @@ namespace SongCore
                                 HMMainThreadDispatcher.instance.Enqueue(delegate
                                 {
                                     if (_loadingCancelled) return;
-                                    var level = LoadSong(saveData, songPath);
+                                    var level = LoadSong(saveData, songPath, out string hash);
                                     if (level != null)
                                     {
                                         if(!Collections.levelHashDictionary.ContainsKey(level.levelID))
                                         {
-                                            string hash = Hashing.GetCustomLevelHash(level);
                                             Collections.levelHashDictionary.Add(level.levelID, hash);
                                             if (Collections.hashLevelDictionary.TryGetValue(hash, out var levels))
                                                 levels.Add(level.levelID);
@@ -415,7 +414,7 @@ namespace SongCore
                 if (folderPath.Contains("CustomWIPLevels"))
                     wip = true;
                 StandardLevelInfoSaveData saveData = GetStandardLevelInfoSaveData(folderPath);
-                var level = LoadSong(saveData, folderPath);
+                var level = LoadSong(saveData, folderPath, out string hash);
                 if (level != null)
                 {
                     if (!wip)
@@ -425,7 +424,6 @@ namespace SongCore
 
                     if (!Collections.levelHashDictionary.ContainsKey(level.levelID))
                     {
-                        string hash = Hashing.GetCustomLevelHash(level);
                         Collections.levelHashDictionary.Add(level.levelID, hash);
                         if (Collections.hashLevelDictionary.ContainsKey(hash))
                             Collections.hashLevelDictionary[hash].Add(level.levelID);
@@ -446,12 +444,13 @@ namespace SongCore
             }
         }
 
-        public static CustomPreviewBeatmapLevel LoadSong(StandardLevelInfoSaveData saveData, string songPath)
+        public static CustomPreviewBeatmapLevel LoadSong(StandardLevelInfoSaveData saveData, string songPath, out string hash)
         {
             CustomPreviewBeatmapLevel result;
+            hash = Hashing.GetCustomLevelHash(saveData, songPath);
             try
             {
-                string levelID = songPath.Contains("CustomWIPLevels") ? CustomLevelLoaderSO.kCustomLevelPrefixId + new DirectoryInfo(songPath).Name + " WIP" : CustomLevelLoaderSO.kCustomLevelPrefixId + new DirectoryInfo(songPath).Name;
+                string levelID = "custom_level_" + (songPath.Contains("CustomWIPLevels") ? hash + " WIP" : hash);
                 string songName = saveData.songName;
                 string songSubName = saveData.songSubName;
                 string songAuthorName = saveData.songAuthorName;
