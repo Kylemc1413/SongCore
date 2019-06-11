@@ -88,7 +88,7 @@ The following is a template for you to use:
 }
 ```
 ### info.dat Explanation
-```json
+```
 	"_version": - Format Version, leave this as 2.0.0
 	"_songName": - Name of your song
 	"_songSubName": - Text rendered in smaller letters next to song name. (ft. Artist)
