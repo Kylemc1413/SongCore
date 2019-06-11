@@ -189,7 +189,11 @@ namespace SongCore
                 if (songData != null)
                 {
                     if (PlatformsInstalled)
+                    {
+                        Logging.logger.Info("Checking Custom Environment");
                         CheckCustomSongEnvironment(data.difficultyBeatmap);
+                    }
+
 
                     if (songData._colorLeft != null && songData._colorRight != null)
                     {
@@ -339,9 +343,12 @@ namespace SongCore
 
         private void CheckCustomSongEnvironment(IDifficultyBeatmap song)
         {
-            Data.ExtraSongData songData = Collections.RetrieveExtraSongData(song.level.levelID);
+            Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(song.level as CustomPreviewBeatmapLevel));
             if (songData == null) return;
-            if (string.IsNullOrWhiteSpace(songData._customEnvironmentName)) return;
+            if (string.IsNullOrWhiteSpace(songData._customEnvironmentName))
+            {
+                return;
+            }
             int _customPlatform = customEnvironment(songData._customEnvironmentName);
             if (_customPlatform != -1)
             {
