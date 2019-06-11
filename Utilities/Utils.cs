@@ -58,10 +58,18 @@ namespace SongCore.Utilities
             {
         //        Console.WriteLine("The Folder already exists");
             }
+            try
+            {
             DirectoryInfo dInfo = new DirectoryInfo(file);
             DirectorySecurity dSecurity = dInfo.GetAccessControl();
             dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
             dInfo.SetAccessControl(dSecurity);
+            }
+            catch(Exception ex)
+            {
+                Logging.logger.Error("Exception trying to Grant access to " + file);
+            }
+
 
         }
         public static string TrimEnd(this string text, string value)
