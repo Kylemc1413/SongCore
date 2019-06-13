@@ -18,6 +18,7 @@ namespace SongCore.Utilities
             if (File.Exists(cachedHashDataPath))
             {
                 cachedSongHashData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
+                if(cachedSongHashData == null) cachedSongHashData = new Dictionary<string, SongHashData>();
                 Logging.Log($"Finished reading cached hashes for {cachedSongHashData.Count} songs!");
             }
         }

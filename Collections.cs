@@ -101,7 +101,7 @@ namespace SongCore
 
         public static void SaveExtraSongData()
         {
-            File.WriteAllText(dataPath, Newtonsoft.Json.JsonConvert.SerializeObject(customSongsData));
+            File.WriteAllText(dataPath, Newtonsoft.Json.JsonConvert.SerializeObject(customSongsData, Formatting.None));
         }
 
 

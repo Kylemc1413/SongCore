@@ -135,6 +135,7 @@
     <Compile Include="Data\SongData.cs" />
     <Compile Include="UI\BasicUI.cs" />
     <Compile Include="Utilities\Hashing.cs" />
+    <Compile Include="Utilities\HSBColor.cs" />
     <Compile Include="Utilities\Logging.cs" />
     <Compile Include="Utilities\ReflectionUtil.cs" />
     <Compile Include="Utilities\Utils.cs" />

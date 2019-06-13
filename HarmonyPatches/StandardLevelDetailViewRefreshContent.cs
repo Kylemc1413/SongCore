@@ -72,8 +72,9 @@ namespace SongCore.HarmonyPatches
                 }
                 bool wipFolderSong = false;
                 IDifficultyBeatmap selectedDiff = ____selectedDifficultyBeatmap;
-                Data.ExtraSongData.DifficultyData diffData = songData._difficulties.FirstOrDefault(x => x._difficulty == selectedDiff.difficulty
-                && (x._beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName || x._beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));
+                Data.ExtraSongData.DifficultyData diffData = Collections.RetrieveDifficultyData(selectedDiff);
+                //songData._difficulties?.FirstOrDefault(x => x._difficulty == selectedDiff.difficulty
+                //&& (x._beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName || x._beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));
                 if(diffData != null)
                 {
                     //If no additional information is present
@@ -101,8 +102,7 @@ namespace SongCore.HarmonyPatches
 
                     }
                 }
-             
-                if (songData.songPath.Contains("CustomWIPLevels"))
+                if (level.customLevelPath.Contains("CustomWIPLevels"))
                 {
                     MenuUI.infoButton.interactable = true;
                     MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
@@ -139,7 +139,7 @@ namespace SongCore.HarmonyPatches
                 MenuUI.infoButton.onClick.AddListener(delegate ()
                 {
                     //Console.WriteLine("Click");
-                    MenuUI.showSongRequirements(songData, diffData, wipFolderSong);
+                    MenuUI.showSongRequirements(level, songData, diffData, wipFolderSong);
                 });
 
 

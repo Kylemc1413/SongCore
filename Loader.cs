@@ -189,7 +189,7 @@ namespace SongCore
                 CustomLevels.Clear();
                 CustomWIPLevels.Clear();
             }
-            HashSet<string> foundSongPaths = new HashSet<string>();
+            HashSet<string> foundSongPaths = fullRefresh? new HashSet<string>() : new HashSet<string>(Hashing.cachedSongHashData.Keys);
 
             Action job = delegate
             {
@@ -235,12 +235,16 @@ namespace SongCore
 
                                 if (!fullRefresh)
                                 {
+                                    if(CustomLevels.ContainsKey(songPath))
+                                    {
                                     var c = CustomLevels[songPath];//.FirstOrDefault(x => x.customLevelPath == songPath);
                                     if (c != null)
                                     {
                                         loadedData.Add(c.levelID);
                                         continue;
                                     }
+                                    }
+
                                 }
                                 bool wip = false;
                                 if (songPath.Contains("CustomWIPLevels"))
@@ -262,12 +266,11 @@ namespace SongCore
                                 HMMainThreadDispatcher.instance.Enqueue(delegate
                                 {
                                     if (_loadingCancelled) return;
-                                    var level = LoadSong(saveData, songPath);
+                                    var level = LoadSong(saveData, songPath, out string hash);
                                     if (level != null)
                                     {
                                         if(!Collections.levelHashDictionary.ContainsKey(level.levelID))
                                         {
-                                            string hash = Hashing.GetCustomLevelHash(level);
                                             Collections.levelHashDictionary.Add(level.levelID, hash);
                                             if (Collections.hashLevelDictionary.TryGetValue(hash, out var levels))
                                                 levels.Add(level.levelID);
@@ -342,6 +345,7 @@ namespace SongCore
                 SongsLoadedEvent?.Invoke(this, CustomLevels);
 
                 // Write our cached hash info and 
+
                 Hashing.UpdateCachedHashes(foundSongPaths);
                 SongCore.Collections.SaveExtraSongData();
                 
@@ -406,7 +410,7 @@ namespace SongCore
             }
 
         }
-
+        /*
         public void RetrieveNewSong(string folderPath)
         {
             try
@@ -415,17 +419,15 @@ namespace SongCore
                 if (folderPath.Contains("CustomWIPLevels"))
                     wip = true;
                 StandardLevelInfoSaveData saveData = GetStandardLevelInfoSaveData(folderPath);
-                var level = LoadSong(saveData, folderPath);
+                var level = LoadSong(saveData, folderPath, out string hash);
                 if (level != null)
                 {
                     if (!wip)
                         CustomLevels[folderPath] = level;
                     else
                         CustomWIPLevels[folderPath] = level;
-
                     if (!Collections.levelHashDictionary.ContainsKey(level.levelID))
                     {
-                        string hash = Hashing.GetCustomLevelHash(level);
                         Collections.levelHashDictionary.Add(level.levelID, hash);
                         if (Collections.hashLevelDictionary.ContainsKey(hash))
                             Collections.hashLevelDictionary[hash].Add(level.levelID);
@@ -437,6 +439,9 @@ namespace SongCore
                         }
                     }
                 }
+                HashSet<string> paths = new HashSet<string>( Hashing.cachedSongHashData.Keys);
+                paths.Add(folderPath);
+                Hashing.UpdateCachedHashes(paths);
                 RefreshLevelPacks();
             }
             catch (Exception ex)
@@ -445,13 +450,14 @@ namespace SongCore
                 Logging.Log(ex.ToString(), LogSeverity.Error);
             }
         }
-
-        public static CustomPreviewBeatmapLevel LoadSong(StandardLevelInfoSaveData saveData, string songPath)
+        */
+        public static CustomPreviewBeatmapLevel LoadSong(StandardLevelInfoSaveData saveData, string songPath, out string hash)
         {
             CustomPreviewBeatmapLevel result;
+            hash = Hashing.GetCustomLevelHash(saveData, songPath);
             try
             {
-                string levelID = songPath.Contains("CustomWIPLevels") ? CustomLevelLoaderSO.kCustomLevelPrefixId + new DirectoryInfo(songPath).Name + " WIP" : CustomLevelLoaderSO.kCustomLevelPrefixId + new DirectoryInfo(songPath).Name;
+                string levelID = "custom_level_" + (songPath.Contains("CustomWIPLevels") ? hash + " WIP" : hash);
                 string songName = saveData.songName;
                 string songSubName = saveData.songSubName;
                 string songAuthorName = saveData.songAuthorName;

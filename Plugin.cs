@@ -67,13 +67,10 @@ namespace SongCore
             if (level is CustomPreviewBeatmapLevel)
             {
                 var customLevel = level as CustomPreviewBeatmapLevel;
-                Logging.Log((level as CustomPreviewBeatmapLevel).customLevelPath);
+         //       Logging.Log((level as CustomPreviewBeatmapLevel).customLevelPath);
                 Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
                 Collections.SaveExtraSongData();
-            }
-            else
-            {
-                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(level.levelID);
+
                 if (songData == null)
                 {
                     //          Logging.Log("Null song Data");
@@ -189,11 +186,15 @@ namespace SongCore
                 if (songData != null)
                 {
                     if (PlatformsInstalled)
+                    {
+                        Logging.logger.Info("Checking Custom Environment");
                         CheckCustomSongEnvironment(data.difficultyBeatmap);
+                    }
+
 
                     if (songData._colorLeft != null && songData._colorRight != null)
                     {
-                        if (customSongColors)
+                        if (customSongColors && ColorsInstalled)
                             SetSongColors(songData._colorLeft, songData._colorRight);
                     }
                 }
@@ -339,9 +340,12 @@ namespace SongCore
 
         private void CheckCustomSongEnvironment(IDifficultyBeatmap song)
         {
-            Data.ExtraSongData songData = Collections.RetrieveExtraSongData(song.level.levelID);
+            Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(song.level as CustomPreviewBeatmapLevel));
             if (songData == null) return;
-            if (string.IsNullOrWhiteSpace(songData._customEnvironmentName)) return;
+            if (string.IsNullOrWhiteSpace(songData._customEnvironmentName))
+            {
+                return;
+            }
             int _customPlatform = customEnvironment(songData._customEnvironmentName);
             if (_customPlatform != -1)
             {
