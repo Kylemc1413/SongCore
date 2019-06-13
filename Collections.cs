@@ -42,21 +42,19 @@ namespace SongCore
         }
         public static string hashForLevelID(string levelID)
         {
-            levelHashDictionary.TryGetValue(levelID, out var hash);
-            return hash ?? "";
+            if (levelHashDictionary.TryGetValue(levelID, out var hash))
+                return hash;
+            return "";
         }
         public static List<string> levelIDsForHash(string hash)
         {
-            if (hashLevelDictionary.TryGetValue(hash, out var songs))
+            if (hashLevelDictionary.TryGetValue(hash.ToUpper(), out var songs))
                 return songs;
-            songs = new List<string>();
-            songs.Add(string.Empty);
-            return songs;
+            return new List<string>();
         }
         
         public static void AddSong(string levelID, string path)
         {
-
             if (!customSongsData.ContainsKey(levelID))
                 customSongsData.Add(levelID, new ExtraSongData(levelID, path));
             //         Utilities.Logging.Log("Entry: :"  + levelID + "    " + customSongsData.Count);
