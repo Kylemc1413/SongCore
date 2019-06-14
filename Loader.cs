@@ -24,6 +24,7 @@ namespace SongCore
         public static event Action<Loader> LoadingStartedEvent;
         public static event Action<Loader, Dictionary<string, CustomPreviewBeatmapLevel>> SongsLoadedEvent;
         public static event Action OnLevelPacksRefreshed;
+        public static event Action DeletingSong;
         public static Dictionary<string, CustomPreviewBeatmapLevel> CustomLevels = new Dictionary<string, CustomPreviewBeatmapLevel>();
         public static Dictionary<string, CustomPreviewBeatmapLevel> CustomWIPLevels = new Dictionary<string, CustomPreviewBeatmapLevel>();
         public static SongCoreCustomLevelCollection CustomLevelsCollection { get; private set; }
@@ -61,10 +62,10 @@ namespace SongCore
             OnSceneChanged(SceneManager.GetActiveScene(), SceneManager.GetActiveScene());
             Hashing.ReadCachedSongHashes();
             if (Directory.Exists(Converter.oldFolderPath)) Converter.PrepareExistingLibrary();
-                else
+            else
                 RefreshSongs();
             DontDestroyOnLoad(gameObject);
-            
+
             SceneManager.activeSceneChanged += OnSceneChanged;
         }
 
@@ -88,7 +89,7 @@ namespace SongCore
             if (newScene.name == "MenuCore")
             {
                 BS_Utils.Gameplay.Gamemode.Init();
-                if(_customLevelLoader == null)
+                if (_customLevelLoader == null)
                 {
                     _customLevelLoader = Resources.FindObjectsOfTypeAll<CustomLevelLoaderSO>().FirstOrDefault();
                     if (_customLevelLoader)
@@ -108,9 +109,9 @@ namespace SongCore
                     }
                 }
 
-                if(BeatmapLevelsModelSO == null)
-                BeatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
-                
+                if (BeatmapLevelsModelSO == null)
+                    BeatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
+
                 //Handle LevelPacks
                 if (CustomBeatmapLevelPackCollectionSO == null)
                 {
@@ -189,7 +190,7 @@ namespace SongCore
                 CustomLevels.Clear();
                 CustomWIPLevels.Clear();
             }
-            HashSet<string> foundSongPaths = fullRefresh? new HashSet<string>() : new HashSet<string>(Hashing.cachedSongHashData.Keys);
+            HashSet<string> foundSongPaths = fullRefresh ? new HashSet<string>() : new HashSet<string>(Hashing.cachedSongHashData.Keys);
 
             Action job = delegate
             {
@@ -235,14 +236,14 @@ namespace SongCore
 
                                 if (!fullRefresh)
                                 {
-                                    if(CustomLevels.ContainsKey(songPath))
+                                    if (CustomLevels.ContainsKey(songPath))
                                     {
-                                    var c = CustomLevels[songPath];//.FirstOrDefault(x => x.customLevelPath == songPath);
-                                    if (c != null)
-                                    {
-                                        loadedData.Add(c.levelID);
-                                        continue;
-                                    }
+                                        var c = CustomLevels[songPath];//.FirstOrDefault(x => x.customLevelPath == songPath);
+                                        if (c != null)
+                                        {
+                                            loadedData.Add(c.levelID);
+                                            continue;
+                                        }
                                     }
 
                                 }
@@ -269,7 +270,7 @@ namespace SongCore
                                     var level = LoadSong(saveData, songPath, out string hash);
                                     if (level != null)
                                     {
-                                        if(!Collections.levelHashDictionary.ContainsKey(level.levelID))
+                                        if (!Collections.levelHashDictionary.ContainsKey(level.levelID))
                                         {
                                             Collections.levelHashDictionary.Add(level.levelID, hash);
                                             if (Collections.hashLevelDictionary.TryGetValue(hash, out var levels))
@@ -332,7 +333,7 @@ namespace SongCore
             {
                 stopwatch.Stop();
                 Logging.Log("Loaded " + (CustomLevels.Count + CustomWIPLevels.Count) + " new songs in " + stopwatch.Elapsed.TotalSeconds + " seconds");
-                
+
                 //Level Packs
                 RefreshLevelPacks();
 
@@ -348,7 +349,7 @@ namespace SongCore
 
                 Hashing.UpdateCachedHashes(foundSongPaths);
                 SongCore.Collections.SaveExtraSongData();
-                
+
 
             };
 
@@ -367,6 +368,7 @@ namespace SongCore
         }
         public void DeleteSong(string folderPath, bool deleteFolder = true)
         {
+            DeletingSong?.Invoke();
             //Remove the level from SongCore Collections
             try
             {
@@ -378,29 +380,31 @@ namespace SongCore
                 else
                 {
                     level = CustomWIPLevels[folderPath];//.FirstOrDefault(x => x.customLevelPath == folderPath);
-                    if (level != null)
-                    {
-                        CustomWIPLevels.Remove(folderPath);
+                }
+                if (level != null)
+                {
+                    CustomWIPLevels.Remove(folderPath);
 
-                        if (Collections.levelHashDictionary.ContainsKey(level.levelID))
+                    if (Collections.levelHashDictionary.ContainsKey(level.levelID))
+                    {
+                        string hash = Collections.hashForLevelID(level.levelID);
+                        Collections.levelHashDictionary.Remove(level.levelID);
+                        if (Collections.hashLevelDictionary.ContainsKey(hash))
                         {
-                            string hash = Collections.hashForLevelID(level.levelID);
-                            Collections.levelHashDictionary.Remove(level.levelID);
-                            if (Collections.hashLevelDictionary.ContainsKey(hash))
-                            {
-                                Collections.hashLevelDictionary[hash].Remove(level.levelID);
-                                if (Collections.hashLevelDictionary[hash].Count == 0)
-                                    Collections.hashLevelDictionary.Remove(hash);
-                            }
+                            Collections.hashLevelDictionary[hash].Remove(level.levelID);
+                            if (Collections.hashLevelDictionary[hash].Count == 0)
+                                Collections.hashLevelDictionary.Remove(hash);
                         }
                     }
+                    Hashing.UpdateCachedHashes(new HashSet<string>((CustomLevels.Keys.Concat(CustomWIPLevels.Keys))));
                 }
+
                 //Delete the directory
-                if(deleteFolder)
-                if (Directory.Exists(folderPath))
-                {
-                    Directory.Delete(folderPath, true);
-                }
+                if (deleteFolder)
+                    if (Directory.Exists(folderPath))
+                    {
+                        Directory.Delete(folderPath, true);
+                    }
                 RefreshLevelPacks();
             }
             catch (Exception ex)
@@ -457,7 +461,10 @@ namespace SongCore
             hash = Hashing.GetCustomLevelHash(saveData, songPath);
             try
             {
+                string folderName = new DirectoryInfo(songPath).Name;
                 string levelID = "custom_level_" + (songPath.Contains("CustomWIPLevels") ? hash + " WIP" : hash);
+                if (Collections.levelHashDictionary.ContainsKey(levelID))
+                    levelID += "_" + folderName;
                 string songName = saveData.songName;
                 string songSubName = saveData.songSubName;
                 string songAuthorName = saveData.songAuthorName;
