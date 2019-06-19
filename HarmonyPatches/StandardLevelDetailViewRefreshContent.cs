@@ -78,8 +78,8 @@ namespace SongCore.HarmonyPatches
                 if(diffData != null)
                 {
                     //If no additional information is present
-                    if (diffData.additionalDifficultyData._requirements.Count() == 0 && diffData.additionalDifficultyData._requirements.Count() == 0
-                        && diffData.additionalDifficultyData._requirements.Count() == 0 && diffData.additionalDifficultyData._requirements.Count() == 0
+                    if (diffData.additionalDifficultyData._requirements.Count() == 0 && diffData.additionalDifficultyData._suggestions.Count() == 0
+                        && diffData.additionalDifficultyData._warnings.Count() == 0 && diffData.additionalDifficultyData._information.Count() == 0
                         && songData.contributors.Count() == 0)
                     {
                         MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
