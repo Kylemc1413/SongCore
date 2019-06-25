@@ -16,20 +16,34 @@ namespace SongCore.HarmonyPatches
 
     public class StandardLevelDetailViewRefreshContent
     {
-        internal static string EasyOverride = "";
-        internal static string NormalOverride = "";
-        internal static string HardOverride = "";
-        internal static string ExpertOverride = "";
-        internal static string ExpertPlusOverride = "";
+        public static Dictionary<string, OverrideLabels> levelLabels = new Dictionary<string, OverrideLabels>();
+        public class OverrideLabels
+        {
+            internal string EasyOverride = "";
+            internal string NormalOverride = "";
+            internal string HardOverride = "";
+            internal string ExpertOverride = "";
+            internal string ExpertPlusOverride = "";
+        }
 
+        public static OverrideLabels currentLabels = new OverrideLabels();
+
+        internal static void SetCurrentLabels(OverrideLabels labels)
+        {
+            currentLabels.EasyOverride = labels.EasyOverride;
+            currentLabels.NormalOverride = labels.NormalOverride;
+            currentLabels.HardOverride = labels.HardOverride;
+            currentLabels.ExpertOverride = labels.ExpertOverride;
+            currentLabels.ExpertPlusOverride = labels.ExpertPlusOverride;
+        }
 
         internal static void clearOverrideLabels()
         {
-            EasyOverride = "";
-            NormalOverride = "";
-            HardOverride = "";
-            ExpertOverride = "";
-            ExpertPlusOverride = "";
+            currentLabels.EasyOverride = "";
+            currentLabels.NormalOverride = "";
+            currentLabels.HardOverride = "";
+            currentLabels.ExpertOverride = "";
+            currentLabels.ExpertPlusOverride = "";
         }
 
         static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
@@ -62,9 +76,9 @@ namespace SongCore.HarmonyPatches
                     //   SongLoader.infoButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(0, 0, 0, 0);
                     //          (SongLoader.infoButton.transform as RectTransform).sizeDelta = new Vector2(0.11f, 0.1f);
                     MenuUI.infoButton.transform.localScale *= 0.5f;
-                    
+
                 }
-                if(songData == null)
+                if (songData == null)
                 {
                     MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
                     MenuUI.infoButton.interactable = false;
@@ -75,7 +89,7 @@ namespace SongCore.HarmonyPatches
                 Data.ExtraSongData.DifficultyData diffData = Collections.RetrieveDifficultyData(selectedDiff);
                 //songData._difficulties?.FirstOrDefault(x => x._difficulty == selectedDiff.difficulty
                 //&& (x._beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName || x._beatmapCharacteristicName == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));
-                if(diffData != null)
+                if (diffData != null)
                 {
                     //If no additional information is present
                     if (diffData.additionalDifficultyData._requirements.Count() == 0 && diffData.additionalDifficultyData._suggestions.Count() == 0
@@ -111,7 +125,7 @@ namespace SongCore.HarmonyPatches
                     wipFolderSong = true;
 
                 }
-                if(diffData != null)
+                if (diffData != null)
                 {
 
                     for (int i = 0; i < diffData.additionalDifficultyData._requirements.Count(); i++)
@@ -127,7 +141,7 @@ namespace SongCore.HarmonyPatches
                 }
 
 
-                if(selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName == "Missing Characteristic")
+                if (selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName == "Missing Characteristic")
                 {
                     ____playButton.interactable = false;
                     ____practiceButton.interactable = false;
@@ -144,40 +158,46 @@ namespace SongCore.HarmonyPatches
 
 
                 //Difficulty Label Handling
-                bool overrideLabels = false;
+                levelLabels.Clear();
+                string currentCharacteristic = "";
                 foreach (Data.ExtraSongData.DifficultyData diffLevel in songData._difficulties)
                 {
                     var difficulty = diffLevel._difficulty;
+                    string characteristic = diffLevel._beatmapCharacteristicName;
+                    if (characteristic == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName || characteristic == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName)
+                        currentCharacteristic = characteristic;
+                    if (!levelLabels.ContainsKey(characteristic))
+                        levelLabels.Add(characteristic, new OverrideLabels());
+                    OverrideLabels charLabels = levelLabels[characteristic];
                     if (!string.IsNullOrWhiteSpace(diffLevel._difficultyLabel))
                     {
-                        //   Console.WriteLine("Diff: " + difficulty + "   Label: " + diffLevel.difficultyLabel);
-                        overrideLabels = true;
                         switch (difficulty)
                         {
                             case BeatmapDifficulty.Easy:
-                                EasyOverride = diffLevel._difficultyLabel;
+                                charLabels.EasyOverride = diffLevel._difficultyLabel;
                                 break;
                             case BeatmapDifficulty.Normal:
-                                NormalOverride = diffLevel._difficultyLabel;
+                                charLabels.NormalOverride = diffLevel._difficultyLabel;
                                 break;
                             case BeatmapDifficulty.Hard:
-                                HardOverride = diffLevel._difficultyLabel;
+                                charLabels.HardOverride = diffLevel._difficultyLabel;
                                 break;
                             case BeatmapDifficulty.Expert:
-                                ExpertOverride = diffLevel._difficultyLabel;
+                                charLabels.ExpertOverride = diffLevel._difficultyLabel;
                                 break;
                             case BeatmapDifficulty.ExpertPlus:
-                                ExpertPlusOverride = diffLevel._difficultyLabel;
+                                charLabels.ExpertPlusOverride = diffLevel._difficultyLabel;
                                 break;
                         }
                     }
                 }
-                if (overrideLabels)
-                {
-                    //  Console.WriteLine("Overriding");
-                    ____beatmapDifficultySegmentedControlController.SetData(____selectedDifficultyBeatmap.parentDifficultyBeatmapSet.difficultyBeatmaps, ____beatmapDifficultySegmentedControlController.selectedDifficulty);
+                if (!string.IsNullOrWhiteSpace(currentCharacteristic))
+                    SetCurrentLabels(levelLabels[currentCharacteristic]);
+                else
                     clearOverrideLabels();
-                }
+
+                ____beatmapDifficultySegmentedControlController.SetData(____selectedDifficultyBeatmap.parentDifficultyBeatmapSet.difficultyBeatmaps, ____beatmapDifficultySegmentedControlController.selectedDifficulty);
+                clearOverrideLabels();
 
 
 
