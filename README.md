@@ -127,7 +127,7 @@ The following is a template for you to use:
 					"_noteJumpStartBeatOffset": 0,
 					"_customData": {
 						"difficultyLabel" - The name to display for the difficulty in game
-		 Note: Difficulty labels affect Every difficulty of the same type(Easy, Normal, etc) 
+		 Note: Difficulty labels are unique per _beatmapCharacteristicName
 						"_editorOffset": 0,
 						"_editorOldOffset": 0,
 						
