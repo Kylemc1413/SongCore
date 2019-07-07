@@ -165,9 +165,6 @@ The following is a template for you to use:
 | Capability | Mod |
 | - | - |
 | "Mapping Extensions"| Mapping Extensions |
-| "Mapping Extensions-Precision Placement"| Mapping Extensions |
-| "Mapping Extensions-Extra Note Angles"| Mapping Extensions |
-| "Mapping Extensions-More Lanes"| Mapping Extensions |
 | "Chroma"| Chroma |
 | "Chroma Lighting Events"| Chroma |
 | "Chroma Special Events"| Chroma |
