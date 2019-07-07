@@ -172,13 +172,6 @@ The following is a template for you to use:
 | "Chroma Lighting Events"| Chroma |
 | "Chroma Special Events"| Chroma |
 
-Using RGB, pentachrome, technicolour or random lights?  `Chroma Lighting Events`
-This includes ring spin controls, barrier colour changes, and the like. 
-
-Using special events such as note scale, health changes, time control, powerups, register `Chroma Special Events`
-
-`Chroma` is registered but not meant to be used outside exception cases.
-
 ## Beatmap Characteristics
 - These control what difficulty set the difficulty is placed under, so if you wanted to include a set of 5 difficulties that were all one saber in addition to a normal set of 5 difficulties, similar to what the OST does, you would give all of the one saber difficultyLevels a characteristic of one saber (The SerializedName of a registered Characteristic is what should be put in the map
 
