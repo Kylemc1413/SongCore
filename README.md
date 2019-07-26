@@ -54,8 +54,8 @@ Required files:
       "_iconPath": - Filename of icon to use for contributor
     }
   ],
-  "customEnvironment" - Custom platform override, will use "environmentName" if CustomPlatforms isn't installed or disabled
-  "customEnvironmentHash" - The hash found on ModelSaber, used to download missing platforms
+  "_customEnvironment" - Custom platform override, will use "environmentName" if CustomPlatforms isn't installed or disabled
+  "_customEnvironmentHash" - The hash found on ModelSaber, used to download missing platforms
 },
 "_difficultyBeatmapSets": [
 {
@@ -68,7 +68,7 @@ Required files:
       "_noteJumpMovementSpeed": 10,
       "_noteJumpStartBeatOffset": 0,
       "_customData": {
-        "difficultyLabel" - The name to display for the difficulty in game
+        "_difficultyLabel" - The name to display for the difficulty in game
           Note: Difficulty labels are unique per _beatmapCharacteristicName
         "_editorOffset": 0,
         "_editorOldOffset": 0,
@@ -120,8 +120,8 @@ The following is a template for you to use:
 				"_iconPath": "test.png"
 			}
 		],
-  		"customEnvironment": "Platform Name",
- 		"customEnvironmentHash": "<platform's ModelSaber md5sum hash>"
+  		"_customEnvironment": "Platform Name",
+ 		"_customEnvironmentHash": "<platform's ModelSaber md5sum hash>"
 	},
 	"_difficultyBeatmapSets": [{
 			"_beatmapCharacteristicName": "Standard",
