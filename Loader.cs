@@ -475,11 +475,11 @@ namespace SongCore
                 float shufflePeriod = saveData.shufflePeriod;
                 float previewStartTime = saveData.previewStartTime;
                 float previewDuration = saveData.previewDuration;
-                SceneInfo environmentSceneInfo = _customLevelLoader.LoadSceneInfo(saveData.environmentName);
+                EnvironmentInfoSO environmentSceneInfo = _customLevelLoader.LoadEnvironmentInfo(saveData.environmentName);
                 List<BeatmapCharacteristicSO> list = new List<BeatmapCharacteristicSO>();
                 foreach (StandardLevelInfoSaveData.DifficultyBeatmapSet difficultyBeatmapSet in saveData.difficultyBeatmapSets)
                 {
-                    BeatmapCharacteristicSO beatmapCharacteristicBySerialiedName = beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerialiedName(difficultyBeatmapSet.beatmapCharacteristicName);
+                    BeatmapCharacteristicSO beatmapCharacteristicBySerialiedName = beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(difficultyBeatmapSet.beatmapCharacteristicName);
                     if (beatmapCharacteristicBySerialiedName != null)
                     {
                         list.Add(beatmapCharacteristicBySerialiedName);

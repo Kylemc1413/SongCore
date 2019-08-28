@@ -47,7 +47,7 @@ namespace SongCore.HarmonyPatches
         }
 
         static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
-            ref IPlayer ____player, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController)
+            ref PlayerData ____playerData, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController)
         {
             var level = ____selectedDifficultyBeatmap.level is CustomBeatmapLevel ? ____selectedDifficultyBeatmap.level as CustomPreviewBeatmapLevel : null;
 
@@ -141,7 +141,7 @@ namespace SongCore.HarmonyPatches
                 }
 
 
-                if (selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName == "Missing Characteristic")
+                if (selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName == "MissingCharacteristic")
                 {
                     ____playButton.interactable = false;
                     ____practiceButton.interactable = false;
@@ -164,7 +164,7 @@ namespace SongCore.HarmonyPatches
                 {
                     var difficulty = diffLevel._difficulty;
                     string characteristic = diffLevel._beatmapCharacteristicName;
-                    if (characteristic == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName || characteristic == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName)
+                    if (characteristic == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName)
                         currentCharacteristic = characteristic;
                     if (!levelLabels.ContainsKey(characteristic))
                         levelLabels.Add(characteristic, new OverrideLabels());

@@ -16,7 +16,7 @@ namespace SongCore
         internal static CustomBeatmapLevelPack WipLevelPack;
 
 
-        internal static string dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"..\LocalLow\Hyperbolic Magnetism\Beat Saber\SongCoreExtraData.dat");
+        internal static string dataPath = Path.Combine(Application.persistentDataPath, "SongCoreExtraData.dat");
         internal static Dictionary<string, ExtraSongData> customSongsData = new Dictionary<string, ExtraSongData>();
         internal static Dictionary<string, string> levelHashDictionary = new Dictionary<string, string>();
         internal static Dictionary<string, List<string>> hashLevelDictionary = new Dictionary<string, List<string>>();
@@ -87,7 +87,7 @@ namespace SongCore
                 songData = RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
             }
             if (songData == null) return null;
-            ExtraSongData.DifficultyData diffData = songData._difficulties.FirstOrDefault(x => x._difficulty == beatmap.difficulty && (x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicName || x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));
+            ExtraSongData.DifficultyData diffData = songData._difficulties.FirstOrDefault(x => x._difficulty == beatmap.difficulty && (x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicNameLocalizationKey || x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));
             return diffData;
         }
         public static void LoadExtraSongData()
@@ -115,9 +115,9 @@ namespace SongCore
             BeatmapCharacteristicSO newChar = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
 
             newChar.SetField("_icon", Icon);
-            newChar.SetField("_hintText", HintText);
+            newChar.SetField("_descriptionLocalizationKey", HintText);
             newChar.SetField("_serializedName", SerializedName);
-            newChar.SetField("_characteristicName", CharacteristicName);
+            newChar.SetField("_characteristicNameLocalizationKey", CharacteristicName);
             newChar.SetField("_compoundIdPartName", CompoundIdPartName);
 
             if (!_customCharacteristics.Any(x => x.serializedName == newChar.serializedName))

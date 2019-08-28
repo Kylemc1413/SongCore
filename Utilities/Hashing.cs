@@ -6,13 +6,13 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-
+using UnityEngine;
 namespace SongCore.Utilities
 {
     public class Hashing
     {
         internal static Dictionary<string, SongHashData> cachedSongHashData = new Dictionary<string, SongHashData>();
-        internal static string cachedHashDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"..\LocalLow\Hyperbolic Magnetism\Beat Saber\SongHashData.dat");
+        internal static string cachedHashDataPath = Path.Combine(Application.persistentDataPath, "SongHashData.dat");
         public static void ReadCachedSongHashes()
         {
             if (File.Exists(cachedHashDataPath))

@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using Harmony;
 namespace SongCore.HarmonyPatches
 {
+    
     [HarmonyPatch(typeof(BeatmapCharacteristicCollectionSO))]
-    [HarmonyPatch("GetBeatmapCharacteristicBySerialiedName", MethodType.Normal)]
+    [HarmonyPatch("GetBeatmapCharacteristicBySerializedName", MethodType.Normal)]
     class CustomCharacteristicsPatch
     {
         //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
@@ -15,18 +16,18 @@ namespace SongCore.HarmonyPatches
         {
             if(__result == null)
             {
-                if (Collections.customCharacteristics.Any(x => x.characteristicName == serializedName))
-                    __result = Collections.customCharacteristics.FirstOrDefault(x => x.characteristicName == serializedName);
+                if (Collections.customCharacteristics.Any(x => x.serializedName == serializedName))
+                    __result = Collections.customCharacteristics.FirstOrDefault(x => x.serializedName == serializedName);
                 else
-                    __result = Collections.customCharacteristics.FirstOrDefault(x => x.characteristicName == "Missing Characteristic");
+                    __result = Collections.customCharacteristics.FirstOrDefault(x => x.serializedName == "MissingCharacteristic");
             }
         }
     }
+    
 
-
-
+    /*
     [HarmonyPatch(typeof(BeatmapCharacteristicSO))]
-    [HarmonyPatch("hintTextLocalized", MethodType.Getter)]
+    [HarmonyPatch("descriptionLocalizationKey", MethodType.Getter)]
     class CustomCharacteristicsPatch2
     {
         //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
@@ -34,13 +35,13 @@ namespace SongCore.HarmonyPatches
         {
             if (__result == null)
             {
-                __result = __instance.hintText;
+                __result = __instance.descriptionLocalizationKey;
             }
         }
     }
 
     [HarmonyPatch(typeof(BeatmapCharacteristicSO))]
-    [HarmonyPatch("characteristicNameLocalized", MethodType.Getter)]
+    [HarmonyPatch("characteristicNameLocalizationKey", MethodType.Getter)]
     class CustomCharacteristicsPatch3
     {
         //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
@@ -48,9 +49,9 @@ namespace SongCore.HarmonyPatches
         {
             if (__result == null)
             {
-                __result = __instance.characteristicName;
+                __result = __instance.characteristicNameLocalizationKey;
             }
         }
     }
-
+    */
 }

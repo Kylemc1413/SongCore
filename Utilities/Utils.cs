@@ -34,6 +34,10 @@ namespace SongCore.Utilities
             return false;
         }
 
+        public static Color ColorFromMapColor(Data.ExtraSongData.MapColor mapColor)
+        {
+            return new Color(mapColor.r, mapColor.g, mapColor.b);
+        }
         public static TEnum ToEnum<TEnum>(this string strEnumValue, TEnum defaultValue)
         {
             if (!Enum.IsDefined(typeof(TEnum), strEnumValue))

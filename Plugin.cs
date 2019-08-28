@@ -23,17 +23,17 @@ namespace SongCore
         public static string oneSaberCharacteristicName = "OneSaber";
         public static string noArrowsCharacteristicName = "NoArrows";
         internal static HarmonyInstance harmony;
-        internal static bool ColorsInstalled = false;
+   //     internal static bool ColorsInstalled = false;
         internal static bool PlatformsInstalled = false;
         internal static bool customSongColors;
         internal static bool customSongPlatforms;
         internal static int _currentPlatform = -1;
-
+        internal static ColorManager _colorManager;
 
 
         public void OnApplicationStart()
         {
-            ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
+      //      ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
             PlatformsInstalled = Utils.IsModInstalled("Custom Platforms");
             harmony = HarmonyInstance.Create("com.kyle1413.BeatSaber.SongCore");
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
@@ -48,7 +48,7 @@ namespace SongCore
                 Collections.LoadExtraSongData();
             Collections.RegisterCustomCharacteristic(UI.BasicUI.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic");
             Collections.RegisterCustomCharacteristic(UI.BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow");
-            Collections.RegisterCustomCharacteristic(UI.BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - These difficulties don't follow conventional standards, and should not necessarily be expected to reflect their given names.", "Lawless", "Lawless");
+            Collections.RegisterCustomCharacteristic(UI.BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless");
 
         }
 
@@ -190,13 +190,6 @@ namespace SongCore
                         Logging.logger.Info("Checking Custom Environment");
                         CheckCustomSongEnvironment(data.difficultyBeatmap);
                     }
-
-
-                    if (songData._colorLeft != null && songData._colorRight != null)
-                    {
-                        if (customSongColors && ColorsInstalled)
-                            SetSongColors(songData._colorLeft, songData._colorRight);
-                    }
                 }
                 else
                     Console.WriteLine("null data");
@@ -277,66 +270,6 @@ namespace SongCore
         {
         }
 
-        private void SetSongColors(Data.ExtraSongData.MapColor left, Data.ExtraSongData.MapColor right)
-        {
-            Color colorLeft = new Color(left.r, left.g, left.b);
-            Color colorRight = new Color(right.r, right.g, right.b);
-            GameObject colorSetterObj = null;
-            EnvironmentColorsSetter colorSetter;
-            if (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.level.environmentSceneInfo.sceneName.Contains("KDA"))
-            {
-                //     Console.WriteLine("KDA");
-                colorSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
-            }
-            else
-            {
-                colorSetterObj = new GameObject("SongCore Color Setter");
-
-                colorSetterObj.SetActive(false);
-                colorSetter = colorSetterObj.AddComponent<EnvironmentColorsSetter>();
-            }
-
-            var scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
-            SimpleColorSO[] A = new SimpleColorSO[2];
-            SimpleColorSO[] B = new SimpleColorSO[2];
-            foreach (var color in scriptableColors)
-            {
-                //     Console.WriteLine("Color: " + color.name);
-                int i = 0;
-                if (color.name == "BaseNoteColor1")
-                {
-                    B[0] = color;
-                    i++;
-                }
-                else if (color.name == "BaseNoteColor0")
-                {
-                    A[0] = color;
-                    i++;
-                }
-                else if (color.name == "BaseColor0")
-                {
-                    A[1] = color;
-                    i++;
-                }
-                else if (color.name == "BaseColor1")
-                {
-                    B[1] = color;
-                    i++;
-                }
-            }
-            colorSetter.SetPrivateField("_colorsA", A);
-            colorSetter.SetPrivateField("_colorsB", B);
-            colorSetter.SetPrivateField("_colorManager", Resources.FindObjectsOfTypeAll<ColorManager>().First());
-            colorSetter.SetPrivateField("_overrideColorA", colorRight);
-            colorSetter.SetPrivateField("_overrideColorB", colorLeft);
-            //    Console.WriteLine("Turning on");
-            if (colorSetterObj != null)
-                colorSetterObj.SetActive(true);
-
-            colorSetter.Awake();
-
-
-        }
 
         private void CheckCustomSongEnvironment(IDifficultyBeatmap song)
         {

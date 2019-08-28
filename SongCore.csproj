@@ -36,7 +36,8 @@
     <Reference Include="0Harmony.1.2.0.1">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Libs\0Harmony.1.2.0.1.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp">
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="BeatSaberCustomUI">
@@ -122,9 +123,10 @@
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData.cs" />
     <Compile Include="HarmonyPatches\BeatmapDifficultyMethodsName.cs" />
     <Compile Include="HarmonyPatches\CustomCharacteristicsPatch.cs" />
+    <Compile Include="HarmonyPatches\CustomSongColorsPatch.cs" />
     <Compile Include="HarmonyPatches\LevelSelectionPatch.cs" />
-    <Compile Include="HarmonyPatches\StandardLevelDetailViewRefreshContent.cs" />
     <Compile Include="HarmonyPatches\LoadingPatches.cs" />
+    <Compile Include="HarmonyPatches\StandardLevelDetailViewRefreshContent.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="OverrideClasses\SongCoreCustomBeatmapLevelPack.cs" />
     <Compile Include="OverrideClasses\SongCoreBeatmapLevelPackCollectionSO.cs" />
