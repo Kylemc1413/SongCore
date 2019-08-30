@@ -192,25 +192,27 @@ namespace SongCore
             }
             HashSet<string> foundSongPaths = fullRefresh ? new HashSet<string>() : new HashSet<string>(Hashing.cachedSongHashData.Keys);
 
+            var baseProjectPath = CustomLevelPathHelper.baseProjectPath;
+            var customLevelsPath = CustomLevelPathHelper.customLevelsDirectoryPath;
+
             Action job = delegate
             {
                 try
                 {
                     stopwatch.Start();
-                    var path = CustomLevelPathHelper.baseProjectPath;
-                    path = path.Replace('\\', '/');
+                    baseProjectPath = baseProjectPath.Replace('\\', '/');
 
-                    if (!Directory.Exists(CustomLevelPathHelper.customLevelsDirectoryPath))
+                    if (!Directory.Exists(customLevelsPath))
                     {
-                        Directory.CreateDirectory(CustomLevelPathHelper.customLevelsDirectoryPath);
+                        Directory.CreateDirectory(customLevelsPath);
                     }
 
-                    if (!Directory.Exists(path + "/CustomWIPLevels"))
+                    if (!Directory.Exists(baseProjectPath + "/CustomWIPLevels"))
                     {
-                        Directory.CreateDirectory(path + "/CustomWIPLevels");
+                        Directory.CreateDirectory(baseProjectPath + "/CustomWIPLevels");
                     }
 
-                    var songFolders = Directory.GetDirectories(path + "/CustomLevels").ToList().Concat(Directory.GetDirectories(path + "/CustomWIPLevels")).ToList();
+                    var songFolders = Directory.GetDirectories(baseProjectPath + "/CustomLevels").ToList().Concat(Directory.GetDirectories(baseProjectPath + "/CustomWIPLevels")).ToList();
                     var loadedData = new List<string>();
 
                     float i = 0;
