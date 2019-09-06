@@ -82,7 +82,25 @@ Required files:
           "g": 0.14107830811467803,
           "b": 0.07064014358987808
         },
+        "_envColorLeft": {
+          "r": 0.013660844415416155,
+          "g": 0,
+          "b": 0.07069587707519531
+        },
+        "_envColorRight": {
+          "r": 0.0014191981941151946,
+          "g": 0.14107830811467803,
+          "b": 0.07064014358987808
+        },
+        "_obstacleColor": {
+          "r": 1,
+          "g": 0,
+          "b": 0
+        },
           Color range for r,g, and b is a 0-1 scale, not 0-255 scale
+	  If a color is not present as an override and the player has overrides enabled, 
+	  it will use the color from the player's current color scheme, with the exception 
+	  of envLeft and envRight which will first try to use colorLeft / colorRight
         "_warnings": - Any warnings you would like the player to be aware of before playing the song
         "_information": - Any general information you would like the player to be aware of before playing the song
         "_suggestions": - Any mods to suggest the player uses for playing the song, must be supported by the mod in question otherwise the player will constantly be informed they are missing suggested mod(s)
@@ -145,6 +163,21 @@ The following is a template for you to use:
 							"g": 0.14107830811467803,
 							"b": 0.07064014358987808
 						},
+						"_envColorLeft": {
+							"r": 0.013660844415416155,
+							"g": 0,
+							"b": 0.07069587707519531
+						},
+        					"_envColorRight": {
+          						"r": 0.0014191981941151946,
+          						"g": 0.14107830811467803,
+          						"b": 0.07064014358987808
+        					},
+        					"_obstacleColor": {
+          						"r": 1,
+          						"g": 0,
+          						"b": 0
+        					},
 						"_warnings": [],
 						"_information": [],
 						"_suggestions": [],
