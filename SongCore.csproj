@@ -140,6 +140,7 @@
     <Compile Include="Utilities\HSBColor.cs" />
     <Compile Include="Utilities\Logging.cs" />
     <Compile Include="Utilities\ReflectionUtil.cs" />
+    <Compile Include="Utilities\Unzip.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
