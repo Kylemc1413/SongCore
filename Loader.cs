@@ -168,6 +168,9 @@ namespace SongCore
             {
                 CustomLevels.Clear();
                 CustomWIPLevels.Clear();
+                CachedWIPLevels.Clear();
+                Collections.levelHashDictionary.Clear();
+                Collections.hashLevelDictionary.Clear();
             }
             HashSet<string> foundSongPaths = fullRefresh ? new HashSet<string>() : new HashSet<string>(Hashing.cachedSongHashData.Keys);
 
@@ -190,93 +193,96 @@ namespace SongCore
                     {
                         Directory.CreateDirectory(baseProjectPath + "/CustomWIPLevels");
                     }
-
-                    try
+                    if (fullRefresh)
                     {
-
-                        var cachePath = path + "/CustomWIPLevels/Cache";
-                        if (!Directory.Exists(cachePath))
-                            Directory.CreateDirectory(cachePath);
-                        var cache = new DirectoryInfo(cachePath);
-                        foreach (var file in cache.GetFiles())
-                            file.Delete();
-                        foreach (var folder in cache.GetDirectories())
-                            folder.Delete(true);
-                        var zips = Directory.GetFiles(path + "/CustomWIPLevels", "*.zip", SearchOption.TopDirectoryOnly);
-                        foreach (var zip in zips)
+                        try
                         {
 
-                            var unzip = new Unzip(zip);
-                            try
+                            var cachePath = path + "/CustomWIPLevels/Cache";
+                            if (!Directory.Exists(cachePath))
+                                Directory.CreateDirectory(cachePath);
+                            var cache = new DirectoryInfo(cachePath);
+                            foreach (var file in cache.GetFiles())
+                                file.Delete();
+                            foreach (var folder in cache.GetDirectories())
+                                folder.Delete(true);
+                            var zips = Directory.GetFiles(path + "/CustomWIPLevels", "*.zip", SearchOption.TopDirectoryOnly);
+                            foreach (var zip in zips)
                             {
-                            unzip.ExtractToDirectory(cachePath + "/" + new FileInfo(zip).Name);
-                            }
-                            catch(Exception ex)
-                            {
-                                Logging.logger.Warn("Failed to extract zip: " + zip + ": " + ex);
-                            }
-                            unzip.Dispose();
-                        }
 
-                        var cacheFolders = Directory.GetDirectories(cachePath).ToArray();
-                        foreach (var cachedFolder in cacheFolders)
-                        {
-                            var results = Directory.GetFiles(cachedFolder, "info.dat", SearchOption.AllDirectories);
-                            if (results.Length == 0)
-                            {
-                                Logging.Log("Folder: '" + cachedFolder + "' is missing info.dat files!", LogSeverity.Notice);
-                                continue;
-                            }
-                            foreach (var result in results)
-                            {
+                                var unzip = new Unzip(zip);
                                 try
                                 {
-                                    var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
-                                    if (!fullRefresh)
-                                    {
-                                        if (CachedWIPLevels.ContainsKey(songPath))
-                                        {
-                                            var c = CachedWIPLevels[songPath];//.FirstOrDefault(x => x.customLevelPath == songPath);
-                                            if (c != null)
-                                            {
-                                                continue;
-                                            }
-                                        }
-
-                                    }
-                                    StandardLevelInfoSaveData saveData = GetStandardLevelInfoSaveData(songPath);
-                                    if (saveData == null)
-                                    {
-                                        continue;
-                                    }
-
-                                    HMMainThreadDispatcher.instance.Enqueue(delegate
-                                    {
-                                        if (_loadingCancelled) return;
-                                        var level = LoadSong(saveData, songPath, out string hash);
-                                        if (level != null)
-                                        {
-
-                                            CachedWIPLevels[songPath] = level;
-                                        }
-                                    });
-
-
-
-
+                                    unzip.ExtractToDirectory(cachePath + "/" + new FileInfo(zip).Name);
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logging.logger.Notice("Failed to load song from " + cachedFolder + ": " + ex);
+                                    Logging.logger.Warn("Failed to extract zip: " + zip + ": " + ex);
                                 }
+                                unzip.Dispose();
                             }
 
+                            var cacheFolders = Directory.GetDirectories(cachePath).ToArray();
+                            foreach (var cachedFolder in cacheFolders)
+                            {
+                                var results = Directory.GetFiles(cachedFolder, "info.dat", SearchOption.AllDirectories);
+                                if (results.Length == 0)
+                                {
+                                    Logging.Log("Folder: '" + cachedFolder + "' is missing info.dat files!", LogSeverity.Notice);
+                                    continue;
+                                }
+                                foreach (var result in results)
+                                {
+                                    try
+                                    {
+                                        var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
+                                        if (!fullRefresh)
+                                        {
+                                            if (CachedWIPLevels.ContainsKey(songPath))
+                                            {
+                                                var c = CachedWIPLevels[songPath];//.FirstOrDefault(x => x.customLevelPath == songPath);
+                                                if (c != null)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                        }
+                                        StandardLevelInfoSaveData saveData = GetStandardLevelInfoSaveData(songPath);
+                                        if (saveData == null)
+                                        {
+                                            continue;
+                                        }
+
+                                        HMMainThreadDispatcher.instance.Enqueue(delegate
+                                        {
+                                            if (_loadingCancelled) return;
+                                            var level = LoadSong(saveData, songPath, out string hash);
+                                            if (level != null)
+                                            {
+
+                                                CachedWIPLevels[songPath] = level;
+                                            }
+                                        });
+
+
+
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Logging.logger.Notice("Failed to load song from " + cachedFolder + ": " + ex);
+                                    }
+                                }
+
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logging.logger.Error("Failed To Load Cached WIP Levels: " + ex);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Logging.logger.Error("Failed To Load Cached WIP Levels: " + ex);
-                    }
+
                     stopwatch.Start();
 
 
@@ -351,29 +357,8 @@ namespace SongCore
                                                 levels.Add(level.levelID);
                                                 Collections.hashLevelDictionary.Add(hash, levels);
                                             }
+                                        }
 
-                                            /*
-                                            if (Collections.hashLevelDictionary.ContainsKey(hash))
-                                                Collections.hashLevelDictionary[hash].Add(level.levelID);
-                                            else
-                                            {
-                                                var levels = new List<string>();
-                                                levels.Add(level.levelID);
-                                                Collections.hashLevelDictionary.Add(hash, levels);
-                                            }
-                                            */
-                                        }
-                                        /*
-                                        string hash = Utils.GetCustomLevelHash(level);
-                                        if (!Collections._loadedHashes.ContainsKey(hash))
-                                        {
-                                            List<CustomPreviewBeatmapLevel> value = new List<CustomPreviewBeatmapLevel>();
-                                            value.Add(level);
-                                            Collections._loadedHashes.Add(hash, value);
-                                        }
-                                        else
-                                            Collections._loadedHashes[hash].Add(level);
-                                            */
                                         if (!wip)
                                             CustomLevels[songPath] = level;
                                         else
