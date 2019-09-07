@@ -207,7 +207,14 @@ namespace SongCore
                         {
 
                             var unzip = new Unzip(zip);
+                            try
+                            {
                             unzip.ExtractToDirectory(cachePath + "/" + new FileInfo(zip).Name);
+                            }
+                            catch(Exception ex)
+                            {
+                                Logging.logger.Warn("Failed to extract zip: " + zip + ": " + ex);
+                            }
                             unzip.Dispose();
                         }
 
