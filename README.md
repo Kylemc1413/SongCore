@@ -4,6 +4,14 @@ A plugin for handling custom song additions in Beat Saber.
 - Custom Song folders go in `Beat Saber_Data/CustomLevels`
 - The song files must be in the root of the song folder, and not within a subfolder
 - You can place songs in the `Beat Saber_Data/CustomWIPLevels` folder instead to place them in the `WIP Maps` song pack and have them only be playable in practice mode. This is recommended if you are either making the map yourself or testing someone else's map
+#### Zip Files
+- You can place Zip files in `Beat Saber_Data/CustomWIPLevels` and whenever SongCore Loads songs it will attempt to handle them in the following way
+- Clearing the `Beat Saber_Data/CustomWIPLevels/Cache` folder of all files
+- Extracting the zips to the Cache folder inside of a folder of the same name of the zip
+- Attempting to load any songs found within the Cache folder
+- If any songs are successfully loaded from the Cache folder, they will show up within a "Cached WIP Maps" LevelPack next to the WIP Maps pack
+- This loading is less efficient due to having to extract the zips every time, and occurs before regular loading starts, so be aware that song loading may slow down if you have a large amount of zips in the folder
+
 ``` 
 Required files:
   1. cover.jpg (Size 256x256)
