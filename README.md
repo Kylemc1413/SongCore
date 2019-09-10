@@ -47,13 +47,17 @@ Required files:
 "_songFilename": - Filename of the audio file
 "_coverImageFilename": - Filename of the cover file
 "_environmentName": - Game Environment to be used
-  Possible environmentNames:
-   - DefaultEnvironment
-   - BigMirrorEnvironment
-   - TriangleEnvironment
-   - NiceEnvironment
-   - KDAEnvironment
-   - MonstercatEnvironment
+  Possible environmentNames (-> Name listed in game):
+	- DefaultEnvironment -> The First
+	- Origins -> Origins
+	- TriangleEnvironment -> Triangle
+	- BigMirrorEnvironment -> Big Mirror
+	- NiceEnvironment -> Nice
+	- KDAEnvironment -> KDA
+	- MonstercatEnvironment -> Monstercat
+	- DragonsEnvironment -> Dragons
+	- CrabRaveEnvironment -> Crab Rave
+
 "_customData": {
   "_contributors": [
     {
