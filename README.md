@@ -57,6 +57,7 @@ Required files:
 	- MonstercatEnvironment -> Monstercat
 	- DragonsEnvironment -> Dragons
 	- CrabRaveEnvironment -> Crab Rave
+	- PanicEnvironment -> Panic
 
 "_customData": {
   "_contributors": [
