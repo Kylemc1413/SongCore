@@ -1,0 +1,33 @@
+<!--  
+		Syntax for folder entries	(Entries with name Example will be skipped)
+		<folder>
+		<Name> Name to be used for the folder entry, is used for level pack name if set to be a new pack i.e. SecondSongFolder </Name>
+		<Path> Full path to the folder to be used i.e. C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\SecondSongFolder </Path>
+		<Pack> either 0, 1, or 2. 0 means the songs will be put in the main custom levels pack, 1 means it will be put in the wip levels pack, and 2 means it will be put into a new pack </Pack>
+		<ImagePath> If Pack is 2, will attempt to load this image to use as the pack cover. Use the Full Path to the Image </ImagePath>
+		<WIP> If Pack is 2, songs in this folder will be treated as WIP and only be playable in practice mode. Use True/False for the value </WIP>
+
+		</folder>
+		
+		Example Entry:
+		<folder>
+			<Name>SecondSongFolder</Name>
+			<Path>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\SecondSongFolder</Path>
+			<Pack>2</Pack>
+			<WIP>True</WIP>
+		</folder>
+-->
+<folders>
+  <folder>
+    <Name>Example</Name>
+    <Path>ExamplePath</Path>
+    <Pack>0</Pack>
+    <WIP>False</WIP>
+    <ImagePath>Example</ImagePath>
+  </folder>
+  <folder>
+    <Name>Example</Name>
+    <Path>ExamplePath2</Path>
+    <Pack>1</Pack>
+  </folder>
+</folders>

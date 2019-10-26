@@ -7,7 +7,6 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
 using System.Reflection;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.AccessControl;
@@ -69,7 +68,7 @@ namespace SongCore.Utilities
             dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
             dInfo.SetAccessControl(dSecurity);
             }
-            catch(Exception ex)
+            catch
             {
                 Logging.logger.Error("Exception trying to Grant access to " + file);
             }

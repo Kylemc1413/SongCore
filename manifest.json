@@ -2,10 +2,10 @@
   "$schema": "https://raw.githubusercontent.com/nike4613/ModSaber-MetadataFileSchema/master/Schema.json",
   "author": "Kyle1413",
   "description": "A plugin for handling custom song additions in Beat Saber.",
-  "gameVersion": "1.3.0",
+  "gameVersion": "1.4.2",
   "id": "SongCore",
   "name": "SongCore",
-  "version": "2.2.1",
+  "version": "2.4.0",
   "features": [
   ]
 } 

@@ -11,7 +11,7 @@ namespace SongCore.UI
 {
     internal static class BasicUI
     {
-        internal static BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongCore");
+        internal static BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
         internal static UnityEngine.UI.Button infoButton;
         internal static CustomUI.BeatSaber.CustomMenu reqDialog;
         internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
@@ -26,12 +26,13 @@ namespace SongCore.UI
         internal static Sprite LightshowIcon;
         internal static Sprite ExtraDiffsIcon;
         internal static Sprite WIPIcon;
+        internal static Sprite FolderIcon;
 
 
         public static void CreateUI()
         {
-                var songCoreSubMenu = GameplaySettingsUI.CreateSubmenuOption(GameplaySettingsPanels.PlayerSettingsLeft, "SongCore", "MainMenu",
-    "songcore", "SongCore Options");
+            var songCoreSubMenu = GameplaySettingsUI.CreateSubmenuOption(GameplaySettingsPanels.PlayerSettingsLeft, "SongCore", "MainMenu",
+"songcore", "SongCore Options");
 
             var colorOverrideOption = GameplaySettingsUI.CreateToggleOption(GameplaySettingsPanels.PlayerSettingsLeft, "Allow Custom Song Colors",
                 "songcore", "Allow Custom Songs to override note/light colors if Custom Colors or Chroma is installed");
@@ -67,6 +68,21 @@ namespace SongCore.UI
             //   suggestionsList.text = "";
 
             reqViewController.Data.Clear();
+            //Requirements
+            if (diffData != null)
+            {
+                if (diffData.additionalDifficultyData._requirements.Count() > 0)
+                {
+                    foreach (string req in diffData.additionalDifficultyData._requirements)
+                    {
+                        //    Console.WriteLine(req);
+                        if (!Collections.capabilities.Contains(req))
+                            reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon));
+                        else
+                            reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Requirement", HaveReqIcon));
+                    }
+                }
+            }
             //Contributors
             if (songData.contributors.Count() > 0)
             {
@@ -86,22 +102,10 @@ namespace SongCore.UI
             }
             //WIP Check
             if (wipFolder)
-                reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + "WIP", "Warning", WarningIcon));
+                reqViewController.Data.Add(new CustomCellInfo("<size=70%>" + "WIP Song. Please Play in Practice Mode", "Warning", WarningIcon));
             //Additional Diff Info
-            if(diffData != null)
+            if (diffData != null)
             {
-                if (diffData.additionalDifficultyData._requirements.Count() > 0)
-                {
-                    foreach (string req in diffData.additionalDifficultyData._requirements)
-                    {
-                        //    Console.WriteLine(req);
-                        if (!Collections.capabilities.Contains(req))
-                            reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon));
-                        else
-                            reqViewController.Data.Add(new CustomCellInfo("<size=75%>" + req, "Requirement", HaveReqIcon));
-                    }
-                }
-
                 if (diffData.additionalDifficultyData._warnings.Count() > 0)
                 {
                     foreach (string req in diffData.additionalDifficultyData._warnings)
@@ -135,7 +139,7 @@ namespace SongCore.UI
                     }
                 }
             }
-         
+
 
 
 
@@ -167,7 +171,8 @@ namespace SongCore.UI
                 ExtraDiffsIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.ExtraDiffsIcon.png");
             if (!WIPIcon)
                 WIPIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.squek.png");
-
+            if (!FolderIcon)
+                FolderIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.FolderIcon.png");
         }
 
 

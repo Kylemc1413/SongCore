@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Media;
 using TMPro;
 using UnityEngine;
@@ -23,17 +24,27 @@ namespace SongCore
         public static string oneSaberCharacteristicName = "OneSaber";
         public static string noArrowsCharacteristicName = "NoArrows";
         internal static HarmonyInstance harmony;
-   //     internal static bool ColorsInstalled = false;
+        //     internal static bool ColorsInstalled = false;
         internal static bool PlatformsInstalled = false;
         internal static bool customSongColors;
         internal static bool customSongPlatforms;
         internal static int _currentPlatform = -1;
-        internal static ColorManager _colorManager;
 
 
         public void OnApplicationStart()
         {
-      //      ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
+            //Delete Old Config
+            try
+            {
+                if (File.Exists(Environment.CurrentDirectory + "/UserData/SongCore.ini"))
+                    File.Delete(Environment.CurrentDirectory + "/UserData/SongCore.ini");
+            }
+            catch
+            {
+                Logging.logger.Warn("Failed to delete old config file!");
+            }
+
+            //      ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
             PlatformsInstalled = Utils.IsModInstalled("Custom Platforms");
             harmony = HarmonyInstance.Create("com.kyle1413.BeatSaber.SongCore");
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
@@ -50,6 +61,9 @@ namespace SongCore
             Collections.RegisterCustomCharacteristic(UI.BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow");
             Collections.RegisterCustomCharacteristic(UI.BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless");
 
+            if (!File.Exists(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"))
+                File.WriteAllBytes(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml", Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
+            Loader.SeperateSongFolders = Data.SeperateSongFolder.ReadSeperateFoldersFromFile(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml");
         }
 
         private void BSEvents_menuSceneLoadedFresh()
@@ -67,7 +81,7 @@ namespace SongCore
             if (level is CustomPreviewBeatmapLevel)
             {
                 var customLevel = level as CustomPreviewBeatmapLevel;
-         //       Logging.Log((level as CustomPreviewBeatmapLevel).customLevelPath);
+                //       Logging.Log((level as CustomPreviewBeatmapLevel).customLevelPath);
                 Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
                 Collections.SaveExtraSongData();
 
@@ -112,55 +126,55 @@ namespace SongCore
             }
 
         }
-/*
-        internal static async void LoadWipPack()
-        {
-           if(Collections.WipLevelPack == null)
-            {
-                BeatmapLevelsModelSO levelModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
-                CancellationToken cancellationToken = new CancellationTokenSource().Token;
-                Collections.WipLevelPack = await levelModelSO.GetField<CustomLevelLoaderSO>("_customLevelLoader").LoadCustomBeatmapLevelPackAsync(Path.Combine(CustomLevelPathHelper.baseProjectPath,"CustomWIPLevels"), "WIP Levels", cancellationToken);
-                Collections.WipLevelPack.SetField("_coverImage", UI.BasicUI.WIPIcon);
-                if (levelModelSO == null)
+        /*
+                internal static async void LoadWipPack()
                 {
-                    Logging.Log("Null levelModel");
-                    return;
-                }
-                IBeatmapLevelPackCollection loadedLevelPacks = levelModelSO.GetField<IBeatmapLevelPackCollection>("_allLoadedBeatmapLevelPackCollection");
-                List<IBeatmapLevelPack> allLoadedBeatmapLevelPacks = new List<IBeatmapLevelPack>(loadedLevelPacks.beatmapLevelPacks);
-                foreach (IBeatmapLevelPack pack in allLoadedBeatmapLevelPacks)
-                {
-                    Logging.Log(pack.packID);
-      //              Logging.Log(CustomLevelPathHelper.customLevelsDirectoryPath);
-                    if (pack.packID == "custom_levelpack_" + CustomLevelPathHelper.customLevelsDirectoryPath)
+                   if(Collections.WipLevelPack == null)
                     {
-                        allLoadedBeatmapLevelPacks.Remove(pack);
-                        break;
+                        BeatmapLevelsModelSO levelModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
+                        CancellationToken cancellationToken = new CancellationTokenSource().Token;
+                        Collections.WipLevelPack = await levelModelSO.GetField<CustomLevelLoaderSO>("_customLevelLoader").LoadCustomBeatmapLevelPackAsync(Path.Combine(CustomLevelPathHelper.baseProjectPath,"CustomWIPLevels"), "WIP Levels", cancellationToken);
+                        Collections.WipLevelPack.SetField("_coverImage", UI.BasicUI.WIPIcon);
+                        if (levelModelSO == null)
+                        {
+                            Logging.Log("Null levelModel");
+                            return;
+                        }
+                        IBeatmapLevelPackCollection loadedLevelPacks = levelModelSO.GetField<IBeatmapLevelPackCollection>("_allLoadedBeatmapLevelPackCollection");
+                        List<IBeatmapLevelPack> allLoadedBeatmapLevelPacks = new List<IBeatmapLevelPack>(loadedLevelPacks.beatmapLevelPacks);
+                        foreach (IBeatmapLevelPack pack in allLoadedBeatmapLevelPacks)
+                        {
+                            Logging.Log(pack.packID);
+              //              Logging.Log(CustomLevelPathHelper.customLevelsDirectoryPath);
+                            if (pack.packID == "custom_levelpack_" + CustomLevelPathHelper.customLevelsDirectoryPath)
+                            {
+                                allLoadedBeatmapLevelPacks.Remove(pack);
+                                break;
+                            }
+                            Logging.Log("");
+                        }
+                   //     allLoadedBeatmapLevelPacks.Clear();
+                        allLoadedBeatmapLevelPacks.Add(Collections.WipLevelPack);
+                        //   Logging.Log(Collections.WipLevelPack.packName + Collections.WipLevelPack.packID + Collections.WipLevelPack.beatmapLevelCollection.beatmapLevels.Count());
+                        BeatmapLevelPackCollection newCollection = new BeatmapLevelPackCollection(allLoadedBeatmapLevelPacks.ToArray());
+                        levelModelSO.SetField("_allLoadedBeatmapLevelPackCollection", newCollection);
+
+                    BeatmapLevelPackCollectionSO newCollection2 = ScriptableObject.CreateInstance<BeatmapLevelPackCollectionSO>();
+                    newCollection2.SetField("_allBeatmapLevelPacks", newCollection.beatmapLevelPacks);
+
+                    levelModelSO.SetField("_loadedBeatmapLevelPackCollection", newCollection2);
+                    levelModelSO.UpdateLoadedPreviewLevels();
+            //        ReflectionUtil.InvokeMethod(levelModelSO, "OnEnable");
+                        foreach (IBeatmapLevelPack pack in allLoadedBeatmapLevelPacks)
+                        {
+                            Logging.Log(pack.packName);
+                        }
                     }
-                    Logging.Log("");
+
+
+
                 }
-           //     allLoadedBeatmapLevelPacks.Clear();
-                allLoadedBeatmapLevelPacks.Add(Collections.WipLevelPack);
-                //   Logging.Log(Collections.WipLevelPack.packName + Collections.WipLevelPack.packID + Collections.WipLevelPack.beatmapLevelCollection.beatmapLevels.Count());
-                BeatmapLevelPackCollection newCollection = new BeatmapLevelPackCollection(allLoadedBeatmapLevelPacks.ToArray());
-                levelModelSO.SetField("_allLoadedBeatmapLevelPackCollection", newCollection);
-                
-            BeatmapLevelPackCollectionSO newCollection2 = ScriptableObject.CreateInstance<BeatmapLevelPackCollectionSO>();
-            newCollection2.SetField("_allBeatmapLevelPacks", newCollection.beatmapLevelPacks);
-
-            levelModelSO.SetField("_loadedBeatmapLevelPackCollection", newCollection2);
-            levelModelSO.UpdateLoadedPreviewLevels();
-    //        ReflectionUtil.InvokeMethod(levelModelSO, "OnEnable");
-                foreach (IBeatmapLevelPack pack in allLoadedBeatmapLevelPacks)
-                {
-                    Logging.Log(pack.packName);
-                }
-            }
-
-         
-
-        }
-        */
+                */
         public void OnSceneUnloaded(Scene scene)
         {
 

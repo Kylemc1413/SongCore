@@ -120,6 +120,7 @@
     <Compile Include="Collections.cs" />
     <Compile Include="Converter.cs" />
     <Compile Include="Data\CachedSongData.cs" />
+    <Compile Include="Data\SongFolderEntries.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData.cs" />
     <Compile Include="HarmonyPatches\BeatmapDifficultyMethodsName.cs" />
     <Compile Include="HarmonyPatches\CustomCharacteristicsPatch.cs" />
@@ -173,7 +174,12 @@
     <EmbeddedResource Include="Icons\MissingChar.png" />
     <EmbeddedResource Include="Icons\squek.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Data\folders.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\FolderIcon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetDir)$(TargetFileName)" "C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins"</PostBuildEvent>

@@ -116,7 +116,7 @@ namespace SongCore.HarmonyPatches
 
                     }
                 }
-                if (level.customLevelPath.Contains("CustomWIPLevels"))
+                if (level.levelID.EndsWith(" WIP"))
                 {
                     MenuUI.infoButton.interactable = true;
                     MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
