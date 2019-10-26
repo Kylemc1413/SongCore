@@ -51,6 +51,7 @@ A plugin for handling custom song additions in Beat Saber.
   </folder>
 </folders>
 ``` 
+```
 Required files:
   1. cover.jpg (Size 256x256)
     - This is the picture shown next to song in the selection screen.
