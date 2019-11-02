@@ -174,6 +174,7 @@ namespace SongCore
                 CachedWIPLevels.Clear();
                 Collections.levelHashDictionary.Clear();
                 Collections.hashLevelDictionary.Clear();
+                for(var folder in SeperateSongFolders) folder.Levels.Clear();
             }
             HashSet<string> foundSongPaths = fullRefresh ? new HashSet<string>() : new HashSet<string>(Hashing.cachedSongHashData.Keys);
 
