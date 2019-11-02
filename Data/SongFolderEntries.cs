@@ -86,11 +86,11 @@ namespace SongCore.Data
                         isWIP = bool.Parse(wip.Value);
                     }
                     SongFolderEntry entry = new SongFolderEntry(name, path, (FolderLevelPack)pack, imagePath, isWIP);
-                    Console.WriteLine("Entry");
-                    Console.WriteLine("   " + entry.Name);
-                    Console.WriteLine("   " + entry.Path);
-                    Console.WriteLine("   " + entry.Pack);
-                    Console.WriteLine("   " + entry.WIP);
+                    //   Console.WriteLine("Entry");
+                    //   Console.WriteLine("   " + entry.Name);
+                    //   Console.WriteLine("   " + entry.Path);
+                    //   Console.WriteLine("   " + entry.Pack);
+                    //    Console.WriteLine("   " + entry.WIP);
                     result.Add(new SeperateSongFolder(entry));
                 }
             }
