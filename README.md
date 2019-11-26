@@ -303,3 +303,7 @@ The following is a template for you to use:
 //The Characteristic Name will be what mappers put as the characteristic when labelling their difficulties
 //If you make a mod that registers a characteristic feel free to message me on Discord ( Kyle1413#1413 ) and I will add it to the list above
  ```
+ * You can add a song folder entry for songcore to load songs from by doing the following as early as OnApplicationStart **Make sure to only call this once**. It will return a reference to the SeperateSongFolder it adds that your mod can use to check the levels loaded within the folder entry after SongCore loads songs.
+```csharp
+SongCore.Collections.AddSeperateSongFolder("Name of the Entry/Levelpack if set to be its own", "Full path to the folder songs will be stored in", Pack(Refer to folders.xml documentation), Sprite Image(Optional, if null defaults to folder icon), bool wip (Optional)  )
+```
