@@ -30,7 +30,7 @@ namespace SongCore
         public static Dictionary<string, CustomPreviewBeatmapLevel> CustomLevels = new Dictionary<string, CustomPreviewBeatmapLevel>();
         public static Dictionary<string, CustomPreviewBeatmapLevel> CustomWIPLevels = new Dictionary<string, CustomPreviewBeatmapLevel>();
         public static Dictionary<string, CustomPreviewBeatmapLevel> CachedWIPLevels = new Dictionary<string, CustomPreviewBeatmapLevel>();
-        public static List<SeperateSongFolder> SeperateSongFolders = null;
+        public static List<SeperateSongFolder> SeperateSongFolders = new List<SeperateSongFolder>();
         public static SongCoreCustomLevelCollection CustomLevelsCollection { get; private set; }
         public static SongCoreCustomLevelCollection WIPLevelsCollection { get; private set; }
         public static SongCoreCustomLevelCollection CachedWIPLevelCollection { get; private set; }
@@ -540,6 +540,7 @@ namespace SongCore
                         {
                             switch (folderEntry.SongFolderEntry.Pack)
                             {
+                                
                                 case FolderLevelPack.CustomWIPLevels:
                                     CustomWIPLevels = CustomWIPLevels.Concat(folderEntry.Levels.Where(x => !CustomWIPLevels.ContainsKey(x.Key))).ToDictionary(x => x.Key, x => x.Value);
                                     break;

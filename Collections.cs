@@ -128,7 +128,27 @@ namespace SongCore
 
             return null;
         }
-
+        //SongFolderEntry(string name, string path, FolderLevelPack pack, string imagePath = "", bool wip = false)
+        public static SeperateSongFolder AddSeperateSongFolder(string name, string folderPath, FolderLevelPack pack, Sprite image = null, bool wip = false)
+        {
+            UI.BasicUI.GetIcons();
+            if(!Directory.Exists(folderPath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+                catch(Exception ex)
+                {
+                    Logging.logger.Error("Failed to make folder for: " + name + "\n" + ex);
+                }
+            }
+            Data.SongFolderEntry entry = new SongFolderEntry(name, folderPath, pack, "", wip);
+            SeperateSongFolder seperateSongFolder = new SeperateSongFolder(entry, image == null? UI.BasicUI.FolderIcon : image);
+            if (Loader.SeperateSongFolders == null) Loader.SeperateSongFolders = new List<SeperateSongFolder>();
+            Loader.SeperateSongFolders.Add(seperateSongFolder);
+            return seperateSongFolder;
+        }
 
 
         public static void DeregisterizeCapability(string capability)

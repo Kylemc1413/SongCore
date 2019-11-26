@@ -63,7 +63,7 @@ namespace SongCore
 
             if (!File.Exists(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"))
                 File.WriteAllBytes(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml", Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
-            Loader.SeperateSongFolders = Data.SeperateSongFolder.ReadSeperateFoldersFromFile(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml");
+            Loader.SeperateSongFolders.InsertRange(0, Data.SeperateSongFolder.ReadSeperateFoldersFromFile(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"));
         }
 
         private void BSEvents_menuSceneLoadedFresh()

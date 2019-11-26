@@ -58,7 +58,16 @@ namespace SongCore.Data
                 LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoaderSO.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, image, LevelCollection);
             }
         }
+        public SeperateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite Image)
+        {
+            SongFolderEntry = folderEntry;
+            if (folderEntry.Pack == FolderLevelPack.NewPack)
+            {
+                LevelCollection = new SongCoreCustomLevelCollection(Levels.Values.ToArray());
 
+                LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoaderSO.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, Image, LevelCollection);
+            }
+        }
         public static List<SeperateSongFolder> ReadSeperateFoldersFromFile(string filePath)
         {
             List<SeperateSongFolder> result = new List<SeperateSongFolder>();
