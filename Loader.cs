@@ -127,6 +127,28 @@ namespace SongCore
             CustomLevelsCollection.UpdatePreviewLevels(CustomLevels.Values.OrderBy(l => l.songName).ToArray());
             WIPLevelsCollection.UpdatePreviewLevels(CustomWIPLevels.Values.OrderBy(l => l.songName).ToArray());
             CachedWIPLevelCollection?.UpdatePreviewLevels(CachedWIPLevels?.Values?.OrderBy(l => l.songName).ToArray());
+            if (CachedWIPLevels.Count > 0)
+            {
+                if (CachedWIPLevelsPack != null && !CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(CachedWIPLevelsPack))
+                    CustomBeatmapLevelPackCollectionSO.AddLevelPack(CachedWIPLevelsPack);
+            }
+            //     else if (CachedWIPLevelsPack != null && CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(CachedWIPLevelsPack))
+            //         CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(CachedWIPLevelsPack);
+            foreach (var folderEntry in SeperateSongFolders)
+            {
+                if (folderEntry.SongFolderEntry.Pack == FolderLevelPack.NewPack)
+                {
+
+                    folderEntry.LevelCollection.UpdatePreviewLevels(folderEntry.Levels.Values.OrderBy(l => l.songName).ToArray());
+                    if (folderEntry.Levels.Count > 0)
+                    {
+                        if (!CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(folderEntry.LevelPack))
+                            CustomBeatmapLevelPackCollectionSO.AddLevelPack(folderEntry.LevelPack);
+                    }
+                    //          else if (CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(folderEntry.LevelPack))
+                    //              CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(folderEntry.LevelPack);
+                }
+            }
             BeatmapLevelsModelSO.SetField("_loadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
             BeatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
             BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
@@ -174,7 +196,7 @@ namespace SongCore
                 CachedWIPLevels.Clear();
                 Collections.levelHashDictionary.Clear();
                 Collections.hashLevelDictionary.Clear();
-                foreach(var folder in SeperateSongFolders) folder.Levels.Clear();
+                foreach (var folder in SeperateSongFolders) folder.Levels.Clear();
             }
             HashSet<string> foundSongPaths = fullRefresh ? new HashSet<string>() : new HashSet<string>(Hashing.cachedSongHashData.Keys);
 
@@ -540,7 +562,7 @@ namespace SongCore
                         {
                             switch (folderEntry.SongFolderEntry.Pack)
                             {
-                                
+
                                 case FolderLevelPack.CustomWIPLevels:
                                     CustomWIPLevels = CustomWIPLevels.Concat(folderEntry.Levels.Where(x => !CustomWIPLevels.ContainsKey(x.Key))).ToDictionary(x => x.Key, x => x.Value);
                                     break;
@@ -566,29 +588,26 @@ namespace SongCore
                                 CachedWIPLevelCollection = new SongCoreCustomLevelCollection(CachedWIPLevels.Values.ToArray());
                                 CachedWIPLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoaderSO.kCustomLevelPackPrefixId + "CachedWIPLevels", "Cached WIP Maps", UI.BasicUI.WIPIcon, CachedWIPLevelCollection);
                                 CustomBeatmapLevelPackCollectionSO.AddLevelPack(CachedWIPLevelsPack);
-
                             }
 
                         }
-                        else if (CachedWIPLevelsPack != null && CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(CachedWIPLevelsPack))
-                            CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(CachedWIPLevelsPack);
+                        //       else if (CachedWIPLevelsPack != null && CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(CachedWIPLevelsPack))
+                        //           CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(CachedWIPLevelsPack);
 
                         foreach (var folderEntry in SeperateSongFolders)
                         {
                             if (folderEntry.SongFolderEntry.Pack == FolderLevelPack.NewPack)
                             {
+
+                                folderEntry.LevelCollection.UpdatePreviewLevels(folderEntry.Levels.Values.OrderBy(l => l.songName).ToArray());
                                 if (folderEntry.Levels.Count > 0)
                                 {
-                                    folderEntry.LevelCollection.UpdatePreviewLevels(folderEntry.Levels.Values.OrderBy(l => l.songName).ToArray());
-                                    folderEntry.LevelPack.UpdateLevelCollection(folderEntry.LevelCollection);
                                     if (!CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(folderEntry.LevelPack))
                                         CustomBeatmapLevelPackCollectionSO.AddLevelPack(folderEntry.LevelPack);
                                 }
-                                else if (CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(folderEntry.LevelPack))
-                                    CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(folderEntry.LevelPack);
+                                //         else if (CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(folderEntry.LevelPack))
+                                //             CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(folderEntry.LevelPack);
                             }
-
-
                         }
                         CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
                     }

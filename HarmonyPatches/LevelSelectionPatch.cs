@@ -48,3 +48,18 @@ public class LevelListTableCellSetDataFromLevel
 
     }
 }
+
+[HarmonyPatch(typeof(LevelPackLevelsTableView))]
+[HarmonyPatch("RefreshLevelsAvailability", MethodType.Normal)]
+class LevelPackLevelsSelectedPatch
+{
+    //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
+    static bool Prefix(IBeatmapLevelPack ____pack)
+    {
+     //   Logging.logger.Info(____pack.packID);
+        if (____pack.packID.Contains(CustomLevelLoaderSO.kCustomLevelPackPrefixId))
+            return false;
+        else
+            return true;
+    }
+}
