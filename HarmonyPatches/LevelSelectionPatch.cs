@@ -9,12 +9,12 @@ using TMPro;
 using SongCore.Utilities;
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(LevelPackLevelsViewController))]
-    [HarmonyPatch("HandleLevelPackLevelsTableViewDidSelectLevel", MethodType.Normal)]
+    [HarmonyPatch(typeof(LevelCollectionViewController))]
+    [HarmonyPatch("HandleLevelCollectionTableViewDidSelectLevel", MethodType.Normal)]
     class LevelPackLevelsSelectedPatch
     {
         //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
-        static void Prefix(LevelPackLevelsTableView tableView, IPreviewBeatmapLevel level)
+        static void Prefix(LevelCollectionTableView tableView, IPreviewBeatmapLevel level)
         {
             if(level is CustomPreviewBeatmapLevel)
             {
@@ -33,7 +33,7 @@ namespace SongCore.HarmonyPatches
 [HarmonyPatch("SetDataFromLevelAsync", MethodType.Normal)]
 public class LevelListTableCellSetDataFromLevel
 {
-    static void Postfix(IPreviewBeatmapLevel level, ref TextMeshProUGUI ____authorText)
+    static void Postfix(IPreviewBeatmapLevel level, bool isFavorite, ref TextMeshProUGUI ____authorText)
     {
         if (!(level is CustomPreviewBeatmapLevel))
             return;
@@ -48,8 +48,8 @@ public class LevelListTableCellSetDataFromLevel
 
     }
 }
-
-[HarmonyPatch(typeof(LevelPackLevelsTableView))]
+/*
+[HarmonyPatch(typeof(LevelCollectionViewController))]
 [HarmonyPatch("RefreshLevelsAvailability", MethodType.Normal)]
 class LevelPackLevelsSelectedPatch
 {
@@ -57,9 +57,10 @@ class LevelPackLevelsSelectedPatch
     static bool Prefix(IBeatmapLevelPack ____pack)
     {
      //   Logging.logger.Info(____pack.packID);
-        if (____pack.packID.Contains(CustomLevelLoaderSO.kCustomLevelPackPrefixId))
+        if (____pack.packID.Contains(CustomLevelLoader.kCustomLevelPackPrefixId))
             return false;
         else
             return true;
     }
 }
+*/

@@ -47,10 +47,10 @@ namespace SongCore
         private HMTask _loadingTask;
         private bool _loadingCancelled;
 
-        private static CustomLevelLoaderSO _customLevelLoader;
-        public static BeatmapLevelsModelSO BeatmapLevelsModelSO { get; private set; }
+        private static CustomLevelLoader _customLevelLoader;
+        public static BeatmapLevelsModel BeatmapLevelsModelSO { get; private set; }
         public static Sprite defaultCoverImage;
-        public static CachedMediaAsyncLoaderSO cachedMediaAsyncLoaderSO { get; private set; }
+        public static CachedMediaAsyncLoader cachedMediaAsyncLoaderSO { get; private set; }
         public static BeatmapCharacteristicCollectionSO beatmapCharacteristicCollection { get; private set; }
 
         public static Loader Instance;
@@ -97,14 +97,14 @@ namespace SongCore
                 BS_Utils.Gameplay.Gamemode.Init();
                 if (_customLevelLoader == null)
                 {
-                    _customLevelLoader = Resources.FindObjectsOfTypeAll<CustomLevelLoaderSO>().FirstOrDefault();
+                    _customLevelLoader = Resources.FindObjectsOfTypeAll<CustomLevelLoader>().FirstOrDefault();
                     if (_customLevelLoader)
                     {
                         Texture2D defaultCoverTex = _customLevelLoader.GetField<Texture2D>("_defaultPackCoverTexture2D");
                         defaultCoverImage = Sprite.Create(defaultCoverTex, new Rect(0f, 0f,
                             (float)defaultCoverTex.width, (float)defaultCoverTex.height), new Vector2(0.5f, 0.5f));
 
-                        cachedMediaAsyncLoaderSO = _customLevelLoader.GetField<CachedMediaAsyncLoaderSO>("_cachedMediaAsyncLoaderSO");
+                        cachedMediaAsyncLoaderSO = _customLevelLoader.GetField<CachedMediaAsyncLoader>("_cachedMediaAsyncLoaderSO");
                         beatmapCharacteristicCollection = _customLevelLoader.GetField<BeatmapCharacteristicCollectionSO>("_beatmapCharacteristicCollection");
                     }
                     else
@@ -116,7 +116,7 @@ namespace SongCore
                 }
 
                 if (BeatmapLevelsModelSO == null)
-                    BeatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
+                    BeatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModel>().FirstOrDefault();
 
 
             }
@@ -149,8 +149,8 @@ namespace SongCore
                     //              CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(folderEntry.LevelPack);
                 }
             }
-            BeatmapLevelsModelSO.SetField("_loadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
-            BeatmapLevelsModelSO.SetField("_allLoadedBeatmapLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
+            BeatmapLevelsModelSO.SetField("_customLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
+            BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
             BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
 
             OnLevelPacksRefreshed?.Invoke();
@@ -576,8 +576,8 @@ namespace SongCore
 
                         CustomLevelsCollection = new SongCoreCustomLevelCollection(CustomLevels.Values.ToArray());
                         WIPLevelsCollection = new SongCoreCustomLevelCollection(CustomWIPLevels.Values.ToArray());
-                        CustomLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoaderSO.kCustomLevelPackPrefixId + "CustomLevels", "Custom Maps", defaultCoverImage, CustomLevelsCollection);
-                        WIPLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoaderSO.kCustomLevelPackPrefixId + "CustomWIPLevels", "WIP Maps", UI.BasicUI.WIPIcon, WIPLevelsCollection);
+                        CustomLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + "CustomLevels", "Custom Maps", defaultCoverImage, CustomLevelsCollection);
+                        WIPLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + "CustomWIPLevels", "WIP Maps", UI.BasicUI.WIPIcon, WIPLevelsCollection);
                         CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomLevelsPack);
                         CustomBeatmapLevelPackCollectionSO.AddLevelPack(WIPLevelsPack);
 
@@ -586,7 +586,7 @@ namespace SongCore
                             if (CachedWIPLevelCollection == null)
                             {
                                 CachedWIPLevelCollection = new SongCoreCustomLevelCollection(CachedWIPLevels.Values.ToArray());
-                                CachedWIPLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoaderSO.kCustomLevelPackPrefixId + "CachedWIPLevels", "Cached WIP Maps", UI.BasicUI.WIPIcon, CachedWIPLevelCollection);
+                                CachedWIPLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + "CachedWIPLevels", "Cached WIP Maps", UI.BasicUI.WIPIcon, CachedWIPLevelCollection);
                                 CustomBeatmapLevelPackCollectionSO.AddLevelPack(CachedWIPLevelsPack);
                             }
 
@@ -618,7 +618,7 @@ namespace SongCore
                     //RefreshLevelPacks();
                     var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
                     LevelPacksViewController levelPacksViewController = soloFreePlay?.GetField<LevelPacksViewController>("_levelPacksViewController");
-                    levelPacksViewController?.SetData(CustomBeatmapLevelPackCollectionSO, 0);
+                    levelPacksViewController?.SetData(CustomBeatmapLevelPackCollectionSO, 0, false);
 
                     //Level Packs
                     RefreshLevelPacks();
@@ -762,7 +762,7 @@ namespace SongCore
             try
             {
                 string folderName = new DirectoryInfo(songPath).Name;
-                string levelID = CustomLevelLoaderSO.kCustomLevelPrefixId + hash;
+                string levelID = CustomLevelLoader.kCustomLevelPrefixId + hash;
                 if (wip) levelID += " WIP";
                 if (Collections.levelHashDictionary.ContainsKey(levelID))
                     levelID += "_" + folderName;

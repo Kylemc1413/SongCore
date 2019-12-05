@@ -8,14 +8,14 @@ using Harmony;
 using SongCore.Utilities;
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(CustomLevelLoaderSO))]
+    [HarmonyPatch(typeof(CustomLevelLoader))]
     [HarmonyPatch("LoadCustomPreviewBeatmapLevelPacksAsync", MethodType.Normal)]
     class LoadingPatches
     {
-        static void Prefix(ref CustomLevelLoaderSO.CustomPackFolderInfo[] customPackFolderInfos, CancellationToken cancellationToken)
+        static void Prefix(ref CustomLevelLoader.CustomPackFolderInfo[] customPackFolderInfos, CancellationToken cancellationToken)
         {
             var c  = customPackFolderInfos.ToList();
-            c.Add(new CustomLevelLoaderSO.CustomPackFolderInfo
+            c.Add(new CustomLevelLoader.CustomPackFolderInfo
             {
                 folderName = "CustomWIPLevels",
                 packName = "WIP Levels"
@@ -53,7 +53,7 @@ namespace SongCore.HarmonyPatches
         {
 
         }
-        [HarmonyPatch(typeof(CustomLevelLoaderSO))]
+        [HarmonyPatch(typeof(CustomLevelLoader))]
         [HarmonyPatch("LoadCustomPreviewBeatmapLevelPacksAsync", MethodType.Normal)]
         class StopVanillaLoadingPatch
         {

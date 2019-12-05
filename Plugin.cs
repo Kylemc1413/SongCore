@@ -50,9 +50,9 @@ namespace SongCore
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
             //     Collections.LoadExtraSongData();
             UI.BasicUI.GetIcons();
-            CustomUI.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
-            CustomUI.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
-            CustomUI.Utilities.BSEvents.menuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
+            BS_Utils.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
+            BS_Utils.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
+            BS_Utils.Utilities.BSEvents.menuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
             if (!File.Exists(Collections.dataPath))
                 File.Create(Collections.dataPath);
             else
@@ -76,7 +76,7 @@ namespace SongCore
             SharedCoroutineStarter.instance.StartCoroutine(DelayedNoteJumpMovementSpeedFix());
         }
 
-        private void BSEvents_levelSelected(LevelPackLevelsViewController arg1, IPreviewBeatmapLevel level)
+        private void BSEvents_levelSelected(LevelCollectionViewController arg1, IPreviewBeatmapLevel level)
         {
             if (level is CustomPreviewBeatmapLevel)
             {
