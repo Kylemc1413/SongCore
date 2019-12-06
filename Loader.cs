@@ -65,17 +65,16 @@ namespace SongCore
         {
             Instance = this;
             _progressBar = ProgressBar.Create();
-            OnSceneChanged(SceneManager.GetActiveScene(), SceneManager.GetActiveScene());
+            MenuLoaded();
             Hashing.ReadCachedSongHashes();
             if (Directory.Exists(Converter.oldFolderPath)) Converter.PrepareExistingLibrary();
             else
                 RefreshSongs();
             DontDestroyOnLoad(gameObject);
-
-            SceneManager.activeSceneChanged += OnSceneChanged;
+            BS_Utils.Utilities.BSEvents.menuSceneLoaded += MenuLoaded;
         }
 
-        internal void OnSceneChanged(Scene oldScene, Scene newScene)
+        internal void MenuLoaded()
         {
             if (AreSongsLoading)
             {
@@ -92,8 +91,6 @@ namespace SongCore
                     Logging.Log("Loading was cancelled by player since they loaded another scene.");
                 }
             }
-            if (newScene.name == "MenuCore")
-            {
                 BS_Utils.Gameplay.Gamemode.Init();
                 if (_customLevelLoader == null)
                 {
@@ -119,7 +116,7 @@ namespace SongCore
                     BeatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModel>().FirstOrDefault();
 
 
-            }
+            
         }
 
         public void RefreshLevelPacks()
@@ -152,13 +149,15 @@ namespace SongCore
             BeatmapLevelsModelSO.SetField("_customLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
             BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
             BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
-
+            var filterNav = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault();
+            filterNav.SetupPlaylists();
+            filterNav.UpdateData();
             OnLevelPacksRefreshed?.Invoke();
         }
 
         public void RefreshSongs(bool fullRefresh = true)
         {
-            if (SceneManager.GetActiveScene().name != "MenuCore") return;
+            if (SceneManager.GetActiveScene().name == "GameCore") return;
             if (AreSongsLoading) return;
 
             Logging.Log(fullRefresh ? "Starting full song refresh" : "Starting song refresh");
@@ -557,7 +556,7 @@ namespace SongCore
                     if (CustomBeatmapLevelPackCollectionSO == null)
                     {
                         var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
-                        CustomBeatmapLevelPackCollectionSO = SongCoreBeatmapLevelPackCollectionSO.ReplaceOriginal(beatmapLevelPackCollectionSO);
+                        CustomBeatmapLevelPackCollectionSO = SongCoreBeatmapLevelPackCollectionSO.CreateNew(); // (beatmapLevelPackCollectionSO);
                         foreach (var folderEntry in SeperateSongFolders)
                         {
                             switch (folderEntry.SongFolderEntry.Pack)
@@ -576,8 +575,8 @@ namespace SongCore
 
                         CustomLevelsCollection = new SongCoreCustomLevelCollection(CustomLevels.Values.ToArray());
                         WIPLevelsCollection = new SongCoreCustomLevelCollection(CustomWIPLevels.Values.ToArray());
-                        CustomLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + "CustomLevels", "Custom Maps", defaultCoverImage, CustomLevelsCollection);
-                        WIPLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + "CustomWIPLevels", "WIP Maps", UI.BasicUI.WIPIcon, WIPLevelsCollection);
+                        CustomLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + "CustomLevels", "Custom Levels", defaultCoverImage, CustomLevelsCollection);
+                        WIPLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + "CustomWIPLevels", "WIP Levels", UI.BasicUI.WIPIcon, WIPLevelsCollection);
                         CustomBeatmapLevelPackCollectionSO.AddLevelPack(CustomLevelsPack);
                         CustomBeatmapLevelPackCollectionSO.AddLevelPack(WIPLevelsPack);
 
@@ -586,7 +585,7 @@ namespace SongCore
                             if (CachedWIPLevelCollection == null)
                             {
                                 CachedWIPLevelCollection = new SongCoreCustomLevelCollection(CachedWIPLevels.Values.ToArray());
-                                CachedWIPLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + "CachedWIPLevels", "Cached WIP Maps", UI.BasicUI.WIPIcon, CachedWIPLevelCollection);
+                                CachedWIPLevelsPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + "CachedWIPLevels", "Cached WIP Levels", UI.BasicUI.WIPIcon, CachedWIPLevelCollection);
                                 CustomBeatmapLevelPackCollectionSO.AddLevelPack(CachedWIPLevelsPack);
                             }
 
@@ -609,17 +608,10 @@ namespace SongCore
                                 //             CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(folderEntry.LevelPack);
                             }
                         }
-                        CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
+             //           CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
                     }
-                    else
-                    {
-                        CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
-                    }
-                    //RefreshLevelPacks();
-                    var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
-                    LevelPacksViewController levelPacksViewController = soloFreePlay?.GetField<LevelPacksViewController>("_levelPacksViewController");
-                    levelPacksViewController?.SetData(CustomBeatmapLevelPackCollectionSO, 0, false);
 
+                    //RefreshLevelPacks();
                     //Level Packs
                     RefreshLevelPacks();
                 }
@@ -776,7 +768,7 @@ namespace SongCore
                 float shufflePeriod = saveData.shufflePeriod;
                 float previewStartTime = saveData.previewStartTime;
                 float previewDuration = saveData.previewDuration;
-                EnvironmentInfoSO environmentSceneInfo = _customLevelLoader.LoadEnvironmentInfo(saveData.environmentName);
+                EnvironmentInfoSO environmentSceneInfo = _customLevelLoader.LoadEnvironmentInfo(saveData.environmentName, false);
                 List<BeatmapCharacteristicSO> list = new List<BeatmapCharacteristicSO>();
                 foreach (StandardLevelInfoSaveData.DifficultyBeatmapSet difficultyBeatmapSet in saveData.difficultyBeatmapSets)
                 {

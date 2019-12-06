@@ -13,8 +13,8 @@ namespace SongCore.UI
     {
         internal static BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
         internal static UnityEngine.UI.Button infoButton;
-        internal static CustomUI.BeatSaber.CustomMenu reqDialog;
-        internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
+    //    internal static CustomUI.BeatSaber.CustomMenu reqDialog;
+    //    internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
         internal static Sprite HaveReqIcon;
         internal static Sprite MissingReqIcon;
         internal static Sprite HaveSuggestionIcon;
@@ -52,6 +52,7 @@ namespace SongCore.UI
 
         internal static void InitRequirementsMenu()
         {
+            /*
             reqDialog = BeatSaberUI.CreateCustomMenu<CustomMenu>("Additional Song Information");
             reqViewController = BeatSaberUI.CreateViewController<CustomListViewController>();
             RectTransform confirmContainer = new GameObject("CustomListContainer", typeof(RectTransform)).transform as RectTransform;
@@ -59,14 +60,14 @@ namespace SongCore.UI
             confirmContainer.sizeDelta = new Vector2(60f, 0f);
             GetIcons();
             reqDialog.SetMainViewController(reqViewController, true);
-
+            */
 
         }
 
         internal static void showSongRequirements(CustomPreviewBeatmapLevel level, Data.ExtraSongData songData, Data.ExtraSongData.DifficultyData diffData, bool wipFolder)
         {
             //   suggestionsList.text = "";
-
+            /*
             reqViewController.Data.Clear();
             //Requirements
             if (diffData != null)
@@ -145,7 +146,7 @@ namespace SongCore.UI
 
             reqDialog.Present();
             reqViewController._customListTableView.ReloadData();
-
+            */
         }
         internal static void GetIcons()
         {

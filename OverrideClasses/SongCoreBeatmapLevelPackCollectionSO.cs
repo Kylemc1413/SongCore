@@ -11,44 +11,22 @@ namespace SongCore.OverrideClasses
     {
         internal List<CustomBeatmapLevelPack> _customBeatmapLevelPacks = new List<CustomBeatmapLevelPack>();
 
-        public static SongCoreBeatmapLevelPackCollectionSO ReplaceOriginal(BeatmapLevelPackCollectionSO original)
+        public static SongCoreBeatmapLevelPackCollectionSO CreateNew()
         {
             var newCollection = CreateInstance<SongCoreBeatmapLevelPackCollectionSO>();
-            //  newCollection._allBeatmapLevelPacks.AddRange((BeatmapLevelPackSO[])original.GetField("_beatmapLevelPacks"));
-            //Figure out how to properly add the preview song packs
-            List<IBeatmapLevelPack> levelPacks = new List<IBeatmapLevelPack>();
-            levelPacks.AddRange((BeatmapLevelPackSO[])original.GetField("_beatmapLevelPacks"));
-            levelPacks.AddRange((PreviewBeatmapLevelPackSO[])original.GetField("_previewBeatmapLevelPack"));
-            newCollection._allBeatmapLevelPacks = levelPacks.ToArray();
+
+            newCollection._allBeatmapLevelPacks = new IBeatmapLevelPack[] {};
 
 
             newCollection.UpdateArray();
-            newCollection.ReplaceReferences();
             return newCollection;
         }
 
-        public void ReplaceReferences()
-        {
-
-            var soloFreePlay = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().FirstOrDefault();
-            if (soloFreePlay != null)
-            {
-                soloFreePlay.SetPrivateField("_levelPackCollection", this);
-            }
-
-            var partyFreePlay = Resources.FindObjectsOfTypeAll<PartyFreePlayFlowCoordinator>().FirstOrDefault();
-            if (partyFreePlay != null)
-            {
-                partyFreePlay.SetPrivateField("_levelPackCollection", this);
-            }
-
-        }
 
         public void AddLevelPack(CustomBeatmapLevelPack pack)
         {
             _customBeatmapLevelPacks.Add(pack);
             UpdateArray();
-            ReplaceReferences();
         }
 
         private void UpdateArray()

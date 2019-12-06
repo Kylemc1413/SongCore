@@ -120,9 +120,9 @@ namespace SongCore
         {
             if (scene.name == "MenuCore")
             {
-                UI.BasicUI.CreateUI();
-                if (UI.BasicUI.reqDialog == null)
-                    UI.BasicUI.InitRequirementsMenu();
+      //          UI.BasicUI.CreateUI();
+      //          if (UI.BasicUI.reqDialog == null)
+      //              UI.BasicUI.InitRequirementsMenu();
             }
 
         }
@@ -185,7 +185,7 @@ namespace SongCore
             customSongColors = UI.BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
             customSongPlatforms = UI.BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
             GameObject.Destroy(GameObject.Find("SongCore Color Setter"));
-            if (nextScene.name == "MenuCore")
+            if (nextScene.name == "MenuViewControllers")
             {
                 BS_Utils.Gameplay.Gamemode.Init();
                 if (PlatformsInstalled)
@@ -206,7 +206,7 @@ namespace SongCore
                     }
                 }
                 else
-                    Console.WriteLine("null data");
+                    Logging.logger.Info("Null custom song extra data");
 
 
             }

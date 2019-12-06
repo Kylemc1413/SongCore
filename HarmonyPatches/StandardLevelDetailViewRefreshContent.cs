@@ -7,7 +7,7 @@ using Harmony;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using CustomUI.BeatSaber;
+//using CustomUI.BeatSaber;
 using MenuUI = SongCore.UI.BasicUI;
 namespace SongCore.HarmonyPatches
 {
@@ -67,7 +67,7 @@ namespace SongCore.HarmonyPatches
                     Console.WriteLine("Creating Info Button");
 
                     MenuUI.infoButton = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PlayButton")), (RectTransform)____levelParamsPanel.transform.parent, false);
-                    MenuUI.infoButton.SetButtonText("?");
+               //     MenuUI.infoButton.SetButtonText("?");
                     (MenuUI.infoButton.transform as RectTransform).anchorMax = new Vector2(1, 1);
                     (MenuUI.infoButton.transform as RectTransform).anchorMin = new Vector2(1, 1);
                     (MenuUI.infoButton.transform as RectTransform).pivot = new Vector2(1, 1);
