@@ -28,7 +28,7 @@ namespace SongCore.HarmonyPatches
 
         static void Postfix(ref LevelFilteringNavigationController __instance, ref TabBarViewController ____tabBarViewController, ref bool __result)
         {
-            if (____tabBarViewController.selectedCellNumber == 3)
+            if (____tabBarViewController.selectedCellNumber == 2 || ____tabBarViewController.selectedCellNumber == 3)
             {
                 __result = false;
             }
