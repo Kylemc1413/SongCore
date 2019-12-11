@@ -12,7 +12,7 @@ using IPA;
 using Harmony;
 using IPALogger = IPA.Logging.Logger;
 using SongCore.Utilities;
-using BSEvents = CustomUI.Utilities.BSEvents;
+using BSEvents = BS_Utils.Utilities.BSEvents;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
 using System.Threading;
@@ -120,9 +120,9 @@ namespace SongCore
         {
             if (scene.name == "MenuCore")
             {
-      //          UI.BasicUI.CreateUI();
-      //          if (UI.BasicUI.reqDialog == null)
-      //              UI.BasicUI.InitRequirementsMenu();
+                UI.BasicUI.CreateUI();
+                if (UI.BasicUI.reqDialog == null)
+                    UI.BasicUI.InitRequirementsMenu();
             }
 
         }
@@ -291,6 +291,7 @@ namespace SongCore
             if (songData == null) return;
             if (string.IsNullOrWhiteSpace(songData._customEnvironmentName))
             {
+                _currentPlatform = -1;
                 return;
             }
             int _customPlatform = customEnvironment(songData._customEnvironmentName);

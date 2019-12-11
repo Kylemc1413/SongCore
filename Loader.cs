@@ -48,7 +48,15 @@ namespace SongCore
         private bool _loadingCancelled;
 
         private static CustomLevelLoader _customLevelLoader;
-        public static BeatmapLevelsModel BeatmapLevelsModelSO { get; private set; }
+        public static BeatmapLevelsModel BeatmapLevelsModelSO
+        {
+            get
+            {
+                if (_beatmapLevelsModel == null) _beatmapLevelsModel = Resources.FindObjectsOfTypeAll<BeatmapLevelsModel>().FirstOrDefault();
+                return _beatmapLevelsModel;
+            }
+        }
+        internal static BeatmapLevelsModel _beatmapLevelsModel;
         public static Sprite defaultCoverImage;
         public static CachedMediaAsyncLoader cachedMediaAsyncLoaderSO { get; private set; }
         public static BeatmapCharacteristicCollectionSO beatmapCharacteristicCollection { get; private set; }
@@ -57,7 +65,12 @@ namespace SongCore
 
         public static void OnLoad()
         {
-            if (Instance != null) return;
+            if (Instance != null)
+            {
+                _beatmapLevelsModel = null;
+                Instance.RefreshLevelPacks();
+                return;
+            }
             new GameObject("SongCore Loader").AddComponent<Loader>();
         }
 
@@ -67,13 +80,18 @@ namespace SongCore
             _progressBar = ProgressBar.Create();
             MenuLoaded();
             Hashing.ReadCachedSongHashes();
-            if (Directory.Exists(Converter.oldFolderPath)) Converter.PrepareExistingLibrary();
-            else
-                RefreshSongs();
             DontDestroyOnLoad(gameObject);
             BS_Utils.Utilities.BSEvents.menuSceneLoaded += MenuLoaded;
+            Initialize();
         }
 
+        private void Initialize()
+        {
+            if (Directory.Exists(Converter.oldFolderPath))
+                Converter.PrepareExistingLibrary();
+            else
+                RefreshSongs();
+        }
         internal void MenuLoaded()
         {
             if (AreSongsLoading)
@@ -91,32 +109,30 @@ namespace SongCore
                     Logging.Log("Loading was cancelled by player since they loaded another scene.");
                 }
             }
-                BS_Utils.Gameplay.Gamemode.Init();
-                if (_customLevelLoader == null)
+            BS_Utils.Gameplay.Gamemode.Init();
+            if (_customLevelLoader == null)
+            {
+                _customLevelLoader = Resources.FindObjectsOfTypeAll<CustomLevelLoader>().FirstOrDefault();
+                if (_customLevelLoader)
                 {
-                    _customLevelLoader = Resources.FindObjectsOfTypeAll<CustomLevelLoader>().FirstOrDefault();
-                    if (_customLevelLoader)
-                    {
-                        Texture2D defaultCoverTex = _customLevelLoader.GetField<Texture2D>("_defaultPackCoverTexture2D");
-                        defaultCoverImage = Sprite.Create(defaultCoverTex, new Rect(0f, 0f,
-                            (float)defaultCoverTex.width, (float)defaultCoverTex.height), new Vector2(0.5f, 0.5f));
+                    Texture2D defaultCoverTex = _customLevelLoader.GetField<Texture2D>("_defaultPackCoverTexture2D");
+                    defaultCoverImage = Sprite.Create(defaultCoverTex, new Rect(0f, 0f,
+                        (float)defaultCoverTex.width, (float)defaultCoverTex.height), new Vector2(0.5f, 0.5f));
 
-                        cachedMediaAsyncLoaderSO = _customLevelLoader.GetField<CachedMediaAsyncLoader>("_cachedMediaAsyncLoaderSO");
-                        beatmapCharacteristicCollection = _customLevelLoader.GetField<BeatmapCharacteristicCollectionSO>("_beatmapCharacteristicCollection");
-                    }
-                    else
-                    {
-                        Texture2D defaultCoverTex = Texture2D.blackTexture;
-                        defaultCoverImage = Sprite.Create(defaultCoverTex, new Rect(0f, 0f,
-                            (float)defaultCoverTex.width, (float)defaultCoverTex.height), new Vector2(0.5f, 0.5f));
-                    }
+                    cachedMediaAsyncLoaderSO = _customLevelLoader.GetField<CachedMediaAsyncLoader>("_cachedMediaAsyncLoaderSO");
+                    beatmapCharacteristicCollection = _customLevelLoader.GetField<BeatmapCharacteristicCollectionSO>("_beatmapCharacteristicCollection");
                 }
+                else
+                {
+                    Texture2D defaultCoverTex = Texture2D.blackTexture;
+                    defaultCoverImage = Sprite.Create(defaultCoverTex, new Rect(0f, 0f,
+                        (float)defaultCoverTex.width, (float)defaultCoverTex.height), new Vector2(0.5f, 0.5f));
+                }
+            }
 
-                if (BeatmapLevelsModelSO == null)
-                    BeatmapLevelsModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModel>().FirstOrDefault();
 
 
-            
+
         }
 
         public void RefreshLevelPacks()
@@ -152,9 +168,22 @@ namespace SongCore
             var filterNav = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault();
             filterNav.SetupPlaylists();
             filterNav.UpdateData();
+            AttemptReselectCurrentLevelPack(filterNav);
             OnLevelPacksRefreshed?.Invoke();
         }
+        internal void AttemptReselectCurrentLevelPack(LevelFilteringNavigationController controller)
+        {
+            if (controller.GetField<TabBarViewController>("_tabBarViewController").selectedCellNumber != 3) return;
+            var levelPacksView = controller.GetField<LevelPacksViewController>("_levelPacksViewController");
+            if (levelPacksView == null) return;
+            int selectedPackNum = levelPacksView.GetField<int>("_selectedPackNum");
+            IBeatmapLevelPackCollection currentLevelPacksCollection = levelPacksView.GetField<IBeatmapLevelPackCollection>("_levelPackCollection");
+            if (currentLevelPacksCollection == null) return;
+            int packCount = currentLevelPacksCollection.beatmapLevelPacks.Length;
+            if (!(selectedPackNum < packCount)) return;
+            controller.HandleLevelPacksViewControllerDidSelectPack(levelPacksView, currentLevelPacksCollection.beatmapLevelPacks[selectedPackNum]);
 
+        }
         public void RefreshSongs(bool fullRefresh = true)
         {
             if (SceneManager.GetActiveScene().name == "GameCore") return;
@@ -608,7 +637,7 @@ namespace SongCore
                                 //             CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(folderEntry.LevelPack);
                             }
                         }
-             //           CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
+                        //           CustomBeatmapLevelPackCollectionSO.ReplaceReferences();
                     }
 
                     //RefreshLevelPacks();
