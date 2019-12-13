@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomUI.GameplaySettings;
-using CustomUI.Settings;
+//using CustomUI.GameplaySettings;
+//using CustomUI.Settings;
 using UnityEngine;
-using CustomUI.BeatSaber;
+//using CustomUI.BeatSaber;
 namespace SongCore.UI
 {
     internal static class BasicUI
     {
         internal static BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
         internal static UnityEngine.UI.Button infoButton;
-        internal static CustomUI.BeatSaber.CustomMenu reqDialog;
-        internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
+    //    internal static CustomUI.BeatSaber.CustomMenu reqDialog;
+   //     internal static CustomUI.BeatSaber.CustomListViewController reqViewController;
         internal static Sprite HaveReqIcon;
         internal static Sprite MissingReqIcon;
         internal static Sprite HaveSuggestionIcon;
@@ -28,7 +28,7 @@ namespace SongCore.UI
         internal static Sprite WIPIcon;
         internal static Sprite FolderIcon;
 
-
+        /*
         public static void CreateUI()
         {
             var songCoreSubMenu = GameplaySettingsUI.CreateSubmenuOption(GameplaySettingsPanels.PlayerSettingsLeft, "SongCore", "MainMenu",
@@ -49,7 +49,7 @@ namespace SongCore.UI
 
 
 
-
+        
         internal static void InitRequirementsMenu()
         {
             
@@ -148,6 +148,7 @@ namespace SongCore.UI
             reqViewController._customListTableView.ReloadData();
             
         }
+        */
         internal static void GetIcons()
         {
             //      if (!CustomSongsIcon)

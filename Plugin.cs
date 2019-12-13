@@ -120,9 +120,9 @@ namespace SongCore
         {
             if (scene.name == "MenuCore")
             {
-                UI.BasicUI.CreateUI();
-                if (UI.BasicUI.reqDialog == null)
-                    UI.BasicUI.InitRequirementsMenu();
+            //    UI.BasicUI.CreateUI();
+            //    if (UI.BasicUI.reqDialog == null)
+            //        UI.BasicUI.InitRequirementsMenu();
             }
 
         }

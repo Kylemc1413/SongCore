@@ -7,7 +7,7 @@ using Harmony;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using CustomUI.BeatSaber;
+//using CustomUI.BeatSaber;
 using MenuUI = SongCore.UI.BasicUI;
 namespace SongCore.HarmonyPatches
 {
@@ -67,12 +67,12 @@ namespace SongCore.HarmonyPatches
                     Console.WriteLine("Creating Info Button");
 
                     MenuUI.infoButton = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PlayButton")), (RectTransform)____levelParamsPanel.transform.parent, false);
-                    MenuUI.infoButton.SetButtonText("?");
+                  //  MenuUI.infoButton.SetButtonText("?");
                     (MenuUI.infoButton.transform as RectTransform).anchorMax = new Vector2(1, 1);
                     (MenuUI.infoButton.transform as RectTransform).anchorMin = new Vector2(1, 1);
                     (MenuUI.infoButton.transform as RectTransform).pivot = new Vector2(1, 1);
                     (MenuUI.infoButton.transform as RectTransform).anchoredPosition = new Vector2(-1f, -1f);
-
+                    MenuUI.infoButton.gameObject.SetActive(false);
                     //   SongLoader.infoButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(0, 0, 0, 0);
                     //          (SongLoader.infoButton.transform as RectTransform).sizeDelta = new Vector2(0.11f, 0.1f);
                     MenuUI.infoButton.transform.localScale *= 0.5f;
@@ -153,7 +153,7 @@ namespace SongCore.HarmonyPatches
                 MenuUI.infoButton.onClick.AddListener(delegate ()
                 {
                     //Console.WriteLine("Click");
-                    MenuUI.showSongRequirements(level, songData, diffData, wipFolderSong);
+            //        MenuUI.showSongRequirements(level, songData, diffData, wipFolderSong);
                 });
 
 
