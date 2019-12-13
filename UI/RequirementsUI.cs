@@ -43,6 +43,7 @@ namespace SongCore.UI
 
         internal void Setup()
         {
+            GetIcons();
             standardLevel = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().First();
             BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"), standardLevel.gameObject, this);
         }
