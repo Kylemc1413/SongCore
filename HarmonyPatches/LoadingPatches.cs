@@ -22,16 +22,14 @@ namespace SongCore.HarmonyPatches
         }
 
     [HarmonyPatch(typeof(LevelFilteringNavigationController))]
-    [HarmonyPatch("ClearIfLoading", MethodType.Normal)]
+    [HarmonyPatch("ReloadSongListIfNeeded", MethodType.Normal)]
     internal class StopVanillaLoadingPatch2
     {
 
-        static void Postfix(ref LevelFilteringNavigationController __instance, ref TabBarViewController ____tabBarViewController, ref bool __result)
+        static bool Prefix(ref LevelFilteringNavigationController __instance, ref TabBarViewController ____tabBarViewController)
         {
-            if (____tabBarViewController.selectedCellNumber == 2 || ____tabBarViewController.selectedCellNumber == 3)
-            {
-                __result = false;
-            }
+            __instance.GetField("_customLevelsTabBarData")?.SetField("annotatedBeatmapLevelCollections", Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks);
+            return false;
 
 
         }

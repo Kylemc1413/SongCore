@@ -166,8 +166,8 @@ namespace SongCore
             BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
             BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
             var filterNav = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault();
-            filterNav.SetupPlaylists();
-            filterNav.UpdateData();
+            filterNav.InitPlaylists();
+            filterNav.UpdatePlaylistsData();
             AttemptReselectCurrentLevelPack(filterNav);
             OnLevelPacksRefreshed?.Invoke();
         }
@@ -181,7 +181,7 @@ namespace SongCore
             if (currentLevelPacksCollection == null) return;
             int packCount = currentLevelPacksCollection.beatmapLevelPacks.Length;
             if (!(selectedPackNum < packCount)) return;
-            controller.HandleLevelPacksViewControllerDidSelectPack(levelPacksView, currentLevelPacksCollection.beatmapLevelPacks[selectedPackNum]);
+            controller.SelectBeatmapLevelPackOrPlayList(currentLevelPacksCollection.beatmapLevelPacks[selectedPackNum], null);
 
         }
         public void RefreshSongs(bool fullRefresh = true)
@@ -798,6 +798,7 @@ namespace SongCore
                 float previewStartTime = saveData.previewStartTime;
                 float previewDuration = saveData.previewDuration;
                 EnvironmentInfoSO environmentSceneInfo = _customLevelLoader.LoadEnvironmentInfo(saveData.environmentName, false);
+                EnvironmentInfoSO allDirectionEnvironmentInfo = _customLevelLoader.LoadEnvironmentInfo(saveData.allDirectionsEnvironmentName, true);
                 List<BeatmapCharacteristicSO> list = new List<BeatmapCharacteristicSO>();
                 foreach (StandardLevelInfoSaveData.DifficultyBeatmapSet difficultyBeatmapSet in saveData.difficultyBeatmapSets)
                 {
@@ -810,7 +811,7 @@ namespace SongCore
                 result = new CustomPreviewBeatmapLevel(defaultCoverImage.texture, saveData, songPath,
                     cachedMediaAsyncLoaderSO, cachedMediaAsyncLoaderSO, levelID, songName, songSubName,
                     songAuthorName, levelAuthorName, beatsPerMinute, songTimeOffset, shuffle, shufflePeriod,
-                    previewStartTime, previewDuration, environmentSceneInfo, list.ToArray());
+                    previewStartTime, previewDuration, environmentSceneInfo, allDirectionEnvironmentInfo, list.ToArray());
             }
             catch
             {
