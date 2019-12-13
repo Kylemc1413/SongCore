@@ -259,6 +259,8 @@ The following is a template for you to use:
 
 | Characteristic | Source |
 | - | - |
+| "360Degree" | Base Game |
+| "90Degree" | Base Game |
 | "Standard"| Base Game |
 | "NoArrows"| Base Game |
 | "OneSaber"| Base Game |
