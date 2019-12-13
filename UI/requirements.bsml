@@ -1,0 +1,7 @@
+﻿<modal id="modal" show-event='open-modal' hide-event='close-modal' clickerino-offerino-closerino="true" size-delta-x='65' size-delta-y='75' move-to-center='false'>
+	<vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' size-delta-y='0'>
+      <page-button event-click='list#PageUp' direction='Up' anchor-min-y='1.9'></page-button>
+      <list id='list' expand-cell='true'></list>
+      <page-button event-click='list#PageDown' direction='Down' anchor-min-y='.1'></page-button>
+	</vertical>
+</modal>

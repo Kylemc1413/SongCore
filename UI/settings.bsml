@@ -1,0 +1,4 @@
+﻿<settings-container>
+    <checkbox-setting text='Allow Custom Song Colors' apply-on-change='true' value='colors' hover-hint='Allow Custom Songs to override note/light colors if Custom Colors or Chroma is installed'></checkbox-setting>
+    <checkbox-setting text='Allow Custom Song Platforms' apply-on-change='true' value='platforms' hover-hint='Allow Custom Songs to override your Custom Platform if Custom Platforms is installed.'></checkbox-setting>
+</settings-container>
