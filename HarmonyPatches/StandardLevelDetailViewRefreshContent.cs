@@ -9,6 +9,8 @@ using TMPro;
 using UnityEngine.UI;
 //using CustomUI.BeatSaber;
 using MenuUI = SongCore.UI.BasicUI;
+using SongCore.UI;
+
 namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(StandardLevelDetailView))]
@@ -53,7 +55,7 @@ namespace SongCore.HarmonyPatches
 
             ____playButton.interactable = true;
             ____practiceButton.interactable = true;
-            ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
+            ____playButton.gameObject.GetComponentInChildren<Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
             ____songNameText.text = "<size=78%>" + ____songNameText.text;
             //    ____songNameText.overflowMode = TextOverflowModes.Overflow;
             //     ____songNameText.enableWordWrapping = false;
@@ -62,26 +64,10 @@ namespace SongCore.HarmonyPatches
             {
                 Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Utilities.Hashing.GetCustomLevelHash(level), level.customLevelPath);
 
-                if (MenuUI.infoButton == null)
-                {
-                    Console.WriteLine("Creating Info Button");
-
-                    MenuUI.infoButton = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PlayButton")), (RectTransform)____levelParamsPanel.transform.parent, false);
-                  //  MenuUI.infoButton.SetButtonText("?");
-                    (MenuUI.infoButton.transform as RectTransform).anchorMax = new Vector2(1, 1);
-                    (MenuUI.infoButton.transform as RectTransform).anchorMin = new Vector2(1, 1);
-                    (MenuUI.infoButton.transform as RectTransform).pivot = new Vector2(1, 1);
-                    (MenuUI.infoButton.transform as RectTransform).anchoredPosition = new Vector2(-1f, -1f);
-                    MenuUI.infoButton.gameObject.SetActive(false);
-                    //   SongLoader.infoButton.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(0, 0, 0, 0);
-                    //          (SongLoader.infoButton.transform as RectTransform).sizeDelta = new Vector2(0.11f, 0.1f);
-                    MenuUI.infoButton.transform.localScale *= 0.5f;
-
-                }
                 if (songData == null)
                 {
-                    MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
-                    MenuUI.infoButton.interactable = false;
+                    RequirementsUI.instance.ButtonGlowColor = "none";
+                    RequirementsUI.instance.ButtonInteractable = false;
                     return;
                 }
                 bool wipFolderSong = false;
@@ -96,18 +82,18 @@ namespace SongCore.HarmonyPatches
                         && diffData.additionalDifficultyData._warnings.Count() == 0 && diffData.additionalDifficultyData._information.Count() == 0
                         && songData.contributors.Count() == 0)
                     {
-                        MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.black;
-                        MenuUI.infoButton.interactable = false;
+                        RequirementsUI.instance.ButtonGlowColor = "none";
+                        RequirementsUI.instance.ButtonInteractable = false;
                     }
                     else if (diffData.additionalDifficultyData._warnings.Count() == 0)
                     {
-                        MenuUI.infoButton.interactable = true;
-                        MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.blue;
+                        RequirementsUI.instance.ButtonGlowColor = "#0000FF";
+                        RequirementsUI.instance.ButtonInteractable = true;
                     }
                     else if (diffData.additionalDifficultyData._warnings.Count() > 0)
                     {
-                        MenuUI.infoButton.interactable = true;
-                        MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                        RequirementsUI.instance.ButtonGlowColor = "#FFFF00";
+                        RequirementsUI.instance.ButtonInteractable = true;
                         if (diffData.additionalDifficultyData._warnings.Contains("WIP"))
                         {
                             ____playButton.interactable = false;
@@ -118,8 +104,8 @@ namespace SongCore.HarmonyPatches
                 }
                 if (level.levelID.EndsWith(" WIP"))
                 {
-                    MenuUI.infoButton.interactable = true;
-                    MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                    RequirementsUI.instance.ButtonGlowColor = "#FFFF00";
+                    RequirementsUI.instance.ButtonInteractable = true;
                     ____playButton.interactable = false;
                     ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
                     wipFolderSong = true;
@@ -135,7 +121,7 @@ namespace SongCore.HarmonyPatches
                             ____playButton.interactable = false;
                             ____practiceButton.interactable = false;
                             ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
-                            MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                            RequirementsUI.instance.ButtonGlowColor = "#FF0000";
                         }
                     }
                 }
@@ -146,15 +132,13 @@ namespace SongCore.HarmonyPatches
                     ____playButton.interactable = false;
                     ____practiceButton.interactable = false;
                     ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
-                    MenuUI.infoButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                    RequirementsUI.instance.ButtonGlowColor = "#FF0000";
                 }
 
-                MenuUI.infoButton.onClick.RemoveAllListeners();
-                MenuUI.infoButton.onClick.AddListener(delegate ()
-                {
-                    //Console.WriteLine("Click");
-            //        MenuUI.showSongRequirements(level, songData, diffData, wipFolderSong);
-                });
+                RequirementsUI.instance.level = level;
+                RequirementsUI.instance.songData = songData;
+                RequirementsUI.instance.diffData = diffData;
+                RequirementsUI.instance.wipFolder = wipFolderSong;
 
 
                 //Difficulty Label Handling

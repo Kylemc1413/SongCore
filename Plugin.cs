@@ -16,6 +16,9 @@ using BSEvents = BS_Utils.Utilities.BSEvents;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
 using System.Threading;
+using BeatSaberMarkupLanguage.Settings;
+using SongCore.UI;
+
 namespace SongCore
 {
     public class Plugin : IBeatSaberPlugin
@@ -69,6 +72,7 @@ namespace SongCore
         private void BSEvents_menuSceneLoadedFresh()
         {
             Loader.OnLoad();
+            RequirementsUI.instance.Setup();
         }
 
         private void BSEvents_gameSceneLoaded()
@@ -118,11 +122,9 @@ namespace SongCore
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
-            if (scene.name == "MenuCore")
+            if (scene.name == "MenuViewControllers")
             {
-            //    UI.BasicUI.CreateUI();
-            //    if (UI.BasicUI.reqDialog == null)
-            //        UI.BasicUI.InitRequirementsMenu();
+                BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", SCSettings.instance);
             }
 
         }
