@@ -1,7 +1,7 @@
 # SongCore
 A plugin for handling custom song additions in Beat Saber.
 ## Configuration
-- The Settings for SongCore can be found in the `UserData/SongCore` Folder, or in game in Player Settings on the Gameplay Setup panel when selecting a song
+- The Settings for SongCore can be found in the `UserData/SongCore` Folder, or in game in the Mod Settings section of the main menu
 ## Installing Custom Songs
 - Custom Song folders go in `Beat Saber_Data/CustomLevels`
 - The song files must be in the root of the song folder, and not within a subfolder
