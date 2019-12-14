@@ -15,13 +15,12 @@ using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 
 namespace SongCore.UI
 {
-    public class RequirementsUI : PersistentSingleton<RequirementsUI>
+    public class RequirementsUI : NotifiableSingleton<RequirementsUI>
     {
         private StandardLevelDetailViewController standardLevel;
 
 
         internal static Config ModPrefs = new Config("SongCore/SongCore");
-        internal Button infoButton;
 
         internal Sprite HaveReqIcon;
         internal Sprite MissingReqIcon;
@@ -35,17 +34,48 @@ namespace SongCore.UI
         internal Sprite WIPIcon;
         internal Sprite FolderIcon;
 
-        [UIComponent("modal")]
-        internal ModalView modal;
+        //Currently selected song data
+        public CustomPreviewBeatmapLevel level;
+        public Data.ExtraSongData songData;
+        public Data.ExtraSongData.DifficultyData diffData;
+        public bool wipFolder;
 
         [UIComponent("list")]
         public CustomListTableData customListTableData;
+
+        private string buttonGlowColor = "none";
+        [UIValue("button-glow")]
+        public string ButtonGlowColor
+        {
+            get => buttonGlowColor;
+            set
+            {
+                buttonGlowColor = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private bool buttonInteractable = false;
+        [UIValue("button-interactable")]
+        public bool ButtonInteractable
+        {
+            get => buttonInteractable;
+            set
+            {
+                buttonInteractable = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        [UIComponent("info-button")]
+        private Transform infoButtonTransform;
 
         internal void Setup()
         {
             GetIcons();
             standardLevel = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().First();
-            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"), standardLevel.gameObject, this);
+            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"), standardLevel.transform.Find("LevelDetail").gameObject, this);
+            infoButtonTransform.localScale *= 0.7f;//no scale property in bsml as of now so manually scaling it
         }
 
         internal void GetIcons()
@@ -74,7 +104,8 @@ namespace SongCore.UI
                 FolderIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.FolderIcon.png");
         }
 
-        internal void ShowRequirements(CustomPreviewBeatmapLevel level, Data.ExtraSongData songData, Data.ExtraSongData.DifficultyData diffData, bool wipFolder)
+        [UIAction("button-click")]
+        internal void ShowRequirements()
         {
             //   suggestionsList.text = "";
 

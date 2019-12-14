@@ -72,6 +72,7 @@ namespace SongCore
         private void BSEvents_menuSceneLoadedFresh()
         {
             Loader.OnLoad();
+            RequirementsUI.instance.Setup();
         }
 
         private void BSEvents_gameSceneLoaded()
