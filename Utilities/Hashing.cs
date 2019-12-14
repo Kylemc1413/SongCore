@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 namespace SongCore.Utilities
 {
@@ -18,7 +17,7 @@ namespace SongCore.Utilities
             if (File.Exists(cachedHashDataPath))
             {
                 cachedSongHashData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
-                if(cachedSongHashData == null) cachedSongHashData = new Dictionary<string, SongHashData>();
+                if (cachedSongHashData == null) cachedSongHashData = new Dictionary<string, SongHashData>();
                 Logging.Log($"Finished reading cached hashes for {cachedSongHashData.Count} songs!");
             }
         }
@@ -46,8 +45,8 @@ namespace SongCore.Utilities
                 hash ^= f.Length;
             }
             return hash;
-        } 
-        
+        }
+
         private static bool GetCachedSongData(string customLevelPath, out long directoryHash, out string cachedSongHash)
         {
             directoryHash = GetDirectoryHash(customLevelPath);

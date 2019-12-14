@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using Harmony;
+﻿using Harmony;
 using TMPro;
-using SongCore.Utilities;
 namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(LevelCollectionViewController))]
@@ -16,12 +9,12 @@ namespace SongCore.HarmonyPatches
         //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
         static void Prefix(LevelCollectionTableView tableView, IPreviewBeatmapLevel level)
         {
-            if(level is CustomPreviewBeatmapLevel)
+            if (level is CustomPreviewBeatmapLevel)
             {
                 var customLevel = level as CustomPreviewBeatmapLevel;
                 if (customLevel != null)
                 {
-             //       Logging.Log(Utilities.Hashing.GetCustomLevelHash(customLevel));
+                    //       Logging.Log(Utilities.Hashing.GetCustomLevelHash(customLevel));
                     SongCore.Collections.AddSong(Utilities.Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
                     SongCore.Collections.SaveExtraSongData();
                 }
@@ -41,8 +34,8 @@ public class LevelListTableCellSetDataFromLevel
 
         ____authorText.richText = true;
         //     ____authorText.overflowMode = TextOverflowModes.Overflow;
-        if (!string.IsNullOrWhiteSpace(customLevel.levelAuthorName)) 
-        ____authorText.text = customLevel.songAuthorName + " <size=80%>[" +customLevel.levelAuthorName + "]</size>";
+        if (!string.IsNullOrWhiteSpace(customLevel.levelAuthorName))
+            ____authorText.text = customLevel.songAuthorName + " <size=80%>[" + customLevel.levelAuthorName + "]</size>";
 
 
 

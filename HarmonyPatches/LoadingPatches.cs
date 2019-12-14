@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Harmony;
+﻿using Harmony;
 using SongCore.Utilities;
+using System.Linq;
+using System.Threading;
 namespace SongCore.HarmonyPatches
 {
 
-        [HarmonyPatch(typeof(BeatmapLevelsModel))]
-        [HarmonyPatch("GetCustomLevelPackCollectionAsync", MethodType.Normal)]
-        internal class StopVanillaLoadingPatch
+    [HarmonyPatch(typeof(BeatmapLevelsModel))]
+    [HarmonyPatch("GetCustomLevelPackCollectionAsync", MethodType.Normal)]
+    internal class StopVanillaLoadingPatch
+    {
+        static void Prefix()
         {
-            static void Prefix()
-            {
             var cancel = UnityEngine.Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().First().GetField<CancellationTokenSource>("_cancellationTokenSource");
             cancel.Cancel();
 
-            }
         }
+    }
 
     [HarmonyPatch(typeof(LevelFilteringNavigationController))]
     [HarmonyPatch("ReloadSongListIfNeeded", MethodType.Normal)]

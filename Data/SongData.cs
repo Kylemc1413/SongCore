@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -122,10 +121,10 @@ namespace SongCore.Data
                         MapColor diffEnvLeft = null;
                         MapColor diffEnvRight = null;
                         MapColor diffObstacle = null;
-                        
+
                         BeatmapDifficulty diffDifficulty = Utilities.Utils.ToEnum((string)diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
                         JObject beatmapData;
-                        if(diffBeatmap.ContainsKey("_customData"))
+                        if (diffBeatmap.ContainsKey("_customData"))
                         {
                             beatmapData = (JObject)diffBeatmap["_customData"];
                             if (beatmapData.ContainsKey("_difficultyLabel")) diffLabel = (string)beatmapData["_difficultyLabel"];

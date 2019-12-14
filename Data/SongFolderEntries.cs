@@ -1,11 +1,8 @@
-﻿using System;
+﻿using SongCore.OverrideClasses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SongCore.OverrideClasses;
 using System.Xml.Linq;
-using System.Xml;
 namespace SongCore.Data
 {
     public enum FolderLevelPack { CustomLevels, CustomWIPLevels, NewPack };

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Harmony;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Harmony;
 namespace SongCore.HarmonyPatches
 {
-    
+
     [HarmonyPatch(typeof(BeatmapCharacteristicCollectionSO))]
     [HarmonyPatch("GetBeatmapCharacteristicBySerializedName", MethodType.Normal)]
     class CustomCharacteristicsPatch
@@ -14,7 +10,7 @@ namespace SongCore.HarmonyPatches
         //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
         static void Postfix(string serializedName, ref BeatmapCharacteristicSO __result)
         {
-            if(__result == null)
+            if (__result == null)
             {
                 if (Collections.customCharacteristics.Any(x => x.serializedName == serializedName))
                     __result = Collections.customCharacteristics.FirstOrDefault(x => x.serializedName == serializedName);
@@ -23,7 +19,7 @@ namespace SongCore.HarmonyPatches
             }
         }
     }
-    
+
 
     /*
     [HarmonyPatch(typeof(BeatmapCharacteristicSO))]

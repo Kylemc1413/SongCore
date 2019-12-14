@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Harmony;
+﻿using Harmony;
 namespace SongCore.HarmonyPatches
 {
 
@@ -16,7 +11,7 @@ namespace SongCore.HarmonyPatches
         {
             if (difficulty == BeatmapDifficulty.Easy)
             {
-                if(HarmonyPatches.StandardLevelDetailViewRefreshContent.currentLabels.EasyOverride != "")
+                if (HarmonyPatches.StandardLevelDetailViewRefreshContent.currentLabels.EasyOverride != "")
                     __result = HarmonyPatches.StandardLevelDetailViewRefreshContent.currentLabels.EasyOverride;
             }
             if (difficulty == BeatmapDifficulty.Normal)
@@ -39,7 +34,7 @@ namespace SongCore.HarmonyPatches
                 if (HarmonyPatches.StandardLevelDetailViewRefreshContent.currentLabels.ExpertPlusOverride != "")
                     __result = HarmonyPatches.StandardLevelDetailViewRefreshContent.currentLabels.ExpertPlusOverride;
             }
-        //    Console.WriteLine(__result);
+            //    Console.WriteLine(__result);
         }
 
 

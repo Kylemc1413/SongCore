@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using SongCore.Utilities;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System.Linq;
-using SongCore.Utilities;
 namespace SongCore
 {
     public class ProgressBar : MonoBehaviour
@@ -182,8 +181,8 @@ namespace SongCore
         {
             if (!_canvas.enabled) return;
             _loadingBar.fillAmount = Loader.LoadingProgress;
-            
-            _loadingBar.color =  HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
+
+            _loadingBar.color = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
             _headerText.color = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
         }
     }

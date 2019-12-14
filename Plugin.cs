@@ -1,23 +1,19 @@
-﻿using System;
+﻿using BeatSaberMarkupLanguage.Settings;
+using Harmony;
+using IPA;
+using Newtonsoft.Json;
+using SongCore.UI;
+using SongCore.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Media;
-using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using IPA;
-using Harmony;
-using IPALogger = IPA.Logging.Logger;
-using SongCore.Utilities;
-using BSEvents = BS_Utils.Utilities.BSEvents;
-using Newtonsoft.Json;
 using UnityEngine.Networking;
-using System.Threading;
-using BeatSaberMarkupLanguage.Settings;
-using SongCore.UI;
+using UnityEngine.SceneManagement;
+using IPALogger = IPA.Logging.Logger;
 
 namespace SongCore
 {
@@ -128,55 +124,7 @@ namespace SongCore
             }
 
         }
-        /*
-                internal static async void LoadWipPack()
-                {
-                   if(Collections.WipLevelPack == null)
-                    {
-                        BeatmapLevelsModelSO levelModelSO = Resources.FindObjectsOfTypeAll<BeatmapLevelsModelSO>().FirstOrDefault();
-                        CancellationToken cancellationToken = new CancellationTokenSource().Token;
-                        Collections.WipLevelPack = await levelModelSO.GetField<CustomLevelLoaderSO>("_customLevelLoader").LoadCustomBeatmapLevelPackAsync(Path.Combine(CustomLevelPathHelper.baseProjectPath,"CustomWIPLevels"), "WIP Levels", cancellationToken);
-                        Collections.WipLevelPack.SetField("_coverImage", UI.BasicUI.WIPIcon);
-                        if (levelModelSO == null)
-                        {
-                            Logging.Log("Null levelModel");
-                            return;
-                        }
-                        IBeatmapLevelPackCollection loadedLevelPacks = levelModelSO.GetField<IBeatmapLevelPackCollection>("_allLoadedBeatmapLevelPackCollection");
-                        List<IBeatmapLevelPack> allLoadedBeatmapLevelPacks = new List<IBeatmapLevelPack>(loadedLevelPacks.beatmapLevelPacks);
-                        foreach (IBeatmapLevelPack pack in allLoadedBeatmapLevelPacks)
-                        {
-                            Logging.Log(pack.packID);
-              //              Logging.Log(CustomLevelPathHelper.customLevelsDirectoryPath);
-                            if (pack.packID == "custom_levelpack_" + CustomLevelPathHelper.customLevelsDirectoryPath)
-                            {
-                                allLoadedBeatmapLevelPacks.Remove(pack);
-                                break;
-                            }
-                            Logging.Log("");
-                        }
-                   //     allLoadedBeatmapLevelPacks.Clear();
-                        allLoadedBeatmapLevelPacks.Add(Collections.WipLevelPack);
-                        //   Logging.Log(Collections.WipLevelPack.packName + Collections.WipLevelPack.packID + Collections.WipLevelPack.beatmapLevelCollection.beatmapLevels.Count());
-                        BeatmapLevelPackCollection newCollection = new BeatmapLevelPackCollection(allLoadedBeatmapLevelPacks.ToArray());
-                        levelModelSO.SetField("_allLoadedBeatmapLevelPackCollection", newCollection);
-
-                    BeatmapLevelPackCollectionSO newCollection2 = ScriptableObject.CreateInstance<BeatmapLevelPackCollectionSO>();
-                    newCollection2.SetField("_allBeatmapLevelPacks", newCollection.beatmapLevelPacks);
-
-                    levelModelSO.SetField("_loadedBeatmapLevelPackCollection", newCollection2);
-                    levelModelSO.UpdateLoadedPreviewLevels();
-            //        ReflectionUtil.InvokeMethod(levelModelSO, "OnEnable");
-                        foreach (IBeatmapLevelPack pack in allLoadedBeatmapLevelPacks)
-                        {
-                            Logging.Log(pack.packName);
-                        }
-                    }
-
-
-
-                }
-                */
+       
         public void OnSceneUnloaded(Scene scene)
         {
 

@@ -1,15 +1,11 @@
-﻿using System;
+﻿using Harmony;
+//using CustomUI.BeatSaber;
+using SongCore.UI;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Harmony;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
-//using CustomUI.BeatSaber;
-using MenuUI = SongCore.UI.BasicUI;
-using SongCore.UI;
 
 namespace SongCore.HarmonyPatches
 {

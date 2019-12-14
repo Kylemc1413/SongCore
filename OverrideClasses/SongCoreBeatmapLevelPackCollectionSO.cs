@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SongCore.Utilities;
-using UnityEngine;
 namespace SongCore.OverrideClasses
 {
     public class SongCoreBeatmapLevelPackCollectionSO : BeatmapLevelPackCollectionSO
@@ -15,7 +10,7 @@ namespace SongCore.OverrideClasses
         {
             var newCollection = CreateInstance<SongCoreBeatmapLevelPackCollectionSO>();
 
-            newCollection._allBeatmapLevelPacks = new IBeatmapLevelPack[] {};
+            newCollection._allBeatmapLevelPacks = new IBeatmapLevelPack[] { };
 
 
             newCollection.UpdateArray();
@@ -37,6 +32,6 @@ namespace SongCore.OverrideClasses
                     packs.Add(c);
             _allBeatmapLevelPacks = packs.ToArray();
         }
-    
-}
+
+    }
 }

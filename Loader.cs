@@ -1,22 +1,13 @@
-﻿using UnityEngine;
-using System.Linq;
+﻿using SongCore.Data;
+using SongCore.OverrideClasses;
+using SongCore.Utilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Xml;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Networking;
-using UnityEngine.UI;
-using TMPro;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SongCore.Utilities;
-using SongCore.OverrideClasses;
-using SongCore.Data;
 using LogSeverity = IPA.Logging.Logger.Level;
 
 namespace SongCore
@@ -117,7 +108,7 @@ namespace SongCore
                 {
                     Texture2D defaultCoverTex = _customLevelLoader.GetField<Texture2D>("_defaultPackCoverTexture2D");
                     defaultCoverImage = Sprite.Create(defaultCoverTex, new Rect(0f, 0f,
-                        (float)defaultCoverTex.width, (float)defaultCoverTex.height), new Vector2(0.5f, 0.5f));
+                        defaultCoverTex.width, defaultCoverTex.height), new Vector2(0.5f, 0.5f));
 
                     cachedMediaAsyncLoaderSO = _customLevelLoader.GetField<CachedMediaAsyncLoader>("_cachedMediaAsyncLoaderSO");
                     beatmapCharacteristicCollection = _customLevelLoader.GetField<BeatmapCharacteristicCollectionSO>("_beatmapCharacteristicCollection");
@@ -126,7 +117,7 @@ namespace SongCore
                 {
                     Texture2D defaultCoverTex = Texture2D.blackTexture;
                     defaultCoverImage = Sprite.Create(defaultCoverTex, new Rect(0f, 0f,
-                        (float)defaultCoverTex.width, (float)defaultCoverTex.height), new Vector2(0.5f, 0.5f));
+                        defaultCoverTex.width, defaultCoverTex.height), new Vector2(0.5f, 0.5f));
                 }
             }
 

@@ -1,10 +1,4 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BS_Utils.Utilities;
 
 namespace SongCore.UI
 {

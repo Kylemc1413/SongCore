@@ -2,15 +2,9 @@
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BS_Utils.Utilities;
-using HMUI;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.UI;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 
 namespace SongCore.UI
@@ -28,11 +22,6 @@ namespace SongCore.UI
         internal Sprite MissingSuggestionIcon;
         internal Sprite WarningIcon;
         internal Sprite InfoIcon;
-        internal Sprite MissingCharIcon;
-        internal Sprite LightshowIcon;
-        internal Sprite ExtraDiffsIcon;
-        internal Sprite WIPIcon;
-        internal Sprite FolderIcon;
 
         //Currently selected song data
         public CustomPreviewBeatmapLevel level;
@@ -92,16 +81,6 @@ namespace SongCore.UI
                 WarningIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Warning.png");
             if (!InfoIcon)
                 InfoIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Info.png");
-            if (!MissingCharIcon)
-                MissingCharIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.MissingChar.png");
-            if (!LightshowIcon)
-                LightshowIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Lightshow.png");
-            if (!ExtraDiffsIcon)
-                ExtraDiffsIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.ExtraDiffsIcon.png");
-            if (!WIPIcon)
-                WIPIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.squek.png");
-            if (!FolderIcon)
-                FolderIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.FolderIcon.png");
         }
 
         [UIAction("button-click")]

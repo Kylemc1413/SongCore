@@ -1,20 +1,10 @@
-﻿using UnityEngine;
-using System.Linq;
+﻿using SongCore.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using UnityEngine.SceneManagement;
-using UnityEngine.Networking;
-using UnityEngine.UI;
-using TMPro;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SongCore.Utilities;
-using SongCore.OverrideClasses;
+using System.Linq;
+using UnityEngine;
 using LogSeverity = IPA.Logging.Logger.Level;
 
 namespace SongCore
