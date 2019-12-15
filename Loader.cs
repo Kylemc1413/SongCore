@@ -164,15 +164,16 @@ namespace SongCore
         }
         internal void AttemptReselectCurrentLevelPack(LevelFilteringNavigationController controller)
         {
-            if (controller.GetField<TabBarViewController>("_tabBarViewController").selectedCellNumber != 3) return;
-            var levelPacksView = controller.GetField<LevelPacksViewController>("_levelPacksViewController");
-            if (levelPacksView == null) return;
-            int selectedPackNum = levelPacksView.GetField<int>("_selectedPackNum");
-            IBeatmapLevelPackCollection currentLevelPacksCollection = levelPacksView.GetField<IBeatmapLevelPackCollection>("_levelPackCollection");
+            var tabBarView = controller.GetField<TabBarViewController>("_tabBarViewController");
+            if (tabBarView?.selectedCellNumber != 3) return;
+            var tabBarDatas = controller.GetField<object[]>("_tabBarDatas");
+            if (tabBarDatas == null) return;
+            int selectedPackNum = tabBarDatas[tabBarView.selectedCellNumber].GetField<int>("selectedItem");
+            var currentLevelPacksCollection = tabBarDatas[tabBarView.selectedCellNumber].GetField<IAnnotatedBeatmapLevelCollection[]>("annotatedBeatmapLevelCollections");
             if (currentLevelPacksCollection == null) return;
-            int packCount = currentLevelPacksCollection.beatmapLevelPacks.Length;
+            int packCount = currentLevelPacksCollection.Length;
             if (!(selectedPackNum < packCount)) return;
-            controller.SelectBeatmapLevelPackOrPlayList(currentLevelPacksCollection.beatmapLevelPacks[selectedPackNum], null);
+            controller.SelectBeatmapLevelPackOrPlayList(currentLevelPacksCollection[selectedPackNum] as IBeatmapLevelPack, null);
 
         }
         public void RefreshSongs(bool fullRefresh = true)

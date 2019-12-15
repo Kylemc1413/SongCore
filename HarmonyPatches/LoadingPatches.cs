@@ -18,16 +18,27 @@ namespace SongCore.HarmonyPatches
     }
 
     [HarmonyPatch(typeof(LevelFilteringNavigationController))]
-    [HarmonyPatch("ReloadSongListIfNeeded", MethodType.Normal)]
+    [HarmonyPatch("InitializeIfNeeded", MethodType.Normal)]
     internal class StopVanillaLoadingPatch2
+    {
+
+        static void Postfix(ref LevelFilteringNavigationController __instance, ref TabBarViewController ____tabBarViewController)
+        {
+      //      Logging.logger.Info("Set CustomLevelCollection");
+            __instance.GetField("_customLevelsTabBarData")?.SetField("annotatedBeatmapLevelCollections", Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks);
+
+        }
+    }
+
+    [HarmonyPatch(typeof(LevelFilteringNavigationController))]
+    [HarmonyPatch("ReloadSongListIfNeeded", MethodType.Normal)]
+    internal class StopVanillaLoadingPatch3
     {
 
         static bool Prefix(ref LevelFilteringNavigationController __instance, ref TabBarViewController ____tabBarViewController)
         {
             __instance.GetField("_customLevelsTabBarData")?.SetField("annotatedBeatmapLevelCollections", Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks);
             return false;
-
-
         }
     }
 
