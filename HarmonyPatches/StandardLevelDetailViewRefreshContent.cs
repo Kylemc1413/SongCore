@@ -56,6 +56,8 @@ namespace SongCore.HarmonyPatches
             //    ____songNameText.overflowMode = TextOverflowModes.Overflow;
             //     ____songNameText.enableWordWrapping = false;
             ____songNameText.richText = true;
+            RequirementsUI.instance.ButtonGlowColor = "none";
+            RequirementsUI.instance.ButtonInteractable = false;
             if (level != null)
             {
                 Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Utilities.Hashing.GetCustomLevelHash(level), level.customLevelPath);
