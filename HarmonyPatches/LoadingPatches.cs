@@ -25,7 +25,7 @@ namespace SongCore.HarmonyPatches
         static void Postfix(ref LevelFilteringNavigationController __instance, ref TabBarViewController ____tabBarViewController)
         {
       //      Logging.logger.Info("Set CustomLevelCollection");
-            __instance.GetField("_customLevelsTabBarData")?.SetField("annotatedBeatmapLevelCollections", Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks);
+            __instance.GetField("_customLevelsTabBarData")?.SetField("annotatedBeatmapLevelCollections", Loader.CustomBeatmapLevelPackCollectionSO?.beatmapLevelPacks);
 
         }
     }
@@ -37,7 +37,7 @@ namespace SongCore.HarmonyPatches
 
         static bool Prefix(ref LevelFilteringNavigationController __instance, ref TabBarViewController ____tabBarViewController)
         {
-            __instance.GetField("_customLevelsTabBarData")?.SetField("annotatedBeatmapLevelCollections", Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks);
+            __instance.GetField("_customLevelsTabBarData")?.SetField("annotatedBeatmapLevelCollections", Loader.CustomBeatmapLevelPackCollectionSO?.beatmapLevelPacks);
             return false;
         }
     }
