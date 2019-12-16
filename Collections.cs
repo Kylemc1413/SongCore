@@ -107,7 +107,7 @@ namespace SongCore
                 _capabilities.Add(capability);
         }
 
-        public static BeatmapCharacteristicSO RegisterCustomCharacteristic(Sprite Icon, string CharacteristicName, string HintText, string SerializedName, string CompoundIdPartName)
+        public static BeatmapCharacteristicSO RegisterCustomCharacteristic(Sprite Icon, string CharacteristicName, string HintText, string SerializedName, string CompoundIdPartName, bool requires360Movement = false, bool containsRotationEvents = false)
         {
             BeatmapCharacteristicSO newChar = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
 
@@ -116,7 +116,8 @@ namespace SongCore
             newChar.SetField("_serializedName", SerializedName);
             newChar.SetField("_characteristicNameLocalizationKey", CharacteristicName);
             newChar.SetField("_compoundIdPartName", CompoundIdPartName);
-
+            newChar.SetField("_requires360Movement", requires360Movement);
+            newChar.SetField("_containsRotationEvents", containsRotationEvents);
             if (!_customCharacteristics.Any(x => x.serializedName == newChar.serializedName))
             {
                 _customCharacteristics.Add(newChar);
