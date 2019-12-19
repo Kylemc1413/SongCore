@@ -109,4 +109,16 @@ namespace SongCore.Data
 
         }
     }
+    public class ModSeperateSongFolder : SeperateSongFolder
+    {
+        public ModSeperateSongFolder(SongFolderEntry folderEntry) : base(folderEntry)
+        {
+
+        }
+
+        public ModSeperateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite Image) : base(folderEntry, Image)
+        {
+
+        }
+    }
 }
