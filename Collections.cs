@@ -32,7 +32,7 @@ namespace SongCore
 
         public static bool songWithHashPresent(string hash)
         {
-            if (hashLevelDictionary.ContainsKey(hash))
+            if (hashLevelDictionary.ContainsKey(hash.ToUpper()))
                 return true;
             else
                 return false;
