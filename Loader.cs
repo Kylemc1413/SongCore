@@ -144,7 +144,7 @@ namespace SongCore
                 {
 
                     folderEntry.LevelCollection.UpdatePreviewLevels(folderEntry.Levels.Values.OrderBy(l => l.songName).ToArray());
-                    if (folderEntry.Levels.Count > 0)
+                    if (folderEntry.Levels.Count > 0 || folderEntry is ModSeperateSongFolder)
                     {
                         if (!CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(folderEntry.LevelPack))
                             CustomBeatmapLevelPackCollectionSO.AddLevelPack(folderEntry.LevelPack);
