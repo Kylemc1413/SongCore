@@ -5,7 +5,7 @@ namespace SongCore.HarmonyPatches {
 
     [HarmonyPatch(typeof(LevelSelectionFlowCoordinator))]
     [HarmonyPatch("StartLevel")]
-    class StartLevelAndCheckPlatformIfCustomPlatformsIsInstalledPatch {
+    class LevelSelectionFlowCoordinatorStartLevelPatch  {
         static void Prefix(IDifficultyBeatmap difficultyBeatmap) {
             Data.ExtraSongData.DifficultyData songData = Collections.RetrieveDifficultyData(difficultyBeatmap);
             if(songData != null) {
