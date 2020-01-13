@@ -138,26 +138,6 @@ namespace SongCore
             if (nextScene.name == "MenuViewControllers")
             {
                 BS_Utils.Gameplay.Gamemode.Init();
-                if (PlatformsInstalled)
-                    CheckForPreviousPlatform();
-
-            }
-
-            if (nextScene.name == "GameCore")
-            {
-                GameplayCoreSceneSetupData data = BS_Utils.Plugin.LevelData?.GameplayCoreSceneSetupData;
-                Data.ExtraSongData.DifficultyData songData = Collections.RetrieveDifficultyData(data.difficultyBeatmap);
-                if (songData != null)
-                {
-                    if (PlatformsInstalled)
-                    {
-                        Logging.logger.Info("Checking Custom Environment");
-                        CheckCustomSongEnvironment(data.difficultyBeatmap);
-                    }
-                }
-                else
-                    Logging.logger.Info("Null custom song extra data");
-
 
             }
         }
@@ -235,7 +215,7 @@ namespace SongCore
         }
 
 
-        private void CheckCustomSongEnvironment(IDifficultyBeatmap song)
+        internal static void CheckCustomSongEnvironment(IDifficultyBeatmap song)
         {
             Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(song.level as CustomPreviewBeatmapLevel));
             if (songData == null) return;
@@ -250,7 +230,7 @@ namespace SongCore
                 _currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
                 if (customSongPlatforms && _customPlatform != _currentPlatform)
                 {
-                    CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_customPlatform, false);
+                    CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
                 }
             }
         }
@@ -276,14 +256,6 @@ namespace SongCore
 
             return -1;
         }
-        private void CheckForPreviousPlatform()
-        {
-            if (_currentPlatform != -1)
-            {
-                CustomFloorPlugin.PlatformManager.Instance.ChangeToPlatform(_currentPlatform);
-            }
-        }
-
 
         [Serializable]
         public class platformDownloadData
