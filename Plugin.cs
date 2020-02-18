@@ -230,7 +230,7 @@ namespace SongCore
                 _currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
                 if (customSongPlatforms && _customPlatform != _currentPlatform)
                 {
-                    CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
+               //     CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
                 }
             }
         }
