@@ -6,7 +6,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
+using SongCore.Utilities;
 namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(StandardLevelDetailView))]
@@ -43,12 +43,19 @@ namespace SongCore.HarmonyPatches
             currentLabels.ExpertOverride = "";
             currentLabels.ExpertPlusOverride = "";
         }
-
+        static IPreviewBeatmapLevel lastLevel;
         static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
-            ref PlayerData ____playerData, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton, ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController)
+            ref PlayerData ____playerData, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton,
+            ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
+            ref BeatmapCharacteristicSegmentedControlController ____beatmapCharacteristicSegmentedControlController)
         {
+            bool firstSelection = false;
             var level = ____selectedDifficultyBeatmap.level is CustomBeatmapLevel ? ____selectedDifficultyBeatmap.level as CustomPreviewBeatmapLevel : null;
-
+            if (level != lastLevel)
+            {
+                firstSelection = true;
+                lastLevel = level;
+            }
             ____playButton.interactable = true;
             ____practiceButton.interactable = true;
             ____playButton.gameObject.GetComponentInChildren<Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
@@ -180,6 +187,25 @@ namespace SongCore.HarmonyPatches
 
                 ____beatmapDifficultySegmentedControlController.SetData(____selectedDifficultyBeatmap.parentDifficultyBeatmapSet.difficultyBeatmaps, ____beatmapDifficultySegmentedControlController.selectedDifficulty);
                 clearOverrideLabels();
+                if (songData._defaultCharacteristic != null && firstSelection)
+                {
+                    if(____beatmapCharacteristicSegmentedControlController.selectedBeatmapCharacteristic.serializedName != songData._defaultCharacteristic)
+                    {
+                        var chars = ____beatmapCharacteristicSegmentedControlController.GetField<List<BeatmapCharacteristicSO>>("_beatmapCharacteristics");
+                        int index = 0;
+                        foreach (var characteristic in chars)
+                        {
+                            if (songData._defaultCharacteristic == characteristic.serializedName)
+                                break;
+                            index++;
+                        }
+                        if (index != chars.Count)
+                            ____beatmapCharacteristicSegmentedControlController.GetField<HMUI.IconSegmentedControl>("_segmentedControl").SelectCellWithNumber(index);
+                            ____beatmapCharacteristicSegmentedControlController.HandleDifficultySegmentedControlDidSelectCell(
+                                ____beatmapCharacteristicSegmentedControlController.GetField<HMUI.IconSegmentedControl>("_segmentedControl"), index);
+                    }
+
+                }
 
 
 

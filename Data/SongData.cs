@@ -13,7 +13,7 @@ namespace SongCore.Data
         public string _customEnvironmentName;
         public string _customEnvironmentHash;
         public DifficultyData[] _difficulties;
-
+        public string _defaultCharacteristic = null;
         [Serializable]
         public class Contributor
         {
@@ -98,7 +98,7 @@ namespace SongCore.Data
                     }
                     if (infoData.ContainsKey("_customEnvironment")) _customEnvironmentName = (string)infoData["_customEnvironment"];
                     if (infoData.ContainsKey("_customEnvironmentHash")) _customEnvironmentHash = (string)infoData["_customEnvironmentHash"];
-
+                    if (infoData.ContainsKey("_defaultCharacteristic")) _defaultCharacteristic = (string)infoData["_defaultCharacteristic"];
                 }
                 contributors = levelContributors.ToArray();
 
