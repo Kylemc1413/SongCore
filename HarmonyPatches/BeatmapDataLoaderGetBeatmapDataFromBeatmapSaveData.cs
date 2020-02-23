@@ -1,4 +1,5 @@
 ﻿using Harmony;
+using SongCore.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 namespace SongCore.HarmonyPatches
@@ -9,7 +10,7 @@ namespace SongCore.HarmonyPatches
 
     class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
     {
-        static bool Prefix(List<BeatmapSaveData.NoteData> notesSaveData, List<BeatmapSaveData.ObstacleData> obstaclesSaveData, List<BeatmapSaveData.EventData> eventsSaveData, float beatsPerMinute, float shuffle, float shufflePeriod, ref BeatmapData __result)
+        static bool Prefix(BeatmapDataLoader __instance, List<BeatmapSaveData.NoteData> notesSaveData, List<BeatmapSaveData.ObstacleData> obstaclesSaveData, List<BeatmapSaveData.EventData> eventsSaveData, float beatsPerMinute, float shuffle, float shufflePeriod, ref BeatmapData __result)
         {
 
             List<BeatmapObjectData>[] array = new List<BeatmapObjectData>[4];
@@ -25,7 +26,7 @@ namespace SongCore.HarmonyPatches
             float num3 = 0f;
             foreach (BeatmapSaveData.NoteData noteData2 in notesSaveData)
             {
-                float realTimeFromBPMTime = GetRealTimeFromBPMTime(noteData2.time, beatsPerMinute, shuffle, shufflePeriod);
+                float realTimeFromBPMTime = __instance.InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { noteData2.time, beatsPerMinute, shuffle, shufflePeriod });
                 if (num3 > realTimeFromBPMTime)
                 {
                     Debug.LogError("Notes are not ordered.");
@@ -49,7 +50,7 @@ namespace SongCore.HarmonyPatches
                 NoteCutDirection cutDirection = noteData2.cutDirection;
                 if (list2.Count > 0 && list2[0].time < realTimeFromBPMTime - 0.001f && type.IsBasicNote())
                 {
-                    ProcessBasicNotesInTimeRow(list2, realTimeFromBPMTime);
+                    __instance.InvokeMethod("ProcessBasicNotesInTimeRow", new object[] { list2, realTimeFromBPMTime });
                     num2 = list2[0].time;
                     list2.Clear();
                 }
@@ -66,13 +67,13 @@ namespace SongCore.HarmonyPatches
                     list2.Add(noteData);
                 }
             }
-            ProcessBasicNotesInTimeRow(list2, float.MaxValue);
+            __instance.InvokeMethod("ProcessBasicNotesInTimeRow", new object[] { list2, float.MaxValue });
             foreach (BeatmapSaveData.ObstacleData obstacleData in obstaclesSaveData)
             {
-                float realTimeFromBPMTime2 = GetRealTimeFromBPMTime(obstacleData.time, beatsPerMinute, shuffle, shufflePeriod);
+                float realTimeFromBPMTime2 = __instance.InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { obstacleData.time, beatsPerMinute, shuffle, shufflePeriod });
                 int lineIndex2 = obstacleData.lineIndex;
                 ObstacleType type2 = obstacleData.type;
-                float realTimeFromBPMTime3 = GetRealTimeFromBPMTime(obstacleData.duration, beatsPerMinute, shuffle, shufflePeriod);
+                float realTimeFromBPMTime3 = __instance.InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { obstacleData.duration, beatsPerMinute, shuffle, shufflePeriod });
                 int width = obstacleData.width;
                 ObstacleData item = new ObstacleData(num++, realTimeFromBPMTime2, lineIndex2, type2, realTimeFromBPMTime3, width);
                 int number2 = lineIndex2;
@@ -84,7 +85,7 @@ namespace SongCore.HarmonyPatches
             }
             foreach (BeatmapSaveData.EventData eventData in eventsSaveData)
             {
-                float realTimeFromBPMTime4 = GetRealTimeFromBPMTime(eventData.time, beatsPerMinute, shuffle, shufflePeriod);
+                float realTimeFromBPMTime4 = __instance.InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { eventData.time, beatsPerMinute, shuffle, shufflePeriod });
                 BeatmapEventType type3 = eventData.type;
                 int value = eventData.value;
                 BeatmapEventData item2 = new BeatmapEventData(realTimeFromBPMTime4, type3, value);
@@ -116,42 +117,7 @@ namespace SongCore.HarmonyPatches
 
         }
 
-        private static float GetRealTimeFromBPMTime(float bmpTime, float beatsPerMinute, float shuffle, float shufflePeriod)
-        {
-            float num = bmpTime;
-            if (shufflePeriod > 0f)
-            {
-                bool flag = (int)(num * (1f / shufflePeriod)) % 2 == 1;
-                if (flag)
-                {
-                    num += shuffle * shufflePeriod;
-                }
-            }
-            if (beatsPerMinute > 0f)
-            {
-                num = num / beatsPerMinute * 60f;
-            }
-            return num;
-        }
 
-
-        private static void ProcessBasicNotesInTimeRow(List<NoteData> notes, float nextRowTime)
-        {
-            if (notes.Count == 2)
-            {
-                NoteData noteData = notes[0];
-                NoteData noteData2 = notes[1];
-                if (noteData.noteType != noteData2.noteType && ((noteData.noteType == NoteType.NoteA && noteData.lineIndex > noteData2.lineIndex) || (noteData.noteType == NoteType.NoteB && noteData.lineIndex < noteData2.lineIndex)))
-                {
-                    noteData.SetNoteFlipToNote(noteData2);
-                    noteData2.SetNoteFlipToNote(noteData);
-                }
-            }
-            for (int i = 0; i < notes.Count; i++)
-            {
-                notes[i].timeToNextBasicNote = nextRowTime - notes[i].time;
-            }
-        }
     }
 
 
