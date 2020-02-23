@@ -10,7 +10,7 @@ namespace SongCore.HarmonyPatches
 
     class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
     {
-        static bool Prefix(BeatmapDataLoader __instance, List<BeatmapSaveData.NoteData> notesSaveData, List<BeatmapSaveData.ObstacleData> obstaclesSaveData, List<BeatmapSaveData.EventData> eventsSaveData, float beatsPerMinute, float shuffle, float shufflePeriod, ref BeatmapData __result)
+        static bool Prefix(List<BeatmapSaveData.NoteData> notesSaveData, List<BeatmapSaveData.ObstacleData> obstaclesSaveData, List<BeatmapSaveData.EventData> eventsSaveData, float beatsPerMinute, float shuffle, float shufflePeriod, ref BeatmapData __result)
         {
 
             List<BeatmapObjectData>[] array = new List<BeatmapObjectData>[4];
@@ -26,7 +26,7 @@ namespace SongCore.HarmonyPatches
             float num3 = 0f;
             foreach (BeatmapSaveData.NoteData noteData2 in notesSaveData)
             {
-                float realTimeFromBPMTime = __instance.InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { noteData2.time, beatsPerMinute, shuffle, shufflePeriod });
+                float realTimeFromBPMTime = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { noteData2.time, beatsPerMinute, shuffle, shufflePeriod });
                 if (num3 > realTimeFromBPMTime)
                 {
                     Debug.LogError("Notes are not ordered.");
@@ -50,7 +50,7 @@ namespace SongCore.HarmonyPatches
                 NoteCutDirection cutDirection = noteData2.cutDirection;
                 if (list2.Count > 0 && list2[0].time < realTimeFromBPMTime - 0.001f && type.IsBasicNote())
                 {
-                    __instance.InvokeMethod("ProcessBasicNotesInTimeRow", new object[] { list2, realTimeFromBPMTime });
+                    typeof(BeatmapDataLoader).InvokeMethod("ProcessBasicNotesInTimeRow", new object[] { list2, realTimeFromBPMTime });
                     num2 = list2[0].time;
                     list2.Clear();
                 }
@@ -67,13 +67,13 @@ namespace SongCore.HarmonyPatches
                     list2.Add(noteData);
                 }
             }
-            __instance.InvokeMethod("ProcessBasicNotesInTimeRow", new object[] { list2, float.MaxValue });
+            typeof(BeatmapDataLoader).InvokeMethod("ProcessBasicNotesInTimeRow", new object[] { list2, float.MaxValue });
             foreach (BeatmapSaveData.ObstacleData obstacleData in obstaclesSaveData)
             {
-                float realTimeFromBPMTime2 = __instance.InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { obstacleData.time, beatsPerMinute, shuffle, shufflePeriod });
+                float realTimeFromBPMTime2 = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { obstacleData.time, beatsPerMinute, shuffle, shufflePeriod });
                 int lineIndex2 = obstacleData.lineIndex;
                 ObstacleType type2 = obstacleData.type;
-                float realTimeFromBPMTime3 = __instance.InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { obstacleData.duration, beatsPerMinute, shuffle, shufflePeriod });
+                float realTimeFromBPMTime3 = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { obstacleData.duration, beatsPerMinute, shuffle, shufflePeriod });
                 int width = obstacleData.width;
                 ObstacleData item = new ObstacleData(num++, realTimeFromBPMTime2, lineIndex2, type2, realTimeFromBPMTime3, width);
                 int number2 = lineIndex2;
@@ -85,7 +85,7 @@ namespace SongCore.HarmonyPatches
             }
             foreach (BeatmapSaveData.EventData eventData in eventsSaveData)
             {
-                float realTimeFromBPMTime4 = __instance.InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { eventData.time, beatsPerMinute, shuffle, shufflePeriod });
+                float realTimeFromBPMTime4 = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { eventData.time, beatsPerMinute, shuffle, shufflePeriod });
                 BeatmapEventType type3 = eventData.type;
                 int value = eventData.value;
                 BeatmapEventData item2 = new BeatmapEventData(realTimeFromBPMTime4, type3, value);
