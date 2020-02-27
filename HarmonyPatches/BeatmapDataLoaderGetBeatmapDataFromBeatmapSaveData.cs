@@ -1,4 +1,5 @@
 ﻿using Harmony;
+using SongCore.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 namespace SongCore.HarmonyPatches
@@ -25,7 +26,8 @@ namespace SongCore.HarmonyPatches
             float num3 = 0f;
             foreach (BeatmapSaveData.NoteData noteData2 in notesSaveData)
             {
-                float realTimeFromBPMTime = GetRealTimeFromBPMTime(noteData2.time, startBPM, shuffle, shufflePeriod);
+
+                float realTimeFromBPMTime = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { noteData2.time, beatsPerMinute, shuffle, shufflePeriod });
                 if (num3 > realTimeFromBPMTime)
                 {
                     Debug.LogError("Notes are not ordered.");
@@ -49,7 +51,7 @@ namespace SongCore.HarmonyPatches
                 NoteCutDirection cutDirection = noteData2.cutDirection;
                 if (list2.Count > 0 && list2[0].time < realTimeFromBPMTime - 0.001f && type.IsBasicNote())
                 {
-                    ProcessBasicNotesInTimeRow(list2, realTimeFromBPMTime);
+                    typeof(BeatmapDataLoader).InvokeMethod("ProcessBasicNotesInTimeRow", new object[] { list2, realTimeFromBPMTime });
                     num2 = list2[0].time;
                     list2.Clear();
                 }
@@ -66,13 +68,15 @@ namespace SongCore.HarmonyPatches
                     list2.Add(noteData);
                 }
             }
-            ProcessBasicNotesInTimeRow(list2, float.MaxValue);
+            typeof(BeatmapDataLoader).InvokeMethod("ProcessBasicNotesInTimeRow", new object[] { list2, float.MaxValue });
             foreach (BeatmapSaveData.ObstacleData obstacleData in obstaclesSaveData)
             {
-                float realTimeFromBPMTime2 = GetRealTimeFromBPMTime(obstacleData.time, startBPM, shuffle, shufflePeriod);
+
+                float realTimeFromBPMTime2 = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { obstacleData.time, beatsPerMinute, shuffle, shufflePeriod });
                 int lineIndex2 = obstacleData.lineIndex;
                 ObstacleType type2 = obstacleData.type;
-                float realTimeFromBPMTime3 = GetRealTimeFromBPMTime(obstacleData.duration, startBPM, shuffle, shufflePeriod);
+                float realTimeFromBPMTime3 = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { obstacleData.duration, beatsPerMinute, shuffle, shufflePeriod });
+
                 int width = obstacleData.width;
                 ObstacleData item = new ObstacleData(num++, realTimeFromBPMTime2, lineIndex2, type2, realTimeFromBPMTime3, width);
                 int number2 = lineIndex2;
@@ -84,7 +88,8 @@ namespace SongCore.HarmonyPatches
             }
             foreach (BeatmapSaveData.EventData eventData in eventsSaveData)
             {
-                float realTimeFromBPMTime4 = GetRealTimeFromBPMTime(eventData.time, startBPM, shuffle, shufflePeriod);
+                float realTimeFromBPMTime4 = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { eventData.time, beatsPerMinute, shuffle, shufflePeriod });
+
                 BeatmapEventType type3 = eventData.type;
                 int value = eventData.value;
                 BeatmapEventData item2 = new BeatmapEventData(realTimeFromBPMTime4, type3, value);
@@ -116,42 +121,7 @@ namespace SongCore.HarmonyPatches
 
         }
 
-        private static float GetRealTimeFromBPMTime(float bmpTime, float beatsPerMinute, float shuffle, float shufflePeriod)
-        {
-            float num = bmpTime;
-            if (shufflePeriod > 0f)
-            {
-                bool flag = (int)(num * (1f / shufflePeriod)) % 2 == 1;
-                if (flag)
-                {
-                    num += shuffle * shufflePeriod;
-                }
-            }
-            if (beatsPerMinute > 0f)
-            {
-                num = num / beatsPerMinute * 60f;
-            }
-            return num;
-        }
 
-
-        private static void ProcessBasicNotesInTimeRow(List<NoteData> notes, float nextRowTime)
-        {
-            if (notes.Count == 2)
-            {
-                NoteData noteData = notes[0];
-                NoteData noteData2 = notes[1];
-                if (noteData.noteType != noteData2.noteType && ((noteData.noteType == NoteType.NoteA && noteData.lineIndex > noteData2.lineIndex) || (noteData.noteType == NoteType.NoteB && noteData.lineIndex < noteData2.lineIndex)))
-                {
-                    noteData.SetNoteFlipToNote(noteData2);
-                    noteData2.SetNoteFlipToNote(noteData);
-                }
-            }
-            for (int i = 0; i < notes.Count; i++)
-            {
-                notes[i].timeToNextBasicNote = nextRowTime - notes[i].time;
-            }
-        }
     }
 
 
