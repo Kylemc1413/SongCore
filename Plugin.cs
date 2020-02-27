@@ -33,6 +33,7 @@ namespace SongCore
         [OnStart]
         public void OnApplicationStart()
         {
+            BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", SCSettings.instance);
             //Delete Old Config
             try
             {
@@ -119,10 +120,6 @@ namespace SongCore
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
-            if (scene.name == "MenuViewControllers")
-            {
-                BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", SCSettings.instance);
-            }
 
         }
        
