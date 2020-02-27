@@ -10,89 +10,120 @@ namespace SongCore.HarmonyPatches
 
     class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
     {
-        static bool Prefix(ref BeatmapDataLoader __instance, List<BeatmapSaveData.NoteData> notesSaveData, List<BeatmapSaveData.ObstacleData> obstaclesSaveData, List<BeatmapSaveData.EventData> eventsSaveData, float startBPM, float shuffle, float shufflePeriod, ref BeatmapData __result)
+            // Token: 0x0600041E RID: 1054 RVA: 0x000103E0 File Offset: 0x0000E5E0
+            private struct BPMChangeData
+            {
+                // Token: 0x0600041E RID: 1054 RVA: 0x000103E0 File Offset: 0x0000E5E0
+                public BPMChangeData(float bpmChangeStartTime, float bpmChangeStartBPMTime, float bpm)
+                {
+                    this.bpmChangeStartTime = bpmChangeStartTime;
+                    this.bpmChangeStartBPMTime = bpmChangeStartBPMTime;
+                    this.bpm = bpm;
+                }
+
+                // Token: 0x0400046F RID: 1135
+                public readonly float bpmChangeStartTime;
+
+                // Token: 0x04000470 RID: 1136
+                public readonly float bpmChangeStartBPMTime;
+
+                // Token: 0x04000471 RID: 1137
+                public readonly float bpm;
+            }
+
+            static bool Prefix(ref BeatmapDataLoader __instance, List<BeatmapSaveData.NoteData> notesSaveData, List<BeatmapSaveData.ObstacleData> obstaclesSaveData, List<BeatmapSaveData.EventData> eventsSaveData, float startBPM, float shuffle, float shufflePeriod, ref Object ____notesInTimeRowProcessor, ref BeatmapData __result)
         {
+
             List<BeatmapObjectData>[] array = new List<BeatmapObjectData>[4];
             List<BeatmapEventData> list = new List<BeatmapEventData>(eventsSaveData.Count);
+            List<BPMChangeData> list2 = new List<BPMChangeData>();
+            list2.Add(new BPMChangeData(0f, 0f, startBPM));
+            BPMChangeData bpmchangeData = list2[0];
+            foreach (BeatmapSaveData.EventData eventData in eventsSaveData)
+            {
+                if (eventData.type.IsBPMChangeEvent())
+                {
+                    float time = eventData.time;
+                    int value = eventData.value;
+                    float bpmChangeStartTime = bpmchangeData.bpmChangeStartTime + __instance.GetRealTimeFromBPMTime(time - bpmchangeData.bpmChangeStartBPMTime, (float)value, shuffle, shufflePeriod);
+                    list2.Add(new BPMChangeData(bpmChangeStartTime, time, (float)value));
+                }
+            }
             for (int i = 0; i < 4; i++)
             {
                 array[i] = new List<BeatmapObjectData>(3000);
             }
             int num = 0;
-            NoteData noteData = null;
             float num2 = -1f;
-            List<NoteData> list2 = new List<NoteData>(4);
-            float num3 = 0f;
-            foreach (BeatmapSaveData.NoteData noteData2 in notesSaveData)
+            List<NoteData> list3 = new List<NoteData>(4);
+            List<NoteData> list4 = new List<NoteData>(4);
+            int num3 = 0;
+            foreach (BeatmapSaveData.NoteData noteData in notesSaveData)
             {
-
-                float realTimeFromBPMTime = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { noteData2.time, startBPM, shuffle, shufflePeriod });
-                if (num3 > realTimeFromBPMTime)
+                float time2 = noteData.time;
+                while (num3 < list2.Count - 1 && list2[num3 + 1].bpmChangeStartBPMTime < time2)
                 {
-                    Debug.LogError("Notes are not ordered.");
+                    num3++;
                 }
-                num3 = realTimeFromBPMTime;
-                int lineIndex = noteData2.lineIndex;
-                NoteLineLayer lineLayer = noteData2.lineLayer;
+                BPMChangeData bpmchangeData2 = list2[num3];
+                float num4 = bpmchangeData2.bpmChangeStartTime + __instance.GetRealTimeFromBPMTime(time2 - bpmchangeData2.bpmChangeStartBPMTime, bpmchangeData2.bpm, shuffle, shufflePeriod);
+                int lineIndex = noteData.lineIndex;
+                NoteLineLayer lineLayer = noteData.lineLayer;
                 NoteLineLayer startNoteLineLayer = NoteLineLayer.Base;
-                if (noteData != null && noteData.lineIndex == lineIndex && Mathf.Abs(noteData.time - realTimeFromBPMTime) < 0.0001f)
+                NoteType type = noteData.type;
+                NoteCutDirection cutDirection = noteData.cutDirection;
+                if (list3.Count > 0 && list3[0].time < num4 - 0.001f && type.IsBasicNote())
                 {
-                    if (noteData.startNoteLineLayer == NoteLineLayer.Base)
-                    {
-                        startNoteLineLayer = NoteLineLayer.Upper;
-                    }
-                    else
-                    {
-                        startNoteLineLayer = NoteLineLayer.Top;
-                    }
+                    ____notesInTimeRowProcessor.InvokeMethod("ProcessBasicNotesInTimeRow", list3, num4);
+                    num2 = list3[0].time;
+                    list3.Clear();
                 }
-                NoteType type = noteData2.type;
-                NoteCutDirection cutDirection = noteData2.cutDirection;
-                if (list2.Count > 0 && list2[0].time < realTimeFromBPMTime - 0.001f && type.IsBasicNote())
+                if (list4.Count > 0 && list4[0].time < num4 - 0.001f)
                 {
-                    typeof(BeatmapDataLoader).InvokeMethod("ProcessBasicNotesInTimeRow", new object[] { list2, realTimeFromBPMTime });
-                    num2 = list2[0].time;
-                    list2.Clear();
+                    ____notesInTimeRowProcessor.InvokeMethod("ProcessNotesInTimeRow", list4);
+                    list4.Clear();
                 }
-                NoteData noteData3 = new NoteData(num++, realTimeFromBPMTime, lineIndex, lineLayer, startNoteLineLayer, type, cutDirection, float.MaxValue, realTimeFromBPMTime - num2);
-                int number = lineIndex;
-                if (number < 0)
-                    number = 0;
-                if (number > 3)
-                    number = 3;
-                array[number].Add(noteData3);
-                noteData = noteData3;
-                if (noteData3.noteType.IsBasicNote())
+                NoteData noteData2 = new NoteData(num++, num4, lineIndex, lineLayer, startNoteLineLayer, type, cutDirection, float.MaxValue, num4 - num2);
+                array[lineIndex].Add(noteData2);
+                NoteData item = noteData2;
+                if (noteData2.noteType.IsBasicNote())
                 {
-                    list2.Add(noteData);
+                    list3.Add(item);
                 }
+                list4.Add(item);
             }
-            typeof(BeatmapDataLoader).InvokeMethod("ProcessBasicNotesInTimeRow", new object[] { list2, float.MaxValue });
+            ____notesInTimeRowProcessor.InvokeMethod("ProcessBasicNotesInTimeRow", list3, float.MaxValue);
+            ____notesInTimeRowProcessor.InvokeMethod("ProcessNotesInTimeRow", list4);
+            num3 = 0;
             foreach (BeatmapSaveData.ObstacleData obstacleData in obstaclesSaveData)
             {
-
-                float realTimeFromBPMTime2 = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { obstacleData.time, startBPM, shuffle, shufflePeriod });
+                float time3 = obstacleData.time;
+                while (num3 < list2.Count - 1 && list2[num3 + 1].bpmChangeStartBPMTime < time3)
+                {
+                    num3++;
+                }
+                BPMChangeData bpmchangeData3 = list2[num3];
+                float time4 = bpmchangeData3.bpmChangeStartTime + __instance.GetRealTimeFromBPMTime(time3 - bpmchangeData3.bpmChangeStartBPMTime, bpmchangeData3.bpm, shuffle, shufflePeriod);
                 int lineIndex2 = obstacleData.lineIndex;
                 ObstacleType type2 = obstacleData.type;
-                float realTimeFromBPMTime3 = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { obstacleData.duration, startBPM, shuffle, shufflePeriod });
-
+                float realTimeFromBPMTime = __instance.GetRealTimeFromBPMTime(obstacleData.duration, startBPM, shuffle, shufflePeriod);
                 int width = obstacleData.width;
-                ObstacleData item = new ObstacleData(num++, realTimeFromBPMTime2, lineIndex2, type2, realTimeFromBPMTime3, width);
-                int number2 = lineIndex2;
-                if (number2 < 0)
-                    number2 = 0;
-                if (number2 > 3)
-                    number2 = 3;
-                array[number2].Add(item);
+                ObstacleData item2 = new ObstacleData(num++, time4, lineIndex2, type2, realTimeFromBPMTime, width);
+                array[lineIndex2].Add(item2);
             }
-            foreach (BeatmapSaveData.EventData eventData in eventsSaveData)
+            foreach (BeatmapSaveData.EventData eventData2 in eventsSaveData)
             {
-                float realTimeFromBPMTime4 = typeof(BeatmapDataLoader).InvokeMethod<float>("GetRealTimeFromBPMTime", new object[] { eventData.time, startBPM, shuffle, shufflePeriod });
-
-                BeatmapEventType type3 = eventData.type;
-                int value = eventData.value;
-                BeatmapEventData item2 = new BeatmapEventData(realTimeFromBPMTime4, type3, value);
-                list.Add(item2);
+                float time5 = eventData2.time;
+                while (num3 < list2.Count - 1 && list2[num3 + 1].bpmChangeStartBPMTime < time5)
+                {
+                    num3++;
+                }
+                BPMChangeData bpmchangeData4 = list2[num3];
+                float time6 = bpmchangeData4.bpmChangeStartTime + __instance.GetRealTimeFromBPMTime(time5 - bpmchangeData4.bpmChangeStartBPMTime, bpmchangeData4.bpm, shuffle, shufflePeriod);
+                BeatmapEventType type3 = eventData2.type;
+                int value2 = eventData2.value;
+                BeatmapEventData item3 = new BeatmapEventData(time6, type3, value2);
+                list.Add(item3);
             }
             if (list.Count == 0)
             {
@@ -108,16 +139,17 @@ namespace SongCore.HarmonyPatches
                     {
                         return 0;
                     }
-                    return (x.time <= y.time) ? -1 : 1;
+                    if (x.time <= y.time)
+                    {
+                        return -1;
+                    }
+                    return 1;
                 });
                 array2[j] = new BeatmapLineData();
                 array2[j].beatmapObjectsData = array[j].ToArray();
             }
             __result = new BeatmapData(array2, list.ToArray());
-
             return false;
-
-
         }
 
 

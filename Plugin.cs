@@ -34,6 +34,9 @@ namespace SongCore
         public void OnApplicationStart()
         {
             BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", SCSettings.instance);
+            SceneManager.activeSceneChanged += OnActiveSceneChanged;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+
             //Delete Old Config
             try
             {
