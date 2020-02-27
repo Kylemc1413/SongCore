@@ -1,5 +1,7 @@
 ﻿using Harmony;
 using System.Linq;
+using UnityEngine;
+using UnityEngine;
 namespace SongCore.HarmonyPatches
 {
 
@@ -16,6 +18,7 @@ namespace SongCore.HarmonyPatches
                     __result = Collections.customCharacteristics.FirstOrDefault(x => x.serializedName == serializedName);
                 else
                     __result = Collections.customCharacteristics.FirstOrDefault(x => x.serializedName == "MissingCharacteristic");
+                
             }
         }
     }

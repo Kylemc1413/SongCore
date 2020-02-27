@@ -9,7 +9,7 @@ namespace SongCore.HarmonyPatches
 
     class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
     {
-        static bool Prefix(List<BeatmapSaveData.NoteData> notesSaveData, List<BeatmapSaveData.ObstacleData> obstaclesSaveData, List<BeatmapSaveData.EventData> eventsSaveData, float beatsPerMinute, float shuffle, float shufflePeriod, ref BeatmapData __result)
+        static bool Prefix(List<BeatmapSaveData.NoteData> notesSaveData, List<BeatmapSaveData.ObstacleData> obstaclesSaveData, List<BeatmapSaveData.EventData> eventsSaveData, float startBPM, float shuffle, float shufflePeriod, ref BeatmapData __result)
         {
 
             List<BeatmapObjectData>[] array = new List<BeatmapObjectData>[4];
@@ -25,7 +25,7 @@ namespace SongCore.HarmonyPatches
             float num3 = 0f;
             foreach (BeatmapSaveData.NoteData noteData2 in notesSaveData)
             {
-                float realTimeFromBPMTime = GetRealTimeFromBPMTime(noteData2.time, beatsPerMinute, shuffle, shufflePeriod);
+                float realTimeFromBPMTime = GetRealTimeFromBPMTime(noteData2.time, startBPM, shuffle, shufflePeriod);
                 if (num3 > realTimeFromBPMTime)
                 {
                     Debug.LogError("Notes are not ordered.");
@@ -69,10 +69,10 @@ namespace SongCore.HarmonyPatches
             ProcessBasicNotesInTimeRow(list2, float.MaxValue);
             foreach (BeatmapSaveData.ObstacleData obstacleData in obstaclesSaveData)
             {
-                float realTimeFromBPMTime2 = GetRealTimeFromBPMTime(obstacleData.time, beatsPerMinute, shuffle, shufflePeriod);
+                float realTimeFromBPMTime2 = GetRealTimeFromBPMTime(obstacleData.time, startBPM, shuffle, shufflePeriod);
                 int lineIndex2 = obstacleData.lineIndex;
                 ObstacleType type2 = obstacleData.type;
-                float realTimeFromBPMTime3 = GetRealTimeFromBPMTime(obstacleData.duration, beatsPerMinute, shuffle, shufflePeriod);
+                float realTimeFromBPMTime3 = GetRealTimeFromBPMTime(obstacleData.duration, startBPM, shuffle, shufflePeriod);
                 int width = obstacleData.width;
                 ObstacleData item = new ObstacleData(num++, realTimeFromBPMTime2, lineIndex2, type2, realTimeFromBPMTime3, width);
                 int number2 = lineIndex2;
@@ -84,7 +84,7 @@ namespace SongCore.HarmonyPatches
             }
             foreach (BeatmapSaveData.EventData eventData in eventsSaveData)
             {
-                float realTimeFromBPMTime4 = GetRealTimeFromBPMTime(eventData.time, beatsPerMinute, shuffle, shufflePeriod);
+                float realTimeFromBPMTime4 = GetRealTimeFromBPMTime(eventData.time, startBPM, shuffle, shufflePeriod);
                 BeatmapEventType type3 = eventData.type;
                 int value = eventData.value;
                 BeatmapEventData item2 = new BeatmapEventData(realTimeFromBPMTime4, type3, value);

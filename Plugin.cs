@@ -17,7 +17,8 @@ using IPALogger = IPA.Logging.Logger;
 
 namespace SongCore
 {
-    public class Plugin : IBeatSaberPlugin
+    [Plugin(RuntimeOptions.SingleStartInit)]
+    public class Plugin
     {
         public static string standardCharacteristicName = "Standard";
         public static string oneSaberCharacteristicName = "OneSaber";
@@ -29,7 +30,7 @@ namespace SongCore
         internal static bool customSongPlatforms;
         internal static int _currentPlatform = -1;
 
-
+        [OnStart]
         public void OnApplicationStart()
         {
             //Delete Old Config
@@ -56,9 +57,9 @@ namespace SongCore
                 File.Create(Collections.dataPath);
             else
                 Collections.LoadExtraSongData();
-            Collections.RegisterCustomCharacteristic(UI.BasicUI.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic");
-            Collections.RegisterCustomCharacteristic(UI.BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow");
-            Collections.RegisterCustomCharacteristic(UI.BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless");
+            Collections.RegisterCustomCharacteristic(UI.BasicUI.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic", false, false, 1000);
+            Collections.RegisterCustomCharacteristic(UI.BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow", false, false, 100);
+            Collections.RegisterCustomCharacteristic(UI.BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless", false, false, 101);
 
             if (!File.Exists(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"))
                 File.WriteAllBytes(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml", Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
@@ -109,7 +110,7 @@ namespace SongCore
             }
 
         }
-
+        [Init]
         public void Init(object thisIsNull, IPALogger pluginLogger)
         {
 
@@ -227,10 +228,10 @@ namespace SongCore
             int _customPlatform = customEnvironment(songData._customEnvironmentName);
             if (_customPlatform != -1)
             {
-                _currentPlatform = CustomFloorPlugin.PlatformManager.Instance.currentPlatformIndex;
+            //    _currentPlatform = CustomFloorPlugin.PlatformManager.CurrentPlatformIndex;
                 if (customSongPlatforms && _customPlatform != _currentPlatform)
                 {
-               //     CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
+             //       CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
                 }
             }
         }
@@ -243,8 +244,8 @@ namespace SongCore
         }
         private static int findCustomEnvironment(string name)
         {
-
-            CustomFloorPlugin.CustomPlatform[] _customPlatformsList = CustomFloorPlugin.PlatformManager.Instance.GetPlatforms();
+/*
+            List<CustomFloorPlugin.CustomPlatform> _customPlatformsList = CustomFloorPlugin.PlatformManager.AllPlatforms;
             int platIndex = 0;
             foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
             {
@@ -254,6 +255,7 @@ namespace SongCore
             }
             Console.WriteLine(name + " not found!");
 
+    */
             return -1;
         }
 
@@ -305,7 +307,7 @@ namespace SongCore
                 {
                     string customPlatformsFolderPath = Path.Combine(Environment.CurrentDirectory, "CustomPlatforms", downloadData.name);
                     System.IO.File.WriteAllBytes(@customPlatformsFolderPath + ".plat", www.downloadHandler.data);
-                    CustomFloorPlugin.PlatformManager.Instance.AddPlatform(customPlatformsFolderPath + ".plat");
+                 //   CustomFloorPlugin.PlatformManager.AddPlatform(customPlatformsFolderPath + ".plat");
                 }
             }
         }

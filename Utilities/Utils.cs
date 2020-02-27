@@ -22,7 +22,7 @@ namespace SongCore.Utilities
             foreach (var mod in IPA.Loader.PluginManager.AllPlugins)
             {
                 //         Logging.Log($"Comparing to: {mod.Metadata.Id}");
-                if (mod.Metadata.Id == ModName)
+                if (mod.Id == ModName)
                     return true;
             }
             return false;
