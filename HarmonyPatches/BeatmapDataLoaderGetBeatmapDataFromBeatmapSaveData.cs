@@ -84,7 +84,8 @@ namespace SongCore.HarmonyPatches
                     list4.Clear();
                 }
                 NoteData noteData2 = new NoteData(num++, num4, lineIndex, lineLayer, startNoteLineLayer, type, cutDirection, float.MaxValue, num4 - num2);
-                array[lineIndex].Add(noteData2);
+                int lineNum = lineIndex > 3 ? 3 : lineIndex < 0 ? 0 : lineIndex;
+                array[lineNum].Add(noteData2);
                 NoteData item = noteData2;
                 if (noteData2.noteType.IsBasicNote())
                 {
@@ -109,7 +110,8 @@ namespace SongCore.HarmonyPatches
                 float realTimeFromBPMTime = __instance.GetRealTimeFromBPMTime(obstacleData.duration, startBPM, shuffle, shufflePeriod);
                 int width = obstacleData.width;
                 ObstacleData item2 = new ObstacleData(num++, time4, lineIndex2, type2, realTimeFromBPMTime, width);
-                array[lineIndex2].Add(item2);
+                int lineNum = lineIndex2 > 3 ? 3 : lineIndex2 < 0 ? 0 : lineIndex2;
+                array[lineNum].Add(item2);
             }
             foreach (BeatmapSaveData.EventData eventData2 in eventsSaveData)
             {
