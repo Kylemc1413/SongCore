@@ -1,5 +1,5 @@
 ﻿using BeatSaberMarkupLanguage.Settings;
-using Harmony;
+using HarmonyLib;
 using IPA;
 using Newtonsoft.Json;
 using SongCore.UI;
@@ -23,7 +23,7 @@ namespace SongCore
         public static string standardCharacteristicName = "Standard";
         public static string oneSaberCharacteristicName = "OneSaber";
         public static string noArrowsCharacteristicName = "NoArrows";
-        internal static HarmonyInstance harmony;
+        internal static Harmony harmony;
         //     internal static bool ColorsInstalled = false;
         internal static bool PlatformsInstalled = false;
         internal static bool customSongColors;
@@ -50,7 +50,7 @@ namespace SongCore
 
             //      ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
             PlatformsInstalled = Utils.IsModInstalled("Custom Platforms");
-            harmony = HarmonyInstance.Create("com.kyle1413.BeatSaber.SongCore");
+            harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
             //     Collections.LoadExtraSongData();
             UI.BasicUI.GetIcons();
