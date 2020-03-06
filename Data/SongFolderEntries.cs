@@ -111,6 +111,8 @@ namespace SongCore.Data
     }
     public class ModSeperateSongFolder : SeperateSongFolder
     {
+        public bool AlwaysShow { get; set; } = true;
+
         public ModSeperateSongFolder(SongFolderEntry folderEntry) : base(folderEntry)
         {
 
