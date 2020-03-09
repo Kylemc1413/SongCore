@@ -689,6 +689,9 @@ namespace SongCore
                 {
                     CustomWIPLevels.Remove(folderPath);
 
+                    foreach (var folderEntry in SeperateSongFolders)
+                        folderEntry.Levels.Remove(folderPath);
+
                     if (Collections.levelHashDictionary.ContainsKey(level.levelID))
                     {
                         string hash = Collections.hashForLevelID(level.levelID);
