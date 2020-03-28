@@ -239,6 +239,9 @@ namespace SongCore
                     {
                         Directory.CreateDirectory(baseProjectPath + "/CustomWIPLevels");
                     }
+
+                    #region CacheZipWIPs
+                    // Get zip files in CustomWIPLevels and extract them to Cache folder
                     if (fullRefresh)
                     {
                         try
@@ -328,10 +331,12 @@ namespace SongCore
                             Logging.logger.Error("Failed To Load Cached WIP Levels: " + ex);
                         }
                     }
+                    #endregion
 
                     stopwatch.Start();
 
-
+                    #region LoadCustomLevels
+                    // Get Levels from CustomLevels and CustomWIPLevels folders
                     var songFolders = Directory.GetDirectories(path + "/CustomLevels").ToList().Concat(Directory.GetDirectories(path + "/CustomWIPLevels")).ToList();
                     var loadedData = new List<string>();
 
@@ -422,6 +427,9 @@ namespace SongCore
                             }
                         }
                     }
+                    #endregion
+
+                    #region LoadSeperateFolders
                     for (int k = 0; k < SeperateSongFolders.Count; k++)
                     {
                         try
@@ -556,6 +564,7 @@ namespace SongCore
 
 
                     }
+                    #endregion
                 }
                 catch (Exception e)
                 {
@@ -568,9 +577,10 @@ namespace SongCore
             {
                 stopwatch.Stop();
                 int songCount = CustomLevels.Count + CustomWIPLevels.Count;
+                int songCountWSF = songCount;
                 foreach (var f in SeperateSongFolders)
                     songCount += f.Levels.Count;
-                Logging.Log("Loaded " + songCount + " new songs in " + stopwatch.Elapsed.TotalSeconds + " seconds");
+                Logging.Log("Loaded " + songCount + " new songs (" + songCountWSF + " in CustomLevels | " + (songCount - songCountWSF) + " in seperate folders) in " + stopwatch.Elapsed.TotalSeconds + " seconds");
                 try
                 {
                     //Handle LevelPacks
@@ -582,15 +592,16 @@ namespace SongCore
                         {
                             switch (folderEntry.SongFolderEntry.Pack)
                             {
-
                                 case FolderLevelPack.CustomWIPLevels:
-                                    CustomWIPLevels = CustomWIPLevels.Concat(folderEntry.Levels.Where(x => !CustomWIPLevels.ContainsKey(x.Key))).ToDictionary(x => x.Key, x => x.Value);
-                                    break;
-                                default:
+                                    {
+                                        CustomWIPLevels = CustomWIPLevels.Concat(folderEntry.Levels.Where(x => !CustomWIPLevels.ContainsKey(x.Key))).ToDictionary(x => x.Key, x => x.Value);
+                                        break;
+                                    }
                                 case FolderLevelPack.CustomLevels:
                                     CustomLevels = CustomLevels.Concat(folderEntry.Levels.Where(x => !CustomLevels.ContainsKey(x.Key))).ToDictionary(x => x.Key, x => x.Value);
                                     break;
-
+                                default:
+                                    break;
                             }
                         }
 
