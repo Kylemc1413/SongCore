@@ -143,6 +143,7 @@
     <Compile Include="Data\SongFolderEntries.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData.cs" />
     <Compile Include="HarmonyPatches\BeatmapDifficultyMethodsName.cs" />
+    <Compile Include="HarmonyPatches\AprilFools.cs" />
     <Compile Include="HarmonyPatches\PlatformsPatch.cs" />
     <Compile Include="HarmonyPatches\CustomCharacteristicsPatch.cs" />
     <Compile Include="HarmonyPatches\CustomSongColorsPatch.cs" />
