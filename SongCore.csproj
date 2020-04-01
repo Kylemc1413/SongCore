@@ -77,6 +77,9 @@
     <Reference Include="Newtonsoft.Json.12.0.0.0">
       <HintPath>..\..\..\..\..\Program Files\Oculus\Software\Software\hyperbolic-magnetism-beat-saber\Libs\Newtonsoft.Json.12.0.0.0.dll</HintPath>
     </Reference>
+    <Reference Include="SemVer">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Libs\SemVer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -143,6 +146,7 @@
     <Compile Include="Data\SongFolderEntries.cs" />
     <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData.cs" />
     <Compile Include="HarmonyPatches\BeatmapDifficultyMethodsName.cs" />
+    <Compile Include="HarmonyPatches\AprilFools.cs" />
     <Compile Include="HarmonyPatches\PlatformsPatch.cs" />
     <Compile Include="HarmonyPatches\CustomCharacteristicsPatch.cs" />
     <Compile Include="HarmonyPatches\CustomSongColorsPatch.cs" />

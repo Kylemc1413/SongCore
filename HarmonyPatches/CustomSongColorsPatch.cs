@@ -11,7 +11,7 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch("Init", MethodType.Normal)]
     class SceneTransitionPatch
     {
-        private static void Prefix(IDifficultyBeatmap difficultyBeatmap)
+        private static void Prefix(IDifficultyBeatmap difficultyBeatmap, ref ColorScheme overrideColorScheme)
         {
             Data.ExtraSongData.DifficultyData songData = Collections.RetrieveDifficultyData(difficultyBeatmap);
             if (songData == null) return;
@@ -20,20 +20,28 @@ namespace SongCore.HarmonyPatches
                 if (Plugin.customSongColors)
                 {
                     Logging.logger.Info("Custom Song Colors On");
-                    CustomSongColorsPatch.overrideMapData = songData;
+                 //   CustomSongColorsPatch.overrideMapData = songData;
+
+                    Color saberLeft = songData._colorLeft == null ? overrideColorScheme.saberAColor : Utils.ColorFromMapColor(songData._colorLeft);
+                    Color saberRight = songData._colorRight == null ? overrideColorScheme.saberBColor : Utils.ColorFromMapColor(songData._colorRight);
+                    Color envLeft = songData._envColorLeft == null ? songData._colorLeft == null ? overrideColorScheme.environmentColor0 : Utils.ColorFromMapColor(songData._colorLeft) : Utils.ColorFromMapColor(songData._envColorLeft);
+                    Color envRight = songData._envColorRight == null ? songData._colorRight == null ? overrideColorScheme.environmentColor1 : Utils.ColorFromMapColor(songData._colorRight) : Utils.ColorFromMapColor(songData._envColorRight);
+                    Color obstacle = songData._obstacleColor == null ? overrideColorScheme.obstaclesColor : Utils.ColorFromMapColor(songData._obstacleColor);
+                    ColorScheme mapColorScheme = new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", false, saberLeft, saberRight, envLeft, envRight, obstacle);
+                    overrideColorScheme = mapColorScheme;
                 }
-                else
-                    CustomSongColorsPatch.overrideMapData = null;
+            //    else
+             //       CustomSongColorsPatch.overrideMapData = null;
 
             }
         }
 
     }
+    
 
-
-
+    /*
     [HarmonyPatch(typeof(ColorManager))]
-    [HarmonyPatch("Start", MethodType.Normal)]
+    [HarmonyPatch("Awake", MethodType.Normal)]
     class CustomSongColorsPatch
     {
         internal static Data.ExtraSongData.DifficultyData overrideMapData;
@@ -57,4 +65,5 @@ namespace SongCore.HarmonyPatches
 
 
     }
+    */
 }
