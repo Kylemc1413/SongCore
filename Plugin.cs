@@ -1,4 +1,4 @@
-﻿using BeatSaberMarkupLanguage.Settings;
+using BeatSaberMarkupLanguage.Settings;
 using HarmonyLib;
 using IPA;
 using Newtonsoft.Json;
@@ -227,11 +227,14 @@ namespace SongCore
             }
             int _customPlatform = customEnvironment(songData._customEnvironmentName);
             if (_customPlatform != -1)
-            {
-            //    _currentPlatform = CustomFloorPlugin.PlatformManager.CurrentPlatformIndex;
-                if (customSongPlatforms && _customPlatform != _currentPlatform)
+                _currentPlatform = CustomFloorPlugin.PlatformManager.CurrentPlatformIndex;
+                if(customSongPlatforms && _customPlatform != _currentPlatform)
                 {
-             //       CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
+                    try {
+                    CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
+                    } catch (CustomFloorPlugin.Exceptions.StackedRequestsException){
+                        CustomFloorPlugin.Exceptions.StackedRequestsException.OverridePreviousRequest();
+                    }
                 }
             }
         }
@@ -244,7 +247,7 @@ namespace SongCore
         }
         private static int findCustomEnvironment(string name)
         {
-/*
+
             List<CustomFloorPlugin.CustomPlatform> _customPlatformsList = CustomFloorPlugin.PlatformManager.AllPlatforms;
             int platIndex = 0;
             foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
@@ -255,7 +258,7 @@ namespace SongCore
             }
             Console.WriteLine(name + " not found!");
 
-    */
+
             return -1;
         }
 
