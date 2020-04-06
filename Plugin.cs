@@ -154,41 +154,25 @@ namespace SongCore
                 var beatmapObjectSpawnController =
                     Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
 
-                AdjustNJS(BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpMovementSpeed, beatmapObjectSpawnController);
+                SetNJS(beatmapObjectSpawnController);
 
             }
         }
 
-        public static void AdjustNJS(float njs, BeatmapObjectSpawnController _spawnController)
+        public static void SetNJS(BeatmapObjectSpawnController _spawnController)
         {
+            BeatmapObjectSpawnMovementData spawnMovementData =
+  _spawnController.GetPrivateField<BeatmapObjectSpawnMovementData>("_beatmapObjectSpawnMovementData");
 
-            float halfJumpDur = 4f;
-            float maxHalfJump = _spawnController.GetPrivateField<float>("_maxHalfJumpDistance");
-            float noteJumpStartBeatOffset = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpStartBeatOffset;
-            float moveSpeed = _spawnController.GetPrivateField<float>("_moveSpeed");
-            float moveDir = _spawnController.GetPrivateField<float>("_moveDurationInBeats");
-            float jumpDis;
-            float spawnAheadTime;
-            float moveDis;
-            float bpm = _spawnController.GetPrivateField<float>("_beatsPerMinute");
-            float num = 60f / bpm;
-            moveDis = moveSpeed * num * moveDir;
-            while (njs * num * halfJumpDur > maxHalfJump)
-            {
-                halfJumpDur /= 2f;
-            }
-            halfJumpDur += noteJumpStartBeatOffset;
-            if (halfJumpDur < 1f) halfJumpDur = 1f;
-            //        halfJumpDur = spawnController.GetPrivateField<float>("_halfJumpDurationInBeats");
-            jumpDis = njs * num * halfJumpDur * 2f;
-            spawnAheadTime = moveDis / moveSpeed + jumpDis * 0.5f / njs;
-            _spawnController.SetPrivateField("_halfJumpDurationInBeats", halfJumpDur);
-            _spawnController.SetPrivateField("_spawnAheadTime", spawnAheadTime);
-            _spawnController.SetPrivateField("_jumpDistance", jumpDis);
-            _spawnController.SetPrivateField("_noteJumpMovementSpeed", njs);
-            _spawnController.SetPrivateField("_moveDistance", moveDis);
+            float bpm = _spawnController.GetPrivateField<VariableBPMProcessor>("_variableBPMProcessor").currentBPM;
 
 
+
+            spawnMovementData.SetPrivateField("_startNoteJumpMovementSpeed", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpMovementSpeed);
+            spawnMovementData.SetPrivateField("_noteJumpStartBeatOffset", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpStartBeatOffset);
+
+            spawnMovementData.Update(bpm,
+                _spawnController.GetPrivateField<float>("_jumpOffsetY"));
         }
 
         public void OnApplicationQuit()
@@ -225,15 +209,23 @@ namespace SongCore
                 _currentPlatform = -1;
                 return;
             }
-            int _customPlatform = customEnvironment(songData._customEnvironmentName);
-            if (_customPlatform != -1)
+            try
             {
-            //    _currentPlatform = CustomFloorPlugin.PlatformManager.CurrentPlatformIndex;
-                if (customSongPlatforms && _customPlatform != _currentPlatform)
+                int _customPlatform = customEnvironment(songData._customEnvironmentName);
+                if (_customPlatform != -1)
                 {
-             //       CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
+                    _currentPlatform = CustomFloorPlugin.PlatformManager.CurrentPlatformIndex;
+                    if (customSongPlatforms && _customPlatform != _currentPlatform)
+                    {
+                        CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
+                    }
                 }
             }
+            catch(Exception ex)
+            {
+                Logging.logger.Error($"Failed to Change to Platform {songData._customEnvironmentName}\n {ex}");
+            }
+
         }
 
         internal static int customEnvironment(string platform)
@@ -244,7 +236,7 @@ namespace SongCore
         }
         private static int findCustomEnvironment(string name)
         {
-/*
+
             List<CustomFloorPlugin.CustomPlatform> _customPlatformsList = CustomFloorPlugin.PlatformManager.AllPlatforms;
             int platIndex = 0;
             foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
@@ -255,7 +247,7 @@ namespace SongCore
             }
             Console.WriteLine(name + " not found!");
 
-    */
+    
             return -1;
         }
 
@@ -307,7 +299,14 @@ namespace SongCore
                 {
                     string customPlatformsFolderPath = Path.Combine(Environment.CurrentDirectory, "CustomPlatforms", downloadData.name);
                     System.IO.File.WriteAllBytes(@customPlatformsFolderPath + ".plat", www.downloadHandler.data);
-                 //   CustomFloorPlugin.PlatformManager.AddPlatform(customPlatformsFolderPath + ".plat");
+                    try
+                    {
+                    CustomFloorPlugin.PlatformManager.AddPlatform(customPlatformsFolderPath + ".plat");
+                    }
+                    catch(Exception ex)
+                    {
+                        Logging.logger.Error($"Failed to add Platform {customPlatformsFolderPath}.plat \n {ex}");
+                    }
                 }
             }
         }
