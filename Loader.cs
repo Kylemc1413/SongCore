@@ -687,22 +687,30 @@ namespace SongCore
             //Remove the level from SongCore Collections
             try
             {
-                CustomPreviewBeatmapLevel level = CustomLevels[folderPath];//.FirstOrDefault(x => x.customLevelPath == folderPath);
-                if (level != null)
+                CustomPreviewBeatmapLevel level = null;
+                if (CustomLevels.TryGetValue(folderPath, out level))
                 {
                     CustomLevels.Remove(folderPath);
                 }
-                else
-                {
-                    level = CustomWIPLevels[folderPath];//.FirstOrDefault(x => x.customLevelPath == folderPath);
-                }
-                if (level != null)
+                else if (CustomWIPLevels.TryGetValue(folderPath, out level))
                 {
                     CustomWIPLevels.Remove(folderPath);
-
+                }
+                else if (CachedWIPLevels.TryGetValue(folderPath, out level))
+                {
+                    CachedWIPLevels.Remove(folderPath);
+                }
+                else
+                {
                     foreach (var folderEntry in SeperateSongFolders)
-                        folderEntry.Levels.Remove(folderPath);
+                    {
+                        if (folderEntry.Levels.TryGetValue(folderPath, out level))
+                            folderEntry.Levels.Remove(folderPath);
+                    }
+                }
 
+                if (level != null)
+                {
                     if (Collections.levelHashDictionary.ContainsKey(level.levelID))
                     {
                         string hash = Collections.hashForLevelID(level.levelID);
