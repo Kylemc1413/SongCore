@@ -14,6 +14,7 @@ namespace SongCore.HarmonyPatches
         private static void Prefix(IDifficultyBeatmap difficultyBeatmap, ref ColorScheme overrideColorScheme)
         {
             Data.ExtraSongData.DifficultyData songData = Collections.RetrieveDifficultyData(difficultyBeatmap);
+            if (overrideColorScheme == null) return;
             if (songData == null) return;
             if (songData._colorLeft != null || songData._colorRight != null || songData._envColorLeft != null || songData._envColorRight != null || songData._obstacleColor != null)
             {
