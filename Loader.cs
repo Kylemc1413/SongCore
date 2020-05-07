@@ -246,8 +246,8 @@ namespace SongCore
                     {
                         try
                         {
-
-                            var cachePath = path + "/CustomWIPLevels/Cache";
+                            var wipPath = Path.Combine(path, "CustomWIPLevels");
+                            var cachePath = Path.Combine(path, "CustomWIPLevels", "Cache");
                             if (!Directory.Exists(cachePath))
                                 Directory.CreateDirectory(cachePath);
                             var cache = new DirectoryInfo(cachePath);
@@ -255,7 +255,8 @@ namespace SongCore
                                 file.Delete();
                             foreach (var folder in cache.GetDirectories())
                                 folder.Delete(true);
-                            var zips = Directory.GetFiles(path + "/CustomWIPLevels", "*.zip", SearchOption.TopDirectoryOnly);
+                            var zips = Directory.GetFiles(wipPath, "*.zip", SearchOption.TopDirectoryOnly);
+
                             foreach (var zip in zips)
                             {
 
@@ -274,7 +275,16 @@ namespace SongCore
                             var cacheFolders = Directory.GetDirectories(cachePath).ToArray();
                             foreach (var cachedFolder in cacheFolders)
                             {
-                                var results = Directory.GetFiles(cachedFolder, "info.dat", SearchOption.AllDirectories);
+                                string[] results;
+                                try
+                                {
+                                    results = Directory.GetFiles(cachedFolder, "info.dat", SearchOption.TopDirectoryOnly);
+                                }
+                                catch (DirectoryNotFoundException ex)
+                                {
+                                    Logging.Log($"Skipping missing or corrupt folder: '{cachedFolder}'", LogSeverity.Warning);
+                                    continue;
+                                }
                                 if (results.Length == 0)
                                 {
                                     Logging.Log("Folder: '" + cachedFolder + "' is missing info.dat files!", LogSeverity.Notice);
@@ -344,7 +354,16 @@ namespace SongCore
                     foreach (var folder in songFolders)
                     {
                         i++;
-                        var results = Directory.GetFiles(folder, "info.dat", SearchOption.TopDirectoryOnly);
+                        string[] results;
+                        try
+                        {
+                            results = Directory.GetFiles(folder, "info.dat", SearchOption.TopDirectoryOnly);
+                        }
+                        catch (DirectoryNotFoundException ex)
+                        {
+                            Logging.Log($"Skipping missing or corrupt folder: '{folder}'", LogSeverity.Warning);
+                            continue;
+                        }
                         if (results.Length == 0)
                         {
                             Logging.Log("Folder: '" + folder + "' is missing info.dat files!", LogSeverity.Notice);
@@ -444,7 +463,16 @@ namespace SongCore
                             foreach (var folder in entryFolders)
                             {
                                 i2++;
-                                var results = Directory.GetFiles(folder, "info.dat", SearchOption.TopDirectoryOnly);
+                                string[] results;
+                                try
+                                {
+                                    results = Directory.GetFiles(folder, "info.dat", SearchOption.TopDirectoryOnly);
+                                } 
+                                catch(DirectoryNotFoundException ex)
+                                {
+                                    Logging.Log($"Skipping missing or corrupt folder: '{folder}'", LogSeverity.Warning);
+                                    continue;
+                                }
                                 if (results.Length == 0)
                                 {
                                     Logging.Log("Folder: '" + folder + "' is missing info.dat files!", LogSeverity.Notice);
@@ -826,7 +854,7 @@ namespace SongCore
                     }
                     list.Add(new PreviewDifficultyBeatmapSet(beatmapCharacteristicBySerializedName, array));
                 }
-            
+
                 result = new CustomPreviewBeatmapLevel(defaultCoverImage.texture, saveData, songPath,
                     cachedMediaAsyncLoaderSO, cachedMediaAsyncLoaderSO, levelID, songName, songSubName,
                     songAuthorName, levelAuthorName, beatsPerMinute, songTimeOffset, shuffle, shufflePeriod,

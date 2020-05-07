@@ -78,8 +78,10 @@
     <Reference Include="Mono.Posix">
       <HintPath>..\..\..\..\..\Program Files\Oculus\Software\Software\hyperbolic-magnetism-beat-saber\Beat Saber_Data\Managed\Mono.Posix.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json.12.0.0.0">
-      <HintPath>..\..\..\..\..\Program Files\Oculus\Software\Software\hyperbolic-magnetism-beat-saber\Libs\Newtonsoft.Json.12.0.0.0.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <Private>False</Private>
+      <HintPath>>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Libs\Newtonsoft.Json.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="SemVer">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Libs\SemVer.dll</HintPath>
