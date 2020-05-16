@@ -59,7 +59,7 @@ namespace SongCore.HarmonyPatches
             ____playButton.interactable = true;
             ____practiceButton.interactable = true;
             ____playButton.gameObject.GetComponentInChildren<Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
-            ____songNameText.text = "<size=78%>" + ____songNameText.text;
+            ____songNameText.text = "<size=78%>" + ____songNameText.text.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
             //    ____songNameText.overflowMode = TextOverflowModes.Overflow;
             //     ____songNameText.enableWordWrapping = false;
             ____songNameText.richText = true;

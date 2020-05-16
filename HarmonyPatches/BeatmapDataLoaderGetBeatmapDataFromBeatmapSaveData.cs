@@ -29,9 +29,12 @@ namespace SongCore.HarmonyPatches
                         continue;
                     }
                     Type varType = ((LocalVariableInfo)(instructionList[i + 1].operand)).LocalType;
-                    if (varType == typeof(ObstacleData) && varType == typeof(NoteData))
+                    if (varType == typeof(ObstacleData) || varType == typeof(NoteData))
                     {
+                        
+                        Utilities.Logging.logger.Debug($"{i}Inserting Clamp Instruction");
                         instructionList.InsertRange(i, clampInstructions);
+                        i += clampInstructions.Count();
                     }
 
                 }
