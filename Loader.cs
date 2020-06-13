@@ -319,9 +319,8 @@ namespace SongCore
                                         var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
                                         if (!fullRefresh)
                                         {
-                                            if (CachedWIPLevels.ContainsKey(songPath))
+                                            if (CachedWIPLevels.TryGetValue(songPath, out var c))
                                             {
-                                                var c = CachedWIPLevels[songPath];//.FirstOrDefault(x => x.customLevelPath == songPath);
                                                 if (c != null)
                                                 {
                                                     continue;

@@ -89,16 +89,19 @@ namespace SongCore.Data
                 JObject infoData;
                 List<Contributor> levelContributors = new List<Contributor>();
                 //Check if song uses legacy value for full song One Saber mode
-                if (info.ContainsKey("_customData"))
+                if (info.TryGetValue("_customData", out var data))
                 {
-                    infoData = (JObject)info["_customData"];
-                    if (infoData.ContainsKey("_contributors"))
+                    infoData = (JObject)data;
+                    if (infoData.TryGetValue("_contributors", out var contributors))
                     {
-                        levelContributors.AddRange(infoData["_contributors"].ToObject<Contributor[]>());
+                        levelContributors.AddRange(contributors.ToObject<Contributor[]>());
                     }
-                    if (infoData.ContainsKey("_customEnvironment")) _customEnvironmentName = (string)infoData["_customEnvironment"];
-                    if (infoData.ContainsKey("_customEnvironmentHash")) _customEnvironmentHash = (string)infoData["_customEnvironmentHash"];
-                    if (infoData.ContainsKey("_defaultCharacteristic")) _defaultCharacteristic = (string)infoData["_defaultCharacteristic"];
+                    if (infoData.TryGetValue("_customEnvironment", out var customEnvironment)) 
+                        _customEnvironmentName = (string)customEnvironment;
+                    if (infoData.TryGetValue("_customEnvironmentHash", out var envHash))
+                        _customEnvironmentHash = (string)envHash;
+                    if (infoData.TryGetValue("_defaultCharacteristic", out var defaultChar)) 
+                        _defaultCharacteristic = (string)defaultChar;
                 }
                 contributors = levelContributors.ToArray();
 
@@ -124,15 +127,16 @@ namespace SongCore.Data
 
                         BeatmapDifficulty diffDifficulty = Utilities.Utils.ToEnum((string)diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
                         JObject beatmapData;
-                        if (diffBeatmap.ContainsKey("_customData"))
+                        if (diffBeatmap.TryGetValue("_customData", out var customData))
                         {
-                            beatmapData = (JObject)diffBeatmap["_customData"];
-                            if (beatmapData.ContainsKey("_difficultyLabel")) diffLabel = (string)beatmapData["_difficultyLabel"];
+                            beatmapData = (JObject)customData;
+                            if (beatmapData.TryGetValue("_difficultyLabel", out var difficultyLabel)) 
+                                diffLabel = (string)difficultyLabel;
 
                             //Get difficulty json fields
-                            if (beatmapData.ContainsKey("_colorLeft"))
+                            if (beatmapData.TryGetValue("_colorLeft", out var colorLeft))
                             {
-                                if (beatmapData["_colorLeft"].Children().Count() == 3)
+                                if (colorLeft.Children().Count() == 3)
                                 {
                                     diffLeft = new MapColor(0, 0, 0);
                                     diffLeft.r = (float)beatmapData["_colorLeft"]["r"];
@@ -142,9 +146,9 @@ namespace SongCore.Data
 
 
                             }
-                            if (beatmapData.ContainsKey("_colorRight"))
+                            if (beatmapData.TryGetValue("_colorRight", out var colorRight))
                             {
-                                if (beatmapData["_colorRight"].Children().Count() == 3)
+                                if (colorRight.Children().Count() == 3)
                                 {
                                     diffRight = new MapColor(0, 0, 0);
                                     diffRight.r = (float)beatmapData["_colorRight"]["r"];
@@ -154,9 +158,9 @@ namespace SongCore.Data
 
                             }
 
-                            if (beatmapData.ContainsKey("_envColorLeft"))
+                            if (beatmapData.TryGetValue("_envColorLeft", out var envColorLeft))
                             {
-                                if (beatmapData["_envColorLeft"].Children().Count() == 3)
+                                if (envColorLeft.Children().Count() == 3)
                                 {
                                     diffEnvLeft = new MapColor(0, 0, 0);
                                     diffEnvLeft.r = (float)beatmapData["_envColorLeft"]["r"];
@@ -166,9 +170,9 @@ namespace SongCore.Data
 
                             }
 
-                            if (beatmapData.ContainsKey("_envColorRight"))
+                            if (beatmapData.TryGetValue("_envColorRight", out var envColorRight))
                             {
-                                if (beatmapData["_envColorRight"].Children().Count() == 3)
+                                if (envColorRight.Children().Count() == 3)
                                 {
                                     diffEnvRight = new MapColor(0, 0, 0);
                                     diffEnvRight.r = (float)beatmapData["_envColorRight"]["r"];
@@ -178,9 +182,9 @@ namespace SongCore.Data
 
                             }
 
-                            if (beatmapData.ContainsKey("_obstacleColor"))
+                            if (beatmapData.TryGetValue("_obstacleColor", out var obColor))
                             {
-                                if (beatmapData["_obstacleColor"].Children().Count() == 3)
+                                if (obColor.Children().Count() == 3)
                                 {
                                     diffObstacle = new MapColor(0, 0, 0);
                                     diffObstacle.r = (float)beatmapData["_obstacleColor"]["r"];
@@ -190,14 +194,14 @@ namespace SongCore.Data
 
                             }
 
-                            if (beatmapData.ContainsKey("_warnings"))
-                                diffWarnings.AddRange(((JArray)beatmapData["_warnings"]).Select(c => (string)c));
-                            if (beatmapData.ContainsKey("_information"))
-                                diffInfo.AddRange(((JArray)beatmapData["_information"]).Select(c => (string)c));
-                            if (beatmapData.ContainsKey("_suggestions"))
-                                diffSuggestions.AddRange(((JArray)beatmapData["_suggestions"]).Select(c => (string)c));
-                            if (beatmapData.ContainsKey("_requirements"))
-                                diffRequirements.AddRange(((JArray)beatmapData["_requirements"]).Select(c => (string)c));
+                            if (beatmapData.TryGetValue("_warnings", out var warnings))
+                                diffWarnings.AddRange(((JArray)warnings).Select(c => (string)c));
+                            if (beatmapData.TryGetValue("_information", out var information))
+                                diffInfo.AddRange(((JArray)information).Select(c => (string)c));
+                            if (beatmapData.TryGetValue("_suggestions", out var suggestions))
+                                diffSuggestions.AddRange(((JArray)suggestions).Select(c => (string)c));
+                            if (beatmapData.TryGetValue("_requirements", out var requirements))
+                                diffRequirements.AddRange(((JArray)requirements).Select(c => (string)c));
                         }
                         RequirementData diffReqData = new RequirementData
                         {
