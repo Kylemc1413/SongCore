@@ -30,7 +30,8 @@ namespace SongCore
         public static SongCoreCustomBeatmapLevelPack CachedWIPLevelsPack { get; private set; }
         public static SongCoreBeatmapLevelPackCollectionSO CustomBeatmapLevelPackCollectionSO { get; private set; }
 
-        private static Dictionary<string, CustomPreviewBeatmapLevel> customLevelsById =
+        private static readonly Dictionary<string, OfficialSongEntry> OfficialSongs = new Dictionary<string, OfficialSongEntry>();
+        private static readonly Dictionary<string, CustomPreviewBeatmapLevel> CustomLevelsById =
             new Dictionary<string, CustomPreviewBeatmapLevel>();
         /// <summary>
         /// Attempts to get a custom level by LevelId ('custom_level_HASH'). Returns null a matching custom level isn't found.
@@ -39,7 +40,7 @@ namespace SongCore
         /// <returns></returns>
         public static CustomPreviewBeatmapLevel GetLevelById(string levelId)
         {
-            customLevelsById.TryGetValue(levelId, out CustomPreviewBeatmapLevel level);
+            CustomLevelsById.TryGetValue(levelId, out CustomPreviewBeatmapLevel level);
             return level;
         }
 
@@ -50,9 +51,21 @@ namespace SongCore
         /// <returns></returns>
         public static CustomPreviewBeatmapLevel GetLevelByHash(string hash)
         {
-            customLevelsById.TryGetValue("custom_level_" + hash.ToUpper(), out CustomPreviewBeatmapLevel level);
+            CustomLevelsById.TryGetValue("custom_level_" + hash.ToUpper(), out CustomPreviewBeatmapLevel level);
             return level;
         }
+
+        /// <summary>
+        /// Attempts to get an official level by LevelId. Returns null if a matching level isn't found.
+        /// </summary>
+        /// <param name="levelId"></param>
+        /// <returns></returns>
+        public static OfficialSongEntry GetOfficialLevelById(string levelId)
+        {
+            OfficialSongs.TryGetValue(levelId, out OfficialSongEntry song);
+            return song;
+        }
+
         public static bool AreSongsLoaded { get; private set; }
         public static bool AreSongsLoading { get; private set; }
         public static float LoadingProgress { get; internal set; }
@@ -249,6 +262,38 @@ namespace SongCore
             {
                 try
                 {
+                    void AddOfficialPackCollection(IBeatmapLevelPackCollection packCollection)
+                    {
+                        foreach (var pack in packCollection.beatmapLevelPacks)
+                        {
+                            //Logging.logger.Info($"  Adding LevelPack: {pack.collectionName}");
+                            foreach (var level in pack.beatmapLevelCollection.beatmapLevels)
+                            {
+                                //Logging.logger.Info($"    Adding Level: {level.levelID}|{level.GetType().Name}");
+                                OfficialSongs[level.levelID] = new OfficialSongEntry()
+                                {
+                                    LevelPackCollection = packCollection,
+                                    LevelPack = pack,
+                                    PreviewBeatmapLevel = level
+                                };
+                            }
+                        }
+                    }
+                    OfficialSongs.Clear();
+
+                    //Logging.logger.Info($"Adding LevelPack Collection: OstAndExtras");
+                    AddOfficialPackCollection(BeatmapLevelsModelSO.ostAndExtrasPackCollection);
+                    //Logging.logger.Info($"Adding LevelPack Collection: DLC");
+                    AddOfficialPackCollection(BeatmapLevelsModelSO.dlcBeatmapLevelPackCollection);
+                }
+                catch (Exception ex)
+                {
+                    Logging.logger.Error($"Error populating official songs: {ex.Message}");
+                    Logging.logger.Debug(ex);
+                }
+
+                try
+                {
                     var path = CustomLevelPathHelper.baseProjectPath;
                     path = path.Replace('\\', '/');
 
@@ -432,33 +477,33 @@ namespace SongCore
                                 var count = i;
                                 //HMMainThreadDispatcher.instance.Enqueue(delegate
                                 //{
-                                    if (_loadingCancelled) return;
-                                    var level = LoadSong(saveData, songPath, out string hash);
-                                    if (level != null)
+                                if (_loadingCancelled) return;
+                                var level = LoadSong(saveData, songPath, out string hash);
+                                if (level != null)
+                                {
+                                    if (!Collections.levelHashDictionary.ContainsKey(level.levelID))
                                     {
-                                        if (!Collections.levelHashDictionary.ContainsKey(level.levelID))
-                                        {
-                                            Collections.levelHashDictionary.Add(level.levelID, hash);
-                                            if (Collections.hashLevelDictionary.TryGetValue(hash, out var levels))
-                                                levels.Add(level.levelID);
-                                            else
-                                            {
-                                                levels = new List<string>();
-                                                levels.Add(level.levelID);
-                                                Collections.hashLevelDictionary.Add(hash, levels);
-                                            }
-                                        }
-
-                                        if (!wip)
-                                        {
-                                            customLevelsById[level.levelID] = level;
-                                            CustomLevels[songPath] = level;
-                                        }
+                                        Collections.levelHashDictionary.Add(level.levelID, hash);
+                                        if (Collections.hashLevelDictionary.TryGetValue(hash, out var levels))
+                                            levels.Add(level.levelID);
                                         else
-                                            CustomWIPLevels[songPath] = level;
-                                        foundSongPaths.Add(songPath);
+                                        {
+                                            levels = new List<string>();
+                                            levels.Add(level.levelID);
+                                            Collections.hashLevelDictionary.Add(hash, levels);
+                                        }
                                     }
-                                    LoadingProgress = count / songFolders.Count;
+
+                                    if (!wip)
+                                    {
+                                        CustomLevelsById[level.levelID] = level;
+                                        CustomLevels[songPath] = level;
+                                    }
+                                    else
+                                        CustomWIPLevels[songPath] = level;
+                                    foundSongPaths.Add(songPath);
+                                }
+                                LoadingProgress = count / songFolders.Count;
                                 //});
 
                             }
@@ -589,7 +634,7 @@ namespace SongCore
                                             }
 
                                             entry.Levels[songPath] = level;
-                                            customLevelsById[level.levelID] = level;
+                                            CustomLevelsById[level.levelID] = level;
                                             foundSongPaths.Add(songPath);
                                         }
                                         LoadingProgress = count / entryFolders.Count;
@@ -895,5 +940,12 @@ namespace SongCore
             }
         }
 
+    }
+
+    public struct OfficialSongEntry
+    {
+        public IBeatmapLevelPackCollection LevelPackCollection;
+        public IBeatmapLevelPack LevelPack;
+        public IPreviewBeatmapLevel PreviewBeatmapLevel;
     }
 }
