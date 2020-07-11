@@ -34,13 +34,25 @@ namespace SongCore
         private static readonly Dictionary<string, CustomPreviewBeatmapLevel> CustomLevelsById =
             new Dictionary<string, CustomPreviewBeatmapLevel>();
         /// <summary>
-        /// Attempts to get a custom level by LevelId ('custom_level_HASH'). Returns null a matching custom level isn't found.
+        /// Attempts to get a beatmap by LevelId. Returns null a matching level isn't found.
         /// </summary>
         /// <param name="levelId"></param>
         /// <returns></returns>
-        public static CustomPreviewBeatmapLevel GetLevelById(string levelId)
+        public static IPreviewBeatmapLevel GetLevelById(string levelId)
         {
-            CustomLevelsById.TryGetValue(levelId, out CustomPreviewBeatmapLevel level);
+            if (string.IsNullOrEmpty(levelId))
+                return null;
+            IPreviewBeatmapLevel level = null;
+            if (levelId.StartsWith("custom_level_"))
+            {
+                if (CustomLevelsById.TryGetValue(levelId, out CustomPreviewBeatmapLevel customLevel))
+                    level = customLevel;
+            }
+            else if (OfficialSongs.TryGetValue(levelId, out OfficialSongEntry song))
+            {
+                level = song.PreviewBeatmapLevel;
+            }
+
             return level;
         }
 
@@ -51,19 +63,25 @@ namespace SongCore
         /// <returns></returns>
         public static CustomPreviewBeatmapLevel GetLevelByHash(string hash)
         {
+            if (string.IsNullOrEmpty(hash))
+                return null;
             CustomLevelsById.TryGetValue("custom_level_" + hash.ToUpper(), out CustomPreviewBeatmapLevel level);
             return level;
         }
 
         /// <summary>
-        /// Attempts to get an official level by LevelId. Returns null if a matching level isn't found.
+        /// Attempts to get an official level by LevelId. Returns false if a matching level isn't found.
         /// </summary>
         /// <param name="levelId"></param>
         /// <returns></returns>
-        public static OfficialSongEntry GetOfficialLevelById(string levelId)
+        public static bool TryGetOfficialLevelById(string levelId, out OfficialSongEntry song)
         {
-            OfficialSongs.TryGetValue(levelId, out OfficialSongEntry song);
-            return song;
+            if (string.IsNullOrEmpty(levelId))
+            {
+                song = default(OfficialSongEntry);
+                return false;
+            }
+            return OfficialSongs.TryGetValue(levelId, out song);
         }
 
         public static bool AreSongsLoaded { get; private set; }
