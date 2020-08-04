@@ -61,15 +61,15 @@ namespace SongCore
         {
             //      Logging.Log(levelID);
             //      Logging.Log(loadIfNullPath);
-            if (customSongsData.ContainsKey(levelID))
-                return customSongsData[levelID];
+            if (customSongsData.TryGetValue(levelID, out var songData))
+                return songData;
 
             if (!string.IsNullOrWhiteSpace(loadIfNullPath))
             {
                 AddSong(levelID, loadIfNullPath);
 
-                if (customSongsData.ContainsKey(levelID))
-                    return customSongsData[levelID];
+                if (customSongsData.TryGetValue(levelID, out songData))
+                    return songData;
             }
 
             return null;
