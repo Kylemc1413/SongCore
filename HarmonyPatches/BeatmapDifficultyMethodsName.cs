@@ -9,6 +9,7 @@ namespace SongCore.HarmonyPatches
     {
         static void Postfix(BeatmapDifficulty difficulty, ref string __result)
         {
+            if (!Plugin.displayDiffLabels) return;
             if (difficulty == BeatmapDifficulty.Easy)
             {
                 if (HarmonyPatches.StandardLevelDetailViewRefreshContent.currentLabels.EasyOverride != "")

@@ -26,5 +26,16 @@ namespace SongCore.UI
                 BasicUI.ModPrefs.SetBool("SongCore", "customSongPlatforms", value);
             }
         }
+
+        [UIValue("diffLabels")]
+        public bool DiffLabels
+        {
+            get => BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
+            set
+            {
+                Plugin.displayDiffLabels = value;
+                BasicUI.ModPrefs.SetBool("SongCore", "displayDiffLabels", value);
+            }
+        }
     }
 }

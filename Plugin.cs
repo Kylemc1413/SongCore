@@ -28,6 +28,7 @@ namespace SongCore
         internal static bool PlatformsInstalled = false;
         internal static bool customSongColors;
         internal static bool customSongPlatforms;
+        internal static bool displayDiffLabels;
         internal static int _currentPlatform = -1;
 
         [OnStart]
@@ -135,6 +136,7 @@ namespace SongCore
         {
             customSongColors = UI.BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
             customSongPlatforms = UI.BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
+            displayDiffLabels = UI.BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
             GameObject.Destroy(GameObject.Find("SongCore Color Setter"));
             if (nextScene.name == "MenuViewControllers")
             {

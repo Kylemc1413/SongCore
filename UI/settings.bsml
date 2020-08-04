@@ -1,4 +1,5 @@
 ﻿<settings-container>
     <checkbox-setting text='Allow Custom Song Colors' value='colors' hover-hint='Allow Custom Songs to override note/light colors if Custom Colors or Chroma is installed'></checkbox-setting>
     <checkbox-setting text='Custom Song Platforms ' value='platforms' hover-hint='Allow Custom Songs to override your Custom Platform if Custom Platforms is installed.'></checkbox-setting>
+<checkbox-setting text='Display Custom Difficulty Labels' value='diffLabels' hover-hint='Display Custom Difficulty Labels if used by the mapper.'></checkbox-setting>
 </settings-container>
