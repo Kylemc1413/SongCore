@@ -27,7 +27,7 @@ namespace SongCore.HarmonyPatches
                     Color envLeft = songData._envColorLeft == null ? songData._colorLeft == null ? fallbackScheme.environmentColor0 : Utils.ColorFromMapColor(songData._colorLeft) : Utils.ColorFromMapColor(songData._envColorLeft);
                     Color envRight = songData._envColorRight == null ? songData._colorRight == null ? fallbackScheme.environmentColor1 : Utils.ColorFromMapColor(songData._colorRight) : Utils.ColorFromMapColor(songData._envColorRight);
                     Color obstacle = songData._obstacleColor == null ? fallbackScheme.obstaclesColor : Utils.ColorFromMapColor(songData._obstacleColor);
-                    ColorScheme mapColorScheme = new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", false, saberLeft, saberRight, envLeft, envRight, obstacle);
+                    ColorScheme mapColorScheme = new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", false, saberLeft, saberRight, envLeft, envRight, Color.black, Color.black, obstacle);
                     overrideColorScheme = mapColorScheme;
                 }
 
