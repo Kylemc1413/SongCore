@@ -187,7 +187,7 @@ namespace SongCore.Data
                             }
                             if (beatmapData.TryGetValue("_envColorLeftBoost", out var envColorLeftBoost))
                             {
-                                if (envColorRight.Children().Count() == 3)
+                                if (envColorLeftBoost.Children().Count() == 3)
                                 {
                                     diffEnvLeftBoost = new MapColor(0, 0, 0);
                                     diffEnvLeftBoost.r = (float)beatmapData["_envColorLeftBoost"]["r"];
@@ -199,7 +199,7 @@ namespace SongCore.Data
 
                             if (beatmapData.TryGetValue("_envColorRightBoost", out var envColorRightBoost))
                             {
-                                if (envColorRight.Children().Count() == 3)
+                                if (envColorRightBoost.Children().Count() == 3)
                                 {
                                     diffEnvRightBoost = new MapColor(0, 0, 0);
                                     diffEnvRightBoost.r = (float)beatmapData["_envColorRightBoost"]["r"];
