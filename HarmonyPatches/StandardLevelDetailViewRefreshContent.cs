@@ -45,7 +45,7 @@ namespace SongCore.HarmonyPatches
         }
         static IPreviewBeatmapLevel lastLevel;
         static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
-            ref PlayerData ____playerData, ref TextMeshProUGUI ____songNameText, ref UnityEngine.UI.Button ____playButton,
+            ref PlayerData ____playerData, /*ref TextMeshProUGUI ____songNameText,*/  ref UnityEngine.UI.Button ____actionButton,
             ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
             ref BeatmapCharacteristicSegmentedControlController ____beatmapCharacteristicSegmentedControlController)
         {
@@ -56,13 +56,17 @@ namespace SongCore.HarmonyPatches
                 firstSelection = true;
                 lastLevel = level;
             }
-            ____playButton.interactable = true;
+            ____actionButton.interactable = true;
             ____practiceButton.interactable = true;
-            ____playButton.gameObject.GetComponentInChildren<Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
-            ____songNameText.text = "<size=78%>" + ____songNameText.text.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
+            ____actionButton.gameObject.GetComponentInChildren<Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
+
+
+            //____songNameText.text = "<size=78%>" + ____songNameText.text.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
             //    ____songNameText.overflowMode = TextOverflowModes.Overflow;
             //     ____songNameText.enableWordWrapping = false;
-            ____songNameText.richText = true;
+
+            //____songNameText.richText = true;
+            return;
             RequirementsUI.instance.ButtonGlowColor = "none";
             RequirementsUI.instance.ButtonInteractable = false;
             if (level != null)
@@ -101,8 +105,8 @@ namespace SongCore.HarmonyPatches
                         RequirementsUI.instance.ButtonInteractable = true;
                         if (diffData.additionalDifficultyData._warnings.Contains("WIP"))
                         {
-                            ____playButton.interactable = false;
-                            ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                            ____actionButton.interactable = false;
+                            ____actionButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
                         }
 
                     }
@@ -111,8 +115,8 @@ namespace SongCore.HarmonyPatches
                 {
                     RequirementsUI.instance.ButtonGlowColor = "#FFFF00";
                     RequirementsUI.instance.ButtonInteractable = true;
-                    ____playButton.interactable = false;
-                    ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
+                    ____actionButton.interactable = false;
+                    ____actionButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
                     wipFolderSong = true;
 
                 }
@@ -123,9 +127,9 @@ namespace SongCore.HarmonyPatches
                     {
                         if (!Collections.capabilities.Contains(diffData.additionalDifficultyData._requirements[i]))
                         {
-                            ____playButton.interactable = false;
+                            ____actionButton.interactable = false;
                             ____practiceButton.interactable = false;
-                            ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                            ____actionButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
                             RequirementsUI.instance.ButtonGlowColor = "#FF0000";
                         }
                     }
@@ -134,9 +138,9 @@ namespace SongCore.HarmonyPatches
 
                 if (selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName == "MissingCharacteristic")
                 {
-                    ____playButton.interactable = false;
+                    ____actionButton.interactable = false;
                     ____practiceButton.interactable = false;
-                    ____playButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
+                    ____actionButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
                     RequirementsUI.instance.ButtonGlowColor = "#FF0000";
                 }
 

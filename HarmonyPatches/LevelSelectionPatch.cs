@@ -26,15 +26,15 @@ namespace SongCore.HarmonyPatches
 [HarmonyPatch("SetDataFromLevelAsync", MethodType.Normal)]
 public class LevelListTableCellSetDataFromLevel
 {
-    static void Postfix(IPreviewBeatmapLevel level, bool isFavorite, ref TextMeshProUGUI ____authorText)
+    static void Postfix(IPreviewBeatmapLevel level, bool isFavorite, ref TextMeshProUGUI ____songAuthorText)
     {
         if (!(level is CustomPreviewBeatmapLevel))
             return;
         var customLevel = level as CustomPreviewBeatmapLevel;
 
-        ____authorText.richText = true;
+        ____songAuthorText.richText = true;
         if (!string.IsNullOrWhiteSpace(customLevel.levelAuthorName))
-            ____authorText.text = customLevel.songAuthorName + " <size=80%>[" + customLevel.levelAuthorName.Replace(@"<", "<\u200B").Replace(@">", ">\u200B") + "]</size>";
+            ____songAuthorText.text = customLevel.songAuthorName + " <size=80%>[" + customLevel.levelAuthorName.Replace(@"<", "<\u200B").Replace(@">", ">\u200B") + "]</size>";
 
 
 

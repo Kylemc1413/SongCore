@@ -14,7 +14,7 @@ namespace SongCore.HarmonyPatches
             bool bunbundai = false;
             try
             {
-                var userID = BS_Utils.Gameplay.GetUserInfo.GetUserID();
+                var userID = 0;//BS_Utils.Gameplay.GetUserInfo.GetUserID();
                 if (userID == 76561198182060577)
                     bunbundai = true;
             }

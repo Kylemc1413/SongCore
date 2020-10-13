@@ -3,8 +3,9 @@ using SongCore.Utilities;
 
 namespace SongCore.HarmonyPatches {
 
+    /*
     [HarmonyPatch(typeof(LevelSelectionFlowCoordinator))]
-    [HarmonyPatch("StartLevel")]
+    [HarmonyPatch("ActionButtonWasPressed")]
     class LevelSelectionFlowCoordinatorStartLevelPatch  {
         static void Prefix(IDifficultyBeatmap difficultyBeatmap) {
             Data.ExtraSongData.DifficultyData songData = Collections.RetrieveDifficultyData(difficultyBeatmap);
@@ -18,4 +19,5 @@ namespace SongCore.HarmonyPatches {
             }
         }
     }
+    */
 }

@@ -34,7 +34,7 @@ namespace SongCore
         [OnStart]
         public void OnApplicationStart()
         {
-            BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", SCSettings.instance);
+         //   BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", SCSettings.instance);
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
             SceneManager.sceneLoaded += OnSceneLoaded;
 
@@ -57,7 +57,7 @@ namespace SongCore
             UI.BasicUI.GetIcons();
             BS_Utils.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
             BS_Utils.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
-            BS_Utils.Utilities.BSEvents.menuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
+            BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
             if (!File.Exists(Collections.dataPath))
                 File.Create(Collections.dataPath);
             else
@@ -71,10 +71,10 @@ namespace SongCore
             Loader.SeperateSongFolders.InsertRange(0, Data.SeperateSongFolder.ReadSeperateFoldersFromFile(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"));
         }
 
-        private void BSEvents_menuSceneLoadedFresh()
+        private void BSEvents_menuSceneLoadedFresh(ScenesTransitionSetupDataSO data)
         {
             Loader.OnLoad();
-            RequirementsUI.instance.Setup();
+        //    RequirementsUI.instance.Setup();
         }
 
         private void BSEvents_gameSceneLoaded()
@@ -166,7 +166,7 @@ namespace SongCore
             BeatmapObjectSpawnMovementData spawnMovementData =
   _spawnController.GetPrivateField<BeatmapObjectSpawnMovementData>("_beatmapObjectSpawnMovementData");
 
-            float bpm = _spawnController.GetPrivateField<VariableBPMProcessor>("_variableBPMProcessor").currentBPM;
+            float bpm = _spawnController.GetPrivateField<VariableBpmProcessor>("_variableBPMProcessor").currentBpm;
 
 
 
