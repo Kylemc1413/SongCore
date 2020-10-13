@@ -162,7 +162,7 @@
     <Compile Include="Converter.cs" />
     <Compile Include="Data\CachedSongData.cs" />
     <Compile Include="Data\SongFolderEntries.cs" />
-    <Compile Include="HarmonyPatches\BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData.cs" />
+    <Compile Include="HarmonyPatches\ClampPatches.cs" />
     <Compile Include="HarmonyPatches\BeatmapDifficultyMethodsName.cs" />
     <Compile Include="HarmonyPatches\AprilFools.cs" />
     <Compile Include="HarmonyPatches\PlatformsPatch.cs" />

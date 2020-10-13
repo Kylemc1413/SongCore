@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using SongCore.Utilities;
+using System.Diagnostics;
 using TMPro;
 namespace SongCore.HarmonyPatches
 {
@@ -31,7 +33,7 @@ public class LevelListTableCellSetDataFromLevel
         if (!(level is CustomPreviewBeatmapLevel))
             return;
         var customLevel = level as CustomPreviewBeatmapLevel;
-
+        Logging.logger.Debug(level.levelID);
         ____songAuthorText.richText = true;
         if (!string.IsNullOrWhiteSpace(customLevel.levelAuthorName))
             ____songAuthorText.text = customLevel.songAuthorName + " <size=80%>[" + customLevel.levelAuthorName.Replace(@"<", "<\u200B").Replace(@">", ">\u200B") + "]</size>";

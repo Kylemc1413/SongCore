@@ -26,7 +26,7 @@ namespace SongCore.HarmonyPatches
     internal class StopVanillaLoadingPatch2
     {
 
-        static void Postfix(ref LevelFilteringNavigationController __instance, SelectLevelCategoryViewController ____selectLevelCategoryViewController, ref IBeatmapLevelPack[] ____ostBeatmapLevelPacks, ref IBeatmapLevelPack[] ____musicPacksBeatmapLevelPacks, ref IBeatmapLevelPack[] ____customLevelPacks, ref IBeatmapLevelPack[] ____allBeatmapLevelPacks)
+        static void Postfix(ref LevelFilteringNavigationController __instance, LevelSearchViewController ____levelSearchViewController, SelectLevelCategoryViewController ____selectLevelCategoryViewController, ref IBeatmapLevelPack[] ____ostBeatmapLevelPacks, ref IBeatmapLevelPack[] ____musicPacksBeatmapLevelPacks, ref IBeatmapLevelPack[] ____customLevelPacks, ref IBeatmapLevelPack[] ____allBeatmapLevelPacks)
         {
             ____customLevelPacks = Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks;
             List<IBeatmapLevelPack> packs = new List<IBeatmapLevelPack>();
@@ -37,6 +37,7 @@ namespace SongCore.HarmonyPatches
             if (____customLevelPacks != null)
                 packs = packs.Concat(____customLevelPacks).ToList();
             ____allBeatmapLevelPacks = packs.ToArray();
+            ____levelSearchViewController.Setup(____allBeatmapLevelPacks);
             __instance.UpdateSecondChildControllerContent(____selectLevelCategoryViewController.selectedLevelCategory);
         }
     }
