@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using LogSeverity = IPA.Logging.Logger.Level;
-
 namespace SongCore
 {
     public class Loader : MonoBehaviour
@@ -946,6 +946,9 @@ namespace SongCore
                     cachedMediaAsyncLoaderSO, cachedMediaAsyncLoaderSO, levelID, songName, songSubName,
                     songAuthorName, levelAuthorName, beatsPerMinute, songTimeOffset, shuffle, shufflePeriod,
                     previewStartTime, previewDuration, environmentSceneInfo, allDirectionEnvironmentInfo, list.ToArray());
+
+            //    GetSongDuration(result, songPath, Path.Combine(songPath, saveData.songFilename));
+               Task.Factory.StartNew(() => { GetSongDuration(result, songPath, Path.Combine(songPath, saveData.songFilename));});
             }
             catch
             {
@@ -962,7 +965,25 @@ namespace SongCore
                 RefreshSongs(Input.GetKey(KeyCode.LeftControl));
             }
         }
+        private static BeatmapDataLoader loader = new BeatmapDataLoader();
+        static void GetSongDuration(CustomPreviewBeatmapLevel level, string songPath, string oggfile)
+        {
+            try
+            {
+                var diff = level.standardLevelInfoSaveData.difficultyBeatmapSets.First().difficultyBeatmaps.Last().beatmapFilename;
+                var beatmapsave = BeatmapSaveData.DeserializeFromJSONString(File.ReadAllText(Path.Combine(songPath, diff)));
+                float highestTime = beatmapsave.notes.Max(x => x.time);
 
+                float length = loader.GetRealTimeFromBPMTime(highestTime, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
+            //    Logging.logger.Debug($"{length}");
+                level.SetField("_songDuration", length);
+            }
+            catch(Exception ex)
+            {
+                Logging.logger.Warn("Failed to Parse Song Duration" + ex);
+            }
+
+        }
     }
 
     public struct OfficialSongEntry
@@ -971,4 +992,7 @@ namespace SongCore
         public IBeatmapLevelPack LevelPack;
         public IPreviewBeatmapLevel PreviewBeatmapLevel;
     }
+
+
+
 }

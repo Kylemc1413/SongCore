@@ -15,7 +15,7 @@ namespace SongCore.HarmonyPatches
     {
         static void Prefix(Task<IBeatmapLevelPackCollection> __result)
         {
-            var cancel = new CancellationTokenSource();
+            var cancel = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().First().GetField<CancellationTokenSource>("_cancellationTokenSource");
             cancel.Cancel();
 
         }
