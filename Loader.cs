@@ -972,7 +972,11 @@ namespace SongCore
             {
                 var diff = level.standardLevelInfoSaveData.difficultyBeatmapSets.First().difficultyBeatmaps.Last().beatmapFilename;
                 var beatmapsave = BeatmapSaveData.DeserializeFromJSONString(File.ReadAllText(Path.Combine(songPath, diff)));
-                float highestTime = beatmapsave.notes.Max(x => x.time);
+                float highestTime = 0;
+                if (beatmapsave.notes.Count > 0)
+                    highestTime = beatmapsave.notes.Max(x => x.time);
+                else if (beatmapsave.events.Count > 0)
+                    highestTime = beatmapsave.events.Max(x => x.time);
 
                 float length = loader.GetRealTimeFromBPMTime(highestTime, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
             //    Logging.logger.Debug($"{length}");
