@@ -15,7 +15,7 @@ namespace SongCore.UI
         private StandardLevelDetailViewController standardLevel;
 
 
-        internal static Config ModPrefs = new Config("SongCore/SongCore");
+        internal static BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
 
         internal Sprite HaveReqIcon;
         internal Sprite MissingReqIcon;
@@ -99,9 +99,9 @@ namespace SongCore.UI
                     {
                         //    Console.WriteLine(req);
                         if (!Collections.capabilities.Contains(req))
-                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon.texture));
+                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon));
                         else
-                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Requirement", HaveReqIcon.texture));
+                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Requirement", HaveReqIcon));
                     }
                 }
             }
@@ -114,17 +114,17 @@ namespace SongCore.UI
                         if (!string.IsNullOrWhiteSpace(author._iconPath))
                         {
                             author.icon = Utilities.Utils.LoadSpriteFromFile(level.customLevelPath + "/" + author._iconPath);
-                            customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon?.texture ?? InfoIcon.texture));
+                            customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon ?? InfoIcon));
                         }
                         else
-                            customListTableData.data.Add(new CustomCellInfo(author._name, author._role, InfoIcon.texture));
+                            customListTableData.data.Add(new CustomCellInfo(author._name, author._role, InfoIcon));
                     else
-                        customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon.texture));
+                        customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon));
                 }
             }
             //WIP Check
             if (wipFolder)
-                customListTableData.data.Add(new CustomCellInfo("<size=70%>" + "WIP Song. Please Play in Practice Mode", "Warning", WarningIcon.texture));
+                customListTableData.data.Add(new CustomCellInfo("<size=70%>" + "WIP Song. Please Play in Practice Mode", "Warning", WarningIcon));
             //Additional Diff Info
             if (diffData != null)
             {
@@ -135,7 +135,7 @@ namespace SongCore.UI
 
                         //    Console.WriteLine(req);
 
-                        customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon.texture));
+                        customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon));
                     }
                 }
                 if (diffData.additionalDifficultyData._information.Count() > 0)
@@ -145,7 +145,7 @@ namespace SongCore.UI
 
                         //    Console.WriteLine(req);
 
-                        customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Info", InfoIcon.texture));
+                        customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Info", InfoIcon));
                     }
                 }
                 if (diffData.additionalDifficultyData._suggestions.Count() > 0)
@@ -155,9 +155,9 @@ namespace SongCore.UI
 
                         //    Console.WriteLine(req);
                         if (!Collections.capabilities.Contains(req))
-                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Suggestion", MissingSuggestionIcon.texture));
+                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Suggestion", MissingSuggestionIcon));
                         else
-                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Suggestion", HaveSuggestionIcon.texture));
+                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Suggestion", HaveSuggestionIcon));
                     }
                 }
             }

@@ -9,7 +9,18 @@ using UnityEngine.UI;
 using SongCore.Utilities;
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(StandardLevelDetailView))]
+
+    [HarmonyPatch(typeof(StandardLevelDetailViewController))]
+    [HarmonyPatch("UpdateActionButtonIntractability", MethodType.Normal)]
+
+    public class BlockGameButtonInteractabilityUpdateAsItLiterallyAlwaysEnablesIt
+    {
+        public static bool Prefix()
+        {
+            return false;
+        }
+    }
+        [HarmonyPatch(typeof(StandardLevelDetailView))]
     [HarmonyPatch("RefreshContent", MethodType.Normal)]
 
     public class StandardLevelDetailViewRefreshContent
@@ -44,7 +55,7 @@ namespace SongCore.HarmonyPatches
             currentLabels.ExpertPlusOverride = "";
         }
         static IPreviewBeatmapLevel lastLevel;
-        static void Postfix(ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
+        static void Postfix(StandardLevelDetailView __instance, ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
             ref PlayerData ____playerData, /*ref TextMeshProUGUI ____songNameText,*/  ref UnityEngine.UI.Button ____actionButton,
             ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
             ref BeatmapCharacteristicSegmentedControlController ____beatmapCharacteristicSegmentedControlController)
@@ -66,7 +77,6 @@ namespace SongCore.HarmonyPatches
             //     ____songNameText.enableWordWrapping = false;
 
             //____songNameText.richText = true;
-            return;
             RequirementsUI.instance.ButtonGlowColor = "none";
             RequirementsUI.instance.ButtonInteractable = false;
             if (level != null)
@@ -210,7 +220,6 @@ namespace SongCore.HarmonyPatches
                     }
 
                 }
-
 
 
 
