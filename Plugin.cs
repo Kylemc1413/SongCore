@@ -97,6 +97,7 @@ namespace SongCore
                     return;
                 }
                 //      Logging.Log($"Platforms Installed: {PlatformsInstalled}. Platforms enabled: {customSongPlatforms}");
+                /*
                 if (PlatformsInstalled && customSongPlatforms)
                 {
                     if (!string.IsNullOrWhiteSpace(songData._customEnvironmentName))
@@ -112,6 +113,7 @@ namespace SongCore
                         }
                     }
                 }
+                */
             }
 
         }
@@ -201,7 +203,7 @@ namespace SongCore
         {
         }
 
-
+        /*
         internal static void CheckCustomSongEnvironment(IDifficultyBeatmap song)
         {
             Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(song.level as CustomPreviewBeatmapLevel));
@@ -312,6 +314,7 @@ namespace SongCore
                 }
             }
         }
+        */
     }
 }
 
