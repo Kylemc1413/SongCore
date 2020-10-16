@@ -213,26 +213,45 @@ namespace SongCore
             BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
             BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
             var filterNav = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault();
-         //   filterNav.InitPlaylists();
-         //   filterNav.UpdatePlaylistsData();
-            AttemptReselectCurrentLevelPack(filterNav);
+            //   filterNav.InitPlaylists();
+            //   filterNav.UpdatePlaylistsData();
+            filterNav?.UpdateCustomSongs();
+      //      AttemptReselectCurrentLevelPack(filterNav);
             OnLevelPacksRefreshed?.Invoke();
         }
         internal void AttemptReselectCurrentLevelPack(LevelFilteringNavigationController controller)
         {
             /*
-            var tabBarView = controller.GetField<TabBarViewController>("_tabBarViewController");
-            if (tabBarView?.selectedCellNumber != 3) return;
-            var tabBarDatas = controller.GetField<object[]>("_tabBarDatas");
-            if (tabBarDatas == null) return;
-            int selectedPackNum = tabBarDatas[tabBarView.selectedCellNumber].GetField<int>("selectedItem");
-            var currentLevelPacksCollection = tabBarDatas[tabBarView.selectedCellNumber].GetField<IAnnotatedBeatmapLevelCollection[]>("annotatedBeatmapLevelCollections");
-            if (currentLevelPacksCollection == null) return;
-            int packCount = currentLevelPacksCollection.Length;
-            if (!(selectedPackNum < packCount)) return;
-            controller.SelectAnnotatedBeatmapLevelCollection(currentLevelPacksCollection[selectedPackNum] as IBeatmapLevelPack);
-            */
+            var collectionview = Resources.FindObjectsOfTypeAll<LevelCollectionViewController>().FirstOrDefault();
+            var levelflow = Resources.FindObjectsOfTypeAll<LevelSelectionFlowCoordinator>().FirstOrDefault();
+            var pack = levelflow.GetProperty<IBeatmapLevelPack>("selectedBeatmapLevelPack");
+            IBeatmapLevelPack[] sectionpacks = new IBeatmapLevelPack[0];
+            var selectedcategory = levelflow.GetProperty<SelectLevelCategoryViewController.LevelCategory>("selectedLevelCategory");
+            switch (selectedcategory)
+            {
+                case SelectLevelCategoryViewController.LevelCategory.OstAndExtras:
+                    sectionpacks = controller.GetField<IBeatmapLevelPack[]>("_ostBeatmapLevelPacks");
+                    break;
+                case SelectLevelCategoryViewController.LevelCategory.MusicPacks:
+                    sectionpacks = controller.GetField<IBeatmapLevelPack[]>("_musicPacksBeatmapLevelPacks");
+                    break;
+                case SelectLevelCategoryViewController.LevelCategory.CustomSongs:
+                    sectionpacks = controller.GetField<IBeatmapLevelPack[]>("_customLevelPacks");
+                    break;
 
+                case SelectLevelCategoryViewController.LevelCategory.All:
+                    sectionpacks = controller.GetField<IBeatmapLevelPack[]>("_allBeatmapLevelPacks");
+                    break;
+                case SelectLevelCategoryViewController.LevelCategory.Favorites:
+                    return;
+            }
+            if (!sectionpacks.ToList().Contains(pack))
+                pack = sectionpacks.FirstOrDefault();
+            if (pack == null) return;
+            controller.Setup(SongPackMask.all, pack, selectedcategory, false, true);
+            */
+            //controller.SelectAnnotatedBeatmapLevelCollection(pack);
+           // collectionview.SetData(pack.beatmapLevelCollection, pack.packName, pack.coverImage, false, controller.GetField<GameObject>("_currentNoDataInfoPrefab"));
         }
         public void RefreshSongs(bool fullRefresh = true)
         {
