@@ -77,7 +77,7 @@ namespace SongCore.HarmonyPatches
             //     ____songNameText.enableWordWrapping = false;
 
             //____songNameText.richText = true;
-            RequirementsUI.instance.ButtonGlowColor = "none";
+            RequirementsUI.instance.ButtonGlowColor = "#000000";
             RequirementsUI.instance.ButtonInteractable = false;
             if (level != null)
             {
@@ -85,7 +85,7 @@ namespace SongCore.HarmonyPatches
 
                 if (songData == null)
                 {
-                    RequirementsUI.instance.ButtonGlowColor = "none";
+                    RequirementsUI.instance.ButtonGlowColor = "#000000";
                     RequirementsUI.instance.ButtonInteractable = false;
                     return;
                 }
@@ -101,7 +101,7 @@ namespace SongCore.HarmonyPatches
                         && diffData.additionalDifficultyData._warnings.Count() == 0 && diffData.additionalDifficultyData._information.Count() == 0
                         && songData.contributors.Count() == 0)
                     {
-                        RequirementsUI.instance.ButtonGlowColor = "none";
+                        RequirementsUI.instance.ButtonGlowColor = "#000000";
                         RequirementsUI.instance.ButtonInteractable = false;
                     }
                     else if (diffData.additionalDifficultyData._warnings.Count() == 0)

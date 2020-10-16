@@ -1,11 +1,11 @@
-﻿<bg>
-  <button id='info-button' text='?' glow-color='~button-glow' interactable='~button-interactable' anchor-pos-x='28' anchor-pos-y='57' pref-width='16' pref-height='8' click-event='open-modal' on-click='button-click'></button>
-  <modal id="modal" show-event='open-modal' hide-event='close-modal' clickerino-offerino-closerino="true" anchor-pos-y='31.2' size-delta-x='65' size-delta-y='75' move-to-center='false'>
-    <button id ='close-modal-button' text='Close' click-event='close-modal' anchor-pos-x ='-17' anchor-pos-y='-67' glow-color='#7FFFD4' ></button>
-    <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' anchor-pos-y='3' size-delta-y='0'>
-      <page-button event-click='list#PageUp' direction='Up' ignoreLayout='True' anchor-min-y='1.9' anchor-pos-x='25' anchor-pos-y='7' pref-width='12'></page-button>
-      <list id='list' expand-cell='true' pref-height='50'></list>
-      <page-button event-click='list#PageDown' direction='Down' ignoreLayout='True' anchor-min-y='.1' anchor-pos-x='25' anchor-pos-y='-13' pref-width='12'></page-button>
-    </vertical>
-  </modal>
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+    <action-button id='info-button' text='?' color='~button-glow' interactable='~button-interactable' anchor-pos-x='29' anchor-pos-y='0' pref-width='16' pref-height='8' click-event='open-modal' on-click='button-click'></action-button>
+    <modal id="modal" show-event='open-modal' hide-event='close-modal' clickerino-offerino-closerino="true" anchor-pos-y='31.2' size-delta-x='65' size-delta-y='75' move-to-center='false'>
+      <button id ='close-modal-button' text='Close' click-event='close-modal' anchor-pos-x ='10' anchor-pos-y='5' ></button>
+      <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' anchor-pos-y='3' size-delta-y='0'>
+        <page-button event-click='list#PageUp' direction='Up' ignoreLayout='True' anchor-min-y='0.8' anchor-pos-x='25' anchor-pos-y='10' pref-width='12'></page-button>
+        <list id='list' expand-cell='true' pref-height='50'></list>
+        <page-button event-click='list#PageDown' direction='Down' ignoreLayout='True' anchor-min-y='-0.8' anchor-pos-x='25' anchor-pos-y='-16' pref-width='12'></page-button>
+      </vertical>
+    </modal>
 </bg>

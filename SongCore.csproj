@@ -227,10 +227,10 @@
     <EmbeddedResource Include="Icons\FolderIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="UI\requirements.bsml" />
+    <EmbeddedResource Include="UI\settings.bsml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="UI\settings.bsml" />
+    <EmbeddedResource Include="UI\requirements.bsml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
