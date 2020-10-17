@@ -66,6 +66,7 @@ namespace SongCore.UI
             standardLevel = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().First();
             BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"), standardLevel.transform.Find("LevelDetail").gameObject, this);
             infoButtonTransform.localScale *= 0.7f;//no scale property in bsml as of now so manually scaling it
+            (standardLevel.transform.Find("LevelDetail").Find("FavoriteToggle")?.transform as RectTransform).anchoredPosition = new Vector2(3, -2);
         }
 
         internal void GetIcons()
