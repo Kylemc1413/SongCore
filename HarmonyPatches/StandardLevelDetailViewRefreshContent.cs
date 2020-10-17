@@ -77,7 +77,7 @@ namespace SongCore.HarmonyPatches
             //     ____songNameText.enableWordWrapping = false;
 
             //____songNameText.richText = true;
-            RequirementsUI.instance.ButtonGlowColor = "#000000";
+            RequirementsUI.instance.ButtonGlowColor = false;
             RequirementsUI.instance.ButtonInteractable = false;
             if (level != null)
             {
@@ -85,7 +85,7 @@ namespace SongCore.HarmonyPatches
 
                 if (songData == null)
                 {
-                    RequirementsUI.instance.ButtonGlowColor = "#000000";
+                    RequirementsUI.instance.ButtonGlowColor = false;
                     RequirementsUI.instance.ButtonInteractable = false;
                     return;
                 }
@@ -101,17 +101,17 @@ namespace SongCore.HarmonyPatches
                         && diffData.additionalDifficultyData._warnings.Count() == 0 && diffData.additionalDifficultyData._information.Count() == 0
                         && songData.contributors.Count() == 0)
                     {
-                        RequirementsUI.instance.ButtonGlowColor = "#000000";
+                        RequirementsUI.instance.ButtonGlowColor = false;
                         RequirementsUI.instance.ButtonInteractable = false;
                     }
                     else if (diffData.additionalDifficultyData._warnings.Count() == 0)
                     {
-                        RequirementsUI.instance.ButtonGlowColor = "#0000FF";
+                        RequirementsUI.instance.ButtonGlowColor = true;
                         RequirementsUI.instance.ButtonInteractable = true;
                     }
                     else if (diffData.additionalDifficultyData._warnings.Count() > 0)
                     {
-                        RequirementsUI.instance.ButtonGlowColor = "#FFFF00";
+                        RequirementsUI.instance.ButtonGlowColor = true;
                         RequirementsUI.instance.ButtonInteractable = true;
                         if (diffData.additionalDifficultyData._warnings.Contains("WIP"))
                         {
@@ -123,7 +123,7 @@ namespace SongCore.HarmonyPatches
                 }
                 if (level.levelID.EndsWith(" WIP"))
                 {
-                    RequirementsUI.instance.ButtonGlowColor = "#FFFF00";
+                    RequirementsUI.instance.ButtonGlowColor = true;
                     RequirementsUI.instance.ButtonInteractable = true;
                     ____actionButton.interactable = false;
                     ____actionButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
@@ -140,7 +140,8 @@ namespace SongCore.HarmonyPatches
                             ____actionButton.interactable = false;
                             ____practiceButton.interactable = false;
                             ____actionButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
-                            RequirementsUI.instance.ButtonGlowColor = "#FF0000";
+                            RequirementsUI.instance.ButtonGlowColor = true;
+                            RequirementsUI.instance.ButtonInteractable = true;
                         }
                     }
                 }
@@ -151,7 +152,8 @@ namespace SongCore.HarmonyPatches
                     ____actionButton.interactable = false;
                     ____practiceButton.interactable = false;
                     ____actionButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
-                    RequirementsUI.instance.ButtonGlowColor = "#FF0000";
+                    RequirementsUI.instance.ButtonGlowColor = true;
+                    RequirementsUI.instance.ButtonInteractable = true;
                 }
 
                 RequirementsUI.instance.level = level;

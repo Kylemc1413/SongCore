@@ -33,14 +33,14 @@ namespace SongCore.UI
         [UIComponent("list")]
         public CustomListTableData customListTableData;
 
-        private string buttonGlowColor = "none";
+        private bool _buttonGlow = false;
         [UIValue("button-glow")]
-        public string ButtonGlowColor
+        public bool ButtonGlowColor
         {
-            get => buttonGlowColor;
+            get => _buttonGlow;
             set
             {
-                buttonGlowColor = value;
+                _buttonGlow = value;
                 NotifyPropertyChanged();
             }
         }
