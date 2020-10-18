@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -990,7 +991,7 @@ namespace SongCore
         {
             try
             {
-                var diff = level.standardLevelInfoSaveData.difficultyBeatmapSets.First().difficultyBeatmaps.Last().beatmapFilename;
+                /*var diff = level.standardLevelInfoSaveData.difficultyBeatmapSets.First().difficultyBeatmaps.Last().beatmapFilename;
                 var beatmapsave = BeatmapSaveData.DeserializeFromJSONString(File.ReadAllText(Path.Combine(songPath, diff)));
                 float highestTime = 0;
                 if (beatmapsave.notes.Count > 0)
@@ -998,8 +999,85 @@ namespace SongCore
                 else if (beatmapsave.events.Count > 0)
                     highestTime = beatmapsave.events.Max(x => x.time);
 
-                float length = loader.GetRealTimeFromBPMTime(highestTime, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
-            //    Logging.logger.Debug($"{length}");
+                float length = loader.GetRealTimeFromBPMTime(highestTime, level.beatsPerMinute, level.shuffle, level.shufflePeriod);*/
+
+                int rate = -1;
+                long len = -1;
+                long lenPos = 0;
+                long ratePos = 0;
+
+                // load file
+                FileStream fs = File.OpenRead(oggfile);
+                BufferedStream bs = new BufferedStream(fs);
+                BinaryReader br = new BinaryReader(bs, Encoding.ASCII);
+
+                bool findString(string s, int searchLength)
+                {
+                    char c;
+                    for (int i = 0; i < searchLength; i++)
+                    {
+                        c = br.ReadChar();
+                        if (c == s[0])
+                        {
+                            // found first char
+                            char[] chars = br.ReadChars(s.Length - 1);
+                            string charsString = new string(chars);
+                            if (charsString == s.Substring(1))
+                            {
+                                // found rest of string
+                                return true;
+                            }
+                            else
+                            {
+                                // false alarm
+                                i += (s.Length - 1);
+                            }
+                        }
+                    }
+                    return false;
+                }
+
+                // find rate
+                bool foundVorbis = findString("vorbis", 1000);
+                if (foundVorbis)
+                {
+                    bs.Position += 5;
+                    ratePos = bs.Position;
+                    rate = br.ReadInt32();
+                } else
+                {
+                    Logging.logger.Debug($"could not find rate for {oggfile}");
+                }
+
+                // find length
+                const int seekBlockSize = 8192; // the amount of bytes to read at a time when seeking
+                const int seekTries = 100; // the maximum amount of times to read a block when seeking
+                for (int i = 0; i < seekTries; i++)
+                {
+                    bs.Seek((i + 1) * seekBlockSize * -1, SeekOrigin.End);
+                    bool foundOggS = findString("OggS", seekBlockSize);
+                    if (foundOggS)
+                    {
+                        bs.Position += 2;
+                        lenPos = bs.Length - bs.Position;
+                        len = br.ReadInt64();
+                        break;
+                    }
+                }
+
+                if (len == -1)
+                {
+                    Logging.logger.Debug($"could not find len for {oggfile}");
+                }
+
+                br.Close();
+
+                float length = len / rate;
+                if (ratePos != 40)
+                {
+                    Logging.logger.Debug($"{oggfile} has ratePos {ratePos}");
+                }
+                Logging.logger.Debug($"{ratePos} - {lenPos}");
                 level.SetField("_songDuration", length);
             }
             catch(Exception ex)
