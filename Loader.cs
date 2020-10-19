@@ -1008,6 +1008,12 @@ namespace SongCore
                     }
                     catch(Exception ex)
                     {
+                        length = -1;
+                    }
+
+                    if (length < 0)
+                    {
+                        // janky, but whatever
                         Logging.logger.Warn($"Failed to parse song length from Ogg file, Approximating using Map length. Song: {level.customLevelPath}");
                         length = GetLengthFromMap(level, songPath);
                     }
@@ -1095,8 +1101,9 @@ namespace SongCore
             }
             else
             {
-                // probably throw exception here
-                Logging.logger.Debug($"could not find rate for {oggfile}");
+                br.Close();
+                Logging.logger.Warn($"could not find rate for {oggfile}");
+                return -1;
             }
 
             // find lastSample
@@ -1122,8 +1129,9 @@ namespace SongCore
 
             if (lastSample == -1)
             {
-                // probably throw exception here
-                Logging.logger.Debug($"could not find lastSample for {oggfile}");
+                br.Close();
+                Logging.logger.Warn($"could not find lastSample for {oggfile}");
+                return -1;
             }
 
             br.Close();
