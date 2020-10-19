@@ -11,7 +11,9 @@ namespace SongCore.Utilities
     public class Hashing
     {
         internal static Dictionary<string, SongHashData> cachedSongHashData = new Dictionary<string, SongHashData>();
+        internal static Dictionary<string, AudioCacheData> cachedAudioData = new Dictionary<string, AudioCacheData>();
         internal static string cachedHashDataPath = Path.Combine(Application.persistentDataPath, "SongHashData.dat");
+        internal static string cachedAudioDataPath = Path.Combine(Application.persistentDataPath, "SongDurationCache.dat");
         public static void ReadCachedSongHashes()
         {
             if (File.Exists(cachedHashDataPath))
@@ -32,7 +34,25 @@ namespace SongCore.Utilities
             Logging.Log($"Updating cached hashes for {cachedSongHashData.Count} songs!");
             File.WriteAllText(cachedHashDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedSongHashData));
         }
-
+        public static void ReadCachedAudioData()
+        {
+            if (File.Exists(cachedAudioDataPath))
+            {
+                cachedAudioData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
+                if (cachedAudioData == null) cachedAudioData = new Dictionary<string, AudioCacheData>();
+                Logging.Log($"Finished reading cached Durations for {cachedAudioData.Count} songs!");
+            }
+        }
+        public static void UpdateCachedAudioData(HashSet<string> currentSongPaths)
+        {
+            foreach (KeyValuePair<string, AudioCacheData> hashData in cachedAudioData.ToArray())
+            {
+                if (!currentSongPaths.Contains(hashData.Key))
+                    cachedAudioData.Remove(hashData.Key);
+            }
+            Logging.Log($"Updating cached Map Lengths for {cachedAudioData.Count} songs!");
+            File.WriteAllText(cachedAudioDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedAudioData));
+        }
         private static long GetDirectoryHash(string directory)
         {
             long hash = 0;

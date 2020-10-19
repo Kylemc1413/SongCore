@@ -14,6 +14,19 @@ namespace SongCore.Data
             this.songHash = songHash;
         }
     }
+    [Serializable]
+    public class AudioCacheData
+    {
+        public string id;
+        public float duration;
+
+        [Newtonsoft.Json.JsonConstructor]
+        public AudioCacheData(string audioFileHash, float duration)
+        {
+            this.id = audioFileHash;
+            this.duration = duration;
+        }
+    }
 }
 
 

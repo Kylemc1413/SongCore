@@ -124,6 +124,7 @@ namespace SongCore
             _progressBar = ProgressBar.Create();
             MenuLoaded();
             Hashing.ReadCachedSongHashes();
+            Hashing.ReadCachedAudioData();
             DontDestroyOnLoad(gameObject);
             BS_Utils.Utilities.BSEvents.menuSceneLoaded += MenuLoaded;
             Initialize();
@@ -798,6 +799,7 @@ namespace SongCore
                 // Write our cached hash info and 
 
                 Hashing.UpdateCachedHashes(foundSongPaths);
+                Hashing.UpdateCachedAudioData(foundSongPaths);
                 SongCore.Collections.SaveExtraSongData();
 
 
@@ -967,8 +969,8 @@ namespace SongCore
                     songAuthorName, levelAuthorName, beatsPerMinute, songTimeOffset, shuffle, shufflePeriod,
                     previewStartTime, previewDuration, environmentSceneInfo, allDirectionEnvironmentInfo, list.ToArray());
 
-            //    GetSongDuration(result, songPath, Path.Combine(songPath, saveData.songFilename));
-               Task.Factory.StartNew(() => { GetSongDuration(result, songPath, Path.Combine(songPath, saveData.songFilename));});
+                GetSongDuration(result, songPath, Path.Combine(songPath, saveData.songFilename));
+               //Task.Factory.StartNew(() => { GetSongDuration(result, songPath, Path.Combine(songPath, saveData.songFilename));});
             }
             catch
             {
@@ -990,15 +992,27 @@ namespace SongCore
         {
             try
             {
-                var diff = level.standardLevelInfoSaveData.difficultyBeatmapSets.First().difficultyBeatmaps.Last().beatmapFilename;
-                var beatmapsave = BeatmapSaveData.DeserializeFromJSONString(File.ReadAllText(Path.Combine(songPath, diff)));
-                float highestTime = 0;
-                if (beatmapsave.notes.Count > 0)
-                    highestTime = beatmapsave.notes.Max(x => x.time);
-                else if (beatmapsave.events.Count > 0)
-                    highestTime = beatmapsave.events.Max(x => x.time);
+                string levelid = level.levelID;
+                float length = 0;
+                if(Hashing.cachedAudioData.TryGetValue(songPath, out var data))
+                {
+                    if (data.id == levelid)
+                        length = data.duration;
+                }
+                if(length == 0)
+                {
+                    length = GetLengthFromMap(level, songPath);
+                }
+                if (data != null)
+                {
+                    data.duration = length;
+                    data.id = levelid;
+                }
+                else
+                {
+                    Hashing.cachedAudioData[songPath] = new AudioCacheData(levelid, length);
+                }
 
-                float length = loader.GetRealTimeFromBPMTime(highestTime, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
             //    Logging.logger.Debug($"{length}");
                 level.SetField("_songDuration", length);
             }
@@ -1007,6 +1021,19 @@ namespace SongCore
                 Logging.logger.Warn("Failed to Parse Song Duration" + ex);
             }
 
+        }
+
+        public static float GetLengthFromMap(CustomPreviewBeatmapLevel level, string songPath)
+        {
+            var diff = level.standardLevelInfoSaveData.difficultyBeatmapSets.First().difficultyBeatmaps.Last().beatmapFilename;
+            var beatmapsave = BeatmapSaveData.DeserializeFromJSONString(File.ReadAllText(Path.Combine(songPath, diff)));
+            float highestTime = 0;
+            if (beatmapsave.notes.Count > 0)
+                highestTime = beatmapsave.notes.Max(x => x.time);
+            else if (beatmapsave.events.Count > 0)
+                highestTime = beatmapsave.events.Max(x => x.time);
+
+            return loader.GetRealTimeFromBPMTime(highestTime, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
         }
     }
 
