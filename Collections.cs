@@ -13,7 +13,7 @@ namespace SongCore
         internal static CustomBeatmapLevelPack WipLevelPack;
 
 
-        internal static string dataPath = Path.Combine(Application.persistentDataPath, "SongCoreExtraData.dat");
+        internal static string dataPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "UserData", "SongCore", "SongCoreExtraData.dat");
         internal static Dictionary<string, ExtraSongData> customSongsData = new Dictionary<string, ExtraSongData>();
         internal static Dictionary<string, string> levelHashDictionary = new Dictionary<string, string>();
         internal static Dictionary<string, List<string>> hashLevelDictionary = new Dictionary<string, List<string>>();

@@ -12,8 +12,8 @@ namespace SongCore.Utilities
     {
         internal static Dictionary<string, SongHashData> cachedSongHashData = new Dictionary<string, SongHashData>();
         internal static Dictionary<string, AudioCacheData> cachedAudioData = new Dictionary<string, AudioCacheData>();
-        internal static string cachedHashDataPath = Path.Combine(Application.persistentDataPath, "SongHashData.dat");
-        internal static string cachedAudioDataPath = Path.Combine(Application.persistentDataPath, "SongDurationCache.dat");
+        public static readonly string cachedHashDataPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "UserData", "SongCore", "SongHashData.dat");
+        public static readonly string cachedAudioDataPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "UserData", "SongCore", "SongDurationCache.dat");
         public static void ReadCachedSongHashes()
         {
             if (File.Exists(cachedHashDataPath))
