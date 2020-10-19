@@ -1008,7 +1008,7 @@ namespace SongCore
                     }
                     catch(Exception ex)
                     {
-                        // insert warning here
+                        Logging.logger.Warn($"Failed to parse song length from Ogg file, Approximating using Map length. Song: {level.customLevelPath}");
                         length = GetLengthFromMap(level, songPath);
                     }
                 }
