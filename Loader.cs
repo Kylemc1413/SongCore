@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -1001,7 +1002,15 @@ namespace SongCore
                 }
                 if(length == 0)
                 {
-                    length = GetLengthFromMap(level, songPath);
+                    try
+                    {
+                        length = GetLengthFromOgg(oggfile);
+                    }
+                    catch(Exception ex)
+                    {
+                        // insert warning here
+                        length = GetLengthFromMap(level, songPath);
+                    }
                 }
                 if (data != null)
                 {
@@ -1034,6 +1043,92 @@ namespace SongCore
                 highestTime = beatmapsave.events.Max(x => x.time);
 
             return loader.GetRealTimeFromBPMTime(highestTime, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
+        }
+
+        public static float GetLengthFromOgg(string oggfile)
+        {
+            int rate = -1;
+            long lastSample = -1;
+
+            // open file
+            FileStream fs = File.OpenRead(oggfile);
+            BinaryReader br = new BinaryReader(fs, Encoding.ASCII);
+
+            /*
+             * this reads the file one byte at a time, which adds significant CPU overhead
+             * in testing the overhead was negligible, but if it does become a problem for some systems
+             * this could be rewritten to read the entire searchLength at once and then check for the string in memory
+             */
+            bool findString(string s, int searchLength)
+            {
+                char c;
+                for (int i = 0; i < searchLength; i++)
+                {
+                    c = br.ReadChar();
+                    if (c == s[0])
+                    {
+                        // found first char
+                        char[] chars = br.ReadChars(s.Length - 1);
+                        string charsString = new string(chars);
+                        if (charsString == s.Substring(1))
+                        {
+                            // found rest of string
+                            return true;
+                        }
+                        else
+                        {
+                            // false alarm
+                            i += (s.Length - 1);
+                        }
+                    }
+                }
+                return false;
+            }
+
+            // find rate
+            bool foundVorbis = findString("vorbis", 1000);
+            if (foundVorbis)
+            {
+                fs.Position += 5;
+                rate = br.ReadInt32();
+            }
+            else
+            {
+                // probably throw exception here
+                Logging.logger.Debug($"could not find rate for {oggfile}");
+            }
+
+            // find lastSample
+            /*
+             * this finds the first occurrence of "OggS" within each block
+             * setting seekBlockSize too high can cause it to read the sample time for earlier samples, instead of the last
+             * 32 does not add significant overhead and makes that extremely unlikely
+             * possible future improvement would be to read all bytes in the block and use the last occurrence of "OggS" instead
+             */
+            const int seekBlockSize = 32; // block size in bytes
+            const int seekTries = 10000; // the maximum amount of times to read a block when seeking
+            for (int i = 0; i < seekTries; i++)
+            {
+                fs.Seek((i + 1) * seekBlockSize * -1, SeekOrigin.End);
+                bool foundOggS = findString("OggS", seekBlockSize);
+                if (foundOggS)
+                {
+                    fs.Position += 2;
+                    lastSample = br.ReadInt64();
+                    break;
+                }
+            }
+
+            if (lastSample == -1)
+            {
+                // probably throw exception here
+                Logging.logger.Debug($"could not find lastSample for {oggfile}");
+            }
+
+            br.Close();
+
+            float length = (float)lastSample / (float)rate;
+            return length;
         }
     }
 
