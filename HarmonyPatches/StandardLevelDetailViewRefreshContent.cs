@@ -69,7 +69,6 @@ namespace SongCore.HarmonyPatches
             }
             ____actionButton.interactable = true;
             ____practiceButton.interactable = true;
-            ____actionButton.gameObject.GetComponentInChildren<Image>().color = new Color(0, 0.706f, 1.000f, 0.784f);
 
 
             //____songNameText.text = "<size=78%>" + ____songNameText.text.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
@@ -116,7 +115,6 @@ namespace SongCore.HarmonyPatches
                         if (diffData.additionalDifficultyData._warnings.Contains("WIP"))
                         {
                             ____actionButton.interactable = false;
-                            ____actionButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
                         }
 
                     }
@@ -126,7 +124,6 @@ namespace SongCore.HarmonyPatches
                     RequirementsUI.instance.ButtonGlowColor = true;
                     RequirementsUI.instance.ButtonInteractable = true;
                     ____actionButton.interactable = false;
-                    ____actionButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.yellow;
                     wipFolderSong = true;
 
                 }
@@ -139,7 +136,6 @@ namespace SongCore.HarmonyPatches
                         {
                             ____actionButton.interactable = false;
                             ____practiceButton.interactable = false;
-                            ____actionButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
                             RequirementsUI.instance.ButtonGlowColor = true;
                             RequirementsUI.instance.ButtonInteractable = true;
                         }
@@ -151,7 +147,6 @@ namespace SongCore.HarmonyPatches
                 {
                     ____actionButton.interactable = false;
                     ____practiceButton.interactable = false;
-                    ____actionButton.gameObject.GetComponentInChildren<UnityEngine.UI.Image>().color = Color.red;
                     RequirementsUI.instance.ButtonGlowColor = true;
                     RequirementsUI.instance.ButtonInteractable = true;
                 }
