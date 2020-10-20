@@ -1096,7 +1096,7 @@ namespace SongCore
             {
                 br.Dispose();
                 fs.Dispose();
-                Console.WriteLine($"could not find rate for {oggFile}");
+                Logging.logger.Warn($"could not find rate for {oggFile}");
                 return -1;
             }
 
@@ -1124,7 +1124,7 @@ namespace SongCore
 
             if (lastSample == -1)
             {
-                Console.WriteLine($"could not find lastSample for {oggFile}");
+                Logging.logger.Warn($"could not find lastSample for {oggFile}");
                 return -1;
             }
 
