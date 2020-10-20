@@ -1051,59 +1051,42 @@ namespace SongCore
             return loader.GetRealTimeFromBPMTime(highestTime, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
         }
 
-        public static float GetLengthFromOgg(string oggfile)
+        public static float GetLengthFromOgg(string oggFile)
         {
-            int rate = -1;
-            long lastSample = -1;
-
-            // open file
-            FileStream fs = File.OpenRead(oggfile);
+            FileStream fs = File.OpenRead(oggFile);
             BinaryReader br = new BinaryReader(fs, Encoding.ASCII);
-
+            
             /*
-             * this reads the file one byte at a time, which adds significant CPU overhead
-             * in testing the overhead was negligible, but if it does become a problem for some systems
-             * this could be rewritten to read the entire searchLength at once and then check for the string in memory
+             * Tries to find the array of bytes from the stream
              */
-            bool findString(string s, int searchLength)
+            bool findBytes(byte[] bytes, int searchLength)
             {
-                char c;
                 for (int i = 0; i < searchLength; i++)
                 {
-                    c = br.ReadChar();
-                    if (c == s[0])
+                    var b = br.ReadByte();
+                    if (b != bytes[0]) continue;
+                    var by = br.ReadBytes(bytes.Length-1);
+                    if (by[0] == bytes[1] && by[1] == bytes[2] && by[2] == bytes[3]) return true;
+                    var index = Array.IndexOf(@by, bytes[0]);
+                    if (index != -1)
                     {
-                        // found first char
-                        char[] chars = br.ReadChars(s.Length - 1);
-                        string charsString = new string(chars);
-                        if (charsString == s.Substring(1))
-                        {
-                            // found rest of string
-                            return true;
-                        }
-                        else
-                        {
-                            // false alarm
-                            int charIndex = charsString.IndexOf(s[0]);
-                            if (charIndex != -1)
-                            {
-                                // not false alarm?
-                                fs.Position += charIndex - (s.Length - 1);
-                                i += charIndex;
-                            }
-                            else
-                            {
-                                // actually false alarm
-                                i += (s.Length - 1);
-                            }
-                        }
+                        fs.Position += index - (bytes.Length - 1);
+                        i += index;
                     }
+                    else
+                        i += (bytes.Length - 1);
                 }
                 return false;
             }
 
-            // find rate
-            bool foundVorbis = findString("vorbis", 1000);
+            int rate = -1;
+            long lastSample = -1;
+
+            //Skip Capture Pattern
+            fs.Position = 24;
+            
+            //{0x76, 0x6F, 0x72, 0x62, 0x69, 0x73} = "vorbis" in byte values
+            bool foundVorbis = findBytes(new byte[] { 0x76, 0x6F, 0x72, 0x62, 0x69, 0x73 }, 64);
             if (foundVorbis)
             {
                 fs.Position += 5;
@@ -1111,24 +1094,20 @@ namespace SongCore
             }
             else
             {
-                br.Close();
-                Logging.logger.Warn($"could not find rate for {oggfile}");
-                return -1;
+                Console.WriteLine($"could not find rate for {oggFile}");
             }
 
-            // find lastSample
             /*
-             * this finds the first occurrence of "OggS" within each block
+             * this finds the last occurrence of "OggS" within each block
              * setting seekBlockSize too high can cause it to read the sample time for earlier samples, instead of the last
-             * 32 does not add significant overhead and makes that extremely unlikely
-             * possible future improvement would be to read all bytes in the block and use the last occurrence of "OggS" instead
+             * 256 does not add significant overhead and makes that extremely unlikely
              */
-            const int seekBlockSize = 32; // block size in bytes
-            const int seekTries = 10000; // the maximum amount of times to read a block when seeking
+            const int seekBlockSize = 256;
+            const int seekTries = 10000;
             for (int i = 0; i < seekTries; i++)
             {
                 fs.Seek((i + 1) * seekBlockSize * -1, SeekOrigin.End);
-                bool foundOggS = findString("OggS", seekBlockSize);
+                bool foundOggS = findBytes(new byte[] { 0x4F, 0x67, 0x67, 0x53 }, seekBlockSize);
                 if (foundOggS)
                 {
                     fs.Position += 2;
@@ -1137,16 +1116,16 @@ namespace SongCore
                 }
             }
 
+            br.Dispose();
+            fs.Dispose();
+
             if (lastSample == -1)
             {
-                br.Close();
-                Logging.logger.Warn($"could not find lastSample for {oggfile}");
+                Console.WriteLine($"could not find lastSample for {oggFile}");
                 return -1;
             }
 
-            br.Close();
-
-            float length = (float)lastSample / (float)rate;
+            float length = lastSample / (float)rate;
             return length;
         }
     }
