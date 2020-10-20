@@ -1084,7 +1084,18 @@ namespace SongCore
                         else
                         {
                             // false alarm
-                            i += (s.Length - 1);
+                            int charIndex = charsString.IndexOf(s[0]);
+                            if (charIndex != -1)
+                            {
+                                // not false alarm?
+                                fs.Position += charIndex - (s.Length - 1);
+                                i += charIndex;
+                            }
+                            else
+                            {
+                                // actually false alarm
+                                i += (s.Length - 1);
+                            }
                         }
                     }
                 }
