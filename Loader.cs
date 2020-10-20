@@ -1094,7 +1094,10 @@ namespace SongCore
             }
             else
             {
+                br.Dispose();
+                fs.Dispose();
                 Console.WriteLine($"could not find rate for {oggFile}");
+                return -1;
             }
 
             /*
