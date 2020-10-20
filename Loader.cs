@@ -1010,8 +1010,7 @@ namespace SongCore
                     {
                         length = -1;
                     }
-
-                    if (length < 0)
+                    if (length <= 1)
                     {
                         // janky, but whatever
                         Logging.logger.Warn($"Failed to parse song length from Ogg file, Approximating using Map length. Song: {level.customLevelPath}");
