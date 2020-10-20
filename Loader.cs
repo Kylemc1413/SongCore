@@ -1069,7 +1069,9 @@ namespace SongCore
                         if (b != bytes[0]) continue;
                         var by = br.ReadBytes(bytes.Length-1);
                         // hardcoded 6 bytes compare, is fine because all inputs used are 6 bytes
-                        if (by[0] == bytes[1] && by[1] == bytes[2] && by[2] == bytes[3] && by[3] == bytes[4] && by[4] == bytes[5]) return true;
+                        // bitwise AND the last byte to read only the flag bit for lastSample searching
+                        // shouldn't cause issues finding rate, hopefully
+                        if (by[0] == bytes[1] && by[1] == bytes[2] && by[2] == bytes[3] && by[3] == bytes[4] && (by[4] & bytes[5]) == bytes[5]) return true;
                         var index = Array.IndexOf(@by, bytes[0]);
                         if (index != -1)
                         {
