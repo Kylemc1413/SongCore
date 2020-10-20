@@ -1101,19 +1101,18 @@ namespace SongCore
             }
 
             /*
-             * this finds the last occurrence of "OggS" within each block
+             * this finds the first occurrence of "OggS" within each block
              * setting seekBlockSize too high can cause it to read the sample time for earlier samples, instead of the last
-             * 256 does not add significant overhead and makes that extremely unlikely
+             * 6144 does not add significant overhead and speeds up the search significantly
              */
-            const int seekBlockSize = 256;
+            const int seekBlockSize = 6144;
             const int seekTries = 10000;
             for (int i = 0; i < seekTries; i++)
             {
-                fs.Seek((i + 1) * seekBlockSize * -1, SeekOrigin.End);
-                bool foundOggS = findBytes(new byte[] { 0x4F, 0x67, 0x67, 0x53 }, seekBlockSize);
+                fs.Seek((i + 1) * fs.Length < seekBlockSize ? fs.Length : seekBlockSize * -1, SeekOrigin.End);
+                bool foundOggS = findBytes(new byte[] { 0x4F, 0x67, 0x67, 0x53, 0x00, 0x04 }, seekBlockSize);
                 if (foundOggS)
                 {
-                    fs.Position += 2;
                     lastSample = br.ReadInt64();
                     break;
                 }
