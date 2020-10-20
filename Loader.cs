@@ -1068,7 +1068,8 @@ namespace SongCore
                         var b = br.ReadByte();
                         if (b != bytes[0]) continue;
                         var by = br.ReadBytes(bytes.Length-1);
-                        if (by[0] == bytes[1] && by[1] == bytes[2] && by[2] == bytes[3]) return true;
+                        // hardcoded 6 bytes compare, is fine because all inputs used are 6 bytes
+                        if (by[0] == bytes[1] && by[1] == bytes[2] && by[2] == bytes[3] && by[3] == bytes[4] && by[4] == bytes[5]) return true;
                         var index = Array.IndexOf(@by, bytes[0]);
                         if (index != -1)
                         {
@@ -1101,19 +1102,21 @@ namespace SongCore
                 }
 
                 /*
-                 * this finds the first occurrence of "OggS" within each block
-                 * setting seekBlockSize too high can cause it to read the sample time for earlier samples, instead of the last
+                 * this finds the last occurrence of OggS in the file by checking for a bit flag (0x04)
+                 * reads in blocks determined by seekBlockSize
                  * 6144 does not add significant overhead and speeds up the search significantly
                  */
-                const int seekBlockSize = 6144;
-                const int seekTries = 10000;
+                int seekBlockSize = (fs.Length < 6144 ? (int)fs.Length : 6144);
+                const int seekTries = 10; // 60 KiB should be enough for any sane ogg file
                 for (int i = 0; i < seekTries; i++)
                 {
-                    var seekAmount = (i + 1) * seekBlockSize * -1;
-                    if (seekAmount > fs.Length)
-                        seekAmount = (int)fs.Length;
-
-                    fs.Seek(seekAmount, SeekOrigin.End);
+                    int seekPos = (i + 1) * seekBlockSize * -1;
+                    if (-seekPos > fs.Length)
+                    {
+                        // prevent seeking beyond file limits
+                        break;
+                    }
+                    fs.Seek(seekPos, SeekOrigin.End);
                     bool foundOggS = findBytes(oggBytes, seekBlockSize);
                     if (foundOggS)
                     {
