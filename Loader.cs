@@ -1086,7 +1086,7 @@ namespace SongCore
             fs.Position = 24;
             
             //{0x76, 0x6F, 0x72, 0x62, 0x69, 0x73} = "vorbis" in byte values
-            bool foundVorbis = findBytes(new byte[] { 0x76, 0x6F, 0x72, 0x62, 0x69, 0x73 }, 64);
+            bool foundVorbis = findBytes(new byte[] { 0x76, 0x6F, 0x72, 0x62, 0x69, 0x73 }, 256);
             if (foundVorbis)
             {
                 fs.Position += 5;
