@@ -1051,84 +1051,86 @@ namespace SongCore
             return loader.GetRealTimeFromBPMTime(highestTime, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
         }
 
+
+        private static byte[] oggBytes = new byte[] { 0x4F, 0x67, 0x67, 0x53, 0x00, 0x04 };
         public static float GetLengthFromOgg(string oggFile)
         {
-            FileStream fs = File.OpenRead(oggFile);
-            BinaryReader br = new BinaryReader(fs, Encoding.ASCII);
-            
-            /*
-             * Tries to find the array of bytes from the stream
-             */
-            bool findBytes(byte[] bytes, int searchLength)
+            using (FileStream fs = File.OpenRead(oggFile))
+            using (BinaryReader br = new BinaryReader(fs, Encoding.ASCII))
             {
-                for (int i = 0; i < searchLength; i++)
+                /*
+                 * Tries to find the array of bytes from the stream
+                 */
+                bool findBytes(byte[] bytes, int searchLength)
                 {
-                    var b = br.ReadByte();
-                    if (b != bytes[0]) continue;
-                    var by = br.ReadBytes(bytes.Length-1);
-                    if (by[0] == bytes[1] && by[1] == bytes[2] && by[2] == bytes[3]) return true;
-                    var index = Array.IndexOf(@by, bytes[0]);
-                    if (index != -1)
+                    for (int i = 0; i < searchLength; i++)
                     {
-                        fs.Position += index - (bytes.Length - 1);
-                        i += index;
+                        var b = br.ReadByte();
+                        if (b != bytes[0]) continue;
+                        var by = br.ReadBytes(bytes.Length-1);
+                        if (by[0] == bytes[1] && by[1] == bytes[2] && by[2] == bytes[3]) return true;
+                        var index = Array.IndexOf(@by, bytes[0]);
+                        if (index != -1)
+                        {
+                            fs.Position += index - (bytes.Length - 1);
+                            i += index;
+                        }
+                        else
+                            i += (bytes.Length - 1);
                     }
-                    else
-                        i += (bytes.Length - 1);
+                    return false;
                 }
-                return false;
-            }
 
-            int rate = -1;
-            long lastSample = -1;
+                int rate = -1;
+                long lastSample = -1;
 
-            //Skip Capture Pattern
-            fs.Position = 24;
-            
-            //{0x76, 0x6F, 0x72, 0x62, 0x69, 0x73} = "vorbis" in byte values
-            bool foundVorbis = findBytes(new byte[] { 0x76, 0x6F, 0x72, 0x62, 0x69, 0x73 }, 256);
-            if (foundVorbis)
-            {
-                fs.Position += 5;
-                rate = br.ReadInt32();
-            }
-            else
-            {
-                br.Dispose();
-                fs.Dispose();
-                Logging.logger.Warn($"could not find rate for {oggFile}");
-                return -1;
-            }
+                //Skip Capture Pattern
+                fs.Position = 24;
 
-            /*
-             * this finds the first occurrence of "OggS" within each block
-             * setting seekBlockSize too high can cause it to read the sample time for earlier samples, instead of the last
-             * 6144 does not add significant overhead and speeds up the search significantly
-             */
-            const int seekBlockSize = 6144;
-            const int seekTries = 10000;
-            for (int i = 0; i < seekTries; i++)
-            {
-                fs.Seek((i + 1) * fs.Length < seekBlockSize ? fs.Length : seekBlockSize * -1, SeekOrigin.End);
-                bool foundOggS = findBytes(new byte[] { 0x4F, 0x67, 0x67, 0x53, 0x00, 0x04 }, seekBlockSize);
-                if (foundOggS)
+                //{0x76, 0x6F, 0x72, 0x62, 0x69, 0x73} = "vorbis" in byte values
+                bool foundVorbis = findBytes(new byte[] { 0x76, 0x6F, 0x72, 0x62, 0x69, 0x73 }, 256);
+                if (foundVorbis)
                 {
-                    lastSample = br.ReadInt64();
-                    break;
+                    fs.Position += 5;
+                    rate = br.ReadInt32();
                 }
+                else
+                {
+                    Logging.logger.Warn($"could not find rate for {oggFile}");
+                    return -1;
+                }
+
+                /*
+                 * this finds the first occurrence of "OggS" within each block
+                 * setting seekBlockSize too high can cause it to read the sample time for earlier samples, instead of the last
+                 * 6144 does not add significant overhead and speeds up the search significantly
+                 */
+                const int seekBlockSize = 6144;
+                const int seekTries = 10000;
+                for (int i = 0; i < seekTries; i++)
+                {
+                    var seekAmount = (i + 1) * seekBlockSize * -1;
+                    if (seekAmount > fs.Length)
+                        seekAmount = (int)fs.Length;
+
+                    fs.Seek(seekAmount, SeekOrigin.End);
+                    bool foundOggS = findBytes(oggBytes, seekBlockSize);
+                    if (foundOggS)
+                    {
+                        lastSample = br.ReadInt64();
+                        break;
+                    }
+                }
+
+                if (lastSample == -1)
+                {
+                    Logging.logger.Warn($"could not find lastSample for {oggFile}");
+                    return -1;
+                }
+
+                float length = lastSample / (float)rate;
+                return length;
             }
-
-            br.Dispose();
-            fs.Dispose();
-
-            if (lastSample == -1)
-            {
-                Logging.logger.Warn($"could not find lastSample for {oggFile}");
-                return -1;
-            }
-
-            float length = lastSample / (float)rate;
-            return length;
         }
     }
 
