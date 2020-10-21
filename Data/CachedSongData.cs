@@ -23,7 +23,7 @@ namespace SongCore.Data
         [Newtonsoft.Json.JsonConstructor]
         public AudioCacheData(string audioFileHash, float duration)
         {
-            this.id = audioFileHash;
+            id = audioFileHash;
             this.duration = duration;
         }
     }

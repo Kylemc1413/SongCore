@@ -72,17 +72,17 @@ namespace SongCore.UI
         internal void GetIcons()
         {
             if (!MissingReqIcon)
-                MissingReqIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.RedX.png");
+                MissingReqIcon = Utils.LoadSpriteFromResources("SongCore.Icons.RedX.png");
             if (!HaveReqIcon)
-                HaveReqIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.GreenCheck.png");
+                HaveReqIcon = Utils.LoadSpriteFromResources("SongCore.Icons.GreenCheck.png");
             if (!HaveSuggestionIcon)
-                HaveSuggestionIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.YellowCheck.png");
+                HaveSuggestionIcon = Utils.LoadSpriteFromResources("SongCore.Icons.YellowCheck.png");
             if (!MissingSuggestionIcon)
-                MissingSuggestionIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.YellowX.png");
+                MissingSuggestionIcon = Utils.LoadSpriteFromResources("SongCore.Icons.YellowX.png");
             if (!WarningIcon)
-                WarningIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Warning.png");
+                WarningIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Warning.png");
             if (!InfoIcon)
-                InfoIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.Info.png");
+                InfoIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Info.png");
         }
 
         [UIAction("button-click")]
@@ -114,7 +114,7 @@ namespace SongCore.UI
                     if (author.icon == null)
                         if (!string.IsNullOrWhiteSpace(author._iconPath))
                         {
-                            author.icon = Utilities.Utils.LoadSpriteFromFile(level.customLevelPath + "/" + author._iconPath);
+                            author.icon = Utils.LoadSpriteFromFile(level.customLevelPath + "/" + author._iconPath);
                             customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon ?? InfoIcon));
                         }
                         else

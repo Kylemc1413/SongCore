@@ -638,11 +638,11 @@ namespace SongCore
                     SongsLoadedEvent?.Invoke(this, CustomLevels);
                 });
 
-                // Write our cached hash info and 
+                // Write our cached hash info and
 
                 Hashing.UpdateCachedHashesInternal(foundSongPaths.Keys);
                 Hashing.UpdateCachedAudioDataInternal(foundSongPaths.Keys);
-                SongCore.Collections.SaveExtraSongData();
+                Collections.SaveExtraSongData();
             };
             try
             {

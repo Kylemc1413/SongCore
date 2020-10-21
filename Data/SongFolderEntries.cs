@@ -49,7 +49,7 @@ namespace SongCore.Data
                 {
                     try
                     {
-                        var packImage = SongCore.Utilities.Utils.LoadSpriteFromFile(folderEntry.ImagePath);
+                        var packImage = Utilities.Utils.LoadSpriteFromFile(folderEntry.ImagePath);
                         if (packImage != null)
                         {
                             image = packImage;
@@ -57,7 +57,7 @@ namespace SongCore.Data
                     }
                     catch
                     {
-                        SongCore.Utilities.Logging.Log($"Failed to Load Image For Seperate Folder \"{folderEntry.Name}\"");
+                        Utilities.Logging.Log($"Failed to Load Image For Seperate Folder \"{folderEntry.Name}\"");
                     }
                 }
                 LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, image, LevelCollection);

@@ -23,7 +23,7 @@
             this.h = h;
             this.s = s;
             this.b = b;
-            this.a = 1f;
+            a = 1f;
         }
 
         public HSBColor(Color col)

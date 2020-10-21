@@ -91,14 +91,14 @@ namespace SongCore
         }
         public static void LoadExtraSongData()
         {
-            customSongsData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, ExtraSongData>>(File.ReadAllText(dataPath));
+            customSongsData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, ExtraSongData>>(File.ReadAllText(dataPath));
             if (customSongsData == null)
                 customSongsData = new ConcurrentDictionary<string, ExtraSongData>();
         }
 
         public static void SaveExtraSongData()
         {
-            File.WriteAllText(dataPath, Newtonsoft.Json.JsonConvert.SerializeObject(customSongsData, Formatting.None));
+            File.WriteAllText(dataPath, JsonConvert.SerializeObject(customSongsData, Formatting.None));
         }
 
         public static void RegisterCapability(string capability)
@@ -142,7 +142,7 @@ namespace SongCore
                     Logging.logger.Error("Failed to make folder for: " + name + "\n" + ex);
                 }
             }
-            Data.SongFolderEntry entry = new SongFolderEntry(name, folderPath, pack, "", wip, cachezips);
+            SongFolderEntry entry = new SongFolderEntry(name, folderPath, pack, "", wip, cachezips);
             ModSeperateSongFolder seperateSongFolder = new ModSeperateSongFolder(entry, image == null ? UI.BasicUI.FolderIcon : image);
             if (Loader.SeperateSongFolders == null) Loader.SeperateSongFolders = new List<SeperateSongFolder>();
             Loader.SeperateSongFolders.Add(seperateSongFolder);

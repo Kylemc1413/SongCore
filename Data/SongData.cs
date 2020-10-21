@@ -73,9 +73,9 @@ namespace SongCore.Data
         {
             //      Utilities.Logging.Log("SongData full Ctor");
             this.contributors = contributors;
-            this._customEnvironmentName = customEnvironmentName;
-            this._customEnvironmentHash = customEnvironmentHash;
-            this._difficulties = difficulties;
+            _customEnvironmentName = customEnvironmentName;
+            _customEnvironmentHash = customEnvironmentHash;
+            _difficulties = difficulties;
 
         }
 
@@ -98,11 +98,11 @@ namespace SongCore.Data
                     {
                         levelContributors.AddRange(contributors.ToObject<Contributor[]>());
                     }
-                    if (infoData.TryGetValue("_customEnvironment", out var customEnvironment)) 
+                    if (infoData.TryGetValue("_customEnvironment", out var customEnvironment))
                         _customEnvironmentName = (string)customEnvironment;
                     if (infoData.TryGetValue("_customEnvironmentHash", out var envHash))
                         _customEnvironmentHash = (string)envHash;
-                    if (infoData.TryGetValue("_defaultCharacteristic", out var defaultChar)) 
+                    if (infoData.TryGetValue("_defaultCharacteristic", out var defaultChar))
                         _defaultCharacteristic = (string)defaultChar;
                 }
                 contributors = levelContributors.ToArray();
@@ -128,13 +128,13 @@ namespace SongCore.Data
                         MapColor diffEnvLeftBoost = null;
                         MapColor diffEnvRightBoost = null;
                         MapColor diffObstacle = null;
-                        
+
                         BeatmapDifficulty diffDifficulty = Utilities.Utils.ToEnum((string)diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
                         JObject beatmapData;
                         if (diffBeatmap.TryGetValue("_customData", out var customData))
                         {
                             beatmapData = (JObject)customData;
-                            if (beatmapData.TryGetValue("_difficultyLabel", out var difficultyLabel)) 
+                            if (beatmapData.TryGetValue("_difficultyLabel", out var difficultyLabel))
                                 diffLabel = (string)difficultyLabel;
 
                             //Get difficulty json fields

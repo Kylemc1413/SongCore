@@ -155,7 +155,7 @@ namespace SongCore
                 if (Directory.Exists(CustomLevelPathHelper.customLevelsDirectoryPath))
                 {
                     Utils.GrantAccess(CustomLevelPathHelper.customLevelsDirectoryPath);
-                    Directory.Move(CustomLevelPathHelper.customLevelsDirectoryPath, CustomLevelPathHelper.customLevelsDirectoryPath + System.DateTime.Now.ToFileTime().ToString());
+                    Directory.Move(CustomLevelPathHelper.customLevelsDirectoryPath, CustomLevelPathHelper.customLevelsDirectoryPath + DateTime.Now.ToFileTime().ToString());
 
                 }
                 Utils.GrantAccess(oldFolderPath);

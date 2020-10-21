@@ -57,8 +57,8 @@ namespace SongCore.HarmonyPatches
         }
         static IPreviewBeatmapLevel lastLevel;
         static void Postfix(StandardLevelDetailView __instance, ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
-            ref PlayerData ____playerData, ref LevelBar ____levelBar,  ref UnityEngine.UI.Button ____actionButton,
-            ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
+            ref PlayerData ____playerData, ref LevelBar ____levelBar,  ref Button ____actionButton,
+            ref Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
             ref BeatmapCharacteristicSegmentedControlController ____beatmapCharacteristicSegmentedControlController)
         {
             bool firstSelection = false;
@@ -81,7 +81,7 @@ namespace SongCore.HarmonyPatches
             RequirementsUI.instance.ButtonInteractable = false;
             if (level != null)
             {
-                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Utilities.Hashing.GetCustomLevelHash(level), level.customLevelPath);
+                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(level), level.customLevelPath);
 
                 if (songData == null)
                 {

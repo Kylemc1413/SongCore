@@ -46,10 +46,10 @@ namespace SongCore.Utilities
 
         public static void GrantAccess(string file)
         {
-            bool exists = System.IO.Directory.Exists(file);
+            bool exists = Directory.Exists(file);
             if (!exists)
             {
-                DirectoryInfo di = System.IO.Directory.CreateDirectory(file);
+                DirectoryInfo di = Directory.CreateDirectory(file);
                 //        Console.WriteLine("The Folder is created Sucessfully");
             }
             else
@@ -102,7 +102,7 @@ namespace SongCore.Utilities
 
         public static byte[] GetResource(Assembly asm, string ResourceName)
         {
-            System.IO.Stream stream = asm.GetManifestResourceStream(ResourceName);
+            Stream stream = asm.GetManifestResourceStream(ResourceName);
             byte[] data = new byte[stream.Length];
             stream.Read(data, 0, (int)stream.Length);
             return data;

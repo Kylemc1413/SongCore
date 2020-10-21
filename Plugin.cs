@@ -15,6 +15,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
+using Object = UnityEngine.Object;
 
 namespace SongCore
 {
@@ -54,9 +55,9 @@ namespace SongCore
 
             //      ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
             harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
-            harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
             //     Collections.LoadExtraSongData();
-            UI.BasicUI.GetIcons();
+            BasicUI.GetIcons();
             BS_Utils.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
             BS_Utils.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
             BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
@@ -64,9 +65,9 @@ namespace SongCore
                 File.Create(Collections.dataPath);
             else
                 Collections.LoadExtraSongData();
-            Collections.RegisterCustomCharacteristic(UI.BasicUI.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic", false, false, 1000);
-            Collections.RegisterCustomCharacteristic(UI.BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow", false, false, 100);
-            Collections.RegisterCustomCharacteristic(UI.BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless", false, false, 101);
+            Collections.RegisterCustomCharacteristic(BasicUI.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic", false, false, 1000);
+            Collections.RegisterCustomCharacteristic(BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow", false, false, 100);
+            Collections.RegisterCustomCharacteristic(BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless", false, false, 101);
 
             if (!File.Exists(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"))
                 File.WriteAllBytes(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml", SongCore.Utilities.Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
@@ -119,7 +120,7 @@ namespace SongCore
         public void Init(object thisIsNull, IPALogger pluginLogger)
         {
 
-            Utilities.Logging.logger = pluginLogger;
+            Logging.logger = pluginLogger;
         }
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
@@ -135,10 +136,10 @@ namespace SongCore
         public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
         {
           //  Debug.Log("Scene :" + prevScene.name + "To Scene Next: " + nextScene.name);
-            customSongColors = UI.BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
-            customSongPlatforms = UI.BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
-            displayDiffLabels = UI.BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
-            GameObject.Destroy(GameObject.Find("SongCore Color Setter"));
+            customSongColors = BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
+            customSongPlatforms = BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
+            displayDiffLabels = BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
+            Object.Destroy(GameObject.Find("SongCore Color Setter"));
             if (nextScene.name == "MenuViewControllers")
             {
                 BS_Utils.Gameplay.Gamemode.Init();

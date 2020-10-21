@@ -20,8 +20,8 @@ namespace SongCore.HarmonyPatches
                 if (customLevel != null)
                 {
                     //       Logging.Log(Utilities.Hashing.GetCustomLevelHash(customLevel));
-                    SongCore.Collections.AddSong(Utilities.Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
-                    SongCore.Collections.SaveExtraSongData();
+                    Collections.AddSong(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
+                    Collections.SaveExtraSongData();
                 }
             }
         }
