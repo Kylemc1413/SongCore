@@ -2,6 +2,7 @@
 using SongCore.Data;
 using SongCore.Utilities;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,9 +15,9 @@ namespace SongCore
 
 
         internal static string dataPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "UserData", "SongCore", "SongCoreExtraData.dat");
-        internal static Dictionary<string, ExtraSongData> customSongsData = new Dictionary<string, ExtraSongData>();
-        internal static Dictionary<string, string> levelHashDictionary = new Dictionary<string, string>();
-        internal static Dictionary<string, List<string>> hashLevelDictionary = new Dictionary<string, List<string>>();
+        internal static ConcurrentDictionary<string, ExtraSongData> customSongsData = new ConcurrentDictionary<string, ExtraSongData>();
+        internal static ConcurrentDictionary<string, string> levelHashDictionary = new ConcurrentDictionary<string, string>();
+        internal static ConcurrentDictionary<string, List<string>> hashLevelDictionary = new ConcurrentDictionary<string, List<string>>();
         private static List<string> _capabilities = new List<string>();
         public static System.Collections.ObjectModel.ReadOnlyCollection<string> capabilities
         {
@@ -53,7 +54,7 @@ namespace SongCore
         public static void AddSong(string levelID, string path)
         {
             if (!customSongsData.ContainsKey(levelID))
-                customSongsData.Add(levelID, new ExtraSongData(levelID, path));
+                customSongsData.TryAdd(levelID, new ExtraSongData(levelID, path));
             //         Utilities.Logging.Log("Entry: :"  + levelID + "    " + customSongsData.Count);
         }
 
@@ -89,17 +90,15 @@ namespace SongCore
         }
         public static void LoadExtraSongData()
         {
-            customSongsData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, ExtraSongData>>(File.ReadAllText(dataPath));
+            customSongsData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, ExtraSongData>>(File.ReadAllText(dataPath));
             if (customSongsData == null)
-                customSongsData = new Dictionary<string, ExtraSongData>();
+                customSongsData = new ConcurrentDictionary<string, ExtraSongData>();
         }
 
         public static void SaveExtraSongData()
         {
             File.WriteAllText(dataPath, Newtonsoft.Json.JsonConvert.SerializeObject(customSongsData, Formatting.None));
         }
-
-
 
         public static void RegisterCapability(string capability)
         {

@@ -1,5 +1,6 @@
 ﻿using SongCore.Utilities;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -105,10 +106,10 @@ namespace SongCore
             _canvas.enabled = true;
         }
 
-        private void SongLoaderOnSongsLoadedEvent(Loader arg1, Dictionary<string, CustomPreviewBeatmapLevel> arg2)
+        private void SongLoaderOnSongsLoadedEvent(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> customLevels)
         {
             _showingMessage = false;
-            _headerText.text = arg2.Count + " songs loaded.";
+            _headerText.text = customLevels.Count + " songs loaded.";
             _loadingBar.enabled = false;
             _loadingBackg.enabled = false;
             StartCoroutine(DisableCanvasRoutine(5f));

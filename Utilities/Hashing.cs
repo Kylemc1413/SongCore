@@ -1,58 +1,83 @@
 ﻿using SongCore.Data;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using UnityEngine;
+
 namespace SongCore.Utilities
 {
     public class Hashing
     {
-        internal static Dictionary<string, SongHashData> cachedSongHashData = new Dictionary<string, SongHashData>();
-        internal static Dictionary<string, AudioCacheData> cachedAudioData = new Dictionary<string, AudioCacheData>();
+        internal static ConcurrentDictionary<string, SongHashData> cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
+        internal static ConcurrentDictionary<string, AudioCacheData> cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
         public static readonly string cachedHashDataPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "UserData", "SongCore", "SongHashData.dat");
         public static readonly string cachedAudioDataPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "UserData", "SongCore", "SongDurationCache.dat");
+
         public static void ReadCachedSongHashes()
         {
             if (File.Exists(cachedHashDataPath))
             {
-                cachedSongHashData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
-                if (cachedSongHashData == null) cachedSongHashData = new Dictionary<string, SongHashData>();
+                cachedSongHashData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
+                if (cachedSongHashData == null) cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
                 Logging.Log($"Finished reading cached hashes for {cachedSongHashData.Count} songs!");
             }
         }
 
         public static void UpdateCachedHashes(HashSet<string> currentSongPaths)
         {
+            UpdateCachedHashesInternal(currentSongPaths);
+        }
+
+        /// <summary>
+        /// Intended for use in the Loader
+        /// </summary>
+        /// <param name="currentSongPaths"></param>
+        internal static void UpdateCachedHashesInternal(ICollection<string> currentSongPaths)
+        {
             foreach (KeyValuePair<string, SongHashData> hashData in cachedSongHashData.ToArray())
             {
                 if (!currentSongPaths.Contains(hashData.Key))
-                    cachedSongHashData.Remove(hashData.Key);
+                    cachedSongHashData.TryRemove(hashData.Key, out _);
             }
+
             Logging.Log($"Updating cached hashes for {cachedSongHashData.Count} songs!");
             File.WriteAllText(cachedHashDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedSongHashData));
         }
+
         public static void ReadCachedAudioData()
         {
             if (File.Exists(cachedAudioDataPath))
             {
-                cachedAudioData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
-                if (cachedAudioData == null) cachedAudioData = new Dictionary<string, AudioCacheData>();
+                cachedAudioData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
+                if (cachedAudioData == null) cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
                 Logging.Log($"Finished reading cached Durations for {cachedAudioData.Count} songs!");
             }
         }
+
         public static void UpdateCachedAudioData(HashSet<string> currentSongPaths)
+        {
+            UpdateCachedAudioDataInternal(currentSongPaths);
+        }
+
+        /// <summary>
+        /// Intended for use in the Loader
+        /// </summary>
+        /// <param name="currentSongPaths"></param>
+        internal static void UpdateCachedAudioDataInternal(ICollection<string> currentSongPaths)
         {
             foreach (KeyValuePair<string, AudioCacheData> hashData in cachedAudioData.ToArray())
             {
                 if (!currentSongPaths.Contains(hashData.Key))
-                    cachedAudioData.Remove(hashData.Key);
+                    cachedAudioData.TryRemove(hashData.Key, out _);
             }
+
             Logging.Log($"Updating cached Map Lengths for {cachedAudioData.Count} songs!");
             File.WriteAllText(cachedAudioDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedAudioData));
         }
+
         private static long GetDirectoryHash(string directory)
         {
             long hash = 0;
@@ -141,7 +166,6 @@ namespace SongCore.Utilities
             return hash;
         }
 
-
         public static string CreateSha1FromString(string input)
         {
             // Use input string to calculate MD5 hash
@@ -165,6 +189,7 @@ namespace SongCore.Utilities
                 return BitConverter.ToString(hashBytes).Replace("-", string.Empty);
             }
         }
+
         public static bool CreateSha1FromFile(string path, out string hash)
         {
             hash = "";
