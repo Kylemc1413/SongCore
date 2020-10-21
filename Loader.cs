@@ -116,7 +116,7 @@ namespace SongCore
             if (Instance != null)
             {
                 _beatmapLevelsModel = null;
-                Instance.RefreshLevelPacks();
+            //    Instance.RefreshLevelPacks();
                 return;
             }
             new GameObject("SongCore Loader").AddComponent<Loader>();
@@ -182,8 +182,8 @@ namespace SongCore
         public void RefreshLevelPacks()
         {
 
-            CustomLevelsCollection.UpdatePreviewLevels(CustomLevels?.Values.OrderBy(l => l.songName).ToArray());
-            WIPLevelsCollection.UpdatePreviewLevels(CustomWIPLevels?.Values.OrderBy(l => l.songName).ToArray());
+            CustomLevelsCollection.UpdatePreviewLevels(CustomLevels?.Values?.OrderBy(l => l.songName).ToArray());
+            WIPLevelsCollection.UpdatePreviewLevels(CustomWIPLevels?.Values?.OrderBy(l => l.songName).ToArray());
             CachedWIPLevelCollection?.UpdatePreviewLevels(CachedWIPLevels?.Values?.OrderBy(l => l.songName).ToArray());
 
             if (CachedWIPLevels.Count > 0)
