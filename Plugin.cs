@@ -79,6 +79,7 @@ namespace SongCore
 
         private void BSEvents_gameSceneLoaded()
         {
+            if (!BS_Utils.Plugin.LevelData.IsSet) return;
             SharedCoroutineStarter.instance.StartCoroutine(DelayedNoteJumpMovementSpeedFix());
         }
 
@@ -156,7 +157,7 @@ namespace SongCore
             if (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpMovementSpeed < 0)
             {
                 var beatmapObjectSpawnController =
-                    Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
+                    Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().LastOrDefault();
 
                 SetNJS(beatmapObjectSpawnController);
 
