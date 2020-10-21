@@ -1106,18 +1106,18 @@ namespace SongCore
                  * reads in blocks determined by seekBlockSize
                  * 6144 does not add significant overhead and speeds up the search significantly
                  */
-                int seekBlockSize = (fs.Length < 6144 ? (int)fs.Length : 6144);
+                const int seekBlockSize = 6144;
                 const int seekTries = 10; // 60 KiB should be enough for any sane ogg file
                 for (int i = 0; i < seekTries; i++)
                 {
                     int seekPos = (i + 1) * seekBlockSize * -1;
-                    if (-seekPos > fs.Length)
+                    int overshoot = Math.Max((int)(-seekPos - fs.Length), 0);
+                    if (overshoot >= seekBlockSize)
                     {
-                        // prevent seeking beyond file limits
                         break;
                     }
-                    fs.Seek(seekPos, SeekOrigin.End);
-                    bool foundOggS = FindBytes(oggBytes, seekBlockSize);
+                    fs.Seek(seekPos + overshoot, SeekOrigin.End);
+                    bool foundOggS = FindBytes(oggBytes, seekBlockSize - overshoot);
                     if (foundOggS)
                     {
                         lastSample = br.ReadInt64();
