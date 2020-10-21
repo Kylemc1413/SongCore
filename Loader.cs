@@ -468,7 +468,8 @@ namespace SongCore
                     var loadedData = new List<string>();
 
                     int i = 0;
-                    Parallel.ForEach(songFolders, new ParallelOptions {MaxDegreeOfParallelism = Environment.ProcessorCount}, (folder) =>
+                    
+                    Parallel.ForEach(songFolders, new ParallelOptions {MaxDegreeOfParallelism = Math.Max(1, (Environment.ProcessorCount / 2) - 1)}, (folder) =>
                     {
                         Interlocked.Increment(ref i);
                         string[] results;
