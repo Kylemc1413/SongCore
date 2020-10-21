@@ -467,11 +467,9 @@ namespace SongCore
                     var songFolders = Directory.GetDirectories(Path.Combine(path, "CustomLevels")).ToList().Concat(Directory.GetDirectories(Path.Combine(path, "CustomWIPLevels"))).ToList();
                     var loadedData = new List<string>();
 
-                    int i = 0;
-                    
+                    int processedSongsCount = 0;
                     Parallel.ForEach(songFolders, new ParallelOptions {MaxDegreeOfParallelism = Math.Max(1, (Environment.ProcessorCount / 2) - 1)}, (folder) =>
                     {
-                        Interlocked.Increment(ref i);
                         string[] results;
                         try
                         {
@@ -526,7 +524,6 @@ namespace SongCore
                                 //          }
                                 //             loadedData.Add(saveDat);
 
-                                var count = i;
                                 //HMMainThreadDispatcher.instance.Enqueue(delegate
                                 //{
                                 if (_loadingCancelled) return;
@@ -555,10 +552,7 @@ namespace SongCore
                                     foundSongPaths.TryAdd(songPath, false);
                                 }
 
-                                
-                                LoadingProgress = (float)count / songFolders.Count;
                                 //});
-
                             }
                             catch (Exception e)
                             {
@@ -566,6 +560,8 @@ namespace SongCore
                                 Logging.Log(e.ToString(), LogSeverity.Error);
                             }
                         }
+
+                        LoadingProgress = (float)Interlocked.Increment(ref processedSongsCount) / songFolders.Count;
                     });
                     #endregion
 
