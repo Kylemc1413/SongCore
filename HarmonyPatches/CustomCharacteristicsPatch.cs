@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using System.Linq;
 using UnityEngine;
-using UnityEngine;
 namespace SongCore.HarmonyPatches
 {
 

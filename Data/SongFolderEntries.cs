@@ -1,11 +1,14 @@
 ﻿using SongCore.OverrideClasses;
+using SongCore.Utilities;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using System.Collections.Concurrent;
 namespace SongCore.Data
 {
-    public enum FolderLevelPack { CustomLevels, CustomWIPLevels, NewPack };
+    public enum FolderLevelPack { CustomLevels, CustomWIPLevels, NewPack, CachedWIPLevels };
     [Serializable]
     public class SongFolderEntry
     {
@@ -14,26 +17,30 @@ namespace SongCore.Data
         public FolderLevelPack Pack;
         public string ImagePath;
         public bool WIP;
+        public bool CacheZIPs;
 
-        public SongFolderEntry(string name, string path, FolderLevelPack pack, string imagePath = "", bool wip = false)
+        public SongFolderEntry(string name, string path, FolderLevelPack pack, string imagePath = "", bool wip = false, bool cachezips = false)
         {
             Name = name;
             Path = path;
             Pack = pack;
             ImagePath = imagePath;
             WIP = wip;
+            CacheZIPs = cachezips;
         }
     }
     public class SeperateSongFolder
     {
         public SongFolderEntry SongFolderEntry { get; private set; }
-        public Dictionary<string, CustomPreviewBeatmapLevel> Levels = new Dictionary<string, CustomPreviewBeatmapLevel>();
+        public ConcurrentDictionary<string, CustomPreviewBeatmapLevel> Levels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
         public SongCoreCustomLevelCollection LevelCollection { get; private set; } = null;
         public SongCoreCustomBeatmapLevelPack LevelPack { get; private set; } = null;
+        public SeperateSongFolder CacheFolder { get; private set; } = null;
 
-        public SeperateSongFolder(SongFolderEntry folderEntry)
+        public SeperateSongFolder(SongFolderEntry folderEntry, SeperateSongFolder cacheFolder = null)
         {
             SongFolderEntry = folderEntry;
+            CacheFolder = cacheFolder;
             if (folderEntry.Pack == FolderLevelPack.NewPack)
             {
                 LevelCollection = new SongCoreCustomLevelCollection(Levels.Values.ToArray());
@@ -44,17 +51,19 @@ namespace SongCore.Data
                     {
                         var packImage = SongCore.Utilities.Utils.LoadSpriteFromFile(folderEntry.ImagePath);
                         if (packImage != null)
+                        {
                             image = packImage;
+                        }
                     }
                     catch
                     {
                         SongCore.Utilities.Logging.Log($"Failed to Load Image For Seperate Folder \"{folderEntry.Name}\"");
                     }
                 }
-
                 LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, image, LevelCollection);
             }
         }
+
         public SeperateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite Image)
         {
             SongFolderEntry = folderEntry;
@@ -65,6 +74,7 @@ namespace SongCore.Data
                 LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, Image, LevelCollection);
             }
         }
+
         public static List<SeperateSongFolder> ReadSeperateFoldersFromFile(string filePath)
         {
             List<SeperateSongFolder> result = new List<SeperateSongFolder>();
@@ -91,13 +101,32 @@ namespace SongCore.Data
                     {
                         isWIP = bool.Parse(wip.Value);
                     }
-                    SongFolderEntry entry = new SongFolderEntry(name, path, (FolderLevelPack)pack, imagePath, isWIP);
+                    bool zipCaching = false;
+                    var cachezips = item.Element("CacheZIPs");
+                    if (cachezips != null)
+                    {
+                        zipCaching = bool.Parse(cachezips.Value);
+                    }
+                    SongFolderEntry entry = new SongFolderEntry(name, path, (FolderLevelPack)pack, imagePath, isWIP, zipCaching);
                     //   Console.WriteLine("Entry");
                     //   Console.WriteLine("   " + entry.Name);
                     //   Console.WriteLine("   " + entry.Path);
                     //   Console.WriteLine("   " + entry.Pack);
                     //    Console.WriteLine("   " + entry.WIP);
-                    result.Add(new SeperateSongFolder(entry));
+
+                    SeperateSongFolder cachedSeperate = null;
+                    if (zipCaching)
+                    {
+                        FolderLevelPack cachePack;
+                        if ((FolderLevelPack)pack == FolderLevelPack.CustomWIPLevels) cachePack = FolderLevelPack.CachedWIPLevels;
+                        else cachePack = FolderLevelPack.NewPack;
+                        SongFolderEntry cachedSongFolderEntry = new SongFolderEntry(String.Concat("Cached ", name), Path.Combine(path, "Cache"), cachePack, imagePath, isWIP, false);
+                        cachedSeperate = new SeperateSongFolder(cachedSongFolderEntry);
+                    }
+
+                    SeperateSongFolder seperate = new SeperateSongFolder(entry, cachedSeperate);
+                    result.Add(seperate);
+                    if (cachedSeperate != null) result.Add(cachedSeperate);
                 }
             }
             catch

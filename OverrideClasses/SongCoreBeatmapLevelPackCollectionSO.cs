@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SongCore.Utilities;
+using System.Collections.Generic;
 using System.Linq;
 namespace SongCore.OverrideClasses
 {
@@ -24,17 +25,25 @@ namespace SongCore.OverrideClasses
 
         public void AddLevelPack(CustomBeatmapLevelPack pack)
         {
-            _customBeatmapLevelPacks.Add(pack);
-            UpdateArray();
+            if (pack != null && !_customBeatmapLevelPacks.Contains(pack))
+            {
+                _customBeatmapLevelPacks.Add(pack);
+                UpdateArray();
+            }
+        }
+
+        public void RemoveLevelPack(CustomBeatmapLevelPack pack)
+        {
+            if (pack != null && _customBeatmapLevelPacks.Contains(pack))
+            {
+                _customBeatmapLevelPacks.Remove(pack);
+                UpdateArray();
+            }
         }
 
         private void UpdateArray()
         {
-            var packs = _allBeatmapLevelPacks.ToList();
-            foreach (var c in _customBeatmapLevelPacks)
-                if (!packs.Contains(c))
-                    packs.Add(c);
-            _allBeatmapLevelPacks = packs.ToArray();
+            _allBeatmapLevelPacks = _customBeatmapLevelPacks.ToArray();
         }
 
     }

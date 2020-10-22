@@ -6,6 +6,7 @@
 		<Pack> either 0, 1, or 2. 0 means the songs will be put in the main custom levels pack, 1 means it will be put in the wip levels pack, and 2 means it will be put into a new pack </Pack>
 		<ImagePath> If Pack is 2, will attempt to load this image to use as the pack cover. Use the Full Path to the Image </ImagePath>
 		<WIP> If Pack is 2, songs in this folder will be treated as WIP and only be playable in practice mode. Use True/False for the value </WIP>
+    <CacheZIPs> If set to true, SongCore will unzip the archives in this folder and show them as a seperate level pack in game </CacheZIPs>
 
 		</folder>
 		
