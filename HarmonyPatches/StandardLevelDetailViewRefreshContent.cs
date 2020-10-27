@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using SongCore.Utilities;
+using IPA.Utilities;
 namespace SongCore.HarmonyPatches
 {
 
@@ -202,7 +203,7 @@ namespace SongCore.HarmonyPatches
                 {
                     if(____beatmapCharacteristicSegmentedControlController.selectedBeatmapCharacteristic.serializedName != songData._defaultCharacteristic)
                     {
-                        var chars = ____beatmapCharacteristicSegmentedControlController.GetField<List<BeatmapCharacteristicSO>>("_beatmapCharacteristics");
+                        var chars = ____beatmapCharacteristicSegmentedControlController.GetField<List<BeatmapCharacteristicSO>, BeatmapCharacteristicSegmentedControlController>("_beatmapCharacteristics");
                         int index = 0;
                         foreach (var characteristic in chars)
                         {
@@ -211,9 +212,9 @@ namespace SongCore.HarmonyPatches
                             index++;
                         }
                         if (index != chars.Count)
-                            ____beatmapCharacteristicSegmentedControlController.GetField<HMUI.IconSegmentedControl>("_segmentedControl").SelectCellWithNumber(index);
+                            ____beatmapCharacteristicSegmentedControlController.GetField<HMUI.IconSegmentedControl, BeatmapCharacteristicSegmentedControlController>("_segmentedControl").SelectCellWithNumber(index);
                             ____beatmapCharacteristicSegmentedControlController.HandleDifficultySegmentedControlDidSelectCell(
-                                ____beatmapCharacteristicSegmentedControlController.GetField<HMUI.IconSegmentedControl>("_segmentedControl"), index);
+                                ____beatmapCharacteristicSegmentedControlController.GetField<HMUI.IconSegmentedControl, BeatmapCharacteristicSegmentedControlController>("_segmentedControl"), index);
                     }
 
                 }

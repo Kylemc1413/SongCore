@@ -4,6 +4,7 @@ using IPA;
 using Newtonsoft.Json;
 using SongCore.UI;
 using SongCore.Utilities;
+using IPA.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -50,7 +51,7 @@ namespace SongCore
             }
 
             //      ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
-            PlatformsInstalled = Utils.IsModInstalled("Custom Platforms");
+            PlatformsInstalled = SongCore.Utilities.Utils.IsModInstalled("Custom Platforms");
             harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
             //     Collections.LoadExtraSongData();
@@ -67,7 +68,7 @@ namespace SongCore
             Collections.RegisterCustomCharacteristic(UI.BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless", false, false, 101);
 
             if (!File.Exists(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"))
-                File.WriteAllBytes(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml", Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
+                File.WriteAllBytes(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml", SongCore.Utilities.Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
             Loader.SeperateSongFolders.InsertRange(0, Data.SeperateSongFolder.ReadSeperateFoldersFromFile(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"));
         }
 
@@ -80,6 +81,7 @@ namespace SongCore
         private void BSEvents_gameSceneLoaded()
         {
             if (!BS_Utils.Plugin.LevelData.IsSet) return;
+       //     Logging.logger.Info(BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.level.songDuration.ToString());
             SharedCoroutineStarter.instance.StartCoroutine(DelayedNoteJumpMovementSpeedFix());
         }
 
@@ -167,17 +169,17 @@ namespace SongCore
         public static void SetNJS(BeatmapObjectSpawnController _spawnController)
         {
             BeatmapObjectSpawnMovementData spawnMovementData =
-  _spawnController.GetPrivateField<BeatmapObjectSpawnMovementData>("_beatmapObjectSpawnMovementData");
+  _spawnController.GetField<BeatmapObjectSpawnMovementData, BeatmapObjectSpawnController>("_beatmapObjectSpawnMovementData");
 
-            float bpm = _spawnController.GetPrivateField<VariableBpmProcessor>("_variableBPMProcessor").currentBpm;
+            float bpm = _spawnController.GetField<VariableBpmProcessor, BeatmapObjectSpawnController>("_variableBPMProcessor").currentBpm;
 
 
 
-            spawnMovementData.SetPrivateField("_startNoteJumpMovementSpeed", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpMovementSpeed);
-            spawnMovementData.SetPrivateField("_noteJumpStartBeatOffset", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpStartBeatOffset);
+            spawnMovementData.SetField("_startNoteJumpMovementSpeed", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpMovementSpeed);
+            spawnMovementData.SetField("_noteJumpStartBeatOffset", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpStartBeatOffset);
 
             spawnMovementData.Update(bpm,
-                _spawnController.GetPrivateField<float>("_jumpOffsetY"));
+                _spawnController.GetField<float, BeatmapObjectSpawnController>("_jumpOffsetY"));
         }
 
         public void OnApplicationQuit()

@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
-using SongCore.Utilities;
+using IPA.Utilities;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,16 @@ using System.Collections;
 using System.Collections.Generic;
 namespace SongCore.HarmonyPatches
 {
+    [HarmonyPatch(typeof(CustomBeatmapLevel))]
+    [HarmonyPatch(new Type[] { typeof(CustomPreviewBeatmapLevel), typeof(AudioClip)})]
+    [HarmonyPatch(MethodType.Constructor)]
+    internal class CustomBeatmapLevelDurationPatch
+    {
+        static void Postfix(CustomBeatmapLevel __instance, CustomPreviewBeatmapLevel customPreviewBeatmapLevel)
+        {
+            __instance.SetField<CustomPreviewBeatmapLevel, float>("_songDuration", customPreviewBeatmapLevel.songDuration);
+        }
+    }
 
     [HarmonyPatch(typeof(BeatmapLevelsModel))]
     [HarmonyPatch("ReloadCustomLevelPackCollectionAsync", MethodType.Normal)]
@@ -15,7 +26,7 @@ namespace SongCore.HarmonyPatches
     {
         static void Prefix(Task<IBeatmapLevelPackCollection> __result)
         {
-            var cancel = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().First().GetField<CancellationTokenSource>("_cancellationTokenSource");
+            var cancel = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().First().GetField<CancellationTokenSource, LevelFilteringNavigationController>("_cancellationTokenSource");
             cancel.Cancel();
 
         }

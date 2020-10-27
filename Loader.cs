@@ -1,5 +1,6 @@
 ﻿using SongCore.Data;
 using SongCore.OverrideClasses;
+using IPA.Utilities;
 using SongCore.Utilities;
 using System;
 using System.Collections.Concurrent;
@@ -117,10 +118,10 @@ namespace SongCore
                 _customLevelLoader = Resources.FindObjectsOfTypeAll<CustomLevelLoader>().FirstOrDefault();
                 if (_customLevelLoader)
                 {
-                    defaultCoverImage = _customLevelLoader.GetField<Sprite>("_defaultPackCover");
+                    defaultCoverImage = _customLevelLoader.GetField<Sprite, CustomLevelLoader>("_defaultPackCover");
 
-                    cachedMediaAsyncLoaderSO = _customLevelLoader.GetField<CachedMediaAsyncLoader>("_cachedMediaAsyncLoader");
-                    beatmapCharacteristicCollection = _customLevelLoader.GetField<BeatmapCharacteristicCollectionSO>("_beatmapCharacteristicCollection");
+                    cachedMediaAsyncLoaderSO = _customLevelLoader.GetField<CachedMediaAsyncLoader, CustomLevelLoader>("_cachedMediaAsyncLoader");
+                    beatmapCharacteristicCollection = _customLevelLoader.GetField<BeatmapCharacteristicCollectionSO, CustomLevelLoader>("_beatmapCharacteristicCollection");
                 }
                 else
                 {
@@ -167,7 +168,8 @@ namespace SongCore
                     //              CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(folderEntry.LevelPack);
                 }
             }
-            BeatmapLevelsModelSO.SetField("_customLevelPackCollection", CustomBeatmapLevelPackCollectionSO);
+
+            BeatmapLevelsModelSO.SetField<BeatmapLevelsModel, IBeatmapLevelPackCollection>("_customLevelPackCollection", CustomBeatmapLevelPackCollectionSO as IBeatmapLevelPackCollection);
             BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
             BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
             var filterNav = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault();
@@ -1038,7 +1040,7 @@ namespace SongCore
 
                 //    Logging.logger.Debug($"{length}");
 
-                level.SetField("_songDuration", length);
+                level.SetField<CustomPreviewBeatmapLevel, float>("_songDuration", length);
             }
             catch (Exception ex)
             {
