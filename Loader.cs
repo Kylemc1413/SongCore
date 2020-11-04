@@ -363,7 +363,7 @@ namespace SongCore
                     #region LoadCustomLevels
                     // Get Levels from CustomLevels and CustomWIPLevels folders
                     var songFolders = Directory.GetDirectories(Path.Combine(path, "CustomLevels")).ToList().Concat(Directory.GetDirectories(Path.Combine(path, "CustomWIPLevels"))).ToList();
-                    var loadedData = new List<string>();
+                    var loadedData = new ConcurrentBag<string>();
 
                     int processedSongsCount = 0;
                     Parallel.ForEach(songFolders, new ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, (Environment.ProcessorCount / 2) - 1) }, (folder) =>
