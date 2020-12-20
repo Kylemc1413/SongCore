@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Reflection;
 using HarmonyLib;
 using IPA.Utilities;
 using SongCore.Utilities;
@@ -5,10 +7,44 @@ using Utils = SongCore.Utilities.Utils;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO))]
-    [HarmonyPatch(nameof(StandardLevelScenesTransitionSetupDataSO.Init), MethodType.Normal)]
+    [HarmonyPatch]
     internal class SceneTransitionPatch
     {
+        private static IEnumerable<MethodBase> TargetMethods()
+        {
+            yield return AccessTools.Method(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.Init),
+                new[]
+                {
+                    typeof(string),
+                    typeof(IDifficultyBeatmap),
+                    typeof(IPreviewBeatmapLevel),
+                    typeof(OverrideEnvironmentSettings),
+                    typeof(ColorScheme),
+                    typeof(GameplayModifiers),
+                    typeof(PlayerSpecificSettings),
+                    typeof(PracticeSettings),
+                    typeof(string),
+                    typeof(bool),
+                    typeof(bool),
+                    typeof(BeatmapDataCache)
+                });
+
+            yield return AccessTools.Method(typeof(MultiplayerLevelScenesTransitionSetupDataSO), nameof(MultiplayerLevelScenesTransitionSetupDataSO.Init),
+                new[]
+                {
+                    typeof(string),
+                    typeof(IPreviewBeatmapLevel),
+                    typeof(BeatmapDifficulty),
+                    typeof(BeatmapCharacteristicSO),
+                    typeof(IDifficultyBeatmap),
+                    typeof(ColorScheme),
+                    typeof(GameplayModifiers),
+                    typeof(PlayerSpecificSettings),
+                    typeof(PracticeSettings),
+                    typeof(bool)
+                });
+        }
+
         private static void Prefix(ref IDifficultyBeatmap difficultyBeatmap, ref ColorScheme? overrideColorScheme)
         {
             if (!Plugin.Configuration.CustomSongNoteColors && !Plugin.Configuration.CustomSongEnvironmentColors && !Plugin.Configuration.CustomSongObstacleColors)
