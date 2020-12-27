@@ -54,9 +54,14 @@ namespace SongCore
 
         public static void AddSong(string levelID, string path)
         {
-            if (!customSongsData.ContainsKey(levelID))
-                customSongsData.TryAdd(levelID, new ExtraSongData(levelID, path));
+            AddExtraSongData(levelID, new ExtraSongData(levelID, path));
             //         Utilities.Logging.Log("Entry: :"  + levelID + "    " + customSongsData.Count);
+        }
+
+        public static void AddExtraSongData(string levelID, ExtraSongData extraSongData)
+        {
+            if (!customSongsData.ContainsKey(levelID))
+                customSongsData.TryAdd(levelID, extraSongData);
         }
 
         public static ExtraSongData RetrieveExtraSongData(string levelID, string loadIfNullPath = "")
