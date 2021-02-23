@@ -21,16 +21,17 @@ namespace SongCore
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
+        public static Action<bool, string, string, IPreviewBeatmapLevel> CustomSongPlatformSelectionDidChange;
+     //   public static Action<string, string> CustomSongWithPlatformPlayed;
         public static string standardCharacteristicName = "Standard";
         public static string oneSaberCharacteristicName = "OneSaber";
         public static string noArrowsCharacteristicName = "NoArrows";
         internal static Harmony harmony;
         //     internal static bool ColorsInstalled = false;
-        internal static bool PlatformsInstalled = false;
         internal static bool customSongColors;
         internal static bool customSongPlatforms;
         internal static bool displayDiffLabels;
-        internal static int _currentPlatform = -1;
+        //  internal static int _currentPlatform = -1;
 
         [OnStart]
         public void OnApplicationStart()
@@ -51,7 +52,6 @@ namespace SongCore
             }
 
             //      ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
-            PlatformsInstalled = SongCore.Utilities.Utils.IsModInstalled("Custom Platforms");
             harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
             harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
             //     Collections.LoadExtraSongData();
@@ -81,7 +81,7 @@ namespace SongCore
         private void BSEvents_gameSceneLoaded()
         {
             if (!BS_Utils.Plugin.LevelData.IsSet) return;
-       //     Logging.logger.Info(BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.level.songDuration.ToString());
+            //     Logging.logger.Info(BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.level.songDuration.ToString());
             SharedCoroutineStarter.instance.StartCoroutine(DelayedNoteJumpMovementSpeedFix());
         }
 
@@ -100,23 +100,17 @@ namespace SongCore
                     return;
                 }
                 //      Logging.Log($"Platforms Installed: {PlatformsInstalled}. Platforms enabled: {customSongPlatforms}");
-                /*
-                if (PlatformsInstalled && customSongPlatforms)
+
+                if (customSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
-                    if (!string.IsNullOrWhiteSpace(songData._customEnvironmentName))
-                    {
-                        if (findCustomEnvironment(songData._customEnvironmentName) == -1)
-                        {
-                            Console.WriteLine("CustomPlatform not found: " + songData._customEnvironmentName);
-                            if (!string.IsNullOrWhiteSpace(songData._customEnvironmentHash))
-                            {
-                                Console.WriteLine("Downloading with hash: " + songData._customEnvironmentHash);
-                                SharedCoroutineStarter.instance.StartCoroutine(downloadCustomPlatform(songData._customEnvironmentHash, songData._customEnvironmentName));
-                            }
-                        }
-                    }
+                    Utilities.Logging.logger.Debug("Custom song with platform selected");
+                    CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, level);
                 }
-                */
+                else
+                {
+                    CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, level);
+                }
+
             }
 
         }
@@ -131,7 +125,7 @@ namespace SongCore
         {
 
         }
-       
+
         public void OnSceneUnloaded(Scene scene)
         {
 
@@ -213,51 +207,54 @@ namespace SongCore
             if (songData == null) return;
             if (string.IsNullOrWhiteSpace(songData._customEnvironmentName))
             {
-                _currentPlatform = -1;
                 return;
             }
             try
             {
-                int _customPlatform = customEnvironment(songData._customEnvironmentName);
-                if (_customPlatform != -1)
-                {
-                    _currentPlatform = CustomFloorPlugin.PlatformManager.CurrentPlatformIndex;
-                    if (customSongPlatforms && _customPlatform != _currentPlatform)
-                    {
-                        CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
-                    }
-                }
+           //     CustomSongWithPlatformPlayed?.Invoke(songData._customEnvironmentName, songData._customEnvironmentHash);
+                //  int _customPlatform = customEnvironment(songData._customEnvironmentName);
+                //  if (_customPlatform != -1)
+                //  {
+                //      _currentPlatform = CustomFloorPlugin.PlatformManager.CurrentPlatformIndex;
+                //      if (customSongPlatforms && _customPlatform != _currentPlatform)
+                //      {
+                //          CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
+                //      }
+                //  }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logging.logger.Error($"Failed to Change to Platform {songData._customEnvironmentName}\n {ex}");
             }
 
         }
+        */
+        /*
+internal static int customEnvironment(string platform)
+{
+    if (!PlatformsInstalled)
+        return -1;
+    return findCustomEnvironment(platform);
+}
 
-        internal static int customEnvironment(string platform)
-        {
-            if (!PlatformsInstalled)
-                return -1;
-            return findCustomEnvironment(platform);
-        }
-        private static int findCustomEnvironment(string name)
-        {
+private static int findCustomEnvironment(string name)
+{
 
-            List<CustomFloorPlugin.CustomPlatform> _customPlatformsList = CustomFloorPlugin.PlatformManager.AllPlatforms;
-            int platIndex = 0;
-            foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
-            {
-                if (plat?.platName == name)
-                    return platIndex;
-                platIndex++;
-            }
-            Console.WriteLine(name + " not found!");
+    List<CustomFloorPlugin.CustomPlatform> _customPlatformsList = CustomFloorPlugin.PlatformManager.AllPlatforms;
+    int platIndex = 0;
+    foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
+    {
+        if (plat?.platName == name)
+            return platIndex;
+        platIndex++;
+    }
+    Console.WriteLine(name + " not found!");
 
-    
-            return -1;
-        }
 
+    return -1;
+}
+*/
+        /*
         [Serializable]
         public class platformDownloadData
         {

@@ -682,6 +682,7 @@ namespace SongCore
                                 Collections.hashLevelDictionary.TryRemove(hash, out _);
                         }
                     }
+                    CustomLevelsById.TryRemove(level.levelID, out var deletedLevel);
                     Hashing.UpdateCachedHashes(new HashSet<string>((CustomLevels.Keys.Concat(CustomWIPLevels.Keys))));
                 }
 
@@ -869,7 +870,7 @@ namespace SongCore
                 string[] results;
                 try
                 {
-                    results = Directory.GetFiles(cachedFolder, "info.dat", SearchOption.TopDirectoryOnly);
+                    results = Directory.GetFiles(cachedFolder, "info.dat", SearchOption.AllDirectories);
                 }
                 catch (DirectoryNotFoundException ex)
                 {
