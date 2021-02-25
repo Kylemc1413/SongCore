@@ -1,16 +1,25 @@
 ﻿using HarmonyLib;
 using SongCore.Utilities;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 namespace SongCore.HarmonyPatches
 {
 
 
-    [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), "Init", new Type[] {typeof(string), typeof(IDifficultyBeatmap) , typeof(OverrideEnvironmentSettings) ,typeof(ColorScheme),
-            typeof(GameplayModifiers) , typeof(PlayerSpecificSettings) , typeof(PracticeSettings) , typeof(string) , typeof(bool)})]
-    [HarmonyPatch("Init", MethodType.Normal)]
+    [HarmonyPatch]
     class SceneTransitionPatch
     {
+        private static IEnumerable<MethodBase> TargetMethods()
+        {
+            yield return typeof(StandardLevelScenesTransitionSetupDataSO).GetMethod("Init", new Type[] {typeof(string), typeof(IDifficultyBeatmap) , typeof(OverrideEnvironmentSettings) ,typeof(ColorScheme),
+                typeof(GameplayModifiers) , typeof(PlayerSpecificSettings) , typeof(PracticeSettings) , typeof(string) , typeof(bool)});
+            
+            yield return typeof(MultiplayerLevelScenesTransitionSetupDataSO).GetMethod("Init", new Type[] {typeof(string), typeof(IPreviewBeatmapLevel) , typeof(BeatmapDifficulty) ,typeof(BeatmapCharacteristicSO),
+                typeof(IDifficultyBeatmap) , typeof(ColorScheme) , typeof(GameplayModifiers) , typeof(PlayerSpecificSettings) , typeof(PracticeSettings) , typeof(bool)});
+        }
+
         private static void Prefix(IDifficultyBeatmap difficultyBeatmap, ref ColorScheme overrideColorScheme)
         {
             EnvironmentInfoSO environmentInfoSO = difficultyBeatmap.GetEnvironmentInfo();
