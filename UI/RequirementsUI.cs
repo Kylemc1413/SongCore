@@ -163,7 +163,7 @@ namespace SongCore.UI
                 }
             }
             customListTableData.tableView.ReloadData();
-            customListTableData.tableView.ScrollToCellWithIdx(0, HMUI.TableViewScroller.ScrollPositionType.Beginning, false);
+            customListTableData.tableView.ScrollToCellWithIdx(0, HMUI.TableView.ScrollPositionType.Beginning, false);
 
         }
     }
