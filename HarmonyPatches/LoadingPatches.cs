@@ -51,9 +51,10 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch(MethodType.Constructor)]
     internal class InitializePreviousAddedBeatmapEventDataTime
     {
-        static void Postfix(ref float ____prevAddedBeatmapEventDataTime)
+        static void Postfix(ref float ____prevAddedBeatmapEventDataTime, ref float ____prevAddedBeatmapObjectDataTime)
         {
             ____prevAddedBeatmapEventDataTime = float.MinValue;
+            ____prevAddedBeatmapObjectDataTime = float.MinValue;
         }
     }
 
