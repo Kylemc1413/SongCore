@@ -39,6 +39,7 @@ namespace SongCore.HarmonyPatches
 
         static void Postfix(ref LevelFilteringNavigationController __instance, LevelSearchViewController ____levelSearchViewController, SelectLevelCategoryViewController ____selectLevelCategoryViewController, ref IBeatmapLevelPack[] ____ostBeatmapLevelPacks, ref IBeatmapLevelPack[] ____musicPacksBeatmapLevelPacks, ref IBeatmapLevelPack[] ____customLevelPacks, ref IBeatmapLevelPack[] ____allBeatmapLevelPacks)
         {
+            if (Loader.CustomBeatmapLevelPackCollectionSO == null) return;
             ____customLevelPacks = Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks;
             List<IBeatmapLevelPack> packs = new List<IBeatmapLevelPack>();
             if (____ostBeatmapLevelPacks != null)

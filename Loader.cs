@@ -567,9 +567,9 @@ namespace SongCore
                     //Handle LevelPacks
                     if (CustomBeatmapLevelPackCollectionSO == null || CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks.Length == 0)
                     {
-                        #region AddSeperateFolderBeatmapsToRespectivePacks
                         var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
                         CustomBeatmapLevelPackCollectionSO = SongCoreBeatmapLevelPackCollectionSO.CreateNew(); // (beatmapLevelPackCollectionSO);
+                        #region AddSeperateFolderBeatmapsToRespectivePacks
                         foreach (var folderEntry in SeperateSongFolders)
                         {
                             switch (folderEntry.SongFolderEntry.Pack)
