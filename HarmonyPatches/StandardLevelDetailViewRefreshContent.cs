@@ -61,7 +61,6 @@ namespace SongCore.HarmonyPatches
             ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
             ref BeatmapCharacteristicSegmentedControlController ____beatmapCharacteristicSegmentedControlController)
         {
-            return;
             bool firstSelection = false;
             var level = ____selectedDifficultyBeatmap.level is CustomBeatmapLevel ? ____selectedDifficultyBeatmap.level as CustomPreviewBeatmapLevel : null;
             if (level != lastLevel)

@@ -7,10 +7,58 @@ using System.Threading.Tasks;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 namespace SongCore.HarmonyPatches
 {
+    /*
+    [HarmonyPatch(typeof(NUnit.Framework.Assert), "IsTrue", new Type[] { typeof(bool), typeof(string), typeof(object[]) })]
+    internal class WhyIsAssertMeanPatch
+    {
+        static void Prefix(ref bool condition)
+        {
+            if (condition == true) return;
+            var stack = new StackTrace();
+            for (int i = 0; i < stack.FrameCount; i++)
+            {
+                if(stack.GetFrame(i).GetMethod().Name == "AddBeatmapEventData")
+                {
+                    Utilities.Logging.logger.Debug("Blocking Assert Failure");
+                    condition = true;
+                    return;
+                }
+            }
+
+        }
+    }
+    [HarmonyPatch(typeof(BeatmapDataLoader), "GetBeatmapDataFromBeatmapSaveData")]
+    internal class BeatmapDataLoadingEventDataSortingPatch
+    {
+        static void Prefix(ref List<BeatmapSaveData.EventData> eventsSaveData)
+        {
+            eventsSaveData.Sort(delegate (BeatmapSaveData.EventData x,
+                BeatmapSaveData.EventData y)
+            {
+                if (x.time >= y.time)
+                {
+                    return 1;
+                }
+                return -1;
+            });
+        }
+    }
+    */
+    [HarmonyPatch(typeof(BeatmapData), new Type[] { typeof(int)})]
+    [HarmonyPatch(MethodType.Constructor)]
+    internal class InitializePreviousAddedBeatmapEventDataTime
+    {
+        static void Postfix(ref float ____prevAddedBeatmapEventDataTime)
+        {
+            ____prevAddedBeatmapEventDataTime = float.MinValue;
+        }
+    }
+
     [HarmonyPatch(typeof(CustomBeatmapLevel))]
-    [HarmonyPatch(new Type[] { typeof(CustomPreviewBeatmapLevel), typeof(AudioClip)})]
+    [HarmonyPatch(new Type[] { typeof(CustomPreviewBeatmapLevel), typeof(AudioClip) })]
     [HarmonyPatch(MethodType.Constructor)]
     internal class CustomBeatmapLevelDurationPatch
     {
@@ -31,7 +79,7 @@ namespace SongCore.HarmonyPatches
 
         }
     }
-    
+
     [HarmonyPatch(typeof(LevelFilteringNavigationController))]
     [HarmonyPatch("UpdateCustomSongs", MethodType.Normal)]
     internal class StopVanillaLoadingPatch2

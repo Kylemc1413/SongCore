@@ -36,7 +36,7 @@ namespace SongCore
         [OnStart]
         public void OnApplicationStart()
         {
-         //   BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", SCSettings.instance);
+            BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", SCSettings.instance);
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
             SceneManager.sceneLoaded += OnSceneLoaded;
 
@@ -75,7 +75,7 @@ namespace SongCore
         private void BSEvents_menuSceneLoadedFresh(ScenesTransitionSetupDataSO data)
         {
             Loader.OnLoad();
-      //      RequirementsUI.instance.Setup();
+            RequirementsUI.instance.Setup();
         }
 
         private void BSEvents_gameSceneLoaded()
