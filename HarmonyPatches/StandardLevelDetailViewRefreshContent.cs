@@ -57,7 +57,7 @@ namespace SongCore.HarmonyPatches
         }
         static IPreviewBeatmapLevel lastLevel;
         static void Postfix(StandardLevelDetailView __instance, ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
-            ref PlayerData ____playerData, /*ref TextMeshProUGUI ____songNameText,*/  ref UnityEngine.UI.Button ____actionButton,
+            ref PlayerData ____playerData, ref LevelBar ____levelBar,  ref UnityEngine.UI.Button ____actionButton,
             ref UnityEngine.UI.Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
             ref BeatmapCharacteristicSegmentedControlController ____beatmapCharacteristicSegmentedControlController)
         {
@@ -71,7 +71,7 @@ namespace SongCore.HarmonyPatches
             ____actionButton.interactable = true;
             ____practiceButton.interactable = true;
 
-
+           // ____levelBar.GetField<TextMeshProUGUI>("_songNameText").overflowMode = TextOverflowModes;
             //____songNameText.text = "<size=78%>" + ____songNameText.text.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
             //    ____songNameText.overflowMode = TextOverflowModes.Overflow;
             //     ____songNameText.enableWordWrapping = false;
