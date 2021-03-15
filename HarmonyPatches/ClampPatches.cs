@@ -61,7 +61,7 @@ namespace SongCore.HarmonyPatches
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
-
+            
             for (int i = 0; i < instructionList.Count; i++)
             {
                 if (instructionList[i].opcode == OpCodes.Ldelem_Ref)
@@ -84,7 +84,43 @@ namespace SongCore.HarmonyPatches
 
             return instructionList.AsEnumerable();
         }
+        static void Postfix(List<NoteData> notes)
+        {
+            if (!notes.Any(x => x.lineIndex > 3 || x.lineIndex < 0))
+                return;
+            Dictionary<int, List<NoteData>> notesInColumn = new Dictionary<int, List<NoteData>>();
+            foreach(NoteData note in notes)
+            {
+                notesInColumn[note.lineIndex] = new List<NoteData>(3);
+            }
+            for (int j = 0; j < notes.Count; j++)
+            {
+                NoteData noteData = notes[j];
+                List<NoteData> list = notesInColumn[noteData.lineIndex];
+                bool flag = false;
+                for (int k = 0; k < list.Count; k++)
+                {
+                    if (list[k].noteLineLayer > noteData.noteLineLayer)
+                    {
+                        list.Insert(k, noteData);
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag)
+                {
+                    list.Add(noteData);
+                }
+            }
+            foreach(var list in notesInColumn.Values)
+            {
+                for (int m = 0; m < list.Count; m++)
+                {
+                    list[m].SetNoteStartLineLayer((NoteLineLayer)m);
+                }
+            }
 
+        }
         static int Clamp(int input, int min, int max)
         {
             return Math.Min(Math.Max(input, min), max);
