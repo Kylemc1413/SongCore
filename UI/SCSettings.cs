@@ -37,5 +37,15 @@ namespace SongCore.UI
                 BasicUI.ModPrefs.SetBool("SongCore", "displayDiffLabels", value);
             }
         }
+        [UIValue("longPreviews")]
+        public bool LongPreviews
+        {
+            get => BasicUI.ModPrefs.GetBool("SongCore", "forceLongPreviews", false, true);
+            set
+            {
+                Plugin.forceLongPreviews = value;
+                BasicUI.ModPrefs.SetBool("SongCore", "forceLongPreviews", value);
+            }
+        }
     }
 }

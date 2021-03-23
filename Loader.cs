@@ -1042,6 +1042,9 @@ namespace SongCore
                 //    Logging.logger.Debug($"{length}");
 
                 level.SetField<CustomPreviewBeatmapLevel, float>("_songDuration", length);
+             
+                if(Plugin.forceLongPreviews)
+                    level.SetField("_previewDuration", Mathf.Max(level.previewDuration, length - level.previewStartTime));
             }
             catch (Exception ex)
             {

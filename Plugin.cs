@@ -28,9 +28,10 @@ namespace SongCore
         public static string noArrowsCharacteristicName = "NoArrows";
         internal static Harmony harmony;
         //     internal static bool ColorsInstalled = false;
-        internal static bool customSongColors;
-        internal static bool customSongPlatforms;
-        internal static bool displayDiffLabels;
+        internal static bool customSongColors = SCSettings.instance.Colors;
+        internal static bool customSongPlatforms = SCSettings.instance.Platforms;
+        internal static bool displayDiffLabels = SCSettings.instance.DiffLabels;
+        internal static bool forceLongPreviews = SCSettings.instance.LongPreviews;
         //  internal static int _currentPlatform = -1;
 
         [OnStart]
