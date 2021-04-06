@@ -20,7 +20,8 @@ namespace SongCore.HarmonyPatches
             var stack = new StackTrace();
             for (int i = 0; i < stack.FrameCount; i++)
             {
-                if(stack.GetFrame(i).GetMethod().Name == "AddBeatmapEventData")
+                var callingMethodName = stack.GetFrame(i).GetMethod().Name;
+                if (callingMethodName == "AddBeatmapEventData" || callingMethodName == "AddBeatmapObjectData")
                 {
                     Utilities.Logging.logger.Debug("Blocking Assert Failure");
                     condition = true;

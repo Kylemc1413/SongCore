@@ -40,7 +40,7 @@ namespace SongCore.HarmonyPatches.AprilFools
     [HarmonyPatch("CreateTransformedBeatmapData")]
     class AprilFoolsLeftHandedMapsAreFinePatch
     {
-        static void Postfix(IReadonlyBeatmapData beatmapData, ref IReadonlyBeatmapData __result, bool leftHanded)
+        static void Prefix(IReadonlyBeatmapData beatmapData, ref IReadonlyBeatmapData __result, ref bool leftHanded)
         {
             System.DateTime time;
             bool bunbundai = false;
@@ -105,7 +105,8 @@ namespace SongCore.HarmonyPatches.AprilFools
             if((rightTime > leftTime && !alreadyMirrored) || (leftTime > rightTime && alreadyMirrored))
             {
                 Logging.logger.Debug($"Mirroring Map. \"Left Handed\" Mode Active? {alreadyMirrored}");
-                __result = BeatmapDataMirrorTransform.CreateTransformedData(__result);
+                leftHanded = true;
+               // __result = BeatmapDataMirrorTransform.CreateTransformedData(__result);
 
             }
         }
