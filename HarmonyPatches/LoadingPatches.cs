@@ -21,6 +21,7 @@ namespace SongCore.HarmonyPatches
             for (int i = 0; i < stack.FrameCount; i++)
             {
                 var callingMethodName = stack.GetFrame(i).GetMethod().Name;
+            //    Utilities.Logging.Log($"Calling Method {i}: {callingMethodName}");
                 if (callingMethodName.Contains("AddBeatmapEventData") || callingMethodName.Contains("AddBeatmapObjectData"))
                 {
                     Utilities.Logging.logger.Debug("Blocking Assert Failure");
@@ -28,6 +29,25 @@ namespace SongCore.HarmonyPatches
                     return;
                 }
             }
+
+        }
+    }
+
+    [HarmonyPatch(typeof(NUnit.Framework.Assert), "LessOrEqual", new Type[] { typeof(float), typeof(float), typeof(string), typeof(object[]) })]
+    internal class WhyIsAssertMeanPatch2
+    {
+        static bool Prefix()
+        {
+            return false;
+
+        }
+    }
+    [HarmonyPatch(typeof(NUnit.Framework.Assert), "GreaterOrEqual", new Type[] { typeof(float), typeof(float), typeof(string), typeof(object[]) })]
+    internal class WhyIsAssertMeanPatch3
+    {
+        static bool Prefix()
+        {
+            return false;
 
         }
     }
