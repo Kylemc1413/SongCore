@@ -180,6 +180,7 @@
     <Compile Include="HarmonyPatches\ClampPatches.cs" />
     <Compile Include="HarmonyPatches\BeatmapDifficultyMethodsName.cs" />
     <Compile Include="HarmonyPatches\AprilFools.cs" />
+    <Compile Include="HarmonyPatches\HarmonyPatch.cs" />
     <Compile Include="HarmonyPatches\MainSystemsInitRefreshablePatch.cs" />
     <Compile Include="HarmonyPatches\PlatformsPatch.cs" />
     <Compile Include="HarmonyPatches\CustomCharacteristicsPatch.cs" />

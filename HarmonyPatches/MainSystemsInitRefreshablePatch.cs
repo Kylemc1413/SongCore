@@ -5,6 +5,7 @@ using Zenject;
 
 namespace SongCore.HarmonyPatches
 {
+
     [HarmonyPatch(typeof(MainSystemInit), nameof(MainSystemInit.InstallBindings))]
     public class MainSystemsInitRefreshablePatch
     {

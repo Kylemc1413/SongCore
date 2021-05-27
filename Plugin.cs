@@ -134,6 +134,7 @@ namespace SongCore
 
         public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
         {
+          //  Debug.Log("Scene :" + prevScene.name + "To Scene Next: " + nextScene.name);
             customSongColors = UI.BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
             customSongPlatforms = UI.BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
             displayDiffLabels = UI.BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
