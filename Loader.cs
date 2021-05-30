@@ -175,7 +175,7 @@ namespace SongCore
             var filterNav = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault();
             //   filterNav.InitPlaylists();
             //   filterNav.UpdatePlaylistsData();
-            if (filterNav.isActiveAndEnabled)
+            if (filterNav != null && filterNav.isActiveAndEnabled)
                 filterNav?.UpdateCustomSongs();
             //      AttemptReselectCurrentLevelPack(filterNav);
             OnLevelPacksRefreshed?.Invoke();

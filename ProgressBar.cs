@@ -17,6 +17,7 @@ namespace SongCore
         internal Image _loadingBackg;
         internal Image _loadingBar;
 
+        private static bool _jokeTime = false;
         private static readonly Vector3 Position = new Vector3(0, 2.5f, 2.5f);
         private static readonly Vector3 Rotation = new Vector3(0, 0, 0);
         private static readonly Vector3 Scale = new Vector3(0.01f, 0.01f, 0.01f);
@@ -69,6 +70,7 @@ namespace SongCore
 
         private void OnEnable()
         {
+          
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
             Loader.LoadingStartedEvent += SongLoaderOnLoadingStartedEvent;
             Loader.SongsLoadedEvent += SongLoaderOnSongsLoadedEvent;
@@ -100,7 +102,7 @@ namespace SongCore
         {
             StopAllCoroutines();
             _showingMessage = false;
-            _headerText.text = HeaderText;
+            _headerText.text = _jokeTime? "Deleting Songs..." : HeaderText;
             _loadingBar.enabled = true;
             _loadingBackg.enabled = true;
             _canvas.enabled = true;
@@ -109,7 +111,7 @@ namespace SongCore
         private void SongLoaderOnSongsLoadedEvent(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> customLevels)
         {
             _showingMessage = false;
-            _headerText.text = customLevels.Count + " songs loaded.";
+            _headerText.text = _jokeTime ? customLevels.Count + "songs deleted" : customLevels.Count + " songs loaded.";
             _loadingBar.enabled = false;
             _loadingBackg.enabled = false;
             StartCoroutine(DisableCanvasRoutine(5f));
@@ -124,6 +126,14 @@ namespace SongCore
 
         private void Awake()
         {
+            System.DateTime time;
+            if (IPA.Utilities.Utils.CanUseDateTimeNowSafely)
+                time = System.DateTime.Now;
+            else
+                time = System.DateTime.UtcNow;
+
+            _jokeTime = (time.Day == 18 && time.Month == 6) || (time.Day == 1 && time.Month == 4);
+
             gameObject.transform.position = Position;
             gameObject.transform.eulerAngles = Rotation;
             gameObject.transform.localScale = Scale;
@@ -142,12 +152,13 @@ namespace SongCore
             _authorNameText.text = AuthorNameText;
             _authorNameText.fontSize = AuthorNameFontSize;
 
-            _pluginNameText = BeatSaberMarkupLanguage.BeatSaberUI.CreateText(_canvas.transform as RectTransform, PluginNameText, PluginNamePosition);
+            var pluginText = _jokeTime ? "SongCore Cleaner" : PluginNameText;
+            _pluginNameText = BeatSaberMarkupLanguage.BeatSaberUI.CreateText(_canvas.transform as RectTransform, pluginText, PluginNamePosition);
             rectTransform = _pluginNameText.transform as RectTransform;
             rectTransform.SetParent(_canvas.transform, false);
             rectTransform.sizeDelta = HeaderSize;
             rectTransform.anchoredPosition = PluginNamePosition;
-            _pluginNameText.text = PluginNameText;
+            _pluginNameText.text = pluginText;
             _pluginNameText.fontSize = PluginNameFontSize;
 
             _headerText = BeatSaberMarkupLanguage.BeatSaberUI.CreateText(_canvas.transform as RectTransform, HeaderText, HeaderPosition);
@@ -183,8 +194,8 @@ namespace SongCore
             if (!_canvas.enabled) return;
             _loadingBar.fillAmount = Loader.LoadingProgress;
 
-            _loadingBar.color = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
-            _headerText.color = HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
+            _loadingBar.color = _jokeTime? Color.red : HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
+            _headerText.color = _jokeTime? Color.red : HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
         }
     }
 }
