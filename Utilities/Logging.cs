@@ -1,4 +1,5 @@
 ﻿using IPALogger = IPA.Logging.Logger;
+
 namespace SongCore.Utilities
 {
     internal static class Logging

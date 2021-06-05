@@ -2,6 +2,7 @@
 using SongCore.Utilities;
 using System;
 using UnityEngine;
+
 namespace SongCore.HarmonyPatches
 {
 

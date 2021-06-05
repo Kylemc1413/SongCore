@@ -1,9 +1,6 @@
 ﻿using HarmonyLib;
 using SongCore.Utilities;
-using System.Diagnostics;
 using TMPro;
-using IPA;
-using System.Threading;
 
 namespace SongCore.HarmonyPatches
 {

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+
 namespace SongCore.UI
 {
     internal static class BasicUI

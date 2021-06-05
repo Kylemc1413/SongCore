@@ -1,9 +1,8 @@
-﻿using HarmonyLib;
+﻿/*using HarmonyLib;
 using SongCore.Utilities;
 
-namespace SongCore.HarmonyPatches {
-
-    /*
+namespace SongCore.HarmonyPatches
+{
     [HarmonyPatch(typeof(LevelCollectionNavigationController))]
     [HarmonyPatch("HandleLevelDetailViewControllerDidPressActionButton")]
     class LevelSelectionFlowCoordinatorStartLevelPatch  {
@@ -19,6 +18,4 @@ namespace SongCore.HarmonyPatches {
             }
         }
     }
-    */
-    
-}
+}*/

@@ -1,18 +1,15 @@
 ﻿using BeatSaberMarkupLanguage.Settings;
 using HarmonyLib;
 using IPA;
-using Newtonsoft.Json;
 using SongCore.UI;
 using SongCore.Utilities;
 using IPA.Utilities;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
 using Object = UnityEngine.Object;

@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
+
 namespace SongCore.OverrideClasses
 {
     public class SongCoreCustomBeatmapLevelPack : CustomBeatmapLevelPack

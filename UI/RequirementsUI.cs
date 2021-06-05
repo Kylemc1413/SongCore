@@ -1,7 +1,6 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
-using BS_Utils.Utilities;
 using SongCore.Utilities;
 using System.Linq;
 using System.Reflection;
