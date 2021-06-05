@@ -10,35 +10,26 @@ namespace SongCore.Utilities
 {
     public static class Utils
     {
-        public static bool IsModInstalled(string ModName)
+        public static bool IsModInstalled(string modName)
         {
-            //       Logging.Log($"Checking for Mod: {ModName}");
-            foreach (var mod in IPA.Loader.PluginManager.Plugins)
-            {
-                //        Logging.Log($"Comparing to: {mod.Name}");
-                if (mod.Name == ModName)
-                    return true;
-            }
-            foreach (var mod in IPA.Loader.PluginManager.AllPlugins)
-            {
-                //         Logging.Log($"Comparing to: {mod.Metadata.Id}");
-                if (mod.Id == ModName)
-                    return true;
-            }
-            return false;
+	        return IPA.Loader.PluginManager.Plugins.Any(mod => mod.Name == modName) || IPA.Loader.PluginManager.EnabledPlugins.Any(mod => mod.Id == modName);
         }
 
         public static Color ColorFromMapColor(Data.ExtraSongData.MapColor mapColor)
         {
             return new Color(mapColor.r, mapColor.g, mapColor.b);
         }
+
         public static TEnum ToEnum<TEnum>(this string strEnumValue, TEnum defaultValue)
         {
             if (!Enum.IsDefined(typeof(TEnum), strEnumValue))
-                return defaultValue;
+            {
+	            return defaultValue;
+            }
 
             return (TEnum)Enum.Parse(typeof(TEnum), strEnumValue);
         }
+
         public static bool IsDirectoryEmpty(string path)
         {
             return !Directory.EnumerateFileSystemEntries(path).Any();
@@ -46,102 +37,89 @@ namespace SongCore.Utilities
 
         public static void GrantAccess(string file)
         {
-            bool exists = Directory.Exists(file);
+            var exists = Directory.Exists(file);
+            DirectoryInfo? di = null;
             if (!exists)
             {
-                DirectoryInfo di = Directory.CreateDirectory(file);
-                //        Console.WriteLine("The Folder is created Sucessfully");
+                di = Directory.CreateDirectory(file);
             }
-            else
-            {
-                //        Console.WriteLine("The Folder already exists");
-            }
+
             try
             {
-                DirectoryInfo dInfo = new DirectoryInfo(file);
-                DirectorySecurity dSecurity = dInfo.GetAccessControl();
+				di ??= new DirectoryInfo(file);
+                DirectorySecurity dSecurity = di.GetAccessControl();
                 dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
-                dInfo.SetAccessControl(dSecurity);
+                di.SetAccessControl(dSecurity);
             }
             catch
             {
                 Logging.logger.Error("Exception trying to Grant access to " + file);
             }
-
-
         }
+
         public static string TrimEnd(this string text, string value)
         {
-            if (!text.EndsWith(value))
-                return text;
-
-            return text.Remove(text.LastIndexOf(value));
+	        return !text.EndsWith(value) ? text : text.Remove(text.LastIndexOf(value));
         }
 
-        public static Sprite LoadSpriteRaw(byte[] image, float PixelsPerUnit = 100.0f)
+        public static Sprite? LoadSpriteRaw(byte[] image, float pixelsPerUnit = 100.0f)
         {
-            return LoadSpriteFromTexture(LoadTextureRaw(image), PixelsPerUnit);
+            return LoadSpriteFromTexture(LoadTextureRaw(image), pixelsPerUnit);
         }
 
-        public static Sprite LoadSpriteFromTexture(Texture2D SpriteTexture, float PixelsPerUnit = 100.0f)
+        public static Sprite? LoadSpriteFromFile(string filePath, float pixelsPerUnit = 100.0f)
         {
-            if (SpriteTexture)
-                return Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), PixelsPerUnit);
-            return null;
+	        return LoadSpriteFromTexture(LoadTextureFromFile(filePath), pixelsPerUnit);
         }
 
-        public static Sprite LoadSpriteFromFile(string FilePath, float PixelsPerUnit = 100.0f)
+        public static Sprite? LoadSpriteFromTexture(Texture2D? spriteTexture, float pixelsPerUnit = 100.0f)
         {
-            return LoadSpriteFromTexture(LoadTextureFromFile(FilePath), PixelsPerUnit);
+	        return spriteTexture != null ? Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(0, 0), pixelsPerUnit) : null;
         }
 
-        public static Sprite LoadSpriteFromResources(string resourcePath, float PixelsPerUnit = 100.0f)
+        public static Sprite? LoadSpriteFromResources(string resourcePath, float pixelsPerUnit = 100.0f)
         {
-            return LoadSpriteRaw(GetResource(Assembly.GetCallingAssembly(), resourcePath), PixelsPerUnit);
+            return LoadSpriteRaw(GetResource(Assembly.GetCallingAssembly(), resourcePath), pixelsPerUnit);
         }
 
-        public static byte[] GetResource(Assembly asm, string ResourceName)
+        public static byte[] GetResource(Assembly asm, string resourceName)
         {
-            Stream stream = asm.GetManifestResourceStream(ResourceName);
+	        Stream stream = asm.GetManifestResourceStream(resourceName)!;
             byte[] data = new byte[stream.Length];
             stream.Read(data, 0, (int)stream.Length);
             return data;
         }
 
-        public static void PrintHierarchy(Transform transform, string spacing = "|-> ")
+        public static Texture2D? LoadTextureFromFile(string filePath)
         {
-            spacing = spacing.Insert(1, "  ");
-            var tempList = transform.Cast<Transform>().ToList();
-            foreach (var child in tempList)
-            {
-                Console.WriteLine($"{spacing}{child.name}");
-                PrintHierarchy(child, "|" + spacing);
-            }
+	        return File.Exists(filePath) ? LoadTextureRaw(File.ReadAllBytes(filePath)) : null;
         }
 
-        public static Texture2D LoadTextureRaw(byte[] file)
-        {
-            if (file.Count() > 0)
-            {
-                Texture2D Tex2D = new Texture2D(2, 2);
-                if (Tex2D.LoadImage(file))
-                    return Tex2D;
-            }
-            return null;
-        }
-
-        public static Texture2D LoadTextureFromFile(string FilePath)
-        {
-            if (File.Exists(FilePath))
-                return LoadTextureRaw(File.ReadAllBytes(FilePath));
-
-            return null;
-        }
-
-        public static Texture2D LoadTextureFromResources(string resourcePath)
+        public static Texture2D? LoadTextureFromResources(string resourcePath)
         {
             return LoadTextureRaw(GetResource(Assembly.GetCallingAssembly(), resourcePath));
         }
 
+        public static Texture2D? LoadTextureRaw(byte[] file)
+        {
+	        if (file.Length <= 0)
+	        {
+		        return null;
+	        }
+
+	        Texture2D tex2D = new Texture2D(2, 2);
+	        return tex2D.LoadImage(file) ? tex2D : null;
+        }
+
+        public static void PrintHierarchy(Transform transform, string spacing = "|-> ")
+        {
+	        spacing = spacing.Insert(1, "  ");
+	        var tempList = transform.Cast<Transform>().ToList();
+	        foreach (var child in tempList)
+	        {
+		        Console.WriteLine($"{spacing}{child.name}");
+		        PrintHierarchy(child, "|" + spacing);
+	        }
+        }
     }
 }
