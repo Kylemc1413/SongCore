@@ -289,8 +289,8 @@ namespace SongCore
                 CustomLevels.Clear();
                 CustomWIPLevels.Clear();
                 CachedWIPLevels.Clear();
-                Collections.levelHashDictionary.Clear();
-                Collections.hashLevelDictionary.Clear();
+                Collections.LevelHashDictionary.Clear();
+                Collections.HashLevelDictionary.Clear();
                 foreach (var folder in SeperateSongFolders)
                 {
                     folder.Levels.Clear();
@@ -791,16 +791,16 @@ namespace SongCore
 
                 if (level != null)
                 {
-                    if (Collections.levelHashDictionary.ContainsKey(level.levelID))
+                    if (Collections.LevelHashDictionary.ContainsKey(level.levelID))
                     {
                         string hash = Collections.hashForLevelID(level.levelID);
-                        Collections.levelHashDictionary.TryRemove(level.levelID, out _);
-                        if (Collections.hashLevelDictionary.ContainsKey(hash))
+                        Collections.LevelHashDictionary.TryRemove(level.levelID, out _);
+                        if (Collections.HashLevelDictionary.ContainsKey(hash))
                         {
-                            Collections.hashLevelDictionary[hash].Remove(level.levelID);
-                            if (Collections.hashLevelDictionary[hash].Count == 0)
+                            Collections.HashLevelDictionary[hash].Remove(level.levelID);
+                            if (Collections.HashLevelDictionary[hash].Count == 0)
                             {
-                                Collections.hashLevelDictionary.TryRemove(hash, out _);
+                                Collections.HashLevelDictionary.TryRemove(hash, out _);
                             }
                         }
                     }
@@ -899,7 +899,7 @@ namespace SongCore
                 string folderName = new DirectoryInfo(songPath).Name;
                 string levelID = CustomLevelLoader.kCustomLevelPrefixId + hash;
                 // Fixed WIP status for duplicate song hashes
-                if (Collections.levelHashDictionary.ContainsKey(levelID + (wip ? " WIP" : "")))
+                if (Collections.LevelHashDictionary.ContainsKey(levelID + (wip ? " WIP" : "")))
                 {
                     levelID += "_" + folderName;
                 }
@@ -1126,12 +1126,12 @@ namespace SongCore
             var level = LoadSong(saveData, songPath, out string hash, entry);
             if (level != null)
             {
-                if (!Collections.levelHashDictionary.ContainsKey(level.levelID))
+                if (!Collections.LevelHashDictionary.ContainsKey(level.levelID))
                 {
                     // Add level to LevelHash-Dictionary
-                    Collections.levelHashDictionary.TryAdd(level.levelID, hash);
+                    Collections.LevelHashDictionary.TryAdd(level.levelID, hash);
                     // Add hash to HashLevel-Dictionary
-                    if (Collections.hashLevelDictionary.TryGetValue(hash, out var levels))
+                    if (Collections.HashLevelDictionary.TryGetValue(hash, out var levels))
                     {
                         levels.Add(level.levelID);
                     }
@@ -1139,7 +1139,7 @@ namespace SongCore
                     {
                         levels = new List<string>();
                         levels.Add(level.levelID);
-                        Collections.hashLevelDictionary.TryAdd(hash, levels);
+                        Collections.HashLevelDictionary.TryAdd(hash, levels);
                     }
                 }
             }

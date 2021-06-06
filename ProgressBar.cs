@@ -1,4 +1,5 @@
-﻿using SongCore.Utilities;
+﻿using System;
+using SongCore.Utilities;
 using System.Collections;
 using System.Collections.Concurrent;
 using TMPro;
@@ -10,12 +11,12 @@ namespace SongCore
 {
     public class ProgressBar : MonoBehaviour
     {
-        private Canvas _canvas;
-        private TMP_Text _authorNameText;
-        private TMP_Text _pluginNameText;
-        private TMP_Text _headerText;
-        internal Image _loadingBackg;
-        internal Image _loadingBar;
+        private Canvas? _canvas;
+        private TMP_Text? _authorNameText;
+        private TMP_Text? _pluginNameText;
+        private TMP_Text? _headerText;
+        private Image? _loadingBackg;
+        internal Image? _loadingBar;
 
         private static bool _jokeTime = false;
         private static readonly Vector3 Position = new Vector3(0, 2.5f, 2.5f);
@@ -110,7 +111,7 @@ namespace SongCore
         private void SongLoaderOnSongsLoadedEvent(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> customLevels)
         {
             _showingMessage = false;
-            _headerText.text = _jokeTime ? customLevels.Count + "songs deleted" : customLevels.Count + " songs loaded.";
+            _headerText.text = $"{customLevels.Count} {(_jokeTime ? "songs deleted" : "songs loaded.")}";
             _loadingBar.enabled = false;
             _loadingBackg.enabled = false;
             StartCoroutine(DisableCanvasRoutine(5f));
@@ -125,15 +126,7 @@ namespace SongCore
 
         private void Awake()
         {
-            System.DateTime time;
-            if (IPA.Utilities.Utils.CanUseDateTimeNowSafely)
-            {
-                time = System.DateTime.Now;
-            }
-            else
-            {
-                time = System.DateTime.UtcNow;
-            }
+            var time = IPA.Utilities.Utils.CanUseDateTimeNowSafely ? DateTime.Now : DateTime.UtcNow;
 
             _jokeTime = (time.Day == 18 && time.Month == 6) || (time.Day == 1 && time.Month == 4);
 

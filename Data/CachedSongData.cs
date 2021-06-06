@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace SongCore.Data
 {
@@ -8,7 +9,7 @@ namespace SongCore.Data
         public long directoryHash;
         public string songHash;
 
-        [Newtonsoft.Json.JsonConstructor]
+        [JsonConstructor]
         public SongHashData(long directoryHash, string songHash)
         {
             this.directoryHash = directoryHash;
@@ -22,7 +23,7 @@ namespace SongCore.Data
         public string id;
         public float duration;
 
-        [Newtonsoft.Json.JsonConstructor]
+        [JsonConstructor]
         public AudioCacheData(string audioFileHash, float duration)
         {
             id = audioFileHash;

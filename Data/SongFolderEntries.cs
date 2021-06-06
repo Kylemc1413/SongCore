@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using System.Collections.Concurrent;
+using SongCore.Utilities;
 
 namespace SongCore.Data
 {
@@ -51,7 +52,7 @@ namespace SongCore.Data
                 {
                     try
                     {
-                        var packImage = Utilities.Utils.LoadSpriteFromFile(folderEntry.ImagePath);
+                        var packImage = Utils.LoadSpriteFromFile(folderEntry.ImagePath);
                         if (packImage != null)
                         {
                             image = packImage;
@@ -59,7 +60,7 @@ namespace SongCore.Data
                     }
                     catch
                     {
-                        Utilities.Logging.Log($"Failed to Load Image For Seperate Folder \"{folderEntry.Name}\"");
+                        Logging.Log($"Failed to Load Image For Seperate Folder \"{folderEntry.Name}\"");
                     }
                 }
 
@@ -80,7 +81,7 @@ namespace SongCore.Data
 
         public static List<SeperateSongFolder> ReadSeperateFoldersFromFile(string filePath)
         {
-            List<SeperateSongFolder> result = new List<SeperateSongFolder>();
+            var result = new List<SeperateSongFolder>();
             try
             {
                 XDocument file = XDocument.Load(filePath);
@@ -123,7 +124,7 @@ namespace SongCore.Data
                     //   Console.WriteLine("   " + entry.Pack);
                     //    Console.WriteLine("   " + entry.WIP);
 
-                    SeperateSongFolder cachedSeperate = null;
+                    SeperateSongFolder? cachedSeperate = null;
                     if (zipCaching)
                     {
                         FolderLevelPack cachePack;
@@ -136,11 +137,11 @@ namespace SongCore.Data
                             cachePack = FolderLevelPack.NewPack;
                         }
 
-                        SongFolderEntry cachedSongFolderEntry = new SongFolderEntry(String.Concat("Cached ", name), Path.Combine(path, "Cache"), cachePack, imagePath, isWIP, false);
+                        SongFolderEntry cachedSongFolderEntry = new SongFolderEntry($"Cached {name}", Path.Combine(path, "Cache"), cachePack, imagePath, isWIP, false);
                         cachedSeperate = new SeperateSongFolder(cachedSongFolderEntry);
                     }
 
-                    SeperateSongFolder seperate = new SeperateSongFolder(entry, cachedSeperate);
+                    var seperate = new SeperateSongFolder(entry, cachedSeperate);
                     result.Add(seperate);
                     if (cachedSeperate != null)
                     {

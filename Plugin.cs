@@ -19,14 +19,7 @@ namespace SongCore
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        public static Action<bool, string, string, IPreviewBeatmapLevel> CustomSongPlatformSelectionDidChange;
-
-        //   public static Action<string, string> CustomSongWithPlatformPlayed;
-        public static string standardCharacteristicName = "Standard";
-        public static string oneSaberCharacteristicName = "OneSaber";
-        public static string noArrowsCharacteristicName = "NoArrows";
-
-        internal static Harmony harmony;
+        private static Harmony? _harmony;
 
         //     internal static bool ColorsInstalled = false;
         internal static bool customSongColors = SCSettings.instance.Colors;
@@ -34,14 +27,25 @@ namespace SongCore
         internal static bool displayDiffLabels = SCSettings.instance.DiffLabels;
 
         internal static bool forceLongPreviews = SCSettings.instance.LongPreviews;
-        //  internal static int _currentPlatform = -1;
+
+        public static Action<bool, string, string, IPreviewBeatmapLevel> CustomSongPlatformSelectionDidChange;
+
+        //   public static Action<string, string> CustomSongWithPlatformPlayed;
+        public static string standardCharacteristicName = "Standard";
+        public static string oneSaberCharacteristicName = "OneSaber";
+        public static string noArrowsCharacteristicName = "NoArrows";
+
+        [Init]
+        public void Init(IPALogger pluginLogger)
+        {
+            Logging.logger = pluginLogger;
+        }
 
         [OnStart]
         public void OnApplicationStart()
         {
             BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", SCSettings.instance);
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
-            SceneManager.sceneLoaded += OnSceneLoaded;
 
             //Delete Old Config
             try
@@ -58,16 +62,17 @@ namespace SongCore
             }
 
             //      ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
-            harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            _harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
+            _harmony.PatchAll(Assembly.GetExecutingAssembly());
             //     Collections.LoadExtraSongData();
             BasicUI.GetIcons();
             BS_Utils.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
             BS_Utils.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
             BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
-            if (!File.Exists(Collections.dataPath))
+
+            if (!File.Exists(Collections.DataPath))
             {
-                File.Create(Collections.dataPath);
+                File.Create(Collections.DataPath);
             }
             else
             {
@@ -110,7 +115,7 @@ namespace SongCore
             {
                 var customLevel = level as CustomPreviewBeatmapLevel;
                 //       Logging.Log((level as CustomPreviewBeatmapLevel).customLevelPath);
-                Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
+                var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
                 Collections.SaveExtraSongData();
 
                 if (songData == null)
@@ -122,7 +127,7 @@ namespace SongCore
 
                 if (customSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
-                    Utilities.Logging.logger.Debug("Custom song with platform selected");
+                    Logging.logger.Debug("Custom song with platform selected");
                     CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, level);
                 }
                 else
@@ -130,20 +135,6 @@ namespace SongCore
                     CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, level);
                 }
             }
-        }
-
-        [Init]
-        public void Init(object thisIsNull, IPALogger pluginLogger)
-        {
-            Logging.logger = pluginLogger;
-        }
-
-        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
-        {
-        }
-
-        public void OnSceneUnloaded(Scene scene)
-        {
         }
 
         public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
@@ -183,26 +174,6 @@ namespace SongCore
             spawnMovementData.SetField("_noteJumpStartBeatOffset", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpStartBeatOffset);
 
             spawnMovementData.Update(bpm, _spawnController.GetField<float, BeatmapObjectSpawnController>("_jumpOffsetY"));
-        }
-
-        public void OnApplicationQuit()
-        {
-        }
-
-        public void OnLevelWasLoaded(int level)
-        {
-        }
-
-        public void OnLevelWasInitialized(int level)
-        {
-        }
-
-        public void OnUpdate()
-        {
-        }
-
-        public void OnFixedUpdate()
-        {
         }
 
         /*

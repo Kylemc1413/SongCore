@@ -60,7 +60,7 @@ namespace SongCore.Utilities
 
         public static string TrimEnd(this string text, string value)
         {
-            return !text.EndsWith(value) ? text : text.Remove(text.LastIndexOf(value));
+            return !text.EndsWith(value) ? text : text.Remove(text.LastIndexOf(value, StringComparison.Ordinal));
         }
 
         public static Sprite? LoadSpriteRaw(byte[] image, float pixelsPerUnit = 100.0f)
@@ -85,7 +85,7 @@ namespace SongCore.Utilities
 
         public static byte[] GetResource(Assembly asm, string resourceName)
         {
-            Stream stream = asm.GetManifestResourceStream(resourceName)!;
+            using var stream = asm.GetManifestResourceStream(resourceName)!;
             byte[] data = new byte[stream.Length];
             stream.Read(data, 0, (int) stream.Length);
             return data;

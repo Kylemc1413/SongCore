@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using LogSeverity = IPA.Logging.Logger.Level;
 
 namespace SongCore
 {
@@ -15,15 +14,16 @@ namespace SongCore
         internal static int ActiveProcesses = 0;
         internal static int ConvertedCount = 0;
         internal static bool doneConverting = false;
-        public static Stack<string> ToConvert = new Stack<string>();
-        public static string oldFolderPath = Path.Combine(Environment.CurrentDirectory, "CustomSongs");
+
+        public static readonly Stack<string> ToConvert = new Stack<string>();
+        public static readonly string oldFolderPath = Path.Combine(Environment.CurrentDirectory, "CustomSongs");
 
         public static void PrepareExistingLibrary()
         {
             Logging.Log("Attempting to Convert Existing Library");
             if (!Directory.Exists(oldFolderPath))
             {
-                Logging.Log("No Existing Library to Convert", LogSeverity.Notice);
+                Logging.logger.Notice("No Existing Library to Convert");
                 return;
             }
 
@@ -45,7 +45,7 @@ namespace SongCore
                             continue;
                         }
 
-                        if (Directory.GetFiles(songPath, "info.dat").Count() > 0)
+                        if (Directory.EnumerateFiles(songPath, "info.dat").Any())
                         {
                             continue;
                         }
@@ -59,16 +59,16 @@ namespace SongCore
                             {
                                 //       Logging.Log("SubFolder Song Found: " + songPath, LogSeverity.Notice);
                                 //       Logging.Log("Moving Subfolder to CustomSongs", LogSeverity.Notice);
-                                newPath = Path.Combine(oldFolderPath, parent.Name + " " + new DirectoryInfo(songPath).Name);
+                                newPath = Path.Combine(oldFolderPath, $"{parent.Name} {new DirectoryInfo(songPath).Name}");
                                 if (Directory.Exists(newPath))
                                 {
                                     var pathNum = 1;
-                                    while (Directory.Exists(newPath + $" ({pathNum})"))
+                                    while (Directory.Exists($"{newPath} ({pathNum})"))
                                     {
                                         ++pathNum;
                                     }
 
-                                    newPath = newPath + $" ({pathNum})";
+                                    newPath = $"{newPath} ({pathNum})";
                                 }
 
                                 Directory.Move(songPath, newPath);
@@ -80,7 +80,7 @@ namespace SongCore
                             }
                             catch (Exception ex)
                             {
-                                Logging.Log($"Error attempting to correct Subfolder {songPath}: \n {ex}", LogSeverity.Error);
+                                Logging.logger.Error($"Error attempting to correct Subfolder {songPath}: \n {ex}");
                             }
                         }
 
@@ -89,13 +89,13 @@ namespace SongCore
                 }
             }
 
-            if (File.Exists(oldFolderPath + "/../songe-converter.exe"))
+            if (File.Exists(Path.Combine(oldFolderPath, "..", "songe-converter.exe")))
             {
                 Loader.Instance.StartCoroutine(ConvertSongs());
             }
             else
             {
-                Logging.Log("Missing Songe converter, not converting", LogSeverity.Notice);
+                Logging.logger.Notice("Missing Songe converter, not converting");
                 Loader.Instance.RefreshSongs();
             }
         }
@@ -106,15 +106,17 @@ namespace SongCore
             var totalSongs = ToConvert.Count;
             Loader.Instance._progressBar.ShowMessage($"Converting {totalSongs} Existing Songs. Please Wait...");
             System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = "/C " + "songe-converter.exe" + " -k -a " + '"' + oldFolderPath + '"';
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal,
+                FileName = "cmd.exe",
+                Arguments = $"/C songe-converter.exe -k -a \"{oldFolderPath}\"",
+            };
             process.StartInfo = startInfo;
             process.EnableRaisingEvents = true;
             process.Exited += Process_Exited;
             process.Start();
-            yield return new WaitUntil((delegate { return doneConverting; }));
+            yield return new WaitUntil((() => doneConverting));
             /*
             while (ToConvert.Count > 0)
             {
