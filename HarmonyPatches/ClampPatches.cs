@@ -7,15 +7,18 @@ using System.Reflection.Emit;
 
 namespace SongCore.HarmonyPatches
 {
-    
     [HarmonyPatch(typeof(BeatmapData))]
     [HarmonyPatch("AddBeatmapObjectData", MethodType.Normal)]
-    
-    class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
+    internal class BeatmapDataLoaderGetBeatmapDataFromBeatmapSaveData
     {
-        static readonly MethodInfo clampMethod = SymbolExtensions.GetMethodInfo(() => Clamp(0, 0, 0));
-        static readonly CodeInstruction[] clampInstructions = new CodeInstruction[] { new CodeInstruction(OpCodes.Ldc_I4_0),
-            new CodeInstruction(OpCodes.Ldc_I4_3), new CodeInstruction(OpCodes.Call, clampMethod) };
+        private static readonly MethodInfo clampMethod = SymbolExtensions.GetMethodInfo(() => Clamp(0, 0, 0));
+
+        private static readonly CodeInstruction[] clampInstructions = new CodeInstruction[]
+        {
+            new CodeInstruction(OpCodes.Ldc_I4_0),
+            new CodeInstruction(OpCodes.Ldc_I4_3),
+            new CodeInstruction(OpCodes.Call, clampMethod)
+        };
 
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -29,15 +32,14 @@ namespace SongCore.HarmonyPatches
                     {
                         continue;
                     }
-                //    Type varType = ((LocalVariableInfo)(instructionList[i - 2].operand)).LocalType;
-                //    if (varType == typeof(BeatmapObjectData))
-                //    {
-                        
-                        Utilities.Logging.logger.Debug($"{i}Inserting Clamp Instruction for SaveData Reading");
-                        instructionList.InsertRange(i, clampInstructions);
-                        i += clampInstructions.Count();
-                //    }
+                    //    Type varType = ((LocalVariableInfo)(instructionList[i - 2].operand)).LocalType;
+                    //    if (varType == typeof(BeatmapObjectData))
+                    //    {
 
+                    Utilities.Logging.logger.Debug($"{i}Inserting Clamp Instruction for SaveData Reading");
+                    instructionList.InsertRange(i, clampInstructions);
+                    i += clampInstructions.Count();
+                    //    }
                 }
             }
 
@@ -52,17 +54,21 @@ namespace SongCore.HarmonyPatches
 
     [HarmonyPatch(typeof(NotesInTimeRowProcessor))]
     [HarmonyPatch("ProcessAllNotesInTimeRow", MethodType.Normal)]
-
-    class NoteProcessorClampPatch
+    internal class NoteProcessorClampPatch
     {
-        static readonly MethodInfo clampMethod = SymbolExtensions.GetMethodInfo(() => Clamp(0, 0, 0));
-        static readonly CodeInstruction[] clampInstructions = new CodeInstruction[] { new CodeInstruction(OpCodes.Ldc_I4_0),
-            new CodeInstruction(OpCodes.Ldc_I4_3), new CodeInstruction(OpCodes.Call, clampMethod) };
+        private static readonly MethodInfo clampMethod = SymbolExtensions.GetMethodInfo(() => Clamp(0, 0, 0));
 
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static readonly CodeInstruction[] clampInstructions = new CodeInstruction[]
+        {
+            new CodeInstruction(OpCodes.Ldc_I4_0),
+            new CodeInstruction(OpCodes.Ldc_I4_3),
+            new CodeInstruction(OpCodes.Call, clampMethod)
+        };
+
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
-            
+
             for (var i = 0; i < instructionList.Count; i++)
             {
                 if (instructionList[i].opcode == OpCodes.Ldelem_Ref)
@@ -79,13 +85,13 @@ namespace SongCore.HarmonyPatches
                     instructionList.InsertRange(i, clampInstructions);
                     i += clampInstructions.Count();
                     //    }
-
                 }
             }
 
             return instructionList.AsEnumerable();
         }
-        static void Postfix(List<NoteData> notes)
+
+        private static void Postfix(List<NoteData> notes)
         {
             if (!notes.Any(x => x.lineIndex > 3 || x.lineIndex < 0))
             {
@@ -93,10 +99,11 @@ namespace SongCore.HarmonyPatches
             }
 
             Dictionary<int, List<NoteData>> notesInColumn = new Dictionary<int, List<NoteData>>();
-            foreach(NoteData note in notes)
+            foreach (NoteData note in notes)
             {
                 notesInColumn[note.lineIndex] = new List<NoteData>(3);
             }
+
             for (var j = 0; j < notes.Count; j++)
             {
                 NoteData noteData = notes[j];
@@ -111,21 +118,23 @@ namespace SongCore.HarmonyPatches
                         break;
                     }
                 }
+
                 if (!flag)
                 {
                     list.Add(noteData);
                 }
             }
-            foreach(var list in notesInColumn.Values)
+
+            foreach (var list in notesInColumn.Values)
             {
                 for (var m = 0; m < list.Count; m++)
                 {
-                    list[m].SetNoteStartLineLayer((NoteLineLayer)m);
+                    list[m].SetNoteStartLineLayer((NoteLineLayer) m);
                 }
             }
-
         }
-        static int Clamp(int input, int min, int max)
+
+        private static int Clamp(int input, int min, int max)
         {
             return Math.Min(Math.Max(input, min), max);
         }
@@ -134,16 +143,15 @@ namespace SongCore.HarmonyPatches
 
     [HarmonyPatch(typeof(BeatmapData))]
     [HarmonyPatch("beatmapObjectsData", MethodType.Getter)]
-
-    class BeatmapObjectsDataClampPatch
+    internal class BeatmapObjectsDataClampPatch
     {
-        public static bool Prefix(BeatmapLineData[] ____beatmapLinesData, BeatmapData __instance, ref IEnumerable<BeatmapObjectData> __result)
+        private static bool Prefix(BeatmapLineData[] ____beatmapLinesData, BeatmapData __instance, ref IEnumerable<BeatmapObjectData> __result)
         {
             IEnumerable<BeatmapObjectData> getObjects(BeatmapLineData[] _beatmapLinesData)
             {
                 BeatmapLineData[] beatmapLinesData = _beatmapLinesData;
                 int[] idxs = new int[beatmapLinesData.Length];
-                for (; ; )
+                for (;;)
                 {
                     BeatmapObjectData minBeatmapObjectData = null;
                     var num = float.MaxValue;
@@ -160,17 +168,21 @@ namespace SongCore.HarmonyPatches
                             }
                         }
                     }
+
                     if (minBeatmapObjectData == null)
                     {
                         break;
                     }
+
                     yield return minBeatmapObjectData;
                     idxs[minBeatmapObjectData.lineIndex > 3 ? 3 : minBeatmapObjectData.lineIndex < 0 ? 0 : minBeatmapObjectData.lineIndex]++;
                     minBeatmapObjectData = null;
                 }
+
                 yield break;
                 yield break;
             }
+
             __result = getObjects(____beatmapLinesData);
             return false;
         }
@@ -213,5 +225,4 @@ namespace SongCore.HarmonyPatches
         }
         */
     }
-
 }

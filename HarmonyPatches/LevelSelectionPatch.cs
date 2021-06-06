@@ -6,10 +6,10 @@ namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(LevelCollectionViewController))]
     [HarmonyPatch("HandleLevelCollectionTableViewDidSelectLevel", MethodType.Normal)]
-    class LevelPackLevelsSelectedPatch
+    internal class LevelPackLevelsSelectedPatch
     {
         //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
-        static void Prefix(LevelCollectionTableView tableView, IPreviewBeatmapLevel level)
+        private static void Prefix(LevelCollectionTableView tableView, IPreviewBeatmapLevel level)
         {
             if (level is CustomPreviewBeatmapLevel)
             {
@@ -23,29 +23,31 @@ namespace SongCore.HarmonyPatches
             }
         }
     }
-}
-[HarmonyPatch(typeof(LevelListTableCell))]
-[HarmonyPatch("SetDataFromLevelAsync", MethodType.Normal)]
-public class LevelListTableCellSetDataFromLevel
-{
-    static void Postfix(IPreviewBeatmapLevel level, bool isFavorite, ref TextMeshProUGUI ____songAuthorText, TextMeshProUGUI ____songDurationText)
-    {
-        if (!(level is CustomPreviewBeatmapLevel))
-        {
-            return;
-        }
 
-        var customLevel = level as CustomPreviewBeatmapLevel;
-        /* Plan B
-       IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew( async () => { var token = new CancellationTokenSource().Token; var audio = await level.GetPreviewAudioClipAsync(token); customLevel.SetField("_songDuration", audio.length);  ____songDurationText.text = customLevel.songDuration.MinSecDurationText(); });
-        */
-        ____songAuthorText.richText = true;
-        if (!string.IsNullOrWhiteSpace(customLevel.levelAuthorName))
+    [HarmonyPatch(typeof(LevelListTableCell))]
+    [HarmonyPatch("SetDataFromLevelAsync", MethodType.Normal)]
+    internal class LevelListTableCellSetDataFromLevel
+    {
+        private static void Postfix(IPreviewBeatmapLevel level, bool isFavorite, ref TextMeshProUGUI ____songAuthorText, TextMeshProUGUI ____songDurationText)
         {
-            ____songAuthorText.text = customLevel.songAuthorName + " <size=80%>[" + customLevel.levelAuthorName.Replace(@"<", "<\u200B").Replace(@">", ">\u200B") + "]</size>";
+            if (!(level is CustomPreviewBeatmapLevel))
+            {
+                return;
+            }
+
+            var customLevel = level as CustomPreviewBeatmapLevel;
+            /* Plan B
+           IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew( async () => { var token = new CancellationTokenSource().Token; var audio = await level.GetPreviewAudioClipAsync(token); customLevel.SetField("_songDuration", audio.length);  ____songDurationText.text = customLevel.songDuration.MinSecDurationText(); });
+            */
+            ____songAuthorText.richText = true;
+            if (!string.IsNullOrWhiteSpace(customLevel.levelAuthorName))
+            {
+                ____songAuthorText.text = customLevel.songAuthorName + " <size=80%>[" + customLevel.levelAuthorName.Replace(@"<", "<\u200B").Replace(@">", ">\u200B") + "]</size>";
+            }
         }
     }
 }
+
 /*
 [HarmonyPatch(typeof(LevelCollectionViewController))]
 [HarmonyPatch("RefreshLevelsAvailability", MethodType.Normal)]

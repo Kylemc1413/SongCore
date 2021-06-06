@@ -15,6 +15,7 @@ namespace SongCore.Data
             this.songHash = songHash;
         }
     }
+
     [Serializable]
     public class AudioCacheData
     {

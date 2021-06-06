@@ -6,10 +6,10 @@ namespace SongCore.HarmonyPatches
 
     [HarmonyPatch(typeof(BeatmapCharacteristicCollectionSO))]
     [HarmonyPatch("GetBeatmapCharacteristicBySerializedName", MethodType.Normal)]
-    class CustomCharacteristicsPatch
+    internal class CustomCharacteristicsPatch
     {
         //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
-        static void Postfix(string serializedName, ref BeatmapCharacteristicSO __result)
+        private static void Postfix(string serializedName, ref BeatmapCharacteristicSO __result)
         {
             if (__result == null)
             {

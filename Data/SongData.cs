@@ -255,6 +255,7 @@ namespace SongCore.Data
                                 diffRequirements.AddRange(((JArray)requirements).Select(c => (string)c));
                             }
                         }
+
                         RequirementData diffReqData = new RequirementData
                         {
                             _requirements = diffRequirements.ToArray(),
@@ -280,8 +281,8 @@ namespace SongCore.Data
                         });
                     }
                 }
-                _difficulties = diffData.ToArray();
 
+                _difficulties = diffData.ToArray();
             }
             catch (Exception ex)
             {

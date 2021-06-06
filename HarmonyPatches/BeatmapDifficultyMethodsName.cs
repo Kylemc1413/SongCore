@@ -2,8 +2,6 @@
 
 namespace SongCore.HarmonyPatches
 {
-
-
     [HarmonyPatch(typeof(BeatmapDifficultyMethods))]
     [HarmonyPatch("Name", MethodType.Normal)]
     public class BeatmapDifficultyMethodsName

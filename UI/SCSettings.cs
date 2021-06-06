@@ -2,7 +2,6 @@
 
 namespace SongCore.UI
 {
-
     public class SCSettings : PersistentSingleton<SCSettings>
     {
         [UIValue("colors")]
@@ -37,6 +36,7 @@ namespace SongCore.UI
                 BasicUI.ModPrefs.SetBool("SongCore", "displayDiffLabels", value);
             }
         }
+
         [UIValue("longPreviews")]
         public bool LongPreviews
         {

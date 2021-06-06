@@ -5,14 +5,13 @@ using Zenject;
 
 namespace SongCore.HarmonyPatches
 {
-
     [HarmonyPatch(typeof(MainSystemInit), nameof(MainSystemInit.InstallBindings))]
-    public class MainSystemsInitRefreshablePatch
+    internal class MainSystemsInitRefreshablePatch
     {
         public const string refreshableID = "SongCore.Loader.Refresh";
         public const string didLoadEventID = "SongCore.Loader.Loaded";
 
-        static void Postfix(DiContainer container)
+        private static void Postfix(DiContainer container)
         {
             container.Bind<IRefreshable>().WithId(refreshableID).To<SongCoreRefreshable>().AsSingle();
             container.Bind(typeof(IInitializable), typeof(IDisposable), typeof(SongCoreLoaderDidLoad)).To<SongCoreLoaderDidLoad>().AsSingle();

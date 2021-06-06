@@ -14,8 +14,5 @@ namespace SongCore.Utilities
         {
             logger.Log(level, $"{message}");
         }
-
-
-
     }
 }

@@ -1,7 +1,7 @@
-﻿namespace SongCore.Utilities
-{
-    using UnityEngine;
+﻿using UnityEngine;
 
+namespace SongCore.Utilities
+{
     [System.Serializable]
     public struct HSBColor
     {

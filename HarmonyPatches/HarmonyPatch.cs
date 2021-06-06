@@ -4,9 +4,9 @@ namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(Harmony))]
     [HarmonyPatch("UnpatchAll", MethodType.Normal)]
-    public class StopModsFromBreakingOtherModsAccidentallyPatch
+    internal class StopModsFromBreakingOtherModsAccidentallyPatch
     {
-        public static void Prefix(Harmony __instance, ref string harmonyID)
+        private static void Prefix(Harmony __instance, ref string harmonyID)
         {
             if (string.IsNullOrWhiteSpace(harmonyID))
             {

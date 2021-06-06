@@ -11,8 +11,7 @@ namespace SongCore.Utilities
     // Unzip class for .NET 3.5 Client Profile or Mono 2.10
     // Written by Alexey Yakovlev <yallie@yandex.ru>
     // https://github.com/yallie/unzip
-
-    class Unzip
+    internal class Unzip
     {
         /// <summary>
 		/// Zip archive entry.

@@ -8,8 +8,8 @@ namespace SongCore.OverrideClasses
 
         public SongCoreBeatmapLevelPackCollectionSO()
         {
-          
         }
+
         public static SongCoreBeatmapLevelPackCollectionSO CreateNew()
         {
             var newCollection = CreateInstance<SongCoreBeatmapLevelPackCollectionSO>();
@@ -20,7 +20,6 @@ namespace SongCore.OverrideClasses
             newCollection.UpdateArray();
             return newCollection;
         }
-
 
         public void AddLevelPack(CustomBeatmapLevelPack pack)
         {
@@ -44,6 +43,5 @@ namespace SongCore.OverrideClasses
         {
             _allBeatmapLevelPacks = _customBeatmapLevelPacks.ToArray();
         }
-
     }
 }

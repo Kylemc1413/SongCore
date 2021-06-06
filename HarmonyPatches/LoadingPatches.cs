@@ -10,11 +10,11 @@ using System.Diagnostics;
 
 namespace SongCore.HarmonyPatches
 {
-    
+
     [HarmonyPatch(typeof(NUnit.Framework.Assert), "IsTrue", new Type[] { typeof(bool), typeof(string), typeof(object[]) })]
     internal class WhyIsAssertMeanPatch
     {
-        static void Prefix(ref bool condition)
+        private static void Prefix(ref bool condition)
         {
             if (condition == true)
             {
@@ -40,21 +40,23 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch(typeof(NUnit.Framework.Assert), "LessOrEqual", new Type[] { typeof(float), typeof(float), typeof(string), typeof(object[]) })]
     internal class WhyIsAssertMeanPatch2
     {
-        static bool Prefix()
+        private static bool Prefix()
         {
             return false;
 
         }
     }
+
     [HarmonyPatch(typeof(NUnit.Framework.Assert), "GreaterOrEqual", new Type[] { typeof(float), typeof(float), typeof(string), typeof(object[]) })]
     internal class WhyIsAssertMeanPatch3
     {
-        static bool Prefix()
+        private static bool Prefix()
         {
             return false;
 
         }
     }
+
     /*
     [HarmonyPatch(typeof(BeatmapDataLoader), "GetBeatmapDataFromBeatmapSaveData")]
     internal class BeatmapDataLoadingEventDataSortingPatch
@@ -73,23 +75,24 @@ namespace SongCore.HarmonyPatches
         }
     }
     */
+
     [HarmonyPatch(typeof(BeatmapData), new Type[] { typeof(int)})]
     [HarmonyPatch(MethodType.Constructor)]
     internal class InitializePreviousAddedBeatmapEventDataTime
     {
-        static void Postfix(ref float ____prevAddedBeatmapEventDataTime, ref float ____prevAddedBeatmapObjectDataTime)
+        private static void Postfix(ref float ____prevAddedBeatmapEventDataTime, ref float ____prevAddedBeatmapObjectDataTime)
         {
             ____prevAddedBeatmapEventDataTime = float.MinValue;
             ____prevAddedBeatmapObjectDataTime = float.MinValue;
         }
     }
-    
+
     [HarmonyPatch(typeof(CustomBeatmapLevel))]
     [HarmonyPatch(new Type[] { typeof(CustomPreviewBeatmapLevel), typeof(AudioClip) })]
     [HarmonyPatch(MethodType.Constructor)]
     internal class CustomBeatmapLevelDurationPatch
     {
-        static void Postfix(CustomBeatmapLevel __instance, CustomPreviewBeatmapLevel customPreviewBeatmapLevel)
+        private static void Postfix(CustomBeatmapLevel __instance, CustomPreviewBeatmapLevel customPreviewBeatmapLevel)
         {
             __instance.SetField<CustomPreviewBeatmapLevel, float>("_songDuration", customPreviewBeatmapLevel.songDuration);
         }
@@ -99,7 +102,7 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch("ReloadCustomLevelPackCollectionAsync", MethodType.Normal)]
     internal class StopVanillaLoadingPatch
     {
-        static void Prefix(Task<IBeatmapLevelPackCollection> __result)
+        private static void Prefix(Task<IBeatmapLevelPackCollection> __result)
         {
             var cancel = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().First().GetField<CancellationTokenSource, LevelFilteringNavigationController>("_cancellationTokenSource");
             cancel.Cancel();
@@ -111,8 +114,7 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch("UpdateCustomSongs", MethodType.Normal)]
     internal class StopVanillaLoadingPatch2
     {
-
-        static void Postfix(ref LevelFilteringNavigationController __instance, LevelSearchViewController ____levelSearchViewController, SelectLevelCategoryViewController ____selectLevelCategoryViewController, ref IBeatmapLevelPack[] ____ostBeatmapLevelPacks, ref IBeatmapLevelPack[] ____musicPacksBeatmapLevelPacks, ref IBeatmapLevelPack[] ____customLevelPacks, ref IBeatmapLevelPack[] ____allBeatmapLevelPacks)
+        private static void Postfix(ref LevelFilteringNavigationController __instance, LevelSearchViewController ____levelSearchViewController, SelectLevelCategoryViewController ____selectLevelCategoryViewController, ref IBeatmapLevelPack[] ____ostBeatmapLevelPacks, ref IBeatmapLevelPack[] ____musicPacksBeatmapLevelPacks, ref IBeatmapLevelPack[] ____customLevelPacks, ref IBeatmapLevelPack[] ____allBeatmapLevelPacks)
         {
             if (Loader.CustomBeatmapLevelPackCollectionSO == null)
             {
@@ -154,5 +156,4 @@ namespace SongCore.HarmonyPatches
         }
     }
     */
-
 }

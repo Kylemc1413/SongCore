@@ -9,21 +9,19 @@ using IPA.Utilities;
 
 namespace SongCore.HarmonyPatches
 {
-
     [HarmonyPatch(typeof(StandardLevelDetailViewController))]
     [HarmonyPatch("UpdateActionButtonIntractability", MethodType.Normal)]
-
-    public class BlockGameButtonInteractabilityUpdateAsItLiterallyAlwaysEnablesIt
+    internal class BlockGameButtonInteractabilityUpdateAsItLiterallyAlwaysEnablesIt
     {
-        public static bool Prefix()
+        private static bool Prefix()
         {
             return false;
         }
     }
-        [HarmonyPatch(typeof(StandardLevelDetailView))]
-    [HarmonyPatch("RefreshContent", MethodType.Normal)]
 
-    public class StandardLevelDetailViewRefreshContent
+    [HarmonyPatch(typeof(StandardLevelDetailView))]
+    [HarmonyPatch("RefreshContent", MethodType.Normal)]
+    internal class StandardLevelDetailViewRefreshContent
     {
         public static Dictionary<string, OverrideLabels> levelLabels = new Dictionary<string, OverrideLabels>();
         public class OverrideLabels
@@ -54,10 +52,12 @@ namespace SongCore.HarmonyPatches
             currentLabels.ExpertOverride = "";
             currentLabels.ExpertPlusOverride = "";
         }
-        static IPreviewBeatmapLevel lastLevel;
-        static void Postfix(StandardLevelDetailView __instance, ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
-            ref PlayerData ____playerData, ref LevelBar ____levelBar,  ref Button ____actionButton,
-            ref Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
+
+        private static IPreviewBeatmapLevel lastLevel;
+
+        private static void Postfix(StandardLevelDetailView __instance, ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
+            ref PlayerData ____playerData, ref LevelBar ____levelBar,  ref Button ____actionButton, ref Button ____practiceButton,
+            ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
             ref BeatmapCharacteristicSegmentedControlController ____beatmapCharacteristicSegmentedControlController)
         {
             var firstSelection = false;
