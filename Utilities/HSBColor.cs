@@ -71,6 +71,7 @@ namespace SongCore.Utilities
                 {
                     ret.h = (g - b) / dif * 60f;
                 }
+
                 if (ret.h < 0)
                 {
                     ret.h = ret.h + 360f;
@@ -200,8 +201,10 @@ namespace SongCore.Utilities
 
                     h = angle / 360f;
                 }
+
                 s = Mathf.Lerp(a.s, b.s, t);
             }
+
             return new HSBColor(h, s, Mathf.Lerp(a.b, b.b, t), Mathf.Lerp(a.a, b.a, t));
         }
 

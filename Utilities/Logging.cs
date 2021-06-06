@@ -10,6 +10,7 @@ namespace SongCore.Utilities
         {
             logger.Info($"{message}");
         }
+
         internal static void Log(string message, IPALogger.Level level)
         {
             logger.Log(level, $"{message}");

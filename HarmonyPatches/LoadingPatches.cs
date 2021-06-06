@@ -10,8 +10,12 @@ using System.Diagnostics;
 
 namespace SongCore.HarmonyPatches
 {
-
-    [HarmonyPatch(typeof(NUnit.Framework.Assert), "IsTrue", new Type[] { typeof(bool), typeof(string), typeof(object[]) })]
+    [HarmonyPatch(typeof(NUnit.Framework.Assert), "IsTrue", new Type[]
+    {
+        typeof(bool),
+        typeof(string),
+        typeof(object[])
+    })]
     internal class WhyIsAssertMeanPatch
     {
         private static void Prefix(ref bool condition)
@@ -25,7 +29,7 @@ namespace SongCore.HarmonyPatches
             for (var i = 0; i < stack.FrameCount; i++)
             {
                 var callingMethodName = stack.GetFrame(i).GetMethod().Name;
-            //    Utilities.Logging.Log($"Calling Method {i}: {callingMethodName}");
+                //    Utilities.Logging.Log($"Calling Method {i}: {callingMethodName}");
                 if (callingMethodName.Contains("AddBeatmapEventData") || callingMethodName.Contains("AddBeatmapObjectData"))
                 {
                     Utilities.Logging.logger.Debug("Blocking Assert Failure");
@@ -33,27 +37,36 @@ namespace SongCore.HarmonyPatches
                     return;
                 }
             }
-
         }
     }
 
-    [HarmonyPatch(typeof(NUnit.Framework.Assert), "LessOrEqual", new Type[] { typeof(float), typeof(float), typeof(string), typeof(object[]) })]
+    [HarmonyPatch(typeof(NUnit.Framework.Assert), "LessOrEqual", new Type[]
+    {
+        typeof(float),
+        typeof(float),
+        typeof(string),
+        typeof(object[])
+    })]
     internal class WhyIsAssertMeanPatch2
     {
         private static bool Prefix()
         {
             return false;
-
         }
     }
 
-    [HarmonyPatch(typeof(NUnit.Framework.Assert), "GreaterOrEqual", new Type[] { typeof(float), typeof(float), typeof(string), typeof(object[]) })]
+    [HarmonyPatch(typeof(NUnit.Framework.Assert), "GreaterOrEqual", new Type[]
+    {
+        typeof(float),
+        typeof(float),
+        typeof(string),
+        typeof(object[])
+    })]
     internal class WhyIsAssertMeanPatch3
     {
         private static bool Prefix()
         {
             return false;
-
         }
     }
 
@@ -76,7 +89,10 @@ namespace SongCore.HarmonyPatches
     }
     */
 
-    [HarmonyPatch(typeof(BeatmapData), new Type[] { typeof(int)})]
+    [HarmonyPatch(typeof(BeatmapData), new Type[]
+    {
+        typeof(int)
+    })]
     [HarmonyPatch(MethodType.Constructor)]
     internal class InitializePreviousAddedBeatmapEventDataTime
     {
@@ -88,7 +104,11 @@ namespace SongCore.HarmonyPatches
     }
 
     [HarmonyPatch(typeof(CustomBeatmapLevel))]
-    [HarmonyPatch(new Type[] { typeof(CustomPreviewBeatmapLevel), typeof(AudioClip) })]
+    [HarmonyPatch(new Type[]
+    {
+        typeof(CustomPreviewBeatmapLevel),
+        typeof(AudioClip)
+    })]
     [HarmonyPatch(MethodType.Constructor)]
     internal class CustomBeatmapLevelDurationPatch
     {
@@ -106,7 +126,6 @@ namespace SongCore.HarmonyPatches
         {
             var cancel = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().First().GetField<CancellationTokenSource, LevelFilteringNavigationController>("_cancellationTokenSource");
             cancel.Cancel();
-
         }
     }
 
@@ -114,7 +133,9 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch("UpdateCustomSongs", MethodType.Normal)]
     internal class StopVanillaLoadingPatch2
     {
-        private static void Postfix(ref LevelFilteringNavigationController __instance, LevelSearchViewController ____levelSearchViewController, SelectLevelCategoryViewController ____selectLevelCategoryViewController, ref IBeatmapLevelPack[] ____ostBeatmapLevelPacks, ref IBeatmapLevelPack[] ____musicPacksBeatmapLevelPacks, ref IBeatmapLevelPack[] ____customLevelPacks, ref IBeatmapLevelPack[] ____allBeatmapLevelPacks)
+        private static void Postfix(ref LevelFilteringNavigationController __instance, LevelSearchViewController ____levelSearchViewController,
+            SelectLevelCategoryViewController ____selectLevelCategoryViewController, ref IBeatmapLevelPack[] ____ostBeatmapLevelPacks, ref IBeatmapLevelPack[] ____musicPacksBeatmapLevelPacks,
+            ref IBeatmapLevelPack[] ____customLevelPacks, ref IBeatmapLevelPack[] ____allBeatmapLevelPacks)
         {
             if (Loader.CustomBeatmapLevelPackCollectionSO == null)
             {

@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
 namespace SongCore
 {
     public class ProgressBar : MonoBehaviour
@@ -69,7 +70,6 @@ namespace SongCore
 
         private void OnEnable()
         {
-          
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
             Loader.LoadingStartedEvent += SongLoaderOnLoadingStartedEvent;
             Loader.SongsLoadedEvent += SongLoaderOnSongsLoadedEvent;
@@ -101,7 +101,7 @@ namespace SongCore
         {
             StopAllCoroutines();
             _showingMessage = false;
-            _headerText.text = _jokeTime? "Deleting Songs..." : HeaderText;
+            _headerText.text = _jokeTime ? "Deleting Songs..." : HeaderText;
             _loadingBar.enabled = true;
             _loadingBackg.enabled = true;
             _canvas.enabled = true;
@@ -201,8 +201,8 @@ namespace SongCore
 
             _loadingBar.fillAmount = Loader.LoadingProgress;
 
-            _loadingBar.color = _jokeTime? Color.red : HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
-            _headerText.color = _jokeTime? Color.red : HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
+            _loadingBar.color = _jokeTime ? Color.red : HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
+            _headerText.color = _jokeTime ? Color.red : HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));
         }
     }
 }

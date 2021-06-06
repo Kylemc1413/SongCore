@@ -20,15 +20,19 @@ namespace SongCore
     public class Plugin
     {
         public static Action<bool, string, string, IPreviewBeatmapLevel> CustomSongPlatformSelectionDidChange;
-     //   public static Action<string, string> CustomSongWithPlatformPlayed;
+
+        //   public static Action<string, string> CustomSongWithPlatformPlayed;
         public static string standardCharacteristicName = "Standard";
         public static string oneSaberCharacteristicName = "OneSaber";
         public static string noArrowsCharacteristicName = "NoArrows";
+
         internal static Harmony harmony;
+
         //     internal static bool ColorsInstalled = false;
         internal static bool customSongColors = SCSettings.instance.Colors;
         internal static bool customSongPlatforms = SCSettings.instance.Platforms;
         internal static bool displayDiffLabels = SCSettings.instance.DiffLabels;
+
         internal static bool forceLongPreviews = SCSettings.instance.LongPreviews;
         //  internal static int _currentPlatform = -1;
 
@@ -144,7 +148,7 @@ namespace SongCore
 
         public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
         {
-          //  Debug.Log("Scene :" + prevScene.name + "To Scene Next: " + nextScene.name);
+            //  Debug.Log("Scene :" + prevScene.name + "To Scene Next: " + nextScene.name);
             customSongColors = BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
             customSongPlatforms = BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
             displayDiffLabels = BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
@@ -318,5 +322,3 @@ private static int findCustomEnvironment(string name)
         */
     }
 }
-
-

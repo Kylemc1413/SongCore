@@ -3,7 +3,6 @@ using System.Linq;
 
 namespace SongCore.HarmonyPatches
 {
-
     [HarmonyPatch(typeof(BeatmapCharacteristicCollectionSO))]
     [HarmonyPatch("GetBeatmapCharacteristicBySerializedName", MethodType.Normal)]
     internal class CustomCharacteristicsPatch

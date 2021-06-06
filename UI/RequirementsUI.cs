@@ -34,6 +34,7 @@ namespace SongCore.UI
         public CustomListTableData customListTableData;
 
         private bool _buttonGlow = false;
+
         [UIValue("button-glow")]
         public bool ButtonGlowColor
         {
@@ -46,6 +47,7 @@ namespace SongCore.UI
         }
 
         private bool buttonInteractable = false;
+
         [UIValue("button-interactable")]
         public bool ButtonInteractable
         {
@@ -64,8 +66,9 @@ namespace SongCore.UI
         {
             GetIcons();
             standardLevel = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().First();
-            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"), standardLevel.transform.Find("LevelDetail").gameObject, this);
-            infoButtonTransform.localScale *= 0.7f;//no scale property in bsml as of now so manually scaling it
+            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"),
+                standardLevel.transform.Find("LevelDetail").gameObject, this);
+            infoButtonTransform.localScale *= 0.7f; //no scale property in bsml as of now so manually scaling it
             (standardLevel.transform.Find("LevelDetail").Find("FavoriteToggle")?.transform as RectTransform).anchoredPosition = new Vector2(3, -2);
         }
 
@@ -127,6 +130,7 @@ namespace SongCore.UI
                     }
                 }
             }
+
             //Contributors
             if (songData.contributors.Count() > 0)
             {
@@ -150,6 +154,7 @@ namespace SongCore.UI
                     }
                 }
             }
+
             //WIP Check
             if (wipFolder)
             {
@@ -163,27 +168,26 @@ namespace SongCore.UI
                 {
                     foreach (string req in diffData.additionalDifficultyData._warnings)
                     {
-
                         //    Console.WriteLine(req);
 
                         customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon));
                     }
                 }
+
                 if (diffData.additionalDifficultyData._information.Count() > 0)
                 {
                     foreach (string req in diffData.additionalDifficultyData._information)
                     {
-
                         //    Console.WriteLine(req);
 
                         customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Info", InfoIcon));
                     }
                 }
+
                 if (diffData.additionalDifficultyData._suggestions.Count() > 0)
                 {
                     foreach (string req in diffData.additionalDifficultyData._suggestions)
                     {
-
                         //    Console.WriteLine(req);
                         if (!Collections.capabilities.Contains(req))
                         {
@@ -196,9 +200,9 @@ namespace SongCore.UI
                     }
                 }
             }
+
             customListTableData.tableView.ReloadData();
             customListTableData.tableView.ScrollToCellWithIdx(0, HMUI.TableView.ScrollPositionType.Beginning, false);
-
         }
     }
 }

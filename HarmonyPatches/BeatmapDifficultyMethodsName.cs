@@ -20,6 +20,7 @@ namespace SongCore.HarmonyPatches
                     __result = StandardLevelDetailViewRefreshContent.currentLabels.EasyOverride.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
                 }
             }
+
             if (difficulty == BeatmapDifficulty.Normal)
             {
                 if (StandardLevelDetailViewRefreshContent.currentLabels.NormalOverride != "")
@@ -27,6 +28,7 @@ namespace SongCore.HarmonyPatches
                     __result = StandardLevelDetailViewRefreshContent.currentLabels.NormalOverride.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
                 }
             }
+
             if (difficulty == BeatmapDifficulty.Hard)
             {
                 if (StandardLevelDetailViewRefreshContent.currentLabels.HardOverride != "")
@@ -34,6 +36,7 @@ namespace SongCore.HarmonyPatches
                     __result = StandardLevelDetailViewRefreshContent.currentLabels.HardOverride.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
                 }
             }
+
             if (difficulty == BeatmapDifficulty.Expert)
             {
                 if (StandardLevelDetailViewRefreshContent.currentLabels.ExpertOverride != "")
@@ -41,6 +44,7 @@ namespace SongCore.HarmonyPatches
                     __result = StandardLevelDetailViewRefreshContent.currentLabels.ExpertOverride.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
                 }
             }
+
             if (difficulty == BeatmapDifficulty.ExpertPlus)
             {
                 if (StandardLevelDetailViewRefreshContent.currentLabels.ExpertPlusOverride != "")
@@ -50,9 +54,5 @@ namespace SongCore.HarmonyPatches
             }
             //    Console.WriteLine(__result);
         }
-
-
-
-
     }
 }

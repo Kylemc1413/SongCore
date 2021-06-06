@@ -13,7 +13,7 @@ namespace SongCore.Utilities
         //Sets the value of a (static?) field in object "obj" with name "fieldName"
         public static void SetField(this object obj, string fieldName, object value)
         {
-            (obj is Type ? (Type)obj : obj.GetType())
+            (obj is Type ? (Type) obj : obj.GetType())
                 .GetField(fieldName, _allBindingFlags)
                 .SetValue(obj, value);
         }
@@ -21,18 +21,18 @@ namespace SongCore.Utilities
         //Gets the value of a (static?) field in object "obj" with name "fieldName"
         public static object GetField(this object obj, string fieldName)
         {
-            return (obj is Type ? (Type)obj : obj.GetType())
+            return (obj is Type ? (Type) obj : obj.GetType())
                 .GetField(fieldName, _allBindingFlags)
                 .GetValue(obj);
         }
 
         //Gets the value of a (static?) field in object "obj" with name "fieldName" (TYPED)
-        public static T GetField<T>(this object obj, string fieldName) => (T)GetField(obj, fieldName);
+        public static T GetField<T>(this object obj, string fieldName) => (T) GetField(obj, fieldName);
 
         //Sets the value of a (static?) Property specified by the object "obj" and the name "propertyName"
         public static void SetProperty(this object obj, string propertyName, object value)
         {
-            (obj is Type ? (Type)obj : obj.GetType())
+            (obj is Type ? (Type) obj : obj.GetType())
                 .GetProperty(propertyName, _allBindingFlags)
                 .SetValue(obj, value, null);
         }
@@ -40,21 +40,21 @@ namespace SongCore.Utilities
         //Gets the value of a (static?) Property specified by the object "obj" and the name "propertyName"
         public static object GetProperty(this object obj, string propertyName)
         {
-            return (obj is Type ? (Type)obj : obj.GetType())
+            return (obj is Type ? (Type) obj : obj.GetType())
                 .GetProperty(propertyName, _allBindingFlags)
                 .GetValue(obj);
         }
 
         //Gets the value of a (static?) Property specified by the object "obj" and the name "propertyName" (TYPED)
-        public static T GetProperty<T>(this object obj, string propertyName) => (T)GetProperty(obj, propertyName);
+        public static T GetProperty<T>(this object obj, string propertyName) => (T) GetProperty(obj, propertyName);
 
         //Invokes a (static?) private method with name "methodName" and params "methodParams", returns an object of the specified type
-        public static T InvokeMethod<T>(this object obj, string methodName, params object[] methodParams) => (T)InvokeMethod(obj, methodName, methodParams);
+        public static T InvokeMethod<T>(this object obj, string methodName, params object[] methodParams) => (T) InvokeMethod(obj, methodName, methodParams);
 
         //Invokes a (static?) private method with name "methodName" and params "methodParams"
         public static object InvokeMethod(this object obj, string methodName, params object[] methodParams)
         {
-            return (obj is Type ? (Type)obj : obj.GetType())
+            return (obj is Type ? (Type) obj : obj.GetType())
                 .GetMethod(methodName, _allBindingFlags)
                 .Invoke(obj, methodParams);
         }
@@ -68,7 +68,7 @@ namespace SongCore.Utilities
                 types[i] = constructorParams[i].GetType();
             }
 
-            return (obj is Type ? (Type)obj : obj.GetType())
+            return (obj is Type ? (Type) obj : obj.GetType())
                 .GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, types, null)
                 .Invoke(constructorParams);
         }
@@ -91,9 +91,9 @@ namespace SongCore.Utilities
         {
             IEnumerable<string> ret = Enumerable.Empty<string>();
             ret = ret.Concat(assembly.GetTypes()
-                    .Select(t => t.Namespace)
-                    .Distinct()
-                    .Where(n => n != null));
+                .Select(t => t.Namespace)
+                .Distinct()
+                .Where(n => n != null));
             return ret.Distinct();
         }
 
@@ -113,6 +113,7 @@ namespace SongCore.Utilities
                         .Select(t => t.Name);
                 }
             }
+
             return null;
 
             //Code to list reflectable classes
@@ -145,7 +146,6 @@ namespace SongCore.Utilities
             }
             catch (Exception)
             {
-
             }
 
             copy.enabled = false;
@@ -172,7 +172,7 @@ namespace SongCore.Utilities
         {
             var field = obj.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
             var value = field.GetValue(obj);
-            return (T)value;
+            return (T) value;
         }
 
         public static object GetPrivateField(Type type, object obj, string fieldName)
@@ -199,5 +199,4 @@ namespace SongCore.Utilities
             }
         }
     }
-
 }

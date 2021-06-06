@@ -14,7 +14,9 @@ namespace SongCore.OverrideClasses
         {
             var newCollection = CreateInstance<SongCoreBeatmapLevelPackCollectionSO>();
 
-            newCollection._allBeatmapLevelPacks = new IBeatmapLevelPack[] { };
+            newCollection._allBeatmapLevelPacks = new IBeatmapLevelPack[]
+            {
+            };
 
 
             newCollection.UpdateArray();

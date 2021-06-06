@@ -12,7 +12,7 @@ namespace SongCore.Utilities
     {
         public static bool IsModInstalled(string modName)
         {
-	        return IPA.Loader.PluginManager.Plugins.Any(mod => mod.Name == modName) || IPA.Loader.PluginManager.EnabledPlugins.Any(mod => mod.Id == modName);
+            return IPA.Loader.PluginManager.Plugins.Any(mod => mod.Name == modName) || IPA.Loader.PluginManager.EnabledPlugins.Any(mod => mod.Id == modName);
         }
 
         public static Color ColorFromMapColor(Data.ExtraSongData.MapColor mapColor)
@@ -24,10 +24,10 @@ namespace SongCore.Utilities
         {
             if (!Enum.IsDefined(typeof(TEnum), strEnumValue))
             {
-	            return defaultValue;
+                return defaultValue;
             }
 
-            return (TEnum)Enum.Parse(typeof(TEnum), strEnumValue);
+            return (TEnum) Enum.Parse(typeof(TEnum), strEnumValue);
         }
 
         public static bool IsDirectoryEmpty(string path)
@@ -46,9 +46,10 @@ namespace SongCore.Utilities
 
             try
             {
-				di ??= new DirectoryInfo(file);
+                di ??= new DirectoryInfo(file);
                 DirectorySecurity dSecurity = di.GetAccessControl();
-                dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
+                dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl,
+                    InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
                 di.SetAccessControl(dSecurity);
             }
             catch
@@ -59,7 +60,7 @@ namespace SongCore.Utilities
 
         public static string TrimEnd(this string text, string value)
         {
-	        return !text.EndsWith(value) ? text : text.Remove(text.LastIndexOf(value));
+            return !text.EndsWith(value) ? text : text.Remove(text.LastIndexOf(value));
         }
 
         public static Sprite? LoadSpriteRaw(byte[] image, float pixelsPerUnit = 100.0f)
@@ -69,12 +70,12 @@ namespace SongCore.Utilities
 
         public static Sprite? LoadSpriteFromFile(string filePath, float pixelsPerUnit = 100.0f)
         {
-	        return LoadSpriteFromTexture(LoadTextureFromFile(filePath), pixelsPerUnit);
+            return LoadSpriteFromTexture(LoadTextureFromFile(filePath), pixelsPerUnit);
         }
 
         public static Sprite? LoadSpriteFromTexture(Texture2D? spriteTexture, float pixelsPerUnit = 100.0f)
         {
-	        return spriteTexture != null ? Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(0, 0), pixelsPerUnit) : null;
+            return spriteTexture != null ? Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(0, 0), pixelsPerUnit) : null;
         }
 
         public static Sprite? LoadSpriteFromResources(string resourcePath, float pixelsPerUnit = 100.0f)
@@ -84,15 +85,15 @@ namespace SongCore.Utilities
 
         public static byte[] GetResource(Assembly asm, string resourceName)
         {
-	        Stream stream = asm.GetManifestResourceStream(resourceName)!;
+            Stream stream = asm.GetManifestResourceStream(resourceName)!;
             byte[] data = new byte[stream.Length];
-            stream.Read(data, 0, (int)stream.Length);
+            stream.Read(data, 0, (int) stream.Length);
             return data;
         }
 
         public static Texture2D? LoadTextureFromFile(string filePath)
         {
-	        return File.Exists(filePath) ? LoadTextureRaw(File.ReadAllBytes(filePath)) : null;
+            return File.Exists(filePath) ? LoadTextureRaw(File.ReadAllBytes(filePath)) : null;
         }
 
         public static Texture2D? LoadTextureFromResources(string resourcePath)
@@ -102,24 +103,24 @@ namespace SongCore.Utilities
 
         public static Texture2D? LoadTextureRaw(byte[] file)
         {
-	        if (file.Length <= 0)
-	        {
-		        return null;
-	        }
+            if (file.Length <= 0)
+            {
+                return null;
+            }
 
-	        Texture2D tex2D = new Texture2D(2, 2);
-	        return tex2D.LoadImage(file) ? tex2D : null;
+            Texture2D tex2D = new Texture2D(2, 2);
+            return tex2D.LoadImage(file) ? tex2D : null;
         }
 
         public static void PrintHierarchy(Transform transform, string spacing = "|-> ")
         {
-	        spacing = spacing.Insert(1, "  ");
-	        var tempList = transform.Cast<Transform>().ToList();
-	        foreach (var child in tempList)
-	        {
-		        Console.WriteLine($"{spacing}{child.name}");
-		        PrintHierarchy(child, "|" + spacing);
-	        }
+            spacing = spacing.Insert(1, "  ");
+            var tempList = transform.Cast<Transform>().ToList();
+            foreach (var child in tempList)
+            {
+                Console.WriteLine($"{spacing}{child.name}");
+                PrintHierarchy(child, "|" + spacing);
+            }
         }
     }
 }

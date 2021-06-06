@@ -101,6 +101,7 @@ namespace SongCore.Utilities
                 hash ^= f.Name.GetHashCode();
                 hash ^= f.Length;
             }
+
             return hash;
         }
 
@@ -116,6 +117,7 @@ namespace SongCore.Utilities
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -184,7 +186,8 @@ namespace SongCore.Utilities
                 {
                     if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
                     {
-                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename)).ToArray();
+                        combinedBytes = combinedBytes
+                            .Concat(File.ReadAllBytes(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename)).ToArray();
                     }
                 }
             }
@@ -236,6 +239,5 @@ namespace SongCore.Utilities
                 }
             }
         }
-
     }
 }

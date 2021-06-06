@@ -38,7 +38,5 @@ namespace SongCore.UI
                 FolderIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.FolderIcon.png");
             }
         }
-
-
     }
 }

@@ -24,6 +24,7 @@ namespace SongCore.HarmonyPatches
     internal class StandardLevelDetailViewRefreshContent
     {
         public static Dictionary<string, OverrideLabels> levelLabels = new Dictionary<string, OverrideLabels>();
+
         public class OverrideLabels
         {
             internal string EasyOverride = "";
@@ -56,7 +57,7 @@ namespace SongCore.HarmonyPatches
         private static IPreviewBeatmapLevel lastLevel;
 
         private static void Postfix(StandardLevelDetailView __instance, ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
-            ref PlayerData ____playerData, ref LevelBar ____levelBar,  ref Button ____actionButton, ref Button ____practiceButton,
+            ref PlayerData ____playerData, ref LevelBar ____levelBar, ref Button ____actionButton, ref Button ____practiceButton,
             ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
             ref BeatmapCharacteristicSegmentedControlController ____beatmapCharacteristicSegmentedControlController)
         {
@@ -67,10 +68,11 @@ namespace SongCore.HarmonyPatches
                 firstSelection = true;
                 lastLevel = level;
             }
+
             ____actionButton.interactable = true;
             ____practiceButton.interactable = true;
 
-           // ____levelBar.GetField<TextMeshProUGUI>("_songNameText").overflowMode = TextOverflowModes;
+            // ____levelBar.GetField<TextMeshProUGUI>("_songNameText").overflowMode = TextOverflowModes;
             //____songNameText.text = "<size=78%>" + ____songNameText.text.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
             //    ____songNameText.overflowMode = TextOverflowModes.Overflow;
             //     ____songNameText.enableWordWrapping = false;
@@ -88,6 +90,7 @@ namespace SongCore.HarmonyPatches
                     RequirementsUI.instance.ButtonInteractable = false;
                     return;
                 }
+
                 var wipFolderSong = false;
                 IDifficultyBeatmap selectedDiff = ____selectedDifficultyBeatmap;
                 Data.ExtraSongData.DifficultyData diffData = Collections.RetrieveDifficultyData(selectedDiff);
@@ -97,8 +100,9 @@ namespace SongCore.HarmonyPatches
                 {
                     //If no additional information is present
                     if (diffData.additionalDifficultyData._requirements.Count() == 0 && diffData.additionalDifficultyData._suggestions.Count() == 0
-                        && diffData.additionalDifficultyData._warnings.Count() == 0 && diffData.additionalDifficultyData._information.Count() == 0
-                        && songData.contributors.Count() == 0)
+                                                                                     && diffData.additionalDifficultyData._warnings.Count() == 0 &&
+                                                                                     diffData.additionalDifficultyData._information.Count() == 0
+                                                                                     && songData.contributors.Count() == 0)
                     {
                         RequirementsUI.instance.ButtonGlowColor = false;
                         RequirementsUI.instance.ButtonInteractable = false;
@@ -116,20 +120,19 @@ namespace SongCore.HarmonyPatches
                         {
                             ____actionButton.interactable = false;
                         }
-
                     }
                 }
+
                 if (level.levelID.EndsWith(" WIP"))
                 {
                     RequirementsUI.instance.ButtonGlowColor = true;
                     RequirementsUI.instance.ButtonInteractable = true;
                     ____actionButton.interactable = false;
                     wipFolderSong = true;
-
                 }
+
                 if (diffData != null)
                 {
-
                     for (var i = 0; i < diffData.additionalDifficultyData._requirements.Count(); i++)
                     {
                         if (!Collections.capabilities.Contains(diffData.additionalDifficultyData._requirements[i]))
@@ -207,15 +210,17 @@ namespace SongCore.HarmonyPatches
                     clearOverrideLabels();
                 }
 
-                ____beatmapDifficultySegmentedControlController.SetData(____selectedDifficultyBeatmap.parentDifficultyBeatmapSet.difficultyBeatmaps, ____beatmapDifficultySegmentedControlController.selectedDifficulty);
+                ____beatmapDifficultySegmentedControlController.SetData(____selectedDifficultyBeatmap.parentDifficultyBeatmapSet.difficultyBeatmaps,
+                    ____beatmapDifficultySegmentedControlController.selectedDifficulty);
                 clearOverrideLabels();
 
                 // TODO: Check if this whole if block is still needed
                 if (songData._defaultCharacteristic != null && firstSelection)
                 {
-                    if(____beatmapCharacteristicSegmentedControlController.selectedBeatmapCharacteristic.serializedName != songData._defaultCharacteristic)
+                    if (____beatmapCharacteristicSegmentedControlController.selectedBeatmapCharacteristic.serializedName != songData._defaultCharacteristic)
                     {
-                        var chars = ____beatmapCharacteristicSegmentedControlController.GetField<List<BeatmapCharacteristicSO>, BeatmapCharacteristicSegmentedControlController>("_beatmapCharacteristics");
+                        var chars =
+                            ____beatmapCharacteristicSegmentedControlController.GetField<List<BeatmapCharacteristicSO>, BeatmapCharacteristicSegmentedControlController>("_beatmapCharacteristics");
                         var index = 0;
                         foreach (var characteristic in chars)
                         {
@@ -226,9 +231,11 @@ namespace SongCore.HarmonyPatches
 
                             index++;
                         }
+
                         if (index != chars.Count)
                         {
-                            ____beatmapCharacteristicSegmentedControlController.GetField<HMUI.IconSegmentedControl, BeatmapCharacteristicSegmentedControlController>("_segmentedControl").SelectCellWithNumber(index);
+                            ____beatmapCharacteristicSegmentedControlController.GetField<HMUI.IconSegmentedControl, BeatmapCharacteristicSegmentedControlController>("_segmentedControl")
+                                .SelectCellWithNumber(index);
                             ____beatmapCharacteristicSegmentedControlController.HandleDifficultySegmentedControlDidSelectCell(
                                 ____beatmapCharacteristicSegmentedControlController.GetField<HMUI.IconSegmentedControl, BeatmapCharacteristicSegmentedControlController>("_segmentedControl"), index);
                         }
@@ -238,4 +245,3 @@ namespace SongCore.HarmonyPatches
         }
     }
 }
-

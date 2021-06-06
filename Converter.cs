@@ -17,6 +17,7 @@ namespace SongCore
         internal static bool doneConverting = false;
         public static Stack<string> ToConvert = new Stack<string>();
         public static string oldFolderPath = Path.Combine(Environment.CurrentDirectory, "CustomSongs");
+
         public static void PrepareExistingLibrary()
         {
             Logging.Log("Attempting to Convert Existing Library");
@@ -25,6 +26,7 @@ namespace SongCore
                 Logging.Log("No Existing Library to Convert", LogSeverity.Notice);
                 return;
             }
+
             Utils.GrantAccess(oldFolderPath);
             Loader.Instance._progressBar.ShowMessage("Converting Existing Song Library");
             var oldFolders = Directory.GetDirectories(oldFolderPath).ToList();
@@ -68,27 +70,25 @@ namespace SongCore
 
                                     newPath = newPath + $" ({pathNum})";
                                 }
+
                                 Directory.Move(songPath, newPath);
                                 if (Utils.IsDirectoryEmpty(parent.FullName))
                                 {
                                     //             Logging.Log("Old parent folder empty, Deleting empty folder.");
                                     Directory.Delete(parent.FullName);
                                 }
-
                             }
                             catch (Exception ex)
                             {
                                 Logging.Log($"Error attempting to correct Subfolder {songPath}: \n {ex}", LogSeverity.Error);
                             }
-
-
                         }
-                        ToConvert.Push(newPath);
 
+                        ToConvert.Push(newPath);
                     }
                 }
-
             }
+
             if (File.Exists(oldFolderPath + "/../songe-converter.exe"))
             {
                 Loader.Instance.StartCoroutine(ConvertSongs());
@@ -98,7 +98,6 @@ namespace SongCore
                 Logging.Log("Missing Songe converter, not converting", LogSeverity.Notice);
                 Loader.Instance.RefreshSongs();
             }
-
         }
 
 
@@ -167,12 +166,13 @@ namespace SongCore
                 {
                     Utils.GrantAccess(CustomLevelPathHelper.customLevelsDirectoryPath);
                     Directory.Move(CustomLevelPathHelper.customLevelsDirectoryPath, CustomLevelPathHelper.customLevelsDirectoryPath + DateTime.Now.ToFileTime().ToString());
-
                 }
+
                 Utils.GrantAccess(oldFolderPath);
                 Directory.Move(oldFolderPath, CustomLevelPathHelper.customLevelsDirectoryPath);
                 //    Directory.Delete(oldFolderPath);
             }
+
             Logging.Log("Conversion Finished. Loading songs");
             Loader.Instance.RefreshSongs();
         }

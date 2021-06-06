@@ -21,6 +21,7 @@ namespace SongCore
         internal static ConcurrentDictionary<string, string> levelHashDictionary = new ConcurrentDictionary<string, string>();
         internal static ConcurrentDictionary<string, List<string>> hashLevelDictionary = new ConcurrentDictionary<string, List<string>>();
         private static List<string> _capabilities = new List<string>();
+
         public static System.Collections.ObjectModel.ReadOnlyCollection<string> capabilities
         {
             get { return _capabilities.AsReadOnly(); }
@@ -34,10 +35,12 @@ namespace SongCore
         {
             return hashLevelDictionary.ContainsKey(hash.ToUpper());
         }
+
         public static string hashForLevelID(string levelID)
         {
             return levelHashDictionary.TryGetValue(levelID, out var hash) ? hash : string.Empty;
         }
+
         public static List<string> levelIDsForHash(string hash)
         {
             return hashLevelDictionary.TryGetValue(hash.ToUpper(), out var songs) ? songs : new List<string>();
@@ -88,10 +91,13 @@ namespace SongCore
                 return null;
             }
 
-            ExtraSongData.DifficultyData diffData = songData._difficulties.FirstOrDefault(x => x._difficulty == beatmap.difficulty && (x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicNameLocalizationKey || x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));
+            ExtraSongData.DifficultyData diffData = songData._difficulties.FirstOrDefault(x =>
+                x._difficulty == beatmap.difficulty && (x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.characteristicNameLocalizationKey ||
+                                                        x._beatmapCharacteristicName == beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName));
 
             return diffData;
         }
+
         public static void LoadExtraSongData()
         {
             customSongsData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, ExtraSongData>>(File.ReadAllText(dataPath));
@@ -114,7 +120,8 @@ namespace SongCore
             }
         }
 
-        public static BeatmapCharacteristicSO RegisterCustomCharacteristic(Sprite Icon, string CharacteristicName, string HintText, string SerializedName, string CompoundIdPartName, bool requires360Movement = false, bool containsRotationEvents = false, int sortingOrder = 99)
+        public static BeatmapCharacteristicSO RegisterCustomCharacteristic(Sprite Icon, string CharacteristicName, string HintText, string SerializedName, string CompoundIdPartName,
+            bool requires360Movement = false, bool containsRotationEvents = false, int sortingOrder = 99)
         {
             BeatmapCharacteristicSO newChar = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
 
@@ -150,6 +157,7 @@ namespace SongCore
                     Logging.logger.Error("Failed to make folder for: " + name + "\n" + ex);
                 }
             }
+
             SongFolderEntry entry = new SongFolderEntry(name, folderPath, pack, "", wip, cachezips);
             ModSeperateSongFolder seperateSongFolder = new ModSeperateSongFolder(entry, image == null ? UI.BasicUI.FolderIcon : image);
             if (Loader.SeperateSongFolders == null)
@@ -166,7 +174,5 @@ namespace SongCore
         {
             _capabilities.Remove(capability);
         }
-
-
     }
 }

@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 namespace SongCore.Data
 {
     public enum FolderLevelPack { CustomLevels, CustomWIPLevels, NewPack, CachedWIPLevels };
+
     [Serializable]
     public class SongFolderEntry
     {
@@ -29,6 +30,7 @@ namespace SongCore.Data
             CacheZIPs = cachezips;
         }
     }
+
     public class SeperateSongFolder
     {
         public SongFolderEntry SongFolderEntry { get; private set; }
@@ -60,6 +62,7 @@ namespace SongCore.Data
                         Utilities.Logging.Log($"Failed to Load Image For Seperate Folder \"{folderEntry.Name}\"");
                     }
                 }
+
                 LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, image, LevelCollection);
             }
         }
@@ -113,7 +116,7 @@ namespace SongCore.Data
                         zipCaching = bool.Parse(cachezips.Value);
                     }
 
-                    SongFolderEntry entry = new SongFolderEntry(name, path, (FolderLevelPack)pack, imagePath, isWIP, zipCaching);
+                    SongFolderEntry entry = new SongFolderEntry(name, path, (FolderLevelPack) pack, imagePath, isWIP, zipCaching);
                     //   Console.WriteLine("Entry");
                     //   Console.WriteLine("   " + entry.Name);
                     //   Console.WriteLine("   " + entry.Path);
@@ -124,7 +127,7 @@ namespace SongCore.Data
                     if (zipCaching)
                     {
                         FolderLevelPack cachePack;
-                        if ((FolderLevelPack)pack == FolderLevelPack.CustomWIPLevels)
+                        if ((FolderLevelPack) pack == FolderLevelPack.CustomWIPLevels)
                         {
                             cachePack = FolderLevelPack.CachedWIPLevels;
                         }
@@ -151,21 +154,19 @@ namespace SongCore.Data
             }
 
             return result;
-
         }
     }
+
     public class ModSeperateSongFolder : SeperateSongFolder
     {
         public bool AlwaysShow { get; set; } = true;
 
         public ModSeperateSongFolder(SongFolderEntry folderEntry) : base(folderEntry)
         {
-
         }
 
         public ModSeperateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite Image) : base(folderEntry, Image)
         {
-
         }
     }
 }
