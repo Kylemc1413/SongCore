@@ -14,10 +14,13 @@ namespace SongCore.HarmonyPatches
             if (__result == null)
             {
                 if (Collections.customCharacteristics.Any(x => x.serializedName == serializedName))
+                {
                     __result = Collections.customCharacteristics.FirstOrDefault(x => x.serializedName == serializedName);
+                }
                 else
+                {
                     __result = Collections.customCharacteristics.FirstOrDefault(x => x.serializedName == "MissingCharacteristic");
-                
+                }
             }
         }
     }

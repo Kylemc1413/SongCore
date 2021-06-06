@@ -53,7 +53,11 @@ namespace SongCore
         {
             get
             {
-                if (_beatmapLevelsModel == null) _beatmapLevelsModel = Resources.FindObjectsOfTypeAll<BeatmapLevelsModel>().FirstOrDefault();
+                if (_beatmapLevelsModel == null)
+                {
+                    _beatmapLevelsModel = Resources.FindObjectsOfTypeAll<BeatmapLevelsModel>().FirstOrDefault();
+                }
+
                 return _beatmapLevelsModel;
             }
         }
@@ -91,9 +95,13 @@ namespace SongCore
         private void Initialize()
         {
             if (Directory.Exists(Converter.oldFolderPath))
+            {
                 Converter.PrepareExistingLibrary();
+            }
             else
+            {
                 RefreshSongs();
+            }
         }
 
         internal void CancelSongLoading()
@@ -118,6 +126,7 @@ namespace SongCore
                     Logging.Log("Loading was cancelled by player since they loaded another scene.");
                 }
             }
+
             BS_Utils.Gameplay.Gamemode.Init();
             if (_customLevelLoader == null)
             {
@@ -168,7 +177,9 @@ namespace SongCore
                     if (folderEntry.Levels.Count > 0 || (folderEntry is ModSeperateSongFolder && (folderEntry as ModSeperateSongFolder).AlwaysShow))
                     {
                         if (!CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(folderEntry.LevelPack))
+                        {
                             CustomBeatmapLevelPackCollectionSO.AddLevelPack(folderEntry.LevelPack);
+                        }
                     }
                     //          else if (CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(folderEntry.LevelPack))
                     //              CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(folderEntry.LevelPack);
@@ -177,18 +188,20 @@ namespace SongCore
 
             BeatmapLevelsModelSO.SetField<BeatmapLevelsModel, IBeatmapLevelPackCollection>("_customLevelPackCollection", CustomBeatmapLevelPackCollectionSO as IBeatmapLevelPackCollection);
             await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+            {
+                BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
+                BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
+                var filterNav = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault();
+                //   filterNav.InitPlaylists();
+                //   filterNav.UpdatePlaylistsData();
+                if (filterNav != null && filterNav.isActiveAndEnabled)
                 {
-                    BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
-                    BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
-                    var filterNav = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault();
-                    //   filterNav.InitPlaylists();
-                    //   filterNav.UpdatePlaylistsData();
-                    if (filterNav != null && filterNav.isActiveAndEnabled)
-                        filterNav?.UpdateCustomSongs();
-                    //      AttemptReselectCurrentLevelPack(filterNav);
-                    OnLevelPacksRefreshed?.Invoke();
-                });
+                    filterNav?.UpdateCustomSongs();
+                }
 
+                //      AttemptReselectCurrentLevelPack(filterNav);
+                OnLevelPacksRefreshed?.Invoke();
+            });
         }
 
         internal void AttemptReselectCurrentLevelPack(LevelFilteringNavigationController controller)
@@ -228,8 +241,15 @@ namespace SongCore
 
         public void RefreshSongs(bool fullRefresh = true)
         {
-            if (SceneManager.GetActiveScene().name == "GameCore") return;
-            if (AreSongsLoading) return;
+            if (SceneManager.GetActiveScene().name == "GameCore")
+            {
+                return;
+            }
+
+            if (AreSongsLoading)
+            {
+                return;
+            }
 
             Logging.Log(fullRefresh ? "Starting full song refresh" : "Starting song refresh");
             AreSongsLoaded = false;
@@ -266,7 +286,10 @@ namespace SongCore
                 CachedWIPLevels.Clear();
                 Collections.levelHashDictionary.Clear();
                 Collections.hashLevelDictionary.Clear();
-                foreach (var folder in SeperateSongFolders) folder.Levels.Clear();
+                foreach (var folder in SeperateSongFolders)
+                {
+                    folder.Levels.Clear();
+                }
             }
             #endregion
 
@@ -434,7 +457,11 @@ namespace SongCore
 
                                   //HMMainThreadDispatcher.instance.Enqueue(delegate
                                   //{
-                                  if (_loadingCancelled) return;
+                                  if (_loadingCancelled)
+                                  {
+                                      return;
+                                  }
+
                                   var level = LoadSongAndAddToDictionaries(_loadingTaskCancellationTokenSource.Token, saveData, songPath);
                                   if (level != null)
                                   {
@@ -444,7 +471,9 @@ namespace SongCore
                                           CustomLevels[songPath] = level;
                                       }
                                       else
+                                      {
                                           CustomWIPLevels[songPath] = level;
+                                      }
 
                                       foundSongPaths.TryAdd(songPath, false);
                                   }
@@ -469,7 +498,10 @@ namespace SongCore
                         {
                             SeperateSongFolder entry = SeperateSongFolders[k];
                             Instance._progressBar.ShowMessage("Loading " + (SeperateSongFolders.Count - k) + " Additional Song folders");
-                            if (!Directory.Exists(entry.SongFolderEntry.Path)) continue;
+                            if (!Directory.Exists(entry.SongFolderEntry.Path))
+                            {
+                                continue;
+                            }
 
                             var entryFolders = Directory.GetDirectories(entry.SongFolderEntry.Path).ToList();
 
@@ -503,17 +535,40 @@ namespace SongCore
                                         var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
                                         if (!fullRefresh)
                                         {
-                                            if (entry.SongFolderEntry.Pack == FolderLevelPack.NewPack && SearchBeatmapInMapPack(entry.Levels, songPath)) continue;
-                                            else if (entry.SongFolderEntry.Pack == FolderLevelPack.CustomLevels && SearchBeatmapInMapPack(CustomLevels, songPath)) continue;
-                                            else if (entry.SongFolderEntry.Pack == FolderLevelPack.CustomWIPLevels && SearchBeatmapInMapPack(CustomWIPLevels, songPath)) continue;
-                                            else if (entry.SongFolderEntry.Pack == FolderLevelPack.CachedWIPLevels && SearchBeatmapInMapPack(CachedWIPLevels, songPath)) continue;
+                                            if (entry.SongFolderEntry.Pack == FolderLevelPack.NewPack && SearchBeatmapInMapPack(entry.Levels, songPath))
+                                            {
+                                                continue;
+                                            }
+                                            else if (entry.SongFolderEntry.Pack == FolderLevelPack.CustomLevels && SearchBeatmapInMapPack(CustomLevels, songPath))
+                                            {
+                                                continue;
+                                            }
+                                            else if (entry.SongFolderEntry.Pack == FolderLevelPack.CustomWIPLevels && SearchBeatmapInMapPack(CustomWIPLevels, songPath))
+                                            {
+                                                continue;
+                                            }
+                                            else if (entry.SongFolderEntry.Pack == FolderLevelPack.CachedWIPLevels && SearchBeatmapInMapPack(CachedWIPLevels, songPath))
+                                            {
+                                                continue;
+                                            }
                                         }
 
                                         if (entry.SongFolderEntry.Pack == FolderLevelPack.CustomLevels || (entry.SongFolderEntry.Pack == FolderLevelPack.NewPack && entry.SongFolderEntry.WIP == false))
                                         {
-                                            if (AssignBeatmapToSeperateFolder(CustomLevels, songPath, entry.Levels)) continue;
-                                            if (AssignBeatmapToSeperateFolder(CustomWIPLevels, songPath, entry.Levels)) continue;
-                                            if (AssignBeatmapToSeperateFolder(CachedWIPLevels, songPath, entry.Levels)) continue;
+                                            if (AssignBeatmapToSeperateFolder(CustomLevels, songPath, entry.Levels))
+                                            {
+                                                continue;
+                                            }
+
+                                            if (AssignBeatmapToSeperateFolder(CustomWIPLevels, songPath, entry.Levels))
+                                            {
+                                                continue;
+                                            }
+
+                                            if (AssignBeatmapToSeperateFolder(CachedWIPLevels, songPath, entry.Levels))
+                                            {
+                                                continue;
+                                            }
                                         }
 
                                         StandardLevelInfoSaveData saveData = GetStandardLevelInfoSaveData(songPath);
@@ -526,7 +581,11 @@ namespace SongCore
                                         var count = i2;
                                         //HMMainThreadDispatcher.instance.Enqueue(delegate
                                         //{
-                                        if (_loadingCancelled) return;
+                                        if (_loadingCancelled)
+                                        {
+                                            return;
+                                        }
+
                                         var level = LoadSongAndAddToDictionaries(_loadingTaskCancellationTokenSource.Token, saveData, songPath, entry.SongFolderEntry);
                                         if (level != null)
                                         {
@@ -571,7 +630,10 @@ namespace SongCore
                 int songCount = CustomLevels.Count + CustomWIPLevels.Count;
                 int songCountWSF = songCount;
                 foreach (var f in SeperateSongFolders)
+                {
                     songCount += f.Levels.Count;
+                }
+
                 Logging.Log($"Loaded {songCount}  new songs ({songCountWSF}) in CustomLevels | {songCount - songCountWSF} in seperate folders) in {stopwatch.Elapsed.TotalSeconds} seconds");
                 try
                 {
@@ -711,7 +773,9 @@ namespace SongCore
                         {
                             Collections.hashLevelDictionary[hash].Remove(level.levelID);
                             if (Collections.hashLevelDictionary[hash].Count == 0)
+                            {
                                 Collections.hashLevelDictionary.TryRemove(hash, out _);
+                            }
                         }
                     }
                     CustomLevelsById.TryRemove(level.levelID, out var deletedLevel);
@@ -720,10 +784,13 @@ namespace SongCore
 
                 //Delete the directory
                 if (deleteFolder)
+                {
                     if (Directory.Exists(folderPath))
                     {
                         Directory.Delete(folderPath, true);
                     }
+                }
+
                 RefreshLevelPacks();
             }
             catch (Exception ex)
@@ -790,9 +857,13 @@ namespace SongCore
             if (folderEntry != null)
             {
                 if ((folderEntry.Pack == FolderLevelPack.CustomWIPLevels) || (folderEntry.Pack == FolderLevelPack.CachedWIPLevels))
+                {
                     wip = true;
+                }
                 else if (folderEntry.WIP)
+                {
                     wip = true;
+                }
             }
             hash = Hashing.GetCustomLevelHash(saveData, songPath);
             try
@@ -801,8 +872,15 @@ namespace SongCore
                 string levelID = CustomLevelLoader.kCustomLevelPrefixId + hash;
                 // Fixed WIP status for duplicate song hashes
                 if (Collections.levelHashDictionary.ContainsKey(levelID + (wip ? " WIP" : "")))
+                {
                     levelID += "_" + folderName;
-                if (wip) levelID += " WIP";
+                }
+
+                if (wip)
+                {
+                    levelID += " WIP";
+                }
+
                 string songName = saveData.songName;
                 string songSubName = saveData.songSubName;
                 string songAuthorName = saveData.songAuthorName;
@@ -875,12 +953,21 @@ namespace SongCore
         private void CacheZIPs(string cachePath, string songFolderPath)
         {
             if (!Directory.Exists(cachePath))
+            {
                 Directory.CreateDirectory(cachePath);
+            }
+
             var cache = new DirectoryInfo(cachePath);
             foreach (var file in cache.GetFiles())
+            {
                 file.Delete();
+            }
+
             foreach (var folder in cache.GetDirectories())
+            {
                 folder.Delete(true);
+            }
+
             var zips = Directory.GetFiles(songFolderPath, "*.zip", SearchOption.TopDirectoryOnly);
 
             foreach (var zip in zips)
@@ -931,7 +1018,10 @@ namespace SongCore
                         var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
                         if (!fullRefresh && BeatmapDictionary != null)
                         {
-                            if (SearchBeatmapInMapPack(BeatmapDictionary, songPath)) continue;
+                            if (SearchBeatmapInMapPack(BeatmapDictionary, songPath))
+                            {
+                                continue;
+                            }
                         }
                         StandardLevelInfoSaveData saveData = GetStandardLevelInfoSaveData(songPath);
                         if (saveData == null)
@@ -941,7 +1031,11 @@ namespace SongCore
 
                         HMMainThreadDispatcher.instance.Enqueue(delegate
                         {
-                            if (_loadingCancelled) return;
+                            if (_loadingCancelled)
+                            {
+                                return;
+                            }
+
                             var level = LoadSong(saveData, songPath, out string hash, folderEntry);
                             if (level != null)
                             {
@@ -963,7 +1057,10 @@ namespace SongCore
         {
             if (mapPack.TryGetValue(songPath, out var c))
             {
-                if (c != null) return true;
+                if (c != null)
+                {
+                    return true;
+                }
             }
             return false;
         }
@@ -992,7 +1089,9 @@ namespace SongCore
                     Collections.levelHashDictionary.TryAdd(level.levelID, hash);
                     // Add hash to HashLevel-Dictionary
                     if (Collections.hashLevelDictionary.TryGetValue(hash, out var levels))
+                    {
                         levels.Add(level.levelID);
+                    }
                     else
                     {
                         levels = new List<string>();
@@ -1014,12 +1113,17 @@ namespace SongCore
         public static IPreviewBeatmapLevel GetLevelById(string levelId)
         {
             if (string.IsNullOrEmpty(levelId))
+            {
                 return null;
+            }
+
             IPreviewBeatmapLevel level = null;
             if (levelId.StartsWith("custom_level_"))
             {
                 if (CustomLevelsById.TryGetValue(levelId, out CustomPreviewBeatmapLevel customLevel))
+                {
                     level = customLevel;
+                }
             }
             else if (OfficialSongs.TryGetValue(levelId, out OfficialSongEntry song))
             {
@@ -1037,7 +1141,10 @@ namespace SongCore
         public static CustomPreviewBeatmapLevel GetLevelByHash(string hash)
         {
             if (string.IsNullOrEmpty(hash))
+            {
                 return null;
+            }
+
             CustomLevelsById.TryGetValue("custom_level_" + hash.ToUpper(), out CustomPreviewBeatmapLevel level);
             return level;
         }
@@ -1052,7 +1159,9 @@ namespace SongCore
                 if (Hashing.cachedAudioData.TryGetValue(songPath, out var data))
                 {
                     if (data.id == levelid)
+                    {
                         length = data.duration;
+                    }
                 }
                 if (length == 0)
                 {
@@ -1086,7 +1195,9 @@ namespace SongCore
                 level.SetField<CustomPreviewBeatmapLevel, float>("_songDuration", length);
 
                 if (Plugin.forceLongPreviews)
+                {
                     level.SetField("_previewDuration", Mathf.Max(level.previewDuration, length - level.previewStartTime));
+                }
             }
             catch (Exception ex)
             {
@@ -1100,9 +1211,13 @@ namespace SongCore
             var beatmapsave = BeatmapSaveData.DeserializeFromJSONString(File.ReadAllText(Path.Combine(songPath, diff)));
             float highestTime = 0;
             if (beatmapsave.notes.Count > 0)
+            {
                 highestTime = beatmapsave.notes.Max(x => x.time);
+            }
             else if (beatmapsave.events.Count > 0)
+            {
                 highestTime = beatmapsave.events.Max(x => x.time);
+            }
 
             return loader.GetRealTimeFromBPMTime(highestTime, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
         }
@@ -1122,12 +1237,20 @@ namespace SongCore
                     for (int i = 0; i < searchLength; i++)
                     {
                         var b = br.ReadByte();
-                        if (b != bytes[0]) continue;
+                        if (b != bytes[0])
+                        {
+                            continue;
+                        }
+
                         var by = br.ReadBytes(bytes.Length - 1);
                         // hardcoded 6 bytes compare, is fine because all inputs used are 6 bytes
                         // bitwise AND the last byte to read only the flag bit for lastSample searching
                         // shouldn't cause issues finding rate, hopefully
-                        if (by[0] == bytes[1] && by[1] == bytes[2] && by[2] == bytes[3] && by[3] == bytes[4] && (by[4] & bytes[5]) == bytes[5]) return true;
+                        if (by[0] == bytes[1] && by[1] == bytes[2] && by[2] == bytes[3] && by[3] == bytes[4] && (by[4] & bytes[5]) == bytes[5])
+                        {
+                            return true;
+                        }
+
                         var index = Array.IndexOf(@by, bytes[0]);
                         if (index != -1)
                         {
@@ -1135,7 +1258,9 @@ namespace SongCore
                             i += index;
                         }
                         else
+                        {
                             i += (bytes.Length - 1);
+                        }
                     }
                     return false;
                 }

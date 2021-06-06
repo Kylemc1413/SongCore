@@ -165,9 +165,15 @@ namespace SongCore.HarmonyPatches
                     var difficulty = diffLevel._difficulty;
                     string characteristic = diffLevel._beatmapCharacteristicName;
                     if (characteristic == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName)
+                    {
                         currentCharacteristic = characteristic;
+                    }
+
                     if (!levelLabels.ContainsKey(characteristic))
+                    {
                         levelLabels.Add(characteristic, new OverrideLabels());
+                    }
+
                     OverrideLabels charLabels = levelLabels[characteristic];
                     if (!string.IsNullOrWhiteSpace(diffLevel._difficultyLabel))
                     {
@@ -191,13 +197,20 @@ namespace SongCore.HarmonyPatches
                         }
                     }
                 }
+
                 if (!string.IsNullOrWhiteSpace(currentCharacteristic))
+                {
                     SetCurrentLabels(levelLabels[currentCharacteristic]);
+                }
                 else
+                {
                     clearOverrideLabels();
+                }
 
                 ____beatmapDifficultySegmentedControlController.SetData(____selectedDifficultyBeatmap.parentDifficultyBeatmapSet.difficultyBeatmaps, ____beatmapDifficultySegmentedControlController.selectedDifficulty);
                 clearOverrideLabels();
+
+                // TODO: Check if this whole if block is still needed
                 if (songData._defaultCharacteristic != null && firstSelection)
                 {
                     if(____beatmapCharacteristicSegmentedControlController.selectedBeatmapCharacteristic.serializedName != songData._defaultCharacteristic)
@@ -207,23 +220,22 @@ namespace SongCore.HarmonyPatches
                         foreach (var characteristic in chars)
                         {
                             if (songData._defaultCharacteristic == characteristic.serializedName)
+                            {
                                 break;
+                            }
+
                             index++;
                         }
                         if (index != chars.Count)
+                        {
                             ____beatmapCharacteristicSegmentedControlController.GetField<HMUI.IconSegmentedControl, BeatmapCharacteristicSegmentedControlController>("_segmentedControl").SelectCellWithNumber(index);
                             ____beatmapCharacteristicSegmentedControlController.HandleDifficultySegmentedControlDidSelectCell(
                                 ____beatmapCharacteristicSegmentedControlController.GetField<HMUI.IconSegmentedControl, BeatmapCharacteristicSegmentedControlController>("_segmentedControl"), index);
+                        }
                     }
-
                 }
-
-
-
             }
-
         }
-
     }
 }
 

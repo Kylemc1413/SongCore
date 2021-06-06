@@ -63,7 +63,11 @@ namespace SongCore.Utilities
         public static object InvokeConstructor(this object obj, params object[] constructorParams)
         {
             Type[] types = new Type[constructorParams.Length];
-            for (int i = 0; i < constructorParams.Length; i++) types[i] = constructorParams[i].GetType();
+            for (int i = 0; i < constructorParams.Length; i++)
+            {
+                types[i] = constructorParams[i].GetType();
+            }
+
             return (obj is Type ? (Type)obj : obj.GetType())
                 .GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, types, null)
                 .Invoke(constructorParams);

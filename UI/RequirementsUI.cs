@@ -71,17 +71,34 @@ namespace SongCore.UI
         internal void GetIcons()
         {
             if (!MissingReqIcon)
+            {
                 MissingReqIcon = Utils.LoadSpriteFromResources("SongCore.Icons.RedX.png");
+            }
+
             if (!HaveReqIcon)
+            {
                 HaveReqIcon = Utils.LoadSpriteFromResources("SongCore.Icons.GreenCheck.png");
+            }
+
             if (!HaveSuggestionIcon)
+            {
                 HaveSuggestionIcon = Utils.LoadSpriteFromResources("SongCore.Icons.YellowCheck.png");
+            }
+
             if (!MissingSuggestionIcon)
+            {
                 MissingSuggestionIcon = Utils.LoadSpriteFromResources("SongCore.Icons.YellowX.png");
+            }
+
             if (!WarningIcon)
+            {
                 WarningIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Warning.png");
+            }
+
             if (!InfoIcon)
+            {
                 InfoIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Info.png");
+            }
         }
 
         [UIAction("button-click")]
@@ -99,9 +116,13 @@ namespace SongCore.UI
                     {
                         //    Console.WriteLine(req);
                         if (!Collections.capabilities.Contains(req))
+                        {
                             customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon));
+                        }
                         else
+                        {
                             customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Requirement", HaveReqIcon));
+                        }
                     }
                 }
             }
@@ -111,20 +132,29 @@ namespace SongCore.UI
                 foreach (Data.ExtraSongData.Contributor author in songData.contributors)
                 {
                     if (author.icon == null)
+                    {
                         if (!string.IsNullOrWhiteSpace(author._iconPath))
                         {
                             author.icon = Utils.LoadSpriteFromFile(level.customLevelPath + "/" + author._iconPath);
                             customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon ?? InfoIcon));
                         }
                         else
+                        {
                             customListTableData.data.Add(new CustomCellInfo(author._name, author._role, InfoIcon));
+                        }
+                    }
                     else
+                    {
                         customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon));
+                    }
                 }
             }
             //WIP Check
             if (wipFolder)
+            {
                 customListTableData.data.Add(new CustomCellInfo("<size=70%>" + "WIP Song. Please Play in Practice Mode", "Warning", WarningIcon));
+            }
+
             //Additional Diff Info
             if (diffData != null)
             {
@@ -155,9 +185,13 @@ namespace SongCore.UI
 
                         //    Console.WriteLine(req);
                         if (!Collections.capabilities.Contains(req))
+                        {
                             customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Suggestion", MissingSuggestionIcon));
+                        }
                         else
+                        {
                             customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Suggestion", HaveSuggestionIcon));
+                        }
                     }
                 }
             }

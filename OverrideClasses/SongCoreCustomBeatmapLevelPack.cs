@@ -9,7 +9,9 @@ namespace SongCore.OverrideClasses
             coverImage = Sprite.Create(coverImage.texture, coverImage.rect, coverImage.pivot, coverImage.texture.width);
             _coverImage = coverImage;
             if (shortPackName == "")
+            {
                 _shortPackName = packName;
+            }
         }
 
         public void UpdateLevelCollection(CustomBeatmapLevelCollection newLevelCollection)

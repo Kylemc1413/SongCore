@@ -85,7 +85,11 @@ namespace SongCore.Data
             //        Utilities.Logging.Log("SongData Ctor");
             try
             {
-                if (!File.Exists(songPath + "/info.dat")) return;
+                if (!File.Exists(songPath + "/info.dat"))
+                {
+                    return;
+                }
+
                 var infoText = File.ReadAllText(songPath + "/info.dat");
 
                 JObject info = JObject.Parse(infoText);
@@ -100,11 +104,19 @@ namespace SongCore.Data
                         levelContributors.AddRange(contributors.ToObject<Contributor[]>());
                     }
                     if (infoData.TryGetValue("_customEnvironment", out var customEnvironment))
+                    {
                         _customEnvironmentName = (string)customEnvironment;
+                    }
+
                     if (infoData.TryGetValue("_customEnvironmentHash", out var envHash))
+                    {
                         _customEnvironmentHash = (string)envHash;
+                    }
+
                     if (infoData.TryGetValue("_defaultCharacteristic", out var defaultChar))
+                    {
                         _defaultCharacteristic = (string)defaultChar;
+                    }
                 }
                 contributors = levelContributors.ToArray();
 
@@ -136,7 +148,9 @@ namespace SongCore.Data
                         {
                             beatmapData = (JObject)customData;
                             if (beatmapData.TryGetValue("_difficultyLabel", out var difficultyLabel))
+                            {
                                 diffLabel = (string)difficultyLabel;
+                            }
 
                             //Get difficulty json fields
                             if (beatmapData.TryGetValue("_colorLeft", out var colorLeft))
@@ -222,13 +236,24 @@ namespace SongCore.Data
                             }
 
                             if (beatmapData.TryGetValue("_warnings", out var warnings))
+                            {
                                 diffWarnings.AddRange(((JArray)warnings).Select(c => (string)c));
+                            }
+
                             if (beatmapData.TryGetValue("_information", out var information))
+                            {
                                 diffInfo.AddRange(((JArray)information).Select(c => (string)c));
+                            }
+
                             if (beatmapData.TryGetValue("_suggestions", out var suggestions))
+                            {
                                 diffSuggestions.AddRange(((JArray)suggestions).Select(c => (string)c));
+                            }
+
                             if (beatmapData.TryGetValue("_requirements", out var requirements))
+                            {
                                 diffRequirements.AddRange(((JArray)requirements).Select(c => (string)c));
+                            }
                         }
                         RequirementData diffReqData = new RequirementData
                         {

@@ -21,7 +21,11 @@ namespace SongCore.Utilities
             if (File.Exists(cachedHashDataPath))
             {
                 cachedSongHashData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
-                if (cachedSongHashData == null) cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
+                if (cachedSongHashData == null)
+                {
+                    cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
+                }
+
                 Logging.Log($"Finished reading cached hashes for {cachedSongHashData.Count} songs!");
             }
         }
@@ -40,7 +44,9 @@ namespace SongCore.Utilities
             foreach (KeyValuePair<string, SongHashData> hashData in cachedSongHashData.ToArray())
             {
                 if (!currentSongPaths.Contains(hashData.Key))
+                {
                     cachedSongHashData.TryRemove(hashData.Key, out _);
+                }
             }
 
             Logging.Log($"Updating cached hashes for {cachedSongHashData.Count} songs!");
@@ -52,7 +58,11 @@ namespace SongCore.Utilities
             if (File.Exists(cachedAudioDataPath))
             {
                 cachedAudioData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
-                if (cachedAudioData == null) cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
+                if (cachedAudioData == null)
+                {
+                    cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
+                }
+
                 Logging.Log($"Finished reading cached Durations for {cachedAudioData.Count} songs!");
             }
         }
@@ -71,7 +81,9 @@ namespace SongCore.Utilities
             foreach (KeyValuePair<string, AudioCacheData> hashData in cachedAudioData.ToArray())
             {
                 if (!currentSongPaths.Contains(hashData.Key))
+                {
                     cachedAudioData.TryRemove(hashData.Key, out _);
+                }
             }
 
             Logging.Log($"Updating cached Map Lengths for {cachedAudioData.Count} songs!");
@@ -110,17 +122,21 @@ namespace SongCore.Utilities
         public static string GetCustomLevelHash(CustomPreviewBeatmapLevel level)
         {
             if (GetCachedSongData(level.customLevelPath, out var directoryHash, out var songHash))
+            {
                 return songHash;
+            }
 
             List<byte> combinedBytes = new List<byte>();
             combinedBytes.AddRange(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat"));
             for (int i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
             {
                 for (int i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
+                {
                     if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
                     {
                         combinedBytes.AddRange(File.ReadAllBytes(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename));
                     }
+                }
             }
 
             string hash = CreateSha1FromBytes(combinedBytes.ToArray());
@@ -131,15 +147,21 @@ namespace SongCore.Utilities
         public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
         {
             if (GetCachedSongData(customLevelPath, out var directoryHash, out var songHash))
+            {
                 return songHash;
+            }
 
             byte[] combinedBytes = new byte[0];
             combinedBytes = combinedBytes.Concat(File.ReadAllBytes(customLevelPath + '/' + "info.dat")).ToArray();
             for (int i = 0; i < level.difficultyBeatmapSets.Length; i++)
             {
                 for (int i2 = 0; i2 < level.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
+                {
                     if (File.Exists(customLevelPath + '/' + level.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
+                    {
                         combinedBytes = combinedBytes.Concat(File.ReadAllBytes(customLevelPath + '/' + level.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename)).ToArray();
+                    }
+                }
             }
 
             string hash = CreateSha1FromBytes(combinedBytes.ToArray());
@@ -150,15 +172,21 @@ namespace SongCore.Utilities
         public static string GetCustomLevelHash(CustomBeatmapLevel level)
         {
             if (GetCachedSongData(level.customLevelPath, out var directoryHash, out var songHash))
+            {
                 return songHash;
+            }
 
             byte[] combinedBytes = new byte[0];
             combinedBytes = combinedBytes.Concat(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat")).ToArray();
             for (int i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
             {
                 for (int i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
+                {
                     if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
+                    {
                         combinedBytes = combinedBytes.Concat(File.ReadAllBytes(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename)).ToArray();
+                    }
+                }
             }
 
             string hash = CreateSha1FromBytes(combinedBytes.ToArray());
@@ -193,7 +221,11 @@ namespace SongCore.Utilities
         public static bool CreateSha1FromFile(string path, out string hash)
         {
             hash = "";
-            if (!File.Exists(path)) return false;
+            if (!File.Exists(path))
+            {
+                return false;
+            }
+
             using (var sha1 = SHA1.Create())
             {
                 using (var stream = File.OpenRead(path))

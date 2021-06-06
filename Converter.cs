@@ -38,10 +38,15 @@ namespace SongCore
                     foreach (var result in results)
                     {
                         var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
-                        if (!Directory.Exists(songPath)) continue;
+                        if (!Directory.Exists(songPath))
+                        {
+                            continue;
+                        }
 
                         if (Directory.GetFiles(songPath, "info.dat").Count() > 0)
+                        {
                             continue;
+                        }
 
                         string newPath = songPath;
                         //If song is in a subfolder, move it to CustomSongs and correct the name
@@ -56,7 +61,11 @@ namespace SongCore
                                 if (Directory.Exists(newPath))
                                 {
                                     int pathNum = 1;
-                                    while (Directory.Exists(newPath + $" ({pathNum})")) ++pathNum;
+                                    while (Directory.Exists(newPath + $" ({pathNum})"))
+                                    {
+                                        ++pathNum;
+                                    }
+
                                     newPath = newPath + $" ({pathNum})";
                                 }
                                 Directory.Move(songPath, newPath);
@@ -81,7 +90,9 @@ namespace SongCore
 
             }
             if (File.Exists(oldFolderPath + "/../songe-converter.exe"))
+            {
                 Loader.Instance.StartCoroutine(ConvertSongs());
+            }
             else
             {
                 Logging.Log("Missing Songe converter, not converting", LogSeverity.Notice);

@@ -16,7 +16,11 @@ namespace SongCore.HarmonyPatches
     {
         static void Prefix(ref bool condition)
         {
-            if (condition == true) return;
+            if (condition == true)
+            {
+                return;
+            }
+
             var stack = new StackTrace();
             for (int i = 0; i < stack.FrameCount; i++)
             {
@@ -110,15 +114,28 @@ namespace SongCore.HarmonyPatches
 
         static void Postfix(ref LevelFilteringNavigationController __instance, LevelSearchViewController ____levelSearchViewController, SelectLevelCategoryViewController ____selectLevelCategoryViewController, ref IBeatmapLevelPack[] ____ostBeatmapLevelPacks, ref IBeatmapLevelPack[] ____musicPacksBeatmapLevelPacks, ref IBeatmapLevelPack[] ____customLevelPacks, ref IBeatmapLevelPack[] ____allBeatmapLevelPacks)
         {
-            if (Loader.CustomBeatmapLevelPackCollectionSO == null) return;
+            if (Loader.CustomBeatmapLevelPackCollectionSO == null)
+            {
+                return;
+            }
+
             ____customLevelPacks = Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks;
             List<IBeatmapLevelPack> packs = new List<IBeatmapLevelPack>();
             if (____ostBeatmapLevelPacks != null)
+            {
                 packs = packs.Concat(____ostBeatmapLevelPacks).ToList();
+            }
+
             if (____musicPacksBeatmapLevelPacks != null)
+            {
                 packs = packs.Concat(____musicPacksBeatmapLevelPacks).ToList();
+            }
+
             if (____customLevelPacks != null)
+            {
                 packs = packs.Concat(____customLevelPacks).ToList();
+            }
+
             ____allBeatmapLevelPacks = packs.ToArray();
             ____levelSearchViewController.Setup(____allBeatmapLevelPacks);
             __instance.UpdateSecondChildControllerContent(____selectLevelCategoryViewController.selectedLevelCategory);

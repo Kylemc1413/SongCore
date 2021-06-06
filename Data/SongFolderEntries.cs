@@ -85,7 +85,11 @@ namespace SongCore.Data
                 {
                     //           Console.WriteLine("Element Name: " + item.Name);
                     string name = item.Element("Name").Value;
-                    if (name == "Example") continue;
+                    if (name == "Example")
+                    {
+                        continue;
+                    }
+
                     string path = item.Element("Path").Value;
                     int pack = int.Parse(item.Element("Pack").Value);
                     string imagePath = "";
@@ -118,15 +122,25 @@ namespace SongCore.Data
                     if (zipCaching)
                     {
                         FolderLevelPack cachePack;
-                        if ((FolderLevelPack)pack == FolderLevelPack.CustomWIPLevels) cachePack = FolderLevelPack.CachedWIPLevels;
-                        else cachePack = FolderLevelPack.NewPack;
+                        if ((FolderLevelPack)pack == FolderLevelPack.CustomWIPLevels)
+                        {
+                            cachePack = FolderLevelPack.CachedWIPLevels;
+                        }
+                        else
+                        {
+                            cachePack = FolderLevelPack.NewPack;
+                        }
+
                         SongFolderEntry cachedSongFolderEntry = new SongFolderEntry(String.Concat("Cached ", name), Path.Combine(path, "Cache"), cachePack, imagePath, isWIP, false);
                         cachedSeperate = new SeperateSongFolder(cachedSongFolderEntry);
                     }
 
                     SeperateSongFolder seperate = new SeperateSongFolder(entry, cachedSeperate);
                     result.Add(seperate);
-                    if (cachedSeperate != null) result.Add(cachedSeperate);
+                    if (cachedSeperate != null)
+                    {
+                        result.Add(cachedSeperate);
+                    }
                 }
             }
             catch

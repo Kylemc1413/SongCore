@@ -17,7 +17,11 @@ namespace SongCore.HarmonyPatches
             EnvironmentInfoSO environmentInfoSO = difficultyBeatmap.GetEnvironmentInfo();
             Data.ExtraSongData.DifficultyData songData = Collections.RetrieveDifficultyData(difficultyBeatmap);
             ColorScheme fallbackScheme = overrideColorScheme ?? new ColorScheme(environmentInfoSO.colorScheme);
-            if (songData == null) return;
+            if (songData == null)
+            {
+                return;
+            }
+
             if (songData._colorLeft != null || songData._colorRight != null || songData._envColorLeft != null || songData._envColorRight != null || songData._obstacleColor != null)
             {
                 if (Plugin.customSongColors)

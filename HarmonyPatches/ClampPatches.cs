@@ -88,7 +88,10 @@ namespace SongCore.HarmonyPatches
         static void Postfix(List<NoteData> notes)
         {
             if (!notes.Any(x => x.lineIndex > 3 || x.lineIndex < 0))
+            {
                 return;
+            }
+
             Dictionary<int, List<NoteData>> notesInColumn = new Dictionary<int, List<NoteData>>();
             foreach(NoteData note in notes)
             {

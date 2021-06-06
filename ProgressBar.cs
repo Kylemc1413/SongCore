@@ -127,9 +127,13 @@ namespace SongCore
         {
             System.DateTime time;
             if (IPA.Utilities.Utils.CanUseDateTimeNowSafely)
+            {
                 time = System.DateTime.Now;
+            }
             else
+            {
                 time = System.DateTime.UtcNow;
+            }
 
             _jokeTime = (time.Day == 18 && time.Month == 6) || (time.Day == 1 && time.Month == 4);
 
@@ -190,7 +194,11 @@ namespace SongCore
 
         private void Update()
         {
-            if (!_canvas.enabled) return;
+            if (!_canvas.enabled)
+            {
+                return;
+            }
+
             _loadingBar.fillAmount = Loader.LoadingProgress;
 
             _loadingBar.color = _jokeTime? Color.red : HSBColor.ToColor(new HSBColor(Mathf.PingPong(Time.time * 0.35f, 1), 1, 1));

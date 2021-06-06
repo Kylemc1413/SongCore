@@ -43,7 +43,9 @@ namespace SongCore
             try
             {
                 if (File.Exists(Environment.CurrentDirectory + "/UserData/SongCore.ini"))
+                {
                     File.Delete(Environment.CurrentDirectory + "/UserData/SongCore.ini");
+                }
             }
             catch
             {
@@ -59,15 +61,23 @@ namespace SongCore
             BS_Utils.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
             BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
             if (!File.Exists(Collections.dataPath))
+            {
                 File.Create(Collections.dataPath);
+            }
             else
+            {
                 Collections.LoadExtraSongData();
+            }
+
             Collections.RegisterCustomCharacteristic(BasicUI.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic", false, false, 1000);
             Collections.RegisterCustomCharacteristic(BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow", false, false, 100);
             Collections.RegisterCustomCharacteristic(BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless", false, false, 101);
 
             if (!File.Exists(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"))
+            {
                 File.WriteAllBytes(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml", SongCore.Utilities.Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
+            }
+
             Loader.SeperateSongFolders.InsertRange(0, Data.SeperateSongFolder.ReadSeperateFoldersFromFile(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"));
         }
 
@@ -79,7 +89,11 @@ namespace SongCore
 
         private void BSEvents_gameSceneLoaded()
         {
-            if (!BS_Utils.Plugin.LevelData.IsSet) return;
+            if (!BS_Utils.Plugin.LevelData.IsSet)
+            {
+                return;
+            }
+
             //     Logging.logger.Info(BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.level.songDuration.ToString());
             SharedCoroutineStarter.instance.StartCoroutine(DelayedNoteJumpMovementSpeedFix());
         }
