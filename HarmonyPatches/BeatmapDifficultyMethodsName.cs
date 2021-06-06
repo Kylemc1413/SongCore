@@ -15,7 +15,7 @@ namespace SongCore.HarmonyPatches
 
             if (difficulty == BeatmapDifficulty.Easy)
             {
-                if (StandardLevelDetailViewRefreshContent.currentLabels.EasyOverride != "")
+                if (StandardLevelDetailViewRefreshContent.currentLabels.EasyOverride != null)
                 {
                     __result = StandardLevelDetailViewRefreshContent.currentLabels.EasyOverride.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
                 }
@@ -23,7 +23,7 @@ namespace SongCore.HarmonyPatches
 
             if (difficulty == BeatmapDifficulty.Normal)
             {
-                if (StandardLevelDetailViewRefreshContent.currentLabels.NormalOverride != "")
+                if (StandardLevelDetailViewRefreshContent.currentLabels.NormalOverride != null)
                 {
                     __result = StandardLevelDetailViewRefreshContent.currentLabels.NormalOverride.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
                 }
@@ -31,7 +31,7 @@ namespace SongCore.HarmonyPatches
 
             if (difficulty == BeatmapDifficulty.Hard)
             {
-                if (StandardLevelDetailViewRefreshContent.currentLabels.HardOverride != "")
+                if (StandardLevelDetailViewRefreshContent.currentLabels.HardOverride != null)
                 {
                     __result = StandardLevelDetailViewRefreshContent.currentLabels.HardOverride.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
                 }
@@ -39,7 +39,7 @@ namespace SongCore.HarmonyPatches
 
             if (difficulty == BeatmapDifficulty.Expert)
             {
-                if (StandardLevelDetailViewRefreshContent.currentLabels.ExpertOverride != "")
+                if (StandardLevelDetailViewRefreshContent.currentLabels.ExpertOverride != null)
                 {
                     __result = StandardLevelDetailViewRefreshContent.currentLabels.ExpertOverride.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
                 }
@@ -47,7 +47,7 @@ namespace SongCore.HarmonyPatches
 
             if (difficulty == BeatmapDifficulty.ExpertPlus)
             {
-                if (StandardLevelDetailViewRefreshContent.currentLabels.ExpertPlusOverride != "")
+                if (StandardLevelDetailViewRefreshContent.currentLabels.ExpertPlusOverride != null)
                 {
                     __result = StandardLevelDetailViewRefreshContent.currentLabels.ExpertPlusOverride.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
                 }

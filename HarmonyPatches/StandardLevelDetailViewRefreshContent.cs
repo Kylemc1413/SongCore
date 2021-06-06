@@ -30,11 +30,11 @@ namespace SongCore.HarmonyPatches
 
         public class OverrideLabels
         {
-            internal string EasyOverride = "";
-            internal string NormalOverride = "";
-            internal string HardOverride = "";
-            internal string ExpertOverride = "";
-            internal string ExpertPlusOverride = "";
+            internal string? EasyOverride;
+            internal string? NormalOverride;
+            internal string? HardOverride;
+            internal string? ExpertOverride;
+            internal string? ExpertPlusOverride;
         }
 
         internal static void SetCurrentLabels(OverrideLabels labels)
@@ -48,11 +48,11 @@ namespace SongCore.HarmonyPatches
 
         internal static void ClearOverrideLabels()
         {
-            currentLabels.EasyOverride = "";
-            currentLabels.NormalOverride = "";
-            currentLabels.HardOverride = "";
-            currentLabels.ExpertOverride = "";
-            currentLabels.ExpertPlusOverride = "";
+            currentLabels.EasyOverride = null;
+            currentLabels.NormalOverride = null;
+            currentLabels.HardOverride = null;
+            currentLabels.ExpertOverride = null;
+            currentLabels.ExpertPlusOverride = null;
         }
 
         private static void Postfix(StandardLevelDetailView __instance, ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
@@ -172,7 +172,7 @@ namespace SongCore.HarmonyPatches
                     LevelLabels.Add(characteristic, new OverrideLabels());
                 }
 
-                OverrideLabels charLabels = LevelLabels[characteristic];
+                var charLabels = LevelLabels[characteristic];
                 if (!string.IsNullOrWhiteSpace(diffLevel._difficultyLabel))
                 {
                     switch (difficulty)
