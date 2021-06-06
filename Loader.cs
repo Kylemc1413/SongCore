@@ -975,7 +975,7 @@ namespace SongCore
                 var unzip = new Unzip(zip);
                 try
                 {
-                    unzip.ExtractToDirectory(cachePath + "/" + new FileInfo(zip).Name);
+                    unzip.ExtractToDirectory(Path.Combine(cachePath, new FileInfo(zip).Name));
                 }
                 catch (Exception ex)
                 {

@@ -42,9 +42,10 @@ namespace SongCore
             //Delete Old Config
             try
             {
-                if (File.Exists(Environment.CurrentDirectory + "/UserData/SongCore.ini"))
+                var songCoreIniPath = Path.Combine(UnityGame.UserDataPath, "SongCore.ini");
+                if (File.Exists(songCoreIniPath))
                 {
-                    File.Delete(Environment.CurrentDirectory + "/UserData/SongCore.ini");
+                    File.Delete(songCoreIniPath);
                 }
             }
             catch
@@ -73,12 +74,13 @@ namespace SongCore
             Collections.RegisterCustomCharacteristic(BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow", false, false, 100);
             Collections.RegisterCustomCharacteristic(BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless", false, false, 101);
 
-            if (!File.Exists(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"))
+            var foldersXmlFilePath = Path.Combine(UnityGame.UserDataPath, "SongCore", "folders.xml");
+            if (!File.Exists(foldersXmlFilePath))
             {
-                File.WriteAllBytes(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml", SongCore.Utilities.Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
+                File.WriteAllBytes(foldersXmlFilePath, SongCore.Utilities.Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
             }
 
-            Loader.SeperateSongFolders.InsertRange(0, Data.SeperateSongFolder.ReadSeperateFoldersFromFile(Environment.CurrentDirectory + "/UserData/SongCore/folders.xml"));
+            Loader.SeperateSongFolders.InsertRange(0, Data.SeperateSongFolder.ReadSeperateFoldersFromFile(foldersXmlFilePath));
         }
 
         private void BSEvents_menuSceneLoadedFresh(ScenesTransitionSetupDataSO data)

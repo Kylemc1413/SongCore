@@ -1,4 +1,5 @@
-﻿using BeatSaberMarkupLanguage;
+﻿using System.IO;
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using SongCore.Utilities;
@@ -135,7 +136,7 @@ namespace SongCore.UI
                     {
                         if (!string.IsNullOrWhiteSpace(author._iconPath))
                         {
-                            author.icon = Utils.LoadSpriteFromFile(level.customLevelPath + "/" + author._iconPath);
+                            author.icon = Utils.LoadSpriteFromFile(Path.Combine(level.customLevelPath, author._iconPath));
                             customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon ?? InfoIcon));
                         }
                         else

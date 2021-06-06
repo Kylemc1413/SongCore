@@ -16,7 +16,7 @@ namespace SongCore
         internal static int ConvertedCount = 0;
         internal static bool doneConverting = false;
         public static Stack<string> ToConvert = new Stack<string>();
-        public static string oldFolderPath = Environment.CurrentDirectory + "/CustomSongs";
+        public static string oldFolderPath = Path.Combine(Environment.CurrentDirectory, "CustomSongs");
         public static void PrepareExistingLibrary()
         {
             Logging.Log("Attempting to Convert Existing Library");
@@ -57,7 +57,7 @@ namespace SongCore
                             {
                                 //       Logging.Log("SubFolder Song Found: " + songPath, LogSeverity.Notice);
                                 //       Logging.Log("Moving Subfolder to CustomSongs", LogSeverity.Notice);
-                                newPath = oldFolderPath + "/" + parent.Name + " " + new DirectoryInfo(songPath).Name;
+                                newPath = Path.Combine(oldFolderPath, parent.Name + " " + new DirectoryInfo(songPath).Name);
                                 if (Directory.Exists(newPath))
                                 {
                                     var pathNum = 1;
