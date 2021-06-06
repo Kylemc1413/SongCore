@@ -91,7 +91,7 @@ namespace SongCore.Data
                     }
 
                     string path = item.Element("Path").Value;
-                    int pack = int.Parse(item.Element("Pack").Value);
+                    var pack = int.Parse(item.Element("Pack").Value);
                     string imagePath = "";
                     var image = item.Element("ImagePath");
                     if (image != null)
@@ -99,18 +99,20 @@ namespace SongCore.Data
                         imagePath = image.Value;
                     }
 
-                    bool isWIP = false;
+                    var isWIP = false;
                     var wip = item.Element("WIP");
                     if (wip != null)
                     {
                         isWIP = bool.Parse(wip.Value);
                     }
-                    bool zipCaching = false;
+
+                    var zipCaching = false;
                     var cachezips = item.Element("CacheZIPs");
                     if (cachezips != null)
                     {
                         zipCaching = bool.Parse(cachezips.Value);
                     }
+
                     SongFolderEntry entry = new SongFolderEntry(name, path, (FolderLevelPack)pack, imagePath, isWIP, zipCaching);
                     //   Console.WriteLine("Entry");
                     //   Console.WriteLine("   " + entry.Name);

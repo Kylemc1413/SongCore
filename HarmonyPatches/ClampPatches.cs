@@ -21,7 +21,7 @@ namespace SongCore.HarmonyPatches
         {
             List<CodeInstruction> instructionList = instructions.ToList();
 
-            for (int i = 0; i < instructionList.Count; i++)
+            for (var i = 0; i < instructionList.Count; i++)
             {
                 if (instructionList[i].opcode == OpCodes.Ldelem_Ref)
                 {
@@ -63,7 +63,7 @@ namespace SongCore.HarmonyPatches
         {
             List<CodeInstruction> instructionList = instructions.ToList();
             
-            for (int i = 0; i < instructionList.Count; i++)
+            for (var i = 0; i < instructionList.Count; i++)
             {
                 if (instructionList[i].opcode == OpCodes.Ldelem_Ref)
                 {
@@ -97,12 +97,12 @@ namespace SongCore.HarmonyPatches
             {
                 notesInColumn[note.lineIndex] = new List<NoteData>(3);
             }
-            for (int j = 0; j < notes.Count; j++)
+            for (var j = 0; j < notes.Count; j++)
             {
                 NoteData noteData = notes[j];
                 List<NoteData> list = notesInColumn[noteData.lineIndex];
-                bool flag = false;
-                for (int k = 0; k < list.Count; k++)
+                var flag = false;
+                for (var k = 0; k < list.Count; k++)
                 {
                     if (list[k].noteLineLayer > noteData.noteLineLayer)
                     {
@@ -118,7 +118,7 @@ namespace SongCore.HarmonyPatches
             }
             foreach(var list in notesInColumn.Values)
             {
-                for (int m = 0; m < list.Count; m++)
+                for (var m = 0; m < list.Count; m++)
                 {
                     list[m].SetNoteStartLineLayer((NoteLineLayer)m);
                 }
@@ -146,13 +146,13 @@ namespace SongCore.HarmonyPatches
                 for (; ; )
                 {
                     BeatmapObjectData minBeatmapObjectData = null;
-                    float num = float.MaxValue;
-                    for (int i = 0; i < beatmapLinesData.Length; i++)
+                    var num = float.MaxValue;
+                    for (var i = 0; i < beatmapLinesData.Length; i++)
                     {
                         if (idxs[i] < beatmapLinesData[i].beatmapObjectsData.Count)
                         {
                             BeatmapObjectData beatmapObjectData = beatmapLinesData[i].beatmapObjectsData[idxs[i]];
-                            float time = beatmapObjectData.time;
+                            var time = beatmapObjectData.time;
                             if (time < num)
                             {
                                 num = time;

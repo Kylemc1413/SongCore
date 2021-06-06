@@ -60,7 +60,7 @@ namespace SongCore.HarmonyPatches
             ref Button ____practiceButton, ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
             ref BeatmapCharacteristicSegmentedControlController ____beatmapCharacteristicSegmentedControlController)
         {
-            bool firstSelection = false;
+            var firstSelection = false;
             var level = ____selectedDifficultyBeatmap.level is CustomBeatmapLevel ? ____selectedDifficultyBeatmap.level as CustomPreviewBeatmapLevel : null;
             if (level != lastLevel)
             {
@@ -88,7 +88,7 @@ namespace SongCore.HarmonyPatches
                     RequirementsUI.instance.ButtonInteractable = false;
                     return;
                 }
-                bool wipFolderSong = false;
+                var wipFolderSong = false;
                 IDifficultyBeatmap selectedDiff = ____selectedDifficultyBeatmap;
                 Data.ExtraSongData.DifficultyData diffData = Collections.RetrieveDifficultyData(selectedDiff);
                 //songData._difficulties?.FirstOrDefault(x => x._difficulty == selectedDiff.difficulty
@@ -130,7 +130,7 @@ namespace SongCore.HarmonyPatches
                 if (diffData != null)
                 {
 
-                    for (int i = 0; i < diffData.additionalDifficultyData._requirements.Count(); i++)
+                    for (var i = 0; i < diffData.additionalDifficultyData._requirements.Count(); i++)
                     {
                         if (!Collections.capabilities.Contains(diffData.additionalDifficultyData._requirements[i]))
                         {
@@ -216,7 +216,7 @@ namespace SongCore.HarmonyPatches
                     if(____beatmapCharacteristicSegmentedControlController.selectedBeatmapCharacteristic.serializedName != songData._defaultCharacteristic)
                     {
                         var chars = ____beatmapCharacteristicSegmentedControlController.GetField<List<BeatmapCharacteristicSO>, BeatmapCharacteristicSegmentedControlController>("_beatmapCharacteristics");
-                        int index = 0;
+                        var index = 0;
                         foreach (var characteristic in chars)
                         {
                             if (songData._defaultCharacteristic == characteristic.serializedName)

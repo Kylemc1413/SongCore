@@ -28,7 +28,7 @@
 
         public HSBColor(Color col)
         {
-            HSBColor temp = FromColor(col);
+            var temp = FromColor(col);
             h = temp.h;
             s = temp.s;
             b = temp.b;
@@ -37,21 +37,21 @@
 
         public static HSBColor FromColor(Color color)
         {
-            HSBColor ret = new HSBColor(0f, 0f, 0f, color.a);
+            var ret = new HSBColor(0f, 0f, 0f, color.a);
 
-            float r = color.r;
-            float g = color.g;
-            float b = color.b;
+            var r = color.r;
+            var g = color.g;
+            var b = color.b;
 
-            float max = Mathf.Max(r, Mathf.Max(g, b));
+            var max = Mathf.Max(r, Mathf.Max(g, b));
 
             if (max <= 0)
             {
                 return ret;
             }
 
-            float min = Mathf.Min(r, Mathf.Min(g, b));
-            float dif = max - min;
+            var min = Mathf.Min(r, Mathf.Min(g, b));
+            var dif = max - min;
 
             if (max > min)
             {
@@ -90,16 +90,16 @@
 
         public static Color ToColor(HSBColor hsbColor)
         {
-            float r = hsbColor.b;
-            float g = hsbColor.b;
-            float b = hsbColor.b;
+            var r = hsbColor.b;
+            var g = hsbColor.b;
+            var b = hsbColor.b;
             if (hsbColor.s != 0)
             {
-                float max = hsbColor.b;
-                float dif = hsbColor.b * hsbColor.s;
-                float min = hsbColor.b - dif;
+                var max = hsbColor.b;
+                var dif = hsbColor.b * hsbColor.s;
+                var min = hsbColor.b - dif;
 
-                float h = hsbColor.h * 360f;
+                var h = hsbColor.h * 360f;
 
                 if (h < 60f)
                 {
@@ -187,7 +187,7 @@
                 else
                 {
                     // works around bug with LerpAngle
-                    float angle = Mathf.LerpAngle(a.h * 360f, b.h * 360f, t);
+                    var angle = Mathf.LerpAngle(a.h * 360f, b.h * 360f, t);
                     while (angle < 0f)
                     {
                         angle += 360f;

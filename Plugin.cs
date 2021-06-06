@@ -123,25 +123,21 @@ namespace SongCore
                 {
                     CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, level);
                 }
-
             }
-
         }
+
         [Init]
         public void Init(object thisIsNull, IPALogger pluginLogger)
         {
-
             Logging.logger = pluginLogger;
         }
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
-
         }
 
         public void OnSceneUnloaded(Scene scene)
         {
-
         }
 
         public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
@@ -154,7 +150,6 @@ namespace SongCore
             if (nextScene.name == "MenuViewControllers")
             {
                 BS_Utils.Gameplay.Gamemode.Init();
-
             }
         }
 
@@ -166,38 +161,30 @@ namespace SongCore
             //I've added this to add support for that again, because why not.
             if (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpMovementSpeed < 0)
             {
-                var beatmapObjectSpawnController =
-                    Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().LastOrDefault();
+                var beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().LastOrDefault();
 
                 SetNJS(beatmapObjectSpawnController);
-
             }
         }
 
         public static void SetNJS(BeatmapObjectSpawnController _spawnController)
         {
-            BeatmapObjectSpawnMovementData spawnMovementData =
-  _spawnController.GetField<BeatmapObjectSpawnMovementData, BeatmapObjectSpawnController>("_beatmapObjectSpawnMovementData");
+            BeatmapObjectSpawnMovementData spawnMovementData = _spawnController.GetField<BeatmapObjectSpawnMovementData, BeatmapObjectSpawnController>("_beatmapObjectSpawnMovementData");
 
-            float bpm = _spawnController.GetField<VariableBpmProcessor, BeatmapObjectSpawnController>("_variableBPMProcessor").currentBpm;
-
-
+            var bpm = _spawnController.GetField<VariableBpmProcessor, BeatmapObjectSpawnController>("_variableBPMProcessor").currentBpm;
 
             spawnMovementData.SetField("_startNoteJumpMovementSpeed", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpMovementSpeed);
             spawnMovementData.SetField("_noteJumpStartBeatOffset", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpStartBeatOffset);
 
-            spawnMovementData.Update(bpm,
-                _spawnController.GetField<float, BeatmapObjectSpawnController>("_jumpOffsetY"));
+            spawnMovementData.Update(bpm, _spawnController.GetField<float, BeatmapObjectSpawnController>("_jumpOffsetY"));
         }
 
         public void OnApplicationQuit()
         {
-
         }
 
         public void OnLevelWasLoaded(int level)
         {
-
         }
 
         public void OnLevelWasInitialized(int level)
@@ -206,8 +193,6 @@ namespace SongCore
 
         public void OnUpdate()
         {
-
-
         }
 
         public void OnFixedUpdate()

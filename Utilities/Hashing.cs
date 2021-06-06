@@ -41,7 +41,7 @@ namespace SongCore.Utilities
         /// <param name="currentSongPaths"></param>
         internal static void UpdateCachedHashesInternal(ICollection<string> currentSongPaths)
         {
-            foreach (KeyValuePair<string, SongHashData> hashData in cachedSongHashData.ToArray())
+            foreach (var hashData in cachedSongHashData.ToArray())
             {
                 if (!currentSongPaths.Contains(hashData.Key))
                 {
@@ -78,7 +78,7 @@ namespace SongCore.Utilities
         /// <param name="currentSongPaths"></param>
         internal static void UpdateCachedAudioDataInternal(ICollection<string> currentSongPaths)
         {
-            foreach (KeyValuePair<string, AudioCacheData> hashData in cachedAudioData.ToArray())
+            foreach (var hashData in cachedAudioData.ToArray())
             {
                 if (!currentSongPaths.Contains(hashData.Key))
                 {
@@ -128,9 +128,9 @@ namespace SongCore.Utilities
 
             List<byte> combinedBytes = new List<byte>();
             combinedBytes.AddRange(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat"));
-            for (int i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
+            for (var i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
             {
-                for (int i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
+                for (var i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
                 {
                     if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
                     {
@@ -153,9 +153,9 @@ namespace SongCore.Utilities
 
             byte[] combinedBytes = new byte[0];
             combinedBytes = combinedBytes.Concat(File.ReadAllBytes(customLevelPath + '/' + "info.dat")).ToArray();
-            for (int i = 0; i < level.difficultyBeatmapSets.Length; i++)
+            for (var i = 0; i < level.difficultyBeatmapSets.Length; i++)
             {
-                for (int i2 = 0; i2 < level.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
+                for (var i2 = 0; i2 < level.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
                 {
                     if (File.Exists(customLevelPath + '/' + level.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
                     {
@@ -178,9 +178,9 @@ namespace SongCore.Utilities
 
             byte[] combinedBytes = new byte[0];
             combinedBytes = combinedBytes.Concat(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat")).ToArray();
-            for (int i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
+            for (var i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
             {
-                for (int i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
+                for (var i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
                 {
                     if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
                     {

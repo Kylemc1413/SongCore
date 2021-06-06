@@ -22,7 +22,7 @@ namespace SongCore.HarmonyPatches
             }
 
             var stack = new StackTrace();
-            for (int i = 0; i < stack.FrameCount; i++)
+            for (var i = 0; i < stack.FrameCount; i++)
             {
                 var callingMethodName = stack.GetFrame(i).GetMethod().Name;
             //    Utilities.Logging.Log($"Calling Method {i}: {callingMethodName}");

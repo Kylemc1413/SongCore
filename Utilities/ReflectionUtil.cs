@@ -63,7 +63,7 @@ namespace SongCore.Utilities
         public static object InvokeConstructor(this object obj, params object[] constructorParams)
         {
             Type[] types = new Type[constructorParams.Length];
-            for (int i = 0; i < constructorParams.Length; i++)
+            for (var i = 0; i < constructorParams.Length; i++)
             {
                 types[i] = constructorParams[i].GetType();
             }

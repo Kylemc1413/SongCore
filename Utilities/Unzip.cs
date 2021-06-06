@@ -218,7 +218,7 @@ namespace SongCore.Utilities
         /// <param name="directoryName">Name of the directory.</param>
         public void ExtractToDirectory(string directoryName)
         {
-            for (int index = 0; index < Entries.Length; index++)
+            for (var index = 0; index < Entries.Length; index++)
             {
                 var entry = Entries[index];
 
@@ -400,7 +400,7 @@ namespace SongCore.Utilities
             Stream.Seek(dirOffset, SeekOrigin.Begin);
 
             // read directory entries
-            for (int i = 0; i < entries; i++)
+            for (var i = 0; i < entries; i++)
             {
                 if (Reader.ReadInt32() != EntrySignature)
                 {
@@ -410,18 +410,18 @@ namespace SongCore.Utilities
                 // read file properties
                 // TODO: Replace with a proper class to make this method a lot shorter.
                 Reader.ReadInt32();
-                bool utf8 = (Reader.ReadInt16() & 0x0800) != 0;
-                short method = Reader.ReadInt16();
-                int timestamp = Reader.ReadInt32();
-                uint crc32 = Reader.ReadUInt32();
-                int compressedSize = Reader.ReadInt32();
-                int fileSize = Reader.ReadInt32();
-                short fileNameSize = Reader.ReadInt16();
-                short extraSize = Reader.ReadInt16();
-                short commentSize = Reader.ReadInt16();
-                int headerOffset = Reader.ReadInt32();
+                var utf8 = (Reader.ReadInt16() & 0x0800) != 0;
+                var method = Reader.ReadInt16();
+                var timestamp = Reader.ReadInt32();
+                var crc32 = Reader.ReadUInt32();
+                var compressedSize = Reader.ReadInt32();
+                var fileSize = Reader.ReadInt32();
+                var fileNameSize = Reader.ReadInt16();
+                var extraSize = Reader.ReadInt16();
+                var commentSize = Reader.ReadInt16();
+                var headerOffset = Reader.ReadInt32();
                 Reader.ReadInt32();
-                int fileHeaderOffset = Reader.ReadInt32();
+                var fileHeaderOffset = Reader.ReadInt32();
                 var fileNameBytes = Reader.ReadBytes(fileNameSize);
                 Stream.Seek(extraSize, SeekOrigin.Current);
                 var fileCommentBytes = Reader.ReadBytes(commentSize);

@@ -60,7 +60,7 @@ namespace SongCore
                                 newPath = oldFolderPath + "/" + parent.Name + " " + new DirectoryInfo(songPath).Name;
                                 if (Directory.Exists(newPath))
                                 {
-                                    int pathNum = 1;
+                                    var pathNum = 1;
                                     while (Directory.Exists(newPath + $" ({pathNum})"))
                                     {
                                         ++pathNum;
@@ -104,7 +104,7 @@ namespace SongCore
 
         internal static IEnumerator ConvertSongs()
         {
-            int totalSongs = ToConvert.Count;
+            var totalSongs = ToConvert.Count;
             Loader.Instance._progressBar.ShowMessage($"Converting {totalSongs} Existing Songs. Please Wait...");
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();

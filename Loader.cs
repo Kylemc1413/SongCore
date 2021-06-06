@@ -398,7 +398,7 @@ namespace SongCore
                     var songFolders = Directory.GetDirectories(Path.Combine(path, "CustomLevels")).ToList().Concat(Directory.GetDirectories(Path.Combine(path, "CustomWIPLevels"))).ToList();
                     var loadedData = new ConcurrentBag<string>();
 
-                    int processedSongsCount = 0;
+                    var processedSongsCount = 0;
                     Parallel.ForEach(songFolders, new ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, (Environment.ProcessorCount / 2) - 1) }, (folder) =>
                       {
                           string[] results;
@@ -441,7 +441,7 @@ namespace SongCore
 
                                   }
 
-                                  bool wip = songPath.Contains("CustomWIPLevels");
+                                  var wip = songPath.Contains("CustomWIPLevels");
                                   StandardLevelInfoSaveData saveData = GetStandardLevelInfoSaveData(songPath);
                                   if (saveData == null)
                                   {
@@ -492,7 +492,7 @@ namespace SongCore
                     #region LoadSeperateFolders
                     // Load beatmaps in Seperate Song Folders (created in folders.xml or by other mods)
                     // Assign beatmaps to their respective pack (custom levels, wip levels, or seperate)
-                    for (int k = 0; k < SeperateSongFolders.Count; k++)
+                    for (var k = 0; k < SeperateSongFolders.Count; k++)
                     {
                         try
                         {
@@ -627,8 +627,8 @@ namespace SongCore
             {
                 #region CountBeatmapsAndUpdateLevelPacks
                 stopwatch.Stop();
-                int songCount = CustomLevels.Count + CustomWIPLevels.Count;
-                int songCountWSF = songCount;
+                var songCount = CustomLevels.Count + CustomWIPLevels.Count;
+                var songCountWSF = songCount;
                 foreach (var f in SeperateSongFolders)
                 {
                     songCount += f.Levels.Count;
@@ -853,7 +853,7 @@ namespace SongCore
         public static CustomPreviewBeatmapLevel LoadSong(StandardLevelInfoSaveData saveData, string songPath, out string hash, SongFolderEntry folderEntry = null)
         {
             CustomPreviewBeatmapLevel result;
-            bool wip = songPath.Contains("CustomWIPLevels");
+            var wip = songPath.Contains("CustomWIPLevels");
             if (folderEntry != null)
             {
                 if ((folderEntry.Pack == FolderLevelPack.CustomWIPLevels) || (folderEntry.Pack == FolderLevelPack.CachedWIPLevels))
@@ -885,12 +885,12 @@ namespace SongCore
                 string songSubName = saveData.songSubName;
                 string songAuthorName = saveData.songAuthorName;
                 string levelAuthorName = saveData.levelAuthorName;
-                float beatsPerMinute = saveData.beatsPerMinute;
-                float songTimeOffset = saveData.songTimeOffset;
-                float shuffle = saveData.shuffle;
-                float shufflePeriod = saveData.shufflePeriod;
-                float previewStartTime = saveData.previewStartTime;
-                float previewDuration = saveData.previewDuration;
+                var beatsPerMinute = saveData.beatsPerMinute;
+                var songTimeOffset = saveData.songTimeOffset;
+                var shuffle = saveData.shuffle;
+                var shufflePeriod = saveData.shufflePeriod;
+                var previewStartTime = saveData.previewStartTime;
+                var previewDuration = saveData.previewDuration;
                 EnvironmentInfoSO environmentSceneInfo = _customLevelLoader.LoadEnvironmentInfo(saveData.environmentName, false);
                 EnvironmentInfoSO allDirectionEnvironmentInfo = _customLevelLoader.LoadEnvironmentInfo(saveData.allDirectionsEnvironmentName, true);
                 List<PreviewDifficultyBeatmapSet> list = new List<PreviewDifficultyBeatmapSet>();
@@ -898,7 +898,7 @@ namespace SongCore
                 {
                     BeatmapCharacteristicSO beatmapCharacteristicBySerializedName = beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(difficultyBeatmapSet.beatmapCharacteristicName);
                     BeatmapDifficulty[] array = new BeatmapDifficulty[difficultyBeatmapSet.difficultyBeatmaps.Length];
-                    for (int j = 0; j < difficultyBeatmapSet.difficultyBeatmaps.Length; j++)
+                    for (var j = 0; j < difficultyBeatmapSet.difficultyBeatmaps.Length; j++)
                     {
                         BeatmapDifficulty beatmapDifficulty;
                         difficultyBeatmapSet.difficultyBeatmaps[j].difficulty.BeatmapDifficultyFromSerializedName(out beatmapDifficulty);
@@ -1125,7 +1125,7 @@ namespace SongCore
                     level = customLevel;
                 }
             }
-            else if (OfficialSongs.TryGetValue(levelId, out OfficialSongEntry song))
+            else if (OfficialSongs.TryGetValue(levelId, out var song))
             {
                 level = song.PreviewBeatmapLevel;
             }
@@ -1234,7 +1234,7 @@ namespace SongCore
                  */
                 bool FindBytes(byte[] bytes, int searchLength)
                 {
-                    for (int i = 0; i < searchLength; i++)
+                    for (var i = 0; i < searchLength; i++)
                     {
                         var b = br.ReadByte();
                         if (b != bytes[0])
@@ -1265,14 +1265,14 @@ namespace SongCore
                     return false;
                 }
 
-                int rate = -1;
+                var rate = -1;
                 long lastSample = -1;
 
                 //Skip Capture Pattern
                 fs.Position = 24;
 
                 //{0x76, 0x6F, 0x72, 0x62, 0x69, 0x73} = "vorbis" in byte values
-                bool foundVorbis = FindBytes(new byte[] { 0x76, 0x6F, 0x72, 0x62, 0x69, 0x73 }, 256);
+                var foundVorbis = FindBytes(new byte[] { 0x76, 0x6F, 0x72, 0x62, 0x69, 0x73 }, 256);
                 if (foundVorbis)
                 {
                     fs.Position += 5;
@@ -1291,16 +1291,16 @@ namespace SongCore
                  */
                 const int seekBlockSize = 6144;
                 const int seekTries = 10; // 60 KiB should be enough for any sane ogg file
-                for (int i = 0; i < seekTries; i++)
+                for (var i = 0; i < seekTries; i++)
                 {
-                    int seekPos = (i + 1) * seekBlockSize * -1;
-                    int overshoot = Math.Max((int)(-seekPos - fs.Length), 0);
+                    var seekPos = (i + 1) * seekBlockSize * -1;
+                    var overshoot = Math.Max((int)(-seekPos - fs.Length), 0);
                     if (overshoot >= seekBlockSize)
                     {
                         break;
                     }
                     fs.Seek(seekPos + overshoot, SeekOrigin.End);
-                    bool foundOggS = FindBytes(oggBytes, seekBlockSize - overshoot);
+                    var foundOggS = FindBytes(oggBytes, seekBlockSize - overshoot);
                     if (foundOggS)
                     {
                         lastSample = br.ReadInt64();
@@ -1314,7 +1314,7 @@ namespace SongCore
                     return -1;
                 }
 
-                float length = lastSample / (float)rate;
+                var length = lastSample / (float)rate;
                 return length;
             }
         }
