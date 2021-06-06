@@ -105,7 +105,6 @@ namespace SongCore
                 return;
             }
 
-            //     Logging.logger.Info(BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.level.songDuration.ToString());
             SharedCoroutineStarter.instance.StartCoroutine(DelayedNoteJumpMovementSpeedFix());
         }
 
@@ -114,16 +113,13 @@ namespace SongCore
             if (level is CustomPreviewBeatmapLevel)
             {
                 var customLevel = level as CustomPreviewBeatmapLevel;
-                //       Logging.Log((level as CustomPreviewBeatmapLevel).customLevelPath);
                 var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
                 Collections.SaveExtraSongData();
 
                 if (songData == null)
                 {
-                    //          Logging.Log("Null song Data");
                     return;
                 }
-                //      Logging.Log($"Platforms Installed: {PlatformsInstalled}. Platforms enabled: {customSongPlatforms}");
 
                 if (customSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
@@ -139,7 +135,6 @@ namespace SongCore
 
         public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
         {
-            //  Debug.Log("Scene :" + prevScene.name + "To Scene Next: " + nextScene.name);
             customSongColors = BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
             customSongPlatforms = BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
             displayDiffLabels = BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
@@ -175,121 +170,5 @@ namespace SongCore
 
             spawnMovementData.Update(bpm, _spawnController.GetField<float, BeatmapObjectSpawnController>("_jumpOffsetY"));
         }
-
-        /*
-        internal static void CheckCustomSongEnvironment(IDifficultyBeatmap song)
-        {
-            Data.ExtraSongData songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(song.level as CustomPreviewBeatmapLevel));
-            if (songData == null) return;
-            if (string.IsNullOrWhiteSpace(songData._customEnvironmentName))
-            {
-                return;
-            }
-            try
-            {
-           //     CustomSongWithPlatformPlayed?.Invoke(songData._customEnvironmentName, songData._customEnvironmentHash);
-                //  int _customPlatform = customEnvironment(songData._customEnvironmentName);
-                //  if (_customPlatform != -1)
-                //  {
-                //      _currentPlatform = CustomFloorPlugin.PlatformManager.CurrentPlatformIndex;
-                //      if (customSongPlatforms && _customPlatform != _currentPlatform)
-                //      {
-                //          CustomFloorPlugin.PlatformManager.TempChangeToPlatform(_customPlatform);
-                //      }
-                //  }
-            }
-            catch (Exception ex)
-            {
-                Logging.logger.Error($"Failed to Change to Platform {songData._customEnvironmentName}\n {ex}");
-            }
-
-        }
-        */
-        /*
-internal static int customEnvironment(string platform)
-{
-    if (!PlatformsInstalled)
-        return -1;
-    return findCustomEnvironment(platform);
-}
-
-private static int findCustomEnvironment(string name)
-{
-
-    List<CustomFloorPlugin.CustomPlatform> _customPlatformsList = CustomFloorPlugin.PlatformManager.AllPlatforms;
-    int platIndex = 0;
-    foreach (CustomFloorPlugin.CustomPlatform plat in _customPlatformsList)
-    {
-        if (plat?.platName == name)
-            return platIndex;
-        platIndex++;
-    }
-    Console.WriteLine(name + " not found!");
-
-
-    return -1;
-}
-*/
-        /*
-        [Serializable]
-        public class platformDownloadData
-        {
-            public string name;
-            public string author;
-            public string image;
-            public string hash;
-            public string download;
-            public string date;
-        }
-
-        private IEnumerator downloadCustomPlatform(string hash, string name)
-        {
-            using (UnityWebRequest www = UnityWebRequest.Get("https://modelsaber.com/api/v1/platform/get.php?filter=hash:" + hash))
-            {
-                yield return www.SendWebRequest();
-
-                if (www.isNetworkError || www.isHttpError)
-                {
-                    Console.WriteLine(www.error);
-                }
-                else
-                {
-                    var downloadData = JsonConvert.DeserializeObject<Dictionary<string, platformDownloadData>>(www.downloadHandler.text);
-                    platformDownloadData data = downloadData.FirstOrDefault().Value;
-                    if (data != null)
-                        if (data.name == name)
-                        {
-                            SharedCoroutineStarter.instance.StartCoroutine(_downloadCustomPlatform(data));
-                        }
-                }
-            }
-        }
-
-        private IEnumerator _downloadCustomPlatform(platformDownloadData downloadData)
-        {
-            using (UnityWebRequest www = UnityWebRequest.Get(downloadData.download))
-            {
-                yield return www.SendWebRequest();
-
-                if (www.isNetworkError || www.isHttpError)
-                {
-                    Console.WriteLine(www.error);
-                }
-                else
-                {
-                    string customPlatformsFolderPath = Path.Combine(Environment.CurrentDirectory, "CustomPlatforms", downloadData.name);
-                    System.IO.File.WriteAllBytes(@customPlatformsFolderPath + ".plat", www.downloadHandler.data);
-                    try
-                    {
-                    CustomFloorPlugin.PlatformManager.AddPlatform(customPlatformsFolderPath + ".plat");
-                    }
-                    catch(Exception ex)
-                    {
-                        Logging.logger.Error($"Failed to add Platform {customPlatformsFolderPath}.plat \n {ex}");
-                    }
-                }
-            }
-        }
-        */
     }
 }

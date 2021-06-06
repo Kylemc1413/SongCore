@@ -108,8 +108,6 @@ namespace SongCore.UI
         [UIAction("button-click")]
         internal void ShowRequirements()
         {
-            //   suggestionsList.text = "";
-
             customListTableData.data.Clear();
             //Requirements
             if (diffData != null)
@@ -168,8 +166,6 @@ namespace SongCore.UI
                 {
                     foreach (string req in diffData.additionalDifficultyData._warnings)
                     {
-                        //    Console.WriteLine(req);
-
                         customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon));
                     }
                 }
@@ -178,8 +174,6 @@ namespace SongCore.UI
                 {
                     foreach (string req in diffData.additionalDifficultyData._information)
                     {
-                        //    Console.WriteLine(req);
-
                         customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Info", InfoIcon));
                     }
                 }
@@ -188,7 +182,6 @@ namespace SongCore.UI
                 {
                     foreach (string req in diffData.additionalDifficultyData._suggestions)
                     {
-                        //    Console.WriteLine(req);
                         if (!Collections.capabilities.Contains(req))
                         {
                             customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Suggestion", MissingSuggestionIcon));

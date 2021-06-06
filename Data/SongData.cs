@@ -75,7 +75,6 @@ namespace SongCore.Data
         [Newtonsoft.Json.JsonConstructor]
         public ExtraSongData(string levelID, Contributor[] contributors, string customEnvironmentName, string customEnvironmentHash, DifficultyData[] difficulties)
         {
-            //      Utilities.Logging.Log("SongData full Ctor");
             this.contributors = contributors;
             _customEnvironmentName = customEnvironmentName;
             _customEnvironmentHash = customEnvironmentHash;
@@ -84,7 +83,6 @@ namespace SongCore.Data
 
         public ExtraSongData(string levelID, string songPath)
         {
-            //        Utilities.Logging.Log("SongData Ctor");
             try
             {
                 if (!File.Exists(songPath + "/info.dat"))

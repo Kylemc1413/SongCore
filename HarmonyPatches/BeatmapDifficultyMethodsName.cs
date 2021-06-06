@@ -4,9 +4,9 @@ namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(BeatmapDifficultyMethods))]
     [HarmonyPatch("Name", MethodType.Normal)]
-    public class BeatmapDifficultyMethodsName
+    internal class BeatmapDifficultyMethodsName
     {
-        static void Postfix(BeatmapDifficulty difficulty, ref string __result)
+        private static void Postfix(BeatmapDifficulty difficulty, ref string __result)
         {
             if (!Plugin.displayDiffLabels)
             {
@@ -52,7 +52,6 @@ namespace SongCore.HarmonyPatches
                     __result = StandardLevelDetailViewRefreshContent.currentLabels.ExpertPlusOverride.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
                 }
             }
-            //    Console.WriteLine(__result);
         }
     }
 }

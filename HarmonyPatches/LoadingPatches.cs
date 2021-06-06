@@ -10,12 +10,7 @@ using System.Diagnostics;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(NUnit.Framework.Assert), "IsTrue", new Type[]
-    {
-        typeof(bool),
-        typeof(string),
-        typeof(object[])
-    })]
+    [HarmonyPatch(typeof(NUnit.Framework.Assert), "IsTrue", typeof(bool), typeof(string), typeof(object[]))]
     internal class WhyIsAssertMeanPatch
     {
         private static void Prefix(ref bool condition)
@@ -29,7 +24,6 @@ namespace SongCore.HarmonyPatches
             for (var i = 0; i < stack.FrameCount; i++)
             {
                 var callingMethodName = stack.GetFrame(i).GetMethod().Name;
-                //    Utilities.Logging.Log($"Calling Method {i}: {callingMethodName}");
                 if (callingMethodName.Contains("AddBeatmapEventData") || callingMethodName.Contains("AddBeatmapObjectData"))
                 {
                     Utilities.Logging.logger.Debug("Blocking Assert Failure");
@@ -40,13 +34,7 @@ namespace SongCore.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(NUnit.Framework.Assert), "LessOrEqual", new Type[]
-    {
-        typeof(float),
-        typeof(float),
-        typeof(string),
-        typeof(object[])
-    })]
+    [HarmonyPatch(typeof(NUnit.Framework.Assert), "LessOrEqual", typeof(float), typeof(float), typeof(string), typeof(object[]))]
     internal class WhyIsAssertMeanPatch2
     {
         private static bool Prefix()
@@ -55,13 +43,7 @@ namespace SongCore.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(NUnit.Framework.Assert), "GreaterOrEqual", new Type[]
-    {
-        typeof(float),
-        typeof(float),
-        typeof(string),
-        typeof(object[])
-    })]
+    [HarmonyPatch(typeof(NUnit.Framework.Assert), "GreaterOrEqual", typeof(float), typeof(float), typeof(string), typeof(object[]))]
     internal class WhyIsAssertMeanPatch3
     {
         private static bool Prefix()
@@ -70,26 +52,7 @@ namespace SongCore.HarmonyPatches
         }
     }
 
-    /*
-    [HarmonyPatch(typeof(BeatmapDataLoader), "GetBeatmapDataFromBeatmapSaveData")]
-    internal class BeatmapDataLoadingEventDataSortingPatch
-    {
-        static void Prefix(ref List<BeatmapSaveData.EventData> eventsSaveData)
-        {
-            eventsSaveData.Sort(delegate (BeatmapSaveData.EventData x,
-                BeatmapSaveData.EventData y)
-            {
-                if (x.time >= y.time)
-                {
-                    return 1;
-                }
-                return -1;
-            });
-        }
-    }
-    */
-
-    [HarmonyPatch(typeof(BeatmapData), new Type[]
+    [HarmonyPatch(typeof(BeatmapData), new[]
     {
         typeof(int)
     })]
@@ -104,7 +67,7 @@ namespace SongCore.HarmonyPatches
     }
 
     [HarmonyPatch(typeof(CustomBeatmapLevel))]
-    [HarmonyPatch(new Type[]
+    [HarmonyPatch(new[]
     {
         typeof(CustomPreviewBeatmapLevel),
         typeof(AudioClip)
@@ -164,17 +127,4 @@ namespace SongCore.HarmonyPatches
             __instance.UpdateSecondChildControllerContent(____selectLevelCategoryViewController.selectedLevelCategory);
         }
     }
-    /*
-    [HarmonyPatch(typeof(LevelFilteringNavigationController))]
-    [HarmonyPatch("ReloadSongListIfNeeded", MethodType.Normal)]
-    internal class StopVanillaLoadingPatch3
-    {
-
-        static bool Prefix(ref LevelFilteringNavigationController __instance, ref TabBarViewController ____tabBarViewController)
-        {
-            __instance.GetField("_customLevelsTabBarData")?.SetField("annotatedBeatmapLevelCollections", Loader.CustomBeatmapLevelPackCollectionSO?.beatmapLevelPacks);
-            return false;
-        }
-    }
-    */
 }

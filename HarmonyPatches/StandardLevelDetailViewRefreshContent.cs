@@ -72,12 +72,6 @@ namespace SongCore.HarmonyPatches
             ____actionButton.interactable = true;
             ____practiceButton.interactable = true;
 
-            // ____levelBar.GetField<TextMeshProUGUI>("_songNameText").overflowMode = TextOverflowModes;
-            //____songNameText.text = "<size=78%>" + ____songNameText.text.Replace(@"<", "<\u200B").Replace(@">", ">\u200B");
-            //    ____songNameText.overflowMode = TextOverflowModes.Overflow;
-            //     ____songNameText.enableWordWrapping = false;
-
-            //____songNameText.richText = true;
             RequirementsUI.instance.ButtonGlowColor = false;
             RequirementsUI.instance.ButtonInteractable = false;
             if (level != null)

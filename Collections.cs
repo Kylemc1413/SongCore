@@ -47,13 +47,10 @@ namespace SongCore
             {
                 CustomSongsData.TryAdd(levelID, new ExtraSongData(levelID, path));
             }
-            //         Utilities.Logging.Log("Entry: :"  + levelID + "    " + customSongsData.Count);
         }
 
         public static ExtraSongData? RetrieveExtraSongData(string levelID, string loadIfNullPath = "")
         {
-            //      Logging.Log(levelID);
-            //      Logging.Log(loadIfNullPath);
             if (CustomSongsData.TryGetValue(levelID, out var songData))
             {
                 return songData;
@@ -129,7 +126,6 @@ namespace SongCore
             return null;
         }
 
-        //SongFolderEntry(string name, string path, FolderLevelPack pack, string imagePath = "", bool wip = false)
         public static SeperateSongFolder AddSeperateSongFolder(string name, string folderPath, FolderLevelPack pack, Sprite image = null, bool wip = false, bool cachezips = false)
         {
             UI.BasicUI.GetIcons();

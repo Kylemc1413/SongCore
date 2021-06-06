@@ -23,35 +23,4 @@ namespace SongCore.HarmonyPatches
             }
         }
     }
-
-
-    /*
-    [HarmonyPatch(typeof(BeatmapCharacteristicSO))]
-    [HarmonyPatch("descriptionLocalizationKey", MethodType.Getter)]
-    class CustomCharacteristicsPatch2
-    {
-        //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
-        static void Postfix(BeatmapCharacteristicSO __instance, ref string __result)
-        {
-            if (__result == null)
-            {
-                __result = __instance.descriptionLocalizationKey;
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(BeatmapCharacteristicSO))]
-    [HarmonyPatch("characteristicNameLocalizationKey", MethodType.Getter)]
-    class CustomCharacteristicsPatch3
-    {
-        //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
-        static void Postfix(BeatmapCharacteristicSO __instance, ref string __result)
-        {
-            if (__result == null)
-            {
-                __result = __instance.characteristicNameLocalizationKey;
-            }
-        }
-    }
-    */
 }

@@ -8,7 +8,6 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch("HandleLevelCollectionTableViewDidSelectLevel", MethodType.Normal)]
     internal class LevelPackLevelsSelectedPatch
     {
-        //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
         private static void Prefix(LevelCollectionTableView tableView, IPreviewBeatmapLevel level)
         {
             if (level is CustomPreviewBeatmapLevel)
@@ -16,7 +15,6 @@ namespace SongCore.HarmonyPatches
                 var customLevel = level as CustomPreviewBeatmapLevel;
                 if (customLevel != null)
                 {
-                    //       Logging.Log(Utilities.Hashing.GetCustomLevelHash(customLevel));
                     Collections.AddSong(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
                     Collections.SaveExtraSongData();
                 }
@@ -47,20 +45,3 @@ namespace SongCore.HarmonyPatches
         }
     }
 }
-
-/*
-[HarmonyPatch(typeof(LevelCollectionViewController))]
-[HarmonyPatch("RefreshLevelsAvailability", MethodType.Normal)]
-class LevelPackLevelsSelectedPatch
-{
-    //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
-    static bool Prefix(IBeatmapLevelPack ____pack)
-    {
-     //   Logging.logger.Info(____pack.packID);
-        if (____pack.packID.Contains(CustomLevelLoader.kCustomLevelPackPrefixId))
-            return false;
-        else
-            return true;
-    }
-}
-*/

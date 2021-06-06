@@ -151,7 +151,7 @@ namespace SongCore.Data
             }
             catch
             {
-                Utilities.Logging.Log("Error Reading folders.xml! Make sure the file is properly formatted.", IPA.Logging.Logger.Level.Warning);
+                Logging.Log("Error Reading folders.xml! Make sure the file is properly formatted.", IPA.Logging.Logger.Level.Warning);
             }
 
             return result;

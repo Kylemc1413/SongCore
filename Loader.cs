@@ -726,7 +726,6 @@ namespace SongCore
                 });
 
                 // Write our cached hash info and
-
                 Hashing.UpdateCachedHashesInternal(foundSongPaths.Keys);
                 Hashing.UpdateCachedAudioDataInternal(foundSongPaths.Keys);
                 Collections.SaveExtraSongData();
@@ -827,48 +826,6 @@ namespace SongCore
             }
         }
 
-        /*
-        public void RetrieveNewSong(string folderPath)
-        {
-            try
-            {
-                bool wip = false;
-                if (folderPath.Contains("CustomWIPLevels"))
-                    wip = true;
-                StandardLevelInfoSaveData saveData = GetStandardLevelInfoSaveData(folderPath);
-                var level = LoadSong(saveData, folderPath, out string hash);
-                if (level != null)
-                {
-                    if (!wip)
-                        CustomLevels[folderPath] = level;
-                    else
-                        CustomWIPLevels[folderPath] = level;
-                    if (!Collections.levelHashDictionary.ContainsKey(level.levelID))
-                    {
-                        Collections.levelHashDictionary.Add(level.levelID, hash);
-                        if (Collections.hashLevelDictionary.ContainsKey(hash))
-                            Collections.hashLevelDictionary[hash].Add(level.levelID);
-                        else
-                        {
-                            var levels = new List<string>();
-                            levels.Add(level.levelID);
-                            Collections.hashLevelDictionary.Add(hash, levels);
-                        }
-                    }
-                }
-                HashSet<string> paths = new HashSet<string>( Hashing.cachedSongHashData.Keys);
-                paths.Add(folderPath);
-                Hashing.UpdateCachedHashes(paths);
-                RefreshLevelPacks();
-            }
-            catch (Exception ex)
-            {
-                Logging.Log("Failed to Retrieve New Song from: " + folderPath, LogSeverity.Error);
-                Logging.Log(ex.ToString(), LogSeverity.Error);
-            }
-        }
-        */
-
         /// <summary>
         /// Load a beatmap, gather all beatmap information and create beatmap preview
         /// </summary>
@@ -943,7 +900,6 @@ namespace SongCore
                     previewStartTime, previewDuration, environmentSceneInfo, allDirectionEnvironmentInfo, list.ToArray());
 
                 GetSongDuration(result, songPath, Path.Combine(songPath, saveData.songFilename));
-                //Task.Factory.StartNew(() => { GetSongDuration(result, songPath, Path.Combine(songPath, saveData.songFilename));});
             }
             catch
             {
@@ -1239,8 +1195,6 @@ namespace SongCore
                 {
                     Hashing.cachedAudioData[songPath] = new AudioCacheData(levelid, length);
                 }
-
-                //    Logging.logger.Debug($"{length}");
 
                 level.SetField<CustomPreviewBeatmapLevel, float>("_songDuration", length);
 

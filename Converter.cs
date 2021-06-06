@@ -57,8 +57,6 @@ namespace SongCore
                         {
                             try
                             {
-                                //       Logging.Log("SubFolder Song Found: " + songPath, LogSeverity.Notice);
-                                //       Logging.Log("Moving Subfolder to CustomSongs", LogSeverity.Notice);
                                 newPath = Path.Combine(oldFolderPath, $"{parent.Name} {new DirectoryInfo(songPath).Name}");
                                 if (Directory.Exists(newPath))
                                 {
@@ -74,7 +72,6 @@ namespace SongCore
                                 Directory.Move(songPath, newPath);
                                 if (Utils.IsDirectoryEmpty(parent.FullName))
                                 {
-                                    //             Logging.Log("Old parent folder empty, Deleting empty folder.");
                                     Directory.Delete(parent.FullName);
                                 }
                             }
@@ -117,42 +114,12 @@ namespace SongCore
             process.Exited += Process_Exited;
             process.Start();
             yield return new WaitUntil((() => doneConverting));
-            /*
-            while (ToConvert.Count > 0)
-            {
-                while (ActiveProcesses < ConcurrentProcesses)
-                {
-                    ActiveProcesses++;
-                    System.Diagnostics.Process process = new System.Diagnostics.Process();
-                    System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-                    if (ToConvert.Count == 0) break;
-                    string newPath = ToConvert.Pop();
-                    startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-                    startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C " + "songe-converter.exe" + " -k " + '"' + newPath + '"';
-                    process.StartInfo = startInfo;
-                    process.EnableRaisingEvents = true;
-                    process.Exited += Process_Exited;
-                    process.Start();
-                }
-                yield return new WaitUntil((delegate { return ActiveProcesses < ConcurrentProcesses; }));
-                //        if (ConvertedCount % 10 == 0)
-                //        {
-                //            Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
-                //        }
-                //        else if(ToConvert.Count <= 10)
-                Loader.Instance._progressBar.ShowMessage($"Converting {ToConvert.Count} Existing Songs");
-            }
-            */
             Logging.Log($"Converted {totalSongs} songs.");
             FinishConversion();
         }
 
         private static void Process_Exited(object sender, EventArgs e)
         {
-            //       Logging.Log("Ended");
-            //      ActiveProcesses--;
-            //      ConvertedCount++;
             doneConverting = true;
         }
 
@@ -160,9 +127,6 @@ namespace SongCore
         {
             if (Directory.Exists(oldFolderPath))
             {
-                //    Logging.Log(CustomLevelPathHelper.customLevelsDirectoryPath);
-                //    Logging.Log((CustomLevelPathHelper.customLevelsDirectoryPath + System.DateTime.Now.ToFileTime().ToString()));
-                //    Logging.Log(oldFolderPath);
                 Logging.Log("Moving CustomSongs folder to new Location");
                 if (Directory.Exists(CustomLevelPathHelper.customLevelsDirectoryPath))
                 {
@@ -172,7 +136,6 @@ namespace SongCore
 
                 Utils.GrantAccess(oldFolderPath);
                 Directory.Move(oldFolderPath, CustomLevelPathHelper.customLevelsDirectoryPath);
-                //    Directory.Delete(oldFolderPath);
             }
 
             Logging.Log("Conversion Finished. Loading songs");
