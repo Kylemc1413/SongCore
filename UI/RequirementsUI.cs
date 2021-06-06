@@ -14,20 +14,17 @@ namespace SongCore.UI
     {
         private StandardLevelDetailViewController standardLevel;
 
-
-        internal static BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
-
-        internal Sprite HaveReqIcon;
-        internal Sprite MissingReqIcon;
-        internal Sprite HaveSuggestionIcon;
-        internal Sprite MissingSuggestionIcon;
-        internal Sprite WarningIcon;
-        internal Sprite InfoIcon;
+        internal Sprite? HaveReqIcon;
+        internal Sprite? MissingReqIcon;
+        internal Sprite? HaveSuggestionIcon;
+        internal Sprite? MissingSuggestionIcon;
+        internal Sprite? WarningIcon;
+        internal Sprite? InfoIcon;
 
         //Currently selected song data
         public CustomPreviewBeatmapLevel level;
         public Data.ExtraSongData songData;
-        public Data.ExtraSongData.DifficultyData diffData;
+        public Data.ExtraSongData.DifficultyData? diffData;
         public bool wipFolder;
 
         [UIComponent("list")]
@@ -76,32 +73,32 @@ namespace SongCore.UI
         {
             if (!MissingReqIcon)
             {
-                MissingReqIcon = Utils.LoadSpriteFromResources("SongCore.Icons.RedX.png");
+                MissingReqIcon = Utils.LoadSpriteFromResources("SongCore.Icons.RedX.png")!;
             }
 
             if (!HaveReqIcon)
             {
-                HaveReqIcon = Utils.LoadSpriteFromResources("SongCore.Icons.GreenCheck.png");
+                HaveReqIcon = Utils.LoadSpriteFromResources("SongCore.Icons.GreenCheck.png")!;
             }
 
             if (!HaveSuggestionIcon)
             {
-                HaveSuggestionIcon = Utils.LoadSpriteFromResources("SongCore.Icons.YellowCheck.png");
+                HaveSuggestionIcon = Utils.LoadSpriteFromResources("SongCore.Icons.YellowCheck.png")!;
             }
 
             if (!MissingSuggestionIcon)
             {
-                MissingSuggestionIcon = Utils.LoadSpriteFromResources("SongCore.Icons.YellowX.png");
+                MissingSuggestionIcon = Utils.LoadSpriteFromResources("SongCore.Icons.YellowX.png")!;
             }
 
             if (!WarningIcon)
             {
-                WarningIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Warning.png");
+                WarningIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Warning.png")!;
             }
 
             if (!InfoIcon)
             {
-                InfoIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Info.png");
+                InfoIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Info.png")!;
             }
         }
 
@@ -109,28 +106,23 @@ namespace SongCore.UI
         internal void ShowRequirements()
         {
             customListTableData.data.Clear();
+
             //Requirements
             if (diffData != null)
             {
-                if (diffData.additionalDifficultyData._requirements.Count() > 0)
+                if (diffData.additionalDifficultyData._requirements.Any())
                 {
                     foreach (string req in diffData.additionalDifficultyData._requirements)
                     {
-                        //    Console.WriteLine(req);
-                        if (!Collections.capabilities.Contains(req))
-                        {
-                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Requirement", MissingReqIcon));
-                        }
-                        else
-                        {
-                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Requirement", HaveReqIcon));
-                        }
+                        customListTableData.data.Add(!Collections.capabilities.Contains(req)
+                            ? new CustomCellInfo($"<size=75%>{req}", "Missing Requirement", MissingReqIcon)
+                            : new CustomCellInfo($"<size=75%>{req}", "Requirement", HaveReqIcon));
                     }
                 }
             }
 
             //Contributors
-            if (songData.contributors.Count() > 0)
+            if (songData.contributors.Length > 0)
             {
                 foreach (Data.ExtraSongData.Contributor author in songData.contributors)
                 {
@@ -156,40 +148,35 @@ namespace SongCore.UI
             //WIP Check
             if (wipFolder)
             {
-                customListTableData.data.Add(new CustomCellInfo("<size=70%>" + "WIP Song. Please Play in Practice Mode", "Warning", WarningIcon));
+                customListTableData.data.Add(new CustomCellInfo("<size=70%>WIP Song. Please Play in Practice Mode", "Warning", WarningIcon));
             }
 
             //Additional Diff Info
             if (diffData != null)
             {
-                if (diffData.additionalDifficultyData._warnings.Count() > 0)
+                if (diffData.additionalDifficultyData._warnings.Length > 0)
                 {
                     foreach (string req in diffData.additionalDifficultyData._warnings)
                     {
-                        customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Warning", WarningIcon));
+                        customListTableData.data.Add(new CustomCellInfo($"<size=75%>{req}", "Warning", WarningIcon));
                     }
                 }
 
-                if (diffData.additionalDifficultyData._information.Count() > 0)
+                if (diffData.additionalDifficultyData._information.Length > 0)
                 {
                     foreach (string req in diffData.additionalDifficultyData._information)
                     {
-                        customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Info", InfoIcon));
+                        customListTableData.data.Add(new CustomCellInfo($"<size=75%>{req}", "Info", InfoIcon));
                     }
                 }
 
-                if (diffData.additionalDifficultyData._suggestions.Count() > 0)
+                if (diffData.additionalDifficultyData._suggestions.Length > 0)
                 {
                     foreach (string req in diffData.additionalDifficultyData._suggestions)
                     {
-                        if (!Collections.capabilities.Contains(req))
-                        {
-                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Missing Suggestion", MissingSuggestionIcon));
-                        }
-                        else
-                        {
-                            customListTableData.data.Add(new CustomCellInfo("<size=75%>" + req, "Suggestion", HaveSuggestionIcon));
-                        }
+                        customListTableData.data.Add(!Collections.capabilities.Contains(req)
+                            ? new CustomCellInfo($"<size=75%>{req}", "Missing Suggestion", MissingSuggestionIcon)
+                            : new CustomCellInfo($"<size=75%>{req}", "Suggestion", HaveSuggestionIcon));
                     }
                 }
             }

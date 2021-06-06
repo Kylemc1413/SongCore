@@ -20,10 +20,10 @@ namespace SongCore
     public class Loader : MonoBehaviour
     {
         // Actions for loading and refreshing beatmaps
-        public static event Action<Loader> LoadingStartedEvent;
-        public static event Action<Loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel>> SongsLoadedEvent;
-        public static event Action OnLevelPacksRefreshed;
-        public static event Action DeletingSong;
+        public static event Action<Loader>? LoadingStartedEvent;
+        public static event Action<Loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel>>? SongsLoadedEvent;
+        public static event Action? OnLevelPacksRefreshed;
+        public static event Action? DeletingSong;
         public static ConcurrentDictionary<string, CustomPreviewBeatmapLevel> CustomLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
         public static ConcurrentDictionary<string, CustomPreviewBeatmapLevel> CustomWIPLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
         public static ConcurrentDictionary<string, CustomPreviewBeatmapLevel> CachedWIPLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
@@ -834,9 +834,8 @@ namespace SongCore
         /// <param name="hash">Resulting hash for the beatmap, may contain beatmap folder name or 'WIP' at the end</param>
         /// <param name="folderEntry">Folder entry for beatmap folder</param>
         /// <returns></returns>
-        public static CustomPreviewBeatmapLevel LoadSong(StandardLevelInfoSaveData saveData, string songPath, out string hash, SongFolderEntry folderEntry = null)
+        public static CustomPreviewBeatmapLevel? LoadSong(StandardLevelInfoSaveData saveData, string songPath, out string hash, SongFolderEntry? folderEntry = null)
         {
-            CustomPreviewBeatmapLevel result;
             var wip = songPath.Contains("CustomWIPLevels");
             if (folderEntry != null)
             {
@@ -850,6 +849,7 @@ namespace SongCore
                 }
             }
 
+            CustomPreviewBeatmapLevel? result;
             hash = Hashing.GetCustomLevelHash(saveData, songPath);
             try
             {
@@ -858,7 +858,7 @@ namespace SongCore
                 // Fixed WIP status for duplicate song hashes
                 if (Collections.LevelHashDictionary.ContainsKey(levelID + (wip ? " WIP" : "")))
                 {
-                    levelID += "_" + folderName;
+                    levelID += $"_{folderName}";
                 }
 
                 if (wip)
@@ -1080,23 +1080,25 @@ namespace SongCore
         private CustomPreviewBeatmapLevel LoadSongAndAddToDictionaries(CancellationToken token, StandardLevelInfoSaveData saveData, string songPath, SongFolderEntry entry = null)
         {
             var level = LoadSong(saveData, songPath, out string hash, entry);
-            if (level != null)
+            if (level == null)
             {
-                if (!Collections.LevelHashDictionary.ContainsKey(level.levelID))
+                return level;
+            }
+
+            if (!Collections.LevelHashDictionary.ContainsKey(level.levelID))
+            {
+                // Add level to LevelHash-Dictionary
+                Collections.LevelHashDictionary.TryAdd(level.levelID, hash);
+                // Add hash to HashLevel-Dictionary
+                if (Collections.HashLevelDictionary.TryGetValue(hash, out var levels))
                 {
-                    // Add level to LevelHash-Dictionary
-                    Collections.LevelHashDictionary.TryAdd(level.levelID, hash);
-                    // Add hash to HashLevel-Dictionary
-                    if (Collections.HashLevelDictionary.TryGetValue(hash, out var levels))
-                    {
-                        levels.Add(level.levelID);
-                    }
-                    else
-                    {
-                        levels = new List<string>();
-                        levels.Add(level.levelID);
-                        Collections.HashLevelDictionary.TryAdd(hash, levels);
-                    }
+                    levels.Add(level.levelID);
+                }
+                else
+                {
+                    levels = new List<string>();
+                    levels.Add(level.levelID);
+                    Collections.HashLevelDictionary.TryAdd(hash, levels);
                 }
             }
 
@@ -1140,7 +1142,7 @@ namespace SongCore
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        public static CustomPreviewBeatmapLevel GetLevelByHash(string hash)
+        public static CustomPreviewBeatmapLevel? GetLevelByHash(string hash)
         {
             if (string.IsNullOrEmpty(hash))
             {
@@ -1173,7 +1175,7 @@ namespace SongCore
                     {
                         length = GetLengthFromOgg(oggfile);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         length = -1;
                     }
@@ -1227,7 +1229,7 @@ namespace SongCore
         }
 
 
-        private static byte[] oggBytes = {
+        private static readonly byte[] oggBytes = {
             0x4F,
             0x67,
             0x67,

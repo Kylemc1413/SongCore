@@ -5,6 +5,7 @@ using IPA.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -23,8 +24,8 @@ namespace SongCore
         internal static CustomBeatmapLevelPack? WipLevelPack;
         internal static ConcurrentDictionary<string, ExtraSongData> CustomSongsData = new ConcurrentDictionary<string, ExtraSongData>();
 
-        public static System.Collections.ObjectModel.ReadOnlyCollection<string> capabilities => _capabilities.AsReadOnly();
-        public static System.Collections.ObjectModel.ReadOnlyCollection<BeatmapCharacteristicSO> customCharacteristics => _customCharacteristics.AsReadOnly();
+        public static ReadOnlyCollection<string> capabilities => _capabilities.AsReadOnly();
+        public static ReadOnlyCollection<BeatmapCharacteristicSO> customCharacteristics => _customCharacteristics.AsReadOnly();
 
         public static bool songWithHashPresent(string hash)
         {

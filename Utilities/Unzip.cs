@@ -51,7 +51,7 @@ namespace SongCore.Utilities
             /// <summary>
             /// Gets a value indicating whether this <see cref="Entry" /> is a directory.
             /// </summary>
-            public bool IsDirectory { get { return Name.EndsWith("/"); } }
+            public bool IsDirectory => Name.EndsWith("/");
 
             /// <summary>
             /// Gets or sets the timestamp.
@@ -61,7 +61,7 @@ namespace SongCore.Utilities
             /// <summary>
             /// Gets a value indicating whether this <see cref="Entry" /> is a file.
             /// </summary>
-            public bool IsFile { get { return !IsDirectory; } }
+            public bool IsFile => !IsDirectory;
 
             [EditorBrowsable(EditorBrowsableState.Never)]
             public int HeaderOffset { get; set; }
@@ -391,14 +391,13 @@ namespace SongCore.Utilities
         /// <summary>
         /// Occurs when a file or a directory is extracted from an archive.
         /// </summary>
-        public event EventHandler<FileProgressEventArgs> ExtractProgress;
+        public event EventHandler<FileProgressEventArgs>? ExtractProgress;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Unzip" /> class.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
-        public Unzip(string fileName)
-            : this(File.OpenRead(fileName))
+        public Unzip(string fileName) : this(File.OpenRead(fileName))
         {
         }
 
@@ -412,9 +411,9 @@ namespace SongCore.Utilities
             Reader = new BinaryReader(Stream);
         }
 
-        private Stream Stream { get; set; }
+        private Stream? Stream { get; set; }
 
-        private BinaryReader Reader { get; set; }
+        private BinaryReader? Reader { get; set; }
 
         /// <summary>
         /// Performs application-defined tasks associated with
@@ -568,31 +567,14 @@ namespace SongCore.Utilities
         /// <summary>
         /// Gets the file names.
         /// </summary>
-        public IEnumerable<string> FileNames
-        {
-            get
-            {
-                return Entries.Select(e => e.Name).Where(f => !f.EndsWith("/")).OrderBy(f => f);
-            }
-        }
+        public IEnumerable<string> FileNames => Entries.Select(e => e.Name).Where(f => !f.EndsWith("/")).OrderBy(f => f);
 
-        private Entry[] entries;
+        private Entry[]? entries;
 
         /// <summary>
         /// Gets zip file entries.
         /// </summary>
-        public Entry[] Entries
-        {
-            get
-            {
-                if (entries == null)
-                {
-                    entries = ReadZipEntries().ToArray();
-                }
-
-                return entries;
-            }
-        }
+        public Entry[] Entries => entries ??= ReadZipEntries().ToArray();
 
         private IEnumerable<Entry> ReadZipEntries()
         {
