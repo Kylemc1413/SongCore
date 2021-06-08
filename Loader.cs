@@ -633,7 +633,10 @@ namespace SongCore
                 LoadingProgress = 1;
 
                 _loadingTask = null;
-                SongsLoadedEvent?.Invoke(this, CustomLevels);
+                await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+                {
+                    SongsLoadedEvent?.Invoke(this, CustomLevels);
+                });
 
                 // Write our cached hash info and 
 
