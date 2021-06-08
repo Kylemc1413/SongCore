@@ -44,7 +44,8 @@ namespace SongCore
         public static bool AreSongsLoading { get; private set; }
         public static float LoadingProgress { get; internal set; }
         internal ProgressBar _progressBar;
-        private HMTask _loadingTask;
+        private Task _loadingTask;
+        private CancellationTokenSource _loadingTaskCancellationTokenSource = new CancellationTokenSource();
         private bool _loadingCancelled;
 
         private static CustomLevelLoader _customLevelLoader;
@@ -95,6 +96,15 @@ namespace SongCore
                 RefreshSongs();
         }
 
+        internal void CancelSongLoading()
+        {
+            _loadingTaskCancellationTokenSource.Cancel();
+            _loadingCancelled = true;
+            AreSongsLoading = false;
+            LoadingProgress = 0;
+            StopAllCoroutines();
+            _progressBar.ShowMessage("Loading cancelled\n<size=80%>Press Ctrl+R to refresh</size>");
+        }
         internal void MenuLoaded()
         {
             if (AreSongsLoading)
@@ -103,12 +113,8 @@ namespace SongCore
                 //So we have to stop loading.
                 if (_loadingTask != null)
                 {
-                    _loadingTask.Cancel();
-                    _loadingCancelled = true;
-                    AreSongsLoading = false;
-                    LoadingProgress = 0;
-                    StopAllCoroutines();
-                    _progressBar.ShowMessage("Loading cancelled\n<size=80%>Press Ctrl+R to refresh</size>");
+                    //_loadingTask.Cancel();
+                    CancelSongLoading();
                     Logging.Log("Loading was cancelled by player since they loaded another scene.");
                 }
             }
@@ -135,7 +141,7 @@ namespace SongCore
         /// <summary>
         /// This fuction will add/remove Level Packs from the Custom Levels tab if applicable
         /// </summary>
-        public void RefreshLevelPacks()
+        public async void RefreshLevelPacks()
         {
 
             CustomLevelsCollection?.UpdatePreviewLevels(CustomLevels?.Values?.OrderBy(l => l.songName).ToArray());
@@ -170,15 +176,19 @@ namespace SongCore
             }
 
             BeatmapLevelsModelSO.SetField<BeatmapLevelsModel, IBeatmapLevelPackCollection>("_customLevelPackCollection", CustomBeatmapLevelPackCollectionSO as IBeatmapLevelPackCollection);
-            BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
-            BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
-            var filterNav = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault();
-            //   filterNav.InitPlaylists();
-            //   filterNav.UpdatePlaylistsData();
-            if (filterNav != null && filterNav.isActiveAndEnabled)
-                filterNav?.UpdateCustomSongs();
-            //      AttemptReselectCurrentLevelPack(filterNav);
-            OnLevelPacksRefreshed?.Invoke();
+            await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+                {
+                    BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
+                    BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
+                    var filterNav = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault();
+                    //   filterNav.InitPlaylists();
+                    //   filterNav.UpdatePlaylistsData();
+                    if (filterNav != null && filterNav.isActiveAndEnabled)
+                        filterNav?.UpdateCustomSongs();
+                    //      AttemptReselectCurrentLevelPack(filterNav);
+                    OnLevelPacksRefreshed?.Invoke();
+                });
+
         }
 
         internal void AttemptReselectCurrentLevelPack(LevelFilteringNavigationController controller)
@@ -226,7 +236,7 @@ namespace SongCore
             AreSongsLoading = true;
             LoadingProgress = 0;
             _loadingCancelled = false;
-
+            _loadingTaskCancellationTokenSource = new CancellationTokenSource();
             if (LoadingStartedEvent != null)
             {
                 try
@@ -243,7 +253,7 @@ namespace SongCore
             RetrieveAllSongs(fullRefresh);
         }
 
-        private void RetrieveAllSongs(bool fullRefresh)
+        private async void RetrieveAllSongs(bool fullRefresh)
         {
             var stopwatch = new Stopwatch();
             #region ClearAllDictionaries
@@ -412,20 +422,20 @@ namespace SongCore
                                   StandardLevelInfoSaveData saveData = GetStandardLevelInfoSaveData(songPath);
                                   if (saveData == null)
                                   {
-                                    //       Logging.Log("Null save data", LogSeverity.Notice);
-                                    continue;
+                                      //       Logging.Log("Null save data", LogSeverity.Notice);
+                                      continue;
                                   }
-                                //          if (loadedData.Any(x => x == saveData.))
-                                //          {
-                                //              Logging.Log("Duplicate song found at " + songPath, LogSeverity.Notice);
-                                //              continue;
-                                //          }
-                                //             loadedData.Add(saveDat);
+                                  //          if (loadedData.Any(x => x == saveData.))
+                                  //          {
+                                  //              Logging.Log("Duplicate song found at " + songPath, LogSeverity.Notice);
+                                  //              continue;
+                                  //          }
+                                  //             loadedData.Add(saveDat);
 
-                                //HMMainThreadDispatcher.instance.Enqueue(delegate
-                                //{
-                                if (_loadingCancelled) return;
-                                  var level = LoadSongAndAddToDictionaries(saveData, songPath);
+                                  //HMMainThreadDispatcher.instance.Enqueue(delegate
+                                  //{
+                                  if (_loadingCancelled) return;
+                                  var level = LoadSongAndAddToDictionaries(_loadingTaskCancellationTokenSource.Token, saveData, songPath);
                                   if (level != null)
                                   {
                                       if (!wip)
@@ -517,7 +527,7 @@ namespace SongCore
                                         //HMMainThreadDispatcher.instance.Enqueue(delegate
                                         //{
                                         if (_loadingCancelled) return;
-                                        var level = LoadSongAndAddToDictionaries(saveData, songPath, entry.SongFolderEntry);
+                                        var level = LoadSongAndAddToDictionaries(_loadingTaskCancellationTokenSource.Token, saveData, songPath, entry.SongFolderEntry);
                                         if (level != null)
                                         {
                                             entry.Levels[songPath] = level;
@@ -544,8 +554,9 @@ namespace SongCore
 
                     }
                     #endregion
+                    _loadingTaskCancellationTokenSource.Token.ThrowIfCancellationRequested();
                 }
-                catch (Exception e)
+                catch (Exception e) when (!(e is OperationCanceledException))
                 {
                     Logging.Log("RetrieveAllSongs failed:", LogSeverity.Error);
                     Logging.Log(e.ToString(), LogSeverity.Error);
@@ -553,7 +564,7 @@ namespace SongCore
                 #endregion
             };
 
-            Action finish = delegate
+            Action finish = async delegate
             {
                 #region CountBeatmapsAndUpdateLevelPacks
                 stopwatch.Stop();
@@ -567,8 +578,10 @@ namespace SongCore
                     //Handle LevelPacks
                     if (CustomBeatmapLevelPackCollectionSO == null || CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks.Length == 0)
                     {
-                        var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
-                        CustomBeatmapLevelPackCollectionSO = SongCoreBeatmapLevelPackCollectionSO.CreateNew(); // (beatmapLevelPackCollectionSO);
+
+                        // var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
+                        CustomBeatmapLevelPackCollectionSO = await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() => { return SongCoreBeatmapLevelPackCollectionSO.CreateNew(); });
+
                         #region AddSeperateFolderBeatmapsToRespectivePacks
                         foreach (var folderEntry in SeperateSongFolders)
                         {
@@ -628,9 +641,25 @@ namespace SongCore
                 Hashing.UpdateCachedAudioDataInternal(foundSongPaths.Keys);
                 SongCore.Collections.SaveExtraSongData();
             };
-
-            _loadingTask = new HMTask(job, finish);
-            _loadingTask.Run();
+            try
+            {
+                _loadingTask = new Task(job, _loadingTaskCancellationTokenSource.Token);
+                var loadingAwaiter = _loadingTask.ConfigureAwait(false);
+                _loadingTask.Start();
+                await loadingAwaiter;
+            }
+            catch (Exception ex)
+            {
+                Utilities.Logging.logger.Warn($"Song Loading Task Failed. {ex.Message}");
+                return;
+            }
+            if (_loadingTask.IsCompleted && !_loadingTask.IsCanceled)
+                await Task.Run(finish).ConfigureAwait(false);
+            else
+                Utilities.Logging.logger.Warn($"Song Loading Task Cancelled.");
+            // await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(finish).ConfigureAwait(false);
+            //  _loadingTask = new HMTask(job, finish);
+            //  _loadingTask.Run();
         }
 
         public static StandardLevelInfoSaveData GetStandardLevelInfoSaveData(string path)
@@ -812,6 +841,11 @@ namespace SongCore
             }
             return result;
         }
+        public static CustomPreviewBeatmapLevel LoadSong(CancellationToken token, StandardLevelInfoSaveData saveData, string songPath, out string hash, SongFolderEntry folderEntry = null)
+        {
+            token.ThrowIfCancellationRequested();
+            return LoadSong(saveData, songPath, out hash, folderEntry);
+        }
 
         /// <summary>
         /// Refresh songs on "R" key, full refresh on "Ctrl"+"R"
@@ -821,6 +855,11 @@ namespace SongCore
             if (Input.GetKeyDown(KeyCode.R))
             {
                 RefreshSongs(Input.GetKey(KeyCode.LeftControl));
+            }
+            if (Input.GetKeyDown(KeyCode.X))
+            {
+                if (Input.GetKey(KeyCode.LeftControl) && _loadingTask != null)
+                    CancelSongLoading();
             }
         }
 
@@ -939,7 +978,7 @@ namespace SongCore
             return false;
         }
 
-        private CustomPreviewBeatmapLevel LoadSongAndAddToDictionaries(StandardLevelInfoSaveData saveData, string songPath, SongFolderEntry entry = null)
+        private CustomPreviewBeatmapLevel LoadSongAndAddToDictionaries(CancellationToken token, StandardLevelInfoSaveData saveData, string songPath, SongFolderEntry entry = null)
         {
             var level = LoadSong(saveData, songPath, out string hash, entry);
             if (level != null)
@@ -1042,8 +1081,8 @@ namespace SongCore
                 //    Logging.logger.Debug($"{length}");
 
                 level.SetField<CustomPreviewBeatmapLevel, float>("_songDuration", length);
-             
-                if(Plugin.forceLongPreviews)
+
+                if (Plugin.forceLongPreviews)
                     level.SetField("_previewDuration", Mathf.Max(level.previewDuration, length - level.previewStartTime));
             }
             catch (Exception ex)
