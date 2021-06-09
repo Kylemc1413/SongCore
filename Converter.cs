@@ -30,10 +30,8 @@ namespace SongCore
             Utils.GrantAccess(oldFolderPath);
             Loader.Instance._progressBar.ShowMessage("Converting Existing Song Library");
             var oldFolders = Directory.GetDirectories(oldFolderPath).ToList();
-            float i = 0;
             foreach (var folder in oldFolders)
             {
-                i++;
                 if (Directory.Exists(folder))
                 {
                     var results = Directory.GetFiles(folder, "info.json", SearchOption.AllDirectories);
@@ -132,7 +130,7 @@ namespace SongCore
                 if (Directory.Exists(CustomLevelPathHelper.customLevelsDirectoryPath))
                 {
                     Utils.GrantAccess(CustomLevelPathHelper.customLevelsDirectoryPath);
-                    Directory.Move(CustomLevelPathHelper.customLevelsDirectoryPath, CustomLevelPathHelper.customLevelsDirectoryPath + DateTime.Now.ToFileTime().ToString());
+                    Directory.Move(CustomLevelPathHelper.customLevelsDirectoryPath, CustomLevelPathHelper.customLevelsDirectoryPath + DateTime.Now.ToFileTime());
                 }
 
                 Utils.GrantAccess(oldFolderPath);

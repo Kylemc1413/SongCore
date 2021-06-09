@@ -1,8 +1,4 @@
-﻿using SongCore.Data;
-using SongCore.OverrideClasses;
-using IPA.Utilities;
-using SongCore.Utilities;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using IPA.Utilities;
+using IPA.Utilities.Async;
+using SongCore.Data;
+using SongCore.OverrideClasses;
+using SongCore.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -26,19 +27,18 @@ namespace SongCore
         public static ConcurrentDictionary<string, CustomPreviewBeatmapLevel> CustomLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
         public static ConcurrentDictionary<string, CustomPreviewBeatmapLevel> CustomWIPLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
         public static ConcurrentDictionary<string, CustomPreviewBeatmapLevel> CachedWIPLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
-        public static List<SeperateSongFolder> SeperateSongFolders = new List<SeperateSongFolder>();
-        public static SongCoreCustomLevelCollection CustomLevelsCollection { get; private set; }
-        public static SongCoreCustomLevelCollection WIPLevelsCollection { get; private set; }
-        public static SongCoreCustomLevelCollection CachedWIPLevelCollection { get; private set; }
-        public static SongCoreCustomBeatmapLevelPack CustomLevelsPack { get; private set; }
-        public static SongCoreCustomBeatmapLevelPack WIPLevelsPack { get; private set; }
-        public static SongCoreCustomBeatmapLevelPack CachedWIPLevelsPack { get; private set; }
-        public static SongCoreBeatmapLevelPackCollectionSO CustomBeatmapLevelPackCollectionSO { get; private set; }
+        public static readonly List<SeperateSongFolder> SeperateSongFolders = new List<SeperateSongFolder>();
+        public static SongCoreCustomLevelCollection? CustomLevelsCollection { get; private set; }
+        public static SongCoreCustomLevelCollection? WIPLevelsCollection { get; private set; }
+        public static SongCoreCustomLevelCollection? CachedWIPLevelCollection { get; private set; }
+        public static SongCoreCustomBeatmapLevelPack? CustomLevelsPack { get; private set; }
+        public static SongCoreCustomBeatmapLevelPack? WIPLevelsPack { get; private set; }
+        public static SongCoreCustomBeatmapLevelPack? CachedWIPLevelsPack { get; private set; }
+        public static SongCoreBeatmapLevelPackCollectionSO? CustomBeatmapLevelPackCollectionSO { get; private set; }
 
         private static readonly ConcurrentDictionary<string, OfficialSongEntry> OfficialSongs = new ConcurrentDictionary<string, OfficialSongEntry>();
 
-        private static readonly ConcurrentDictionary<string, CustomPreviewBeatmapLevel> CustomLevelsById =
-            new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
+        private static readonly ConcurrentDictionary<string, CustomPreviewBeatmapLevel> CustomLevelsById = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
 
         public static bool AreSongsLoaded { get; private set; }
         public static bool AreSongsLoading { get; private set; }
@@ -155,9 +155,9 @@ namespace SongCore
         /// </summary>
         public async void RefreshLevelPacks()
         {
-            CustomLevelsCollection?.UpdatePreviewLevels(CustomLevels?.Values?.OrderBy(l => l.songName).ToArray());
-            WIPLevelsCollection?.UpdatePreviewLevels(CustomWIPLevels?.Values?.OrderBy(l => l.songName).ToArray());
-            CachedWIPLevelCollection?.UpdatePreviewLevels(CachedWIPLevels?.Values?.OrderBy(l => l.songName).ToArray());
+            CustomLevelsCollection?.UpdatePreviewLevels(CustomLevels.Values.OrderBy(l => l.songName).ToArray());
+            WIPLevelsCollection?.UpdatePreviewLevels(CustomWIPLevels.Values.OrderBy(l => l.songName).ToArray());
+            CachedWIPLevelCollection?.UpdatePreviewLevels(CachedWIPLevels.Values.OrderBy(l => l.songName).ToArray());
 
             if (CachedWIPLevelsPack != null)
             {
@@ -176,69 +176,29 @@ namespace SongCore
                 if (folderEntry.SongFolderEntry.Pack == FolderLevelPack.NewPack)
                 {
                     folderEntry.LevelCollection.UpdatePreviewLevels(folderEntry.Levels.Values.OrderBy(l => l.songName).ToArray());
-                    if (folderEntry.Levels.Count > 0 || (folderEntry is ModSeperateSongFolder folder && folder.AlwaysShow))
+                    if (folderEntry.Levels.Count > 0 || (folderEntry is ModSeperateSongFolder {AlwaysShow: true}))
                     {
                         if (!CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(folderEntry.LevelPack))
                         {
                             CustomBeatmapLevelPackCollectionSO.AddLevelPack(folderEntry.LevelPack);
                         }
                     }
-                    //          else if (CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Contains(folderEntry.LevelPack))
-                    //              CustomBeatmapLevelPackCollectionSO._customBeatmapLevelPacks.Remove(folderEntry.LevelPack);
                 }
             }
 
-            BeatmapLevelsModelSO.SetField<BeatmapLevelsModel, IBeatmapLevelPackCollection>("_customLevelPackCollection", CustomBeatmapLevelPackCollectionSO as IBeatmapLevelPackCollection);
-            await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+            BeatmapLevelsModelSO.SetField("_customLevelPackCollection", CustomBeatmapLevelPackCollectionSO as IBeatmapLevelPackCollection);
+            await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
             {
                 BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
                 BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
                 var filterNav = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault();
-                //   filterNav.InitPlaylists();
-                //   filterNav.UpdatePlaylistsData();
                 if (filterNav != null && filterNav.isActiveAndEnabled)
                 {
-                    filterNav?.UpdateCustomSongs();
+                    filterNav.UpdateCustomSongs();
                 }
 
-                //      AttemptReselectCurrentLevelPack(filterNav);
                 OnLevelPacksRefreshed?.Invoke();
             });
-        }
-
-        internal void AttemptReselectCurrentLevelPack(LevelFilteringNavigationController controller)
-        {
-            /*
-            var collectionview = Resources.FindObjectsOfTypeAll<LevelCollectionViewController>().FirstOrDefault();
-            var levelflow = Resources.FindObjectsOfTypeAll<LevelSelectionFlowCoordinator>().FirstOrDefault();
-            var pack = levelflow.GetProperty<IBeatmapLevelPack>("selectedBeatmapLevelPack");
-            IBeatmapLevelPack[] sectionpacks = new IBeatmapLevelPack[0];
-            var selectedcategory = levelflow.GetProperty<SelectLevelCategoryViewController.LevelCategory>("selectedLevelCategory");
-            switch (selectedcategory)
-            {
-                case SelectLevelCategoryViewController.LevelCategory.OstAndExtras:
-                    sectionpacks = controller.GetField<IBeatmapLevelPack[]>("_ostBeatmapLevelPacks");
-                    break;
-                case SelectLevelCategoryViewController.LevelCategory.MusicPacks:
-                    sectionpacks = controller.GetField<IBeatmapLevelPack[]>("_musicPacksBeatmapLevelPacks");
-                    break;
-                case SelectLevelCategoryViewController.LevelCategory.CustomSongs:
-                    sectionpacks = controller.GetField<IBeatmapLevelPack[]>("_customLevelPacks");
-                    break;
-
-                case SelectLevelCategoryViewController.LevelCategory.All:
-                    sectionpacks = controller.GetField<IBeatmapLevelPack[]>("_allBeatmapLevelPacks");
-                    break;
-                case SelectLevelCategoryViewController.LevelCategory.Favorites:
-                    return;
-            }
-            if (!sectionpacks.ToList().Contains(pack))
-                pack = sectionpacks.FirstOrDefault();
-            if (pack == null) return;
-            controller.Setup(SongPackMask.all, pack, selectedcategory, false, true);
-            */
-            //controller.SelectAnnotatedBeatmapLevelCollection(pack);
-            // collectionview.SetData(pack.beatmapLevelCollection, pack.packName, pack.coverImage, false, controller.GetField<GameObject>("_currentNoDataInfoPrefab"));
         }
 
         public void RefreshSongs(bool fullRefresh = true)
@@ -314,7 +274,7 @@ namespace SongCore
                         {
                             foreach (var level in pack.beatmapLevelCollection.beatmapLevels)
                             {
-                                OfficialSongs[level.levelID] = new OfficialSongEntry() {LevelPackCollection = packCollection, LevelPack = pack, PreviewBeatmapLevel = level};
+                                OfficialSongs[level.levelID] = new OfficialSongEntry {LevelPackCollection = packCollection, LevelPack = pack, PreviewBeatmapLevel = level};
                             }
                         }
                     }
@@ -383,7 +343,7 @@ namespace SongCore
                         {
                             if (songFolder.SongFolderEntry.CacheZIPs && songFolder.CacheFolder != null)
                             {
-                                SeperateSongFolder cacheFolder = songFolder.CacheFolder;
+                                var cacheFolder = songFolder.CacheFolder;
                                 try
                                 {
                                     CacheZIPs(cacheFolder.SongFolderEntry.Path, songFolder.SongFolderEntry.Path);
@@ -415,7 +375,7 @@ namespace SongCore
                         {
                             results = Directory.GetFiles(folder, "info.dat", SearchOption.TopDirectoryOnly);
                         }
-                        catch (DirectoryNotFoundException ex)
+                        catch (DirectoryNotFoundException)
                         {
                             Logging.Logger.Warn($"Skipping missing or corrupt folder: '{folder}'");
                             return;
@@ -507,7 +467,7 @@ namespace SongCore
                         try
                         {
                             SeperateSongFolder entry = SeperateSongFolders[k];
-                            Instance._progressBar.ShowMessage("Loading " + (SeperateSongFolders.Count - k) + " Additional Song folders");
+                            Instance._progressBar.ShowMessage($"Loading {(SeperateSongFolders.Count - k)} Additional Song folders");
                             if (!Directory.Exists(entry.SongFolderEntry.Path))
                             {
                                 continue;
@@ -525,7 +485,7 @@ namespace SongCore
                                 {
                                     results = Directory.GetFiles(folder, "info.dat", SearchOption.TopDirectoryOnly);
                                 }
-                                catch (DirectoryNotFoundException ex)
+                                catch (DirectoryNotFoundException)
                                 {
                                     Logging.Logger.Warn($"Skipping missing or corrupt folder: '{folder}'");
                                     continue;
@@ -546,21 +506,13 @@ namespace SongCore
                                         var songPath = Path.GetDirectoryName(result)!;
                                         if (!fullRefresh)
                                         {
-                                            if (entry.SongFolderEntry.Pack == FolderLevelPack.NewPack && SearchBeatmapInMapPack(entry.Levels, songPath))
+                                            switch (entry.SongFolderEntry.Pack)
                                             {
-                                                continue;
-                                            }
-                                            else if (entry.SongFolderEntry.Pack == FolderLevelPack.CustomLevels && SearchBeatmapInMapPack(CustomLevels, songPath))
-                                            {
-                                                continue;
-                                            }
-                                            else if (entry.SongFolderEntry.Pack == FolderLevelPack.CustomWIPLevels && SearchBeatmapInMapPack(CustomWIPLevels, songPath))
-                                            {
-                                                continue;
-                                            }
-                                            else if (entry.SongFolderEntry.Pack == FolderLevelPack.CachedWIPLevels && SearchBeatmapInMapPack(CachedWIPLevels, songPath))
-                                            {
-                                                continue;
+                                                case FolderLevelPack.NewPack when SearchBeatmapInMapPack(entry.Levels, songPath):
+                                                case FolderLevelPack.CustomLevels when SearchBeatmapInMapPack(CustomLevels, songPath):
+                                                case FolderLevelPack.CustomWIPLevels when SearchBeatmapInMapPack(CustomWIPLevels, songPath):
+                                                case FolderLevelPack.CachedWIPLevels when SearchBeatmapInMapPack(CachedWIPLevels, songPath):
+                                                    continue;
                                             }
                                         }
 
@@ -641,22 +593,17 @@ namespace SongCore
                 #region CountBeatmapsAndUpdateLevelPacks
 
                 stopwatch.Stop();
-                var songCount = CustomLevels.Count + CustomWIPLevels.Count;
-                var songCountWSF = songCount;
-                foreach (var f in SeperateSongFolders)
-                {
-                    songCount += f.Levels.Count;
-                }
+                var songCountWSF = CustomLevels.Count + CustomWIPLevels.Count;
+                var songCount = songCountWSF + SeperateSongFolders.Sum(f => f.Levels.Count);
 
-                Logging.Logger.Info($"Loaded {songCount}  new songs ({songCountWSF}) in CustomLevels | {songCount - songCountWSF} in seperate folders) in {stopwatch.Elapsed.TotalSeconds} seconds");
+                Logging.Logger.Info($"Loaded {songCount} new songs ({songCountWSF}) in CustomLevels | {songCount - songCountWSF} in seperate folders) in {stopwatch.Elapsed.TotalSeconds} seconds");
                 try
                 {
                     //Handle LevelPacks
                     if (CustomBeatmapLevelPackCollectionSO == null || CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks.Length == 0)
                     {
                         // var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
-                        CustomBeatmapLevelPackCollectionSO =
-                            await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() => SongCoreBeatmapLevelPackCollectionSO.CreateNew());
+                        CustomBeatmapLevelPackCollectionSO = await UnityMainThreadTaskScheduler.Factory.StartNew(SongCoreBeatmapLevelPackCollectionSO.CreateNew);
 
                         #region AddSeperateFolderBeatmapsToRespectivePacks
 
@@ -675,8 +622,6 @@ namespace SongCore
                                 case FolderLevelPack.CachedWIPLevels:
                                     CachedWIPLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>(CachedWIPLevels
                                         .Concat(folderEntry.Levels.Where(x => !CachedWIPLevels.ContainsKey(x.Key))).ToDictionary(x => x.Key, x => x.Value));
-                                    break;
-                                default:
                                     break;
                             }
                         }
@@ -719,10 +664,7 @@ namespace SongCore
                 LoadingProgress = 1;
 
                 _loadingTask = null;
-                await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(() =>
-                {
-                    SongsLoadedEvent?.Invoke(this, CustomLevels);
-                });
+                await UnityMainThreadTaskScheduler.Factory.StartNew(() => SongsLoadedEvent?.Invoke(this, CustomLevels));
 
                 // Write our cached hash info and
                 Hashing.UpdateCachedHashesInternal(foundSongPaths.Keys);
@@ -884,9 +826,8 @@ namespace SongCore
                 List<PreviewDifficultyBeatmapSet> list = new List<PreviewDifficultyBeatmapSet>();
                 foreach (StandardLevelInfoSaveData.DifficultyBeatmapSet difficultyBeatmapSet in saveData.difficultyBeatmapSets)
                 {
-                    BeatmapCharacteristicSO beatmapCharacteristicBySerializedName =
-                        beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(difficultyBeatmapSet.beatmapCharacteristicName);
-                    BeatmapDifficulty[] array = new BeatmapDifficulty[difficultyBeatmapSet.difficultyBeatmaps.Length];
+                    var beatmapCharacteristicBySerializedName = beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(difficultyBeatmapSet.beatmapCharacteristicName);
+                    var array = new BeatmapDifficulty[difficultyBeatmapSet.difficultyBeatmaps.Length];
                     for (var j = 0; j < difficultyBeatmapSet.difficultyBeatmaps.Length; j++)
                     {
                         difficultyBeatmapSet.difficultyBeatmaps[j].difficulty.BeatmapDifficultyFromSerializedName(out var beatmapDifficulty);
@@ -941,7 +882,7 @@ namespace SongCore
         /// </summary>
         /// <param name="cachePath">Directory of cache folder</param>
         /// <param name="songFolderPath">Directory of folder containing the zips</param>
-        private void CacheZIPs(string cachePath, string songFolderPath)
+        private static void CacheZIPs(string cachePath, string songFolderPath)
         {
             if (!Directory.Exists(cachePath))
             {

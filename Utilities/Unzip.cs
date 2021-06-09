@@ -456,11 +456,7 @@ namespace SongCore.Utilities
                     Extract(entry.Name, fileName);
                 }
 
-                var extractProgress = ExtractProgress;
-                if (extractProgress != null)
-                {
-                    extractProgress(this, new FileProgressEventArgs(index + 1, Entries.Length, entry.Name));
-                }
+                ExtractProgress?.Invoke(this, new FileProgressEventArgs(index + 1, Entries.Length, entry.Name));
             }
         }
 

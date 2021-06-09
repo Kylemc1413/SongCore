@@ -145,10 +145,6 @@ namespace SongCore
 
             var entry = new SongFolderEntry(name, folderPath, pack, "", wip, cachezips);
             var seperateSongFolder = new ModSeperateSongFolder(entry, image == null ? UI.BasicUI.FolderIcon! : image);
-            if (Loader.SeperateSongFolders == null)
-            {
-                Loader.SeperateSongFolders = new List<SeperateSongFolder>();
-            }
 
             Loader.SeperateSongFolders.Add(seperateSongFolder);
             return seperateSongFolder;

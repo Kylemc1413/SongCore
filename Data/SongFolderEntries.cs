@@ -34,20 +34,23 @@ namespace SongCore.Data
 
     public class SeperateSongFolder
     {
+        public readonly ConcurrentDictionary<string, CustomPreviewBeatmapLevel> Levels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
+
         public SongFolderEntry SongFolderEntry { get; private set; }
-        public ConcurrentDictionary<string, CustomPreviewBeatmapLevel> Levels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
         public SongCoreCustomLevelCollection LevelCollection { get; private set; } = null;
         public SongCoreCustomBeatmapLevelPack LevelPack { get; private set; } = null;
-        public SeperateSongFolder CacheFolder { get; private set; } = null;
+        public SeperateSongFolder? CacheFolder { get; private set; }
 
-        public SeperateSongFolder(SongFolderEntry folderEntry, SeperateSongFolder cacheFolder = null)
+        public SeperateSongFolder(SongFolderEntry folderEntry, SeperateSongFolder? cacheFolder = null)
         {
             SongFolderEntry = folderEntry;
             CacheFolder = cacheFolder;
+
             if (folderEntry.Pack == FolderLevelPack.NewPack)
             {
                 LevelCollection = new SongCoreCustomLevelCollection(Levels.Values.ToArray());
-                UnityEngine.Sprite image = UI.BasicUI.FolderIcon;
+                var image = UI.BasicUI.FolderIcon!;
+
                 if (!string.IsNullOrEmpty(folderEntry.ImagePath))
                 {
                     try
@@ -127,15 +130,7 @@ namespace SongCore.Data
                     SeperateSongFolder? cachedSeperate = null;
                     if (zipCaching)
                     {
-                        FolderLevelPack cachePack;
-                        if ((FolderLevelPack) pack == FolderLevelPack.CustomWIPLevels)
-                        {
-                            cachePack = FolderLevelPack.CachedWIPLevels;
-                        }
-                        else
-                        {
-                            cachePack = FolderLevelPack.NewPack;
-                        }
+                        var cachePack = (FolderLevelPack) pack == FolderLevelPack.CustomWIPLevels ? FolderLevelPack.CachedWIPLevels : FolderLevelPack.NewPack;
 
                         SongFolderEntry cachedSongFolderEntry = new SongFolderEntry($"Cached {name}", Path.Combine(path, "Cache"), cachePack, imagePath, isWIP, false);
                         cachedSeperate = new SeperateSongFolder(cachedSongFolderEntry);
@@ -166,7 +161,7 @@ namespace SongCore.Data
         {
         }
 
-        public ModSeperateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite Image) : base(folderEntry, Image)
+        public ModSeperateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite image) : base(folderEntry, image)
         {
         }
     }

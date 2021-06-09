@@ -58,10 +58,9 @@ namespace SongCore
                 Logging.Logger.Warn("Failed to delete old config file!");
             }
 
-            //      ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
             _harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
             _harmony.PatchAll(Assembly.GetExecutingAssembly());
-            //     Collections.LoadExtraSongData();
+
             BasicUI.GetIcons();
             BS_Utils.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
             BS_Utils.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
@@ -76,9 +75,9 @@ namespace SongCore
                 Collections.LoadExtraSongData();
             }
 
-            Collections.RegisterCustomCharacteristic(BasicUI.MissingCharIcon, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic", false, false, 1000);
-            Collections.RegisterCustomCharacteristic(BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow", false, false, 100);
-            Collections.RegisterCustomCharacteristic(BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless", false, false, 101);
+            Collections.RegisterCustomCharacteristic(BasicUI.MissingCharIcon!, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic", false, false, 1000);
+            Collections.RegisterCustomCharacteristic(BasicUI.LightshowIcon!, "Lightshow", "Lightshow", "Lightshow", "Lightshow", false, false, 100);
+            Collections.RegisterCustomCharacteristic(BasicUI.ExtraDiffsIcon!, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless", false, false, 101);
 
             var foldersXmlFilePath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "folders.xml");
             if (!File.Exists(foldersXmlFilePath))
@@ -129,12 +128,13 @@ namespace SongCore
             }
         }
 
-        public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
+        private void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
         {
             CustomSongColors = BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
             CustomSongPlatforms = BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
             DisplayDiffLabels = BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
             Object.Destroy(GameObject.Find("SongCore Color Setter"));
+
             if (nextScene.name == "MenuViewControllers")
             {
                 BS_Utils.Gameplay.Gamemode.Init();
@@ -155,16 +155,16 @@ namespace SongCore
             }
         }
 
-        public static void SetNJS(BeatmapObjectSpawnController _spawnController)
+        public static void SetNJS(BeatmapObjectSpawnController spawnController)
         {
-            BeatmapObjectSpawnMovementData spawnMovementData = _spawnController.GetField<BeatmapObjectSpawnMovementData, BeatmapObjectSpawnController>("_beatmapObjectSpawnMovementData");
+            BeatmapObjectSpawnMovementData spawnMovementData = spawnController.GetField<BeatmapObjectSpawnMovementData, BeatmapObjectSpawnController>("_beatmapObjectSpawnMovementData");
 
-            var bpm = _spawnController.GetField<VariableBpmProcessor, BeatmapObjectSpawnController>("_variableBPMProcessor").currentBpm;
+            var bpm = spawnController.GetField<VariableBpmProcessor, BeatmapObjectSpawnController>("_variableBPMProcessor").currentBpm;
 
             spawnMovementData.SetField("_startNoteJumpMovementSpeed", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpMovementSpeed);
             spawnMovementData.SetField("_noteJumpStartBeatOffset", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpStartBeatOffset);
 
-            spawnMovementData.Update(bpm, _spawnController.GetField<float, BeatmapObjectSpawnController>("_jumpOffsetY"));
+            spawnMovementData.Update(bpm, spawnController.GetField<float, BeatmapObjectSpawnController>("_jumpOffsetY"));
         }
     }
 }
