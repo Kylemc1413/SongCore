@@ -24,7 +24,7 @@ namespace SongCore.Data
             public string _iconPath;
 
             [NonSerialized]
-            public Sprite icon = null;
+            public Sprite? icon = null;
         }
 
         [Serializable]
@@ -34,13 +34,13 @@ namespace SongCore.Data
             public BeatmapDifficulty _difficulty;
             public string _difficultyLabel;
             public RequirementData additionalDifficultyData;
-            public MapColor _colorLeft;
-            public MapColor _colorRight;
-            public MapColor _envColorLeft;
-            public MapColor _envColorRight;
-            public MapColor _envColorLeftBoost;
-            public MapColor _envColorRightBoost;
-            public MapColor _obstacleColor;
+            public MapColor? _colorLeft;
+            public MapColor? _colorRight;
+            public MapColor? _envColorLeft;
+            public MapColor? _envColorRight;
+            public MapColor? _envColorLeftBoost;
+            public MapColor? _envColorRightBoost;
+            public MapColor? _obstacleColor;
         }
 
         [Serializable]
@@ -123,32 +123,31 @@ namespace SongCore.Data
                 contributors = levelContributors.ToArray();
 
 
-                List<DifficultyData> diffData = new List<DifficultyData>();
-                JArray diffSets = (JArray) info["_difficultyBeatmapSets"];
-                foreach (JObject diffSet in diffSets)
+                var diffData = new List<DifficultyData>();
+                var diffSets = (JArray) info["_difficultyBeatmapSets"];
+                foreach (var diffSet in diffSets)
                 {
-                    string SetCharacteristic = (string) diffSet["_beatmapCharacteristicName"];
+                    var setCharacteristic = (string) diffSet["_beatmapCharacteristicName"];
                     JArray diffBeatmaps = (JArray) diffSet["_difficultyBeatmaps"];
                     foreach (JObject diffBeatmap in diffBeatmaps)
                     {
-                        List<string> diffRequirements = new List<string>();
-                        List<string> diffSuggestions = new List<string>();
-                        List<string> diffWarnings = new List<string>();
-                        List<string> diffInfo = new List<string>();
-                        string diffLabel = "";
-                        MapColor diffLeft = null;
-                        MapColor diffRight = null;
-                        MapColor diffEnvLeft = null;
-                        MapColor diffEnvRight = null;
-                        MapColor diffEnvLeftBoost = null;
-                        MapColor diffEnvRightBoost = null;
-                        MapColor diffObstacle = null;
+                        var diffRequirements = new List<string>();
+                        var diffSuggestions = new List<string>();
+                        var diffWarnings = new List<string>();
+                        var diffInfo = new List<string>();
+                        var diffLabel = "";
+                        MapColor? diffLeft = null;
+                        MapColor? diffRight = null;
+                        MapColor? diffEnvLeft = null;
+                        MapColor? diffEnvRight = null;
+                        MapColor? diffEnvLeftBoost = null;
+                        MapColor? diffEnvRightBoost = null;
+                        MapColor? diffObstacle = null;
 
                         var diffDifficulty = Utilities.Utils.ToEnum((string) diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
-                        JObject beatmapData;
                         if (diffBeatmap.TryGetValue("_customData", out var customData))
                         {
-                            beatmapData = (JObject) customData;
+                            JObject beatmapData = (JObject) customData;
                             if (beatmapData.TryGetValue("_difficultyLabel", out var difficultyLabel))
                             {
                                 diffLabel = (string) difficultyLabel;
@@ -159,10 +158,10 @@ namespace SongCore.Data
                             {
                                 if (colorLeft.Children().Count() == 3)
                                 {
-                                    diffLeft = new MapColor(0, 0, 0);
-                                    diffLeft.r = (float) beatmapData["_colorLeft"]["r"];
-                                    diffLeft.g = (float) beatmapData["_colorLeft"]["g"];
-                                    diffLeft.b = (float) beatmapData["_colorLeft"]["b"];
+                                    diffLeft = new MapColor(
+                                        (float) (colorLeft["r"] ?? 0),
+                                        (float) (colorLeft["g"] ?? 0),
+                                        (float) (colorLeft["b"] ?? 0));
                                 }
                             }
 
@@ -170,10 +169,10 @@ namespace SongCore.Data
                             {
                                 if (colorRight.Children().Count() == 3)
                                 {
-                                    diffRight = new MapColor(0, 0, 0);
-                                    diffRight.r = (float) beatmapData["_colorRight"]["r"];
-                                    diffRight.g = (float) beatmapData["_colorRight"]["g"];
-                                    diffRight.b = (float) beatmapData["_colorRight"]["b"];
+                                    diffRight = new MapColor(
+                                        (float) (colorRight["r"] ?? 0),
+                                        (float) (colorRight["g"] ?? 0),
+                                        (float) (colorRight["b"] ?? 0));
                                 }
                             }
 
@@ -181,10 +180,10 @@ namespace SongCore.Data
                             {
                                 if (envColorLeft.Children().Count() == 3)
                                 {
-                                    diffEnvLeft = new MapColor(0, 0, 0);
-                                    diffEnvLeft.r = (float) beatmapData["_envColorLeft"]["r"];
-                                    diffEnvLeft.g = (float) beatmapData["_envColorLeft"]["g"];
-                                    diffEnvLeft.b = (float) beatmapData["_envColorLeft"]["b"];
+                                    diffEnvLeft = new MapColor(
+                                        (float) (envColorLeft["r"] ?? 0),
+                                        (float) (envColorLeft["g"] ?? 0),
+                                        (float) (envColorLeft["b"] ?? 0));
                                 }
                             }
 
@@ -192,10 +191,10 @@ namespace SongCore.Data
                             {
                                 if (envColorRight.Children().Count() == 3)
                                 {
-                                    diffEnvRight = new MapColor(0, 0, 0);
-                                    diffEnvRight.r = (float) beatmapData["_envColorRight"]["r"];
-                                    diffEnvRight.g = (float) beatmapData["_envColorRight"]["g"];
-                                    diffEnvRight.b = (float) beatmapData["_envColorRight"]["b"];
+                                    diffEnvRight = new MapColor(
+                                        (float) (envColorRight["r"] ?? 0),
+                                        (float) (envColorRight["g"] ?? 0),
+                                        (float) (envColorRight["b"] ?? 0));
                                 }
                             }
 
@@ -203,10 +202,10 @@ namespace SongCore.Data
                             {
                                 if (envColorLeftBoost.Children().Count() == 3)
                                 {
-                                    diffEnvLeftBoost = new MapColor(0, 0, 0);
-                                    diffEnvLeftBoost.r = (float) beatmapData["_envColorLeftBoost"]["r"];
-                                    diffEnvLeftBoost.g = (float) beatmapData["_envColorLeftBoost"]["g"];
-                                    diffEnvLeftBoost.b = (float) beatmapData["_envColorLeftBoost"]["b"];
+                                    diffEnvLeftBoost = new MapColor(
+                                        (float) (envColorLeftBoost["r"] ?? 0),
+                                        (float) (envColorLeftBoost["g"] ?? 0),
+                                        (float) (envColorLeftBoost["b"] ?? 0));
                                 }
                             }
 
@@ -214,10 +213,10 @@ namespace SongCore.Data
                             {
                                 if (envColorRightBoost.Children().Count() == 3)
                                 {
-                                    diffEnvRightBoost = new MapColor(0, 0, 0);
-                                    diffEnvRightBoost.r = (float) beatmapData["_envColorRightBoost"]["r"];
-                                    diffEnvRightBoost.g = (float) beatmapData["_envColorRightBoost"]["g"];
-                                    diffEnvRightBoost.b = (float) beatmapData["_envColorRightBoost"]["b"];
+                                    diffEnvRightBoost = new MapColor(
+                                        (float) (envColorRightBoost["r"] ?? 0),
+                                        (float) (envColorRightBoost["g"] ?? 0),
+                                        (float) (envColorRightBoost["b"] ?? 0));
                                 }
                             }
 
@@ -225,10 +224,10 @@ namespace SongCore.Data
                             {
                                 if (obColor.Children().Count() == 3)
                                 {
-                                    diffObstacle = new MapColor(0, 0, 0);
-                                    diffObstacle.r = (float) beatmapData["_obstacleColor"]["r"];
-                                    diffObstacle.g = (float) beatmapData["_obstacleColor"]["g"];
-                                    diffObstacle.b = (float) beatmapData["_obstacleColor"]["b"];
+                                    diffObstacle = new MapColor(
+                                        (float) (obColor["r"] ?? 0),
+                                        (float) (obColor["g"] ?? 0),
+                                        (float) (obColor["b"] ?? 0));
                                 }
                             }
 
