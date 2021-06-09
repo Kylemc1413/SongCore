@@ -68,14 +68,14 @@ namespace SongCore.Data
             }
         }
 
-        public SeperateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite Image)
+        public SeperateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite image)
         {
             SongFolderEntry = folderEntry;
             if (folderEntry.Pack == FolderLevelPack.NewPack)
             {
                 LevelCollection = new SongCoreCustomLevelCollection(Levels.Values.ToArray());
 
-                LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, Image, LevelCollection);
+                LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, image, LevelCollection);
             }
         }
 

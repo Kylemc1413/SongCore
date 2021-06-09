@@ -4,7 +4,8 @@ namespace SongCore.UI
 {
     internal static class BasicUI
     {
-        internal static BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
+        internal static readonly BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
+
         internal static Sprite? MissingCharIcon;
         internal static Sprite? LightshowIcon;
         internal static Sprite? ExtraDiffsIcon;

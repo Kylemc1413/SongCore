@@ -28,7 +28,7 @@ namespace SongCore
 
         internal static bool forceLongPreviews = SCSettings.instance.LongPreviews;
 
-        public static Action<bool, string, string, IPreviewBeatmapLevel> CustomSongPlatformSelectionDidChange;
+        public static Action<bool, string, string, IPreviewBeatmapLevel>? CustomSongPlatformSelectionDidChange;
 
         //   public static Action<string, string> CustomSongWithPlatformPlayed;
         public static string standardCharacteristicName = "Standard";
@@ -83,10 +83,10 @@ namespace SongCore
             Collections.RegisterCustomCharacteristic(BasicUI.LightshowIcon, "Lightshow", "Lightshow", "Lightshow", "Lightshow", false, false, 100);
             Collections.RegisterCustomCharacteristic(BasicUI.ExtraDiffsIcon, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless", false, false, 101);
 
-            var foldersXmlFilePath = Path.Combine(UnityGame.UserDataPath, "SongCore", "folders.xml");
+            var foldersXmlFilePath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "folders.xml");
             if (!File.Exists(foldersXmlFilePath))
             {
-                File.WriteAllBytes(foldersXmlFilePath, SongCore.Utilities.Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
+                File.WriteAllBytes(foldersXmlFilePath, Utilities.Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
             }
 
             Loader.SeperateSongFolders.InsertRange(0, Data.SeperateSongFolder.ReadSeperateFoldersFromFile(foldersXmlFilePath));
@@ -110,9 +110,8 @@ namespace SongCore
 
         private void BSEvents_levelSelected(LevelCollectionViewController arg1, IPreviewBeatmapLevel level)
         {
-            if (level is CustomPreviewBeatmapLevel)
+            if (level is CustomPreviewBeatmapLevel customLevel)
             {
-                var customLevel = level as CustomPreviewBeatmapLevel;
                 var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
                 Collections.SaveExtraSongData();
 
@@ -124,11 +123,11 @@ namespace SongCore
                 if (customSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
                     Logging.Logger.Debug("Custom song with platform selected");
-                    CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, level);
+                    CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
                 }
                 else
                 {
-                    CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, level);
+                    CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
                 }
             }
         }

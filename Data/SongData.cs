@@ -146,7 +146,7 @@ namespace SongCore.Data
                         MapColor? diffEnvRightBoost = null;
                         MapColor? diffObstacle = null;
 
-                        var diffDifficulty = Utilities.Utils.ToEnum((string) diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
+                        var diffDifficulty = Utils.ToEnum((string) diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
                         if (diffBeatmap.TryGetValue("_customData", out var customData))
                         {
                             JObject beatmapData = (JObject) customData;

@@ -144,7 +144,7 @@ namespace SongCore.HarmonyPatches
                 int[] idxs = new int[beatmapLinesData.Length];
                 for (;;)
                 {
-                    BeatmapObjectData minBeatmapObjectData = null;
+                    BeatmapObjectData? minBeatmapObjectData = null;
                     var num = float.MaxValue;
                     for (var i = 0; i < beatmapLinesData.Length; i++)
                     {

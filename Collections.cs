@@ -127,7 +127,7 @@ namespace SongCore
             return null;
         }
 
-        public static SeperateSongFolder AddSeperateSongFolder(string name, string folderPath, FolderLevelPack pack, Sprite image = null, bool wip = false, bool cachezips = false)
+        public static SeperateSongFolder AddSeperateSongFolder(string name, string folderPath, FolderLevelPack pack, Sprite? image = null, bool wip = false, bool cachezips = false)
         {
             UI.BasicUI.GetIcons();
             if (!Directory.Exists(folderPath))
@@ -144,7 +144,7 @@ namespace SongCore
             }
 
             var entry = new SongFolderEntry(name, folderPath, pack, "", wip, cachezips);
-            var seperateSongFolder = new ModSeperateSongFolder(entry, image == null ? UI.BasicUI.FolderIcon : image);
+            var seperateSongFolder = new ModSeperateSongFolder(entry, image == null ? UI.BasicUI.FolderIcon! : image);
             if (Loader.SeperateSongFolders == null)
             {
                 Loader.SeperateSongFolders = new List<SeperateSongFolder>();
