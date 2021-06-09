@@ -10,7 +10,7 @@ namespace SongCore.UI
             get => BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
             set
             {
-                Plugin.customSongColors = value;
+                Plugin.CustomSongColors = value;
                 BasicUI.ModPrefs.SetBool("SongCore", "customSongColors", value);
             }
         }
@@ -21,7 +21,7 @@ namespace SongCore.UI
             get => BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
             set
             {
-                Plugin.customSongPlatforms = value;
+                Plugin.CustomSongPlatforms = value;
                 BasicUI.ModPrefs.SetBool("SongCore", "customSongPlatforms", value);
             }
         }
@@ -32,7 +32,7 @@ namespace SongCore.UI
             get => BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
             set
             {
-                Plugin.displayDiffLabels = value;
+                Plugin.DisplayDiffLabels = value;
                 BasicUI.ModPrefs.SetBool("SongCore", "displayDiffLabels", value);
             }
         }
@@ -43,7 +43,7 @@ namespace SongCore.UI
             get => BasicUI.ModPrefs.GetBool("SongCore", "forceLongPreviews", false, true);
             set
             {
-                Plugin.forceLongPreviews = value;
+                Plugin.ForceLongPreviews = value;
                 BasicUI.ModPrefs.SetBool("SongCore", "forceLongPreviews", value);
             }
         }

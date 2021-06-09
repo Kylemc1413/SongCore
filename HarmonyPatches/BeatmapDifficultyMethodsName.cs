@@ -8,7 +8,7 @@ namespace SongCore.HarmonyPatches
     {
         private static void Postfix(BeatmapDifficulty difficulty, ref string __result)
         {
-            if (!Plugin.displayDiffLabels)
+            if (!Plugin.DisplayDiffLabels)
             {
                 return;
             }

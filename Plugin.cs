@@ -21,16 +21,13 @@ namespace SongCore
     {
         private static Harmony? _harmony;
 
-        //     internal static bool ColorsInstalled = false;
-        internal static bool customSongColors = SCSettings.instance.Colors;
-        internal static bool customSongPlatforms = SCSettings.instance.Platforms;
-        internal static bool displayDiffLabels = SCSettings.instance.DiffLabels;
-
-        internal static bool forceLongPreviews = SCSettings.instance.LongPreviews;
+        internal static bool CustomSongColors = SCSettings.instance.Colors;
+        internal static bool CustomSongPlatforms = SCSettings.instance.Platforms;
+        internal static bool DisplayDiffLabels = SCSettings.instance.DiffLabels;
+        internal static bool ForceLongPreviews = SCSettings.instance.LongPreviews;
 
         public static Action<bool, string, string, IPreviewBeatmapLevel>? CustomSongPlatformSelectionDidChange;
 
-        //   public static Action<string, string> CustomSongWithPlatformPlayed;
         public static string standardCharacteristicName = "Standard";
         public static string oneSaberCharacteristicName = "OneSaber";
         public static string noArrowsCharacteristicName = "NoArrows";
@@ -120,7 +117,7 @@ namespace SongCore
                     return;
                 }
 
-                if (customSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
+                if (CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
                     Logging.Logger.Debug("Custom song with platform selected");
                     CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
@@ -134,9 +131,9 @@ namespace SongCore
 
         public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
         {
-            customSongColors = BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
-            customSongPlatforms = BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
-            displayDiffLabels = BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
+            CustomSongColors = BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
+            CustomSongPlatforms = BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
+            DisplayDiffLabels = BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
             Object.Destroy(GameObject.Find("SongCore Color Setter"));
             if (nextScene.name == "MenuViewControllers")
             {

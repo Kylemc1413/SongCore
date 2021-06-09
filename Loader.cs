@@ -1194,7 +1194,7 @@ namespace SongCore
 
                 level.SetField("_songDuration", length);
 
-                if (Plugin.forceLongPreviews)
+                if (Plugin.ForceLongPreviews)
                 {
                     level.SetField("_previewDuration", Mathf.Max(level.previewDuration, length - level.previewStartTime));
                 }
