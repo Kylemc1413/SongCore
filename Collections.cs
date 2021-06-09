@@ -138,7 +138,8 @@ namespace SongCore
                 }
                 catch (Exception ex)
                 {
-                    Logging.logger.Error("Failed to make folder for: " + name + "\n" + ex);
+                    Logging.Logger.Error($"Failed to make folder for: {name}");
+                    Logging.Logger.Error(ex);
                 }
             }
 

@@ -26,7 +26,7 @@ namespace SongCore.HarmonyPatches
 
             if (Plugin.customSongColors)
             {
-                Logging.logger.Info("Custom Song Colors On");
+                Logging.Logger.Info("Custom Song Colors On");
                 var saberLeft = songData._colorLeft == null ? fallbackScheme.saberAColor : Utils.ColorFromMapColor(songData._colorLeft);
                 var saberRight = songData._colorRight == null ? fallbackScheme.saberBColor : Utils.ColorFromMapColor(songData._colorRight);
                 var envLeft = songData._envColorLeft == null

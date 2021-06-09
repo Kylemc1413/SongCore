@@ -11,7 +11,7 @@ namespace SongCore.HarmonyPatches
             if (string.IsNullOrWhiteSpace(harmonyID))
             {
                 harmonyID = __instance.Id;
-                Utilities.Logging.logger.Error($"HEY {__instance.Id} YOU'RE TRYING TO UNPATCH EVERY SINGLE MOD, PLEASE PROVIDE YOUR HARMONY ID WHEN USING UNPATCHALL");
+                Utilities.Logging.Logger.Error($"HEY {__instance.Id} YOU'RE TRYING TO UNPATCH EVERY SINGLE MOD, PLEASE PROVIDE YOUR HARMONY ID WHEN USING UNPATCHALL");
             }
         }
     }

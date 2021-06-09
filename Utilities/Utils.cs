@@ -54,7 +54,7 @@ namespace SongCore.Utilities
             }
             catch
             {
-                Logging.logger.Error("Exception trying to Grant access to " + file);
+                Logging.Logger.Error($"Exception trying to Grant access to {file}");
             }
         }
 

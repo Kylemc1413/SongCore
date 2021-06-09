@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using LogSeverity = IPA.Logging.Logger.Level;
 
 namespace SongCore
 {
@@ -127,7 +126,7 @@ namespace SongCore
                 {
                     //_loadingTask.Cancel();
                     CancelSongLoading();
-                    Logging.Log("Loading was cancelled by player since they loaded another scene.");
+                    Logging.Logger.Info("Loading was cancelled by player since they loaded another scene.");
                 }
             }
 
@@ -254,7 +253,7 @@ namespace SongCore
                 return;
             }
 
-            Logging.Log(fullRefresh ? "Starting full song refresh" : "Starting song refresh");
+            Logging.Logger.Info(fullRefresh ? "Starting full song refresh" : "Starting song refresh");
             AreSongsLoaded = false;
             AreSongsLoading = true;
             LoadingProgress = 0;
@@ -268,8 +267,8 @@ namespace SongCore
                 }
                 catch (Exception e)
                 {
-                    Logging.Log("Some plugin is throwing exception from the LoadingStartedEvent!", IPA.Logging.Logger.Level.Error);
-                    Logging.Log(e.ToString(), IPA.Logging.Logger.Level.Error);
+                    Logging.Logger.Error("Some plugin is throwing exception from the LoadingStartedEvent!");
+                    Logging.Logger.Error(e);
                 }
             }
 
@@ -330,8 +329,8 @@ namespace SongCore
                 }
                 catch (Exception ex)
                 {
-                    Logging.logger.Error($"Error populating official songs: {ex.Message}");
-                    Logging.logger.Debug(ex);
+                    Logging.Logger.Error($"Error populating official songs: {ex.Message}");
+                    Logging.Logger.Debug(ex);
                 }
 
                 #endregion
@@ -373,7 +372,8 @@ namespace SongCore
                         }
                         catch (Exception ex)
                         {
-                            Logging.logger.Error("Failed To Load Cached WIP Levels: " + ex);
+                            Logging.Logger.Error("Failed To Load Cached WIP Levels: ");
+                            Logging.Logger.Error(ex);
                         }
                     }
 
@@ -394,7 +394,8 @@ namespace SongCore
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logging.logger.Error("Failed To Load Cached WIP Levels: " + ex);
+                                    Logging.Logger.Error("Failed To Load Cached WIP Levels:");
+                                    Logging.Logger.Error(ex);
                                 }
                             }
                         }
@@ -420,13 +421,13 @@ namespace SongCore
                         }
                         catch (DirectoryNotFoundException ex)
                         {
-                            Logging.Log($"Skipping missing or corrupt folder: '{folder}'", LogSeverity.Warning);
+                            Logging.Logger.Warn($"Skipping missing or corrupt folder: '{folder}'");
                             return;
                         }
 
                         if (results.Length == 0)
                         {
-                            Logging.Log("Folder: '" + folder + "' is missing info.dat files!", LogSeverity.Notice);
+                            Logging.Logger.Notice($"Folder: '{folder}' is missing info.dat files!");
                             return;
                         }
 
@@ -491,8 +492,8 @@ namespace SongCore
                             }
                             catch (Exception e)
                             {
-                                Logging.Log("Failed to load song folder: " + result, LogSeverity.Error);
-                                Logging.Log(e.ToString(), LogSeverity.Error);
+                                Logging.Logger.Error($"Failed to load song folder: {result}");
+                                Logging.Logger.Error(e);
                             }
                         }
 
@@ -530,13 +531,13 @@ namespace SongCore
                                 }
                                 catch (DirectoryNotFoundException ex)
                                 {
-                                    Logging.Log($"Skipping missing or corrupt folder: '{folder}'", LogSeverity.Warning);
+                                    Logging.Logger.Warn($"Skipping missing or corrupt folder: '{folder}'");
                                     continue;
                                 }
 
                                 if (results.Length == 0)
                                 {
-                                    Logging.Log("Folder: '" + folder + "' is missing info.dat files!", LogSeverity.Notice);
+                                    Logging.Logger.Notice($"Folder: '{folder}' is missing info.dat files!");
                                     continue;
                                 }
 
@@ -613,15 +614,16 @@ namespace SongCore
                                     }
                                     catch (Exception e)
                                     {
-                                        Logging.Log("Failed to load song folder: " + result, LogSeverity.Error);
-                                        Logging.Log(e.ToString(), LogSeverity.Error);
+                                        Logging.Logger.Error($"Failed to load song folder: {result}");
+                                        Logging.Logger.Error(e);
                                     }
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            Logging.Log($"Failed to load Seperate Folder{SeperateSongFolders[k].SongFolderEntry.Name}" + ex, LogSeverity.Error);
+                            Logging.Logger.Error($"Failed to load Separate Folder{SeperateSongFolders[k].SongFolderEntry.Name}");
+                            Logging.Logger.Error(ex);
                         }
                     }
 
@@ -631,8 +633,8 @@ namespace SongCore
                 }
                 catch (Exception e) when (!(e is OperationCanceledException))
                 {
-                    Logging.Log("RetrieveAllSongs failed:", LogSeverity.Error);
-                    Logging.Log(e.ToString(), LogSeverity.Error);
+                    Logging.Logger.Error("RetrieveAllSongs failed:");
+                    Logging.Logger.Error(e);
                 }
 
                 #endregion
@@ -650,7 +652,7 @@ namespace SongCore
                     songCount += f.Levels.Count;
                 }
 
-                Logging.Log($"Loaded {songCount}  new songs ({songCountWSF}) in CustomLevels | {songCount - songCountWSF} in seperate folders) in {stopwatch.Elapsed.TotalSeconds} seconds");
+                Logging.Logger.Info($"Loaded {songCount}  new songs ({songCountWSF}) in CustomLevels | {songCount - songCountWSF} in seperate folders) in {stopwatch.Elapsed.TotalSeconds} seconds");
                 try
                 {
                     //Handle LevelPacks
@@ -710,7 +712,8 @@ namespace SongCore
                 }
                 catch (Exception ex)
                 {
-                    Logging.logger.Error("Failed to Setup LevelPacks: " + ex);
+                    Logging.Logger.Error("Failed to Setup LevelPacks:");
+                    Logging.Logger.Error(ex);
                 }
 
                 #endregion
@@ -739,14 +742,18 @@ namespace SongCore
             }
             catch (Exception ex)
             {
-                Utilities.Logging.logger.Warn($"Song Loading Task Failed. {ex.Message}");
+                Logging.Logger.Warn($"Song Loading Task Failed. {ex.Message}");
                 return;
             }
 
             if (_loadingTask.IsCompleted && !_loadingTask.IsCanceled)
+            {
                 await Task.Run(finish).ConfigureAwait(false);
+            }
             else
-                Utilities.Logging.logger.Warn($"Song Loading Task Cancelled.");
+            {
+                Logging.Logger.Warn($"Song Loading Task Cancelled.");
+            }
             // await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(finish).ConfigureAwait(false);
             //  _loadingTask = new HMTask(job, finish);
             //  _loadingTask.Run();
@@ -821,8 +828,8 @@ namespace SongCore
             }
             catch (Exception ex)
             {
-                Logging.Log("Exception trying to Delete song: " + folderPath, LogSeverity.Error);
-                Logging.Log(ex.ToString(), LogSeverity.Error);
+                Logging.Logger.Error($"Exception trying to Delete song: {folderPath}");
+                Logging.Logger.Error(ex);
             }
         }
 
@@ -903,7 +910,7 @@ namespace SongCore
             }
             catch
             {
-                Logging.Log("Failed to Load Song: " + songPath, LogSeverity.Error);
+                Logging.Logger.Error($"Failed to Load Song: {songPath}");
                 result = null;
             }
 
@@ -969,7 +976,8 @@ namespace SongCore
                 }
                 catch (Exception ex)
                 {
-                    Logging.logger.Warn("Failed to extract zip: " + zip + ": " + ex);
+                    Logging.Logger.Warn($"Failed to extract zip: {zip}:");
+                    Logging.Logger.Warn(ex);
                 }
 
                 unzip.Dispose();
@@ -994,13 +1002,13 @@ namespace SongCore
                 }
                 catch (DirectoryNotFoundException ex)
                 {
-                    Logging.Log($"Skipping missing or corrupt folder: '{cachedFolder}'", LogSeverity.Warning);
+                    Logging.Logger.Warn($"Skipping missing or corrupt folder: '{cachedFolder}'");
                     continue;
                 }
 
                 if (results.Length == 0)
                 {
-                    Logging.Log("Folder: '" + cachedFolder + "' is missing info.dat files!", LogSeverity.Notice);
+                    Logging.Logger.Notice($"Folder: '{cachedFolder}' is missing info.dat files!");
                     continue;
                 }
 
@@ -1039,7 +1047,8 @@ namespace SongCore
                     }
                     catch (Exception ex)
                     {
-                        Logging.logger.Notice("Failed to load song from " + cachedFolder + ": " + ex);
+                        Logging.Logger.Notice($"Failed to load song from {cachedFolder}:");
+                        Logging.Logger.Notice(ex);
                     }
                 }
             }
@@ -1183,7 +1192,7 @@ namespace SongCore
                     if (length <= 1)
                     {
                         // janky, but whatever
-                        Logging.logger.Warn($"Failed to parse song length from Ogg file, Approximating using Map length. Song: {level.customLevelPath}");
+                        Logging.Logger.Warn($"Failed to parse song length from Ogg file, Approximating using Map length. Song: {level.customLevelPath}");
                         length = GetLengthFromMap(level, songPath);
                     }
                 }
@@ -1207,7 +1216,8 @@ namespace SongCore
             }
             catch (Exception ex)
             {
-                Logging.logger.Warn("Failed to Parse Song Duration" + ex);
+                Logging.Logger.Warn("Failed to Parse Song Duration");
+                Logging.Logger.Warn(ex);
             }
         }
 
@@ -1303,7 +1313,7 @@ namespace SongCore
                 }
                 else
                 {
-                    Logging.logger.Warn($"could not find rate for {oggFile}");
+                    Logging.Logger.Warn($"could not find rate for {oggFile}");
                     return -1;
                 }
 
@@ -1334,7 +1344,7 @@ namespace SongCore
 
                 if (lastSample == -1)
                 {
-                    Logging.logger.Warn($"could not find lastSample for {oggFile}");
+                    Logging.Logger.Warn($"could not find lastSample for {oggFile}");
                     return -1;
                 }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using SongCore.Utilities;
 
 namespace SongCore.HarmonyPatches
 {
@@ -32,7 +33,7 @@ namespace SongCore.HarmonyPatches
                         continue;
                     }
 
-                    Utilities.Logging.logger.Debug($"{i}Inserting Clamp Instruction for SaveData Reading");
+                    Logging.Logger.Debug($"{i} Inserting Clamp Instruction for SaveData Reading");
                     instructionList.InsertRange(i, clampInstructions);
                     i += clampInstructions.Count();
                 }
@@ -72,7 +73,7 @@ namespace SongCore.HarmonyPatches
                         continue;
                     }
 
-                    Utilities.Logging.logger.Debug($"{i}Inserting Clamp Instruction for Note Processor");
+                    Logging.Logger.Debug($"{i} Inserting Clamp Instruction for Note Processor");
                     instructionList.InsertRange(i, clampInstructions);
                     i += clampInstructions.Count();
                 }

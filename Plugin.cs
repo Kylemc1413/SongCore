@@ -38,7 +38,7 @@ namespace SongCore
         [Init]
         public void Init(IPALogger pluginLogger)
         {
-            Logging.logger = pluginLogger;
+            Logging.Logger = pluginLogger;
         }
 
         [OnStart]
@@ -58,7 +58,7 @@ namespace SongCore
             }
             catch
             {
-                Logging.logger.Warn("Failed to delete old config file!");
+                Logging.Logger.Warn("Failed to delete old config file!");
             }
 
             //      ColorsInstalled = Utils.IsModInstalled("Custom Colors") || Utils.IsModInstalled("Chroma");
@@ -123,7 +123,7 @@ namespace SongCore
 
                 if (customSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
-                    Logging.logger.Debug("Custom song with platform selected");
+                    Logging.Logger.Debug("Custom song with platform selected");
                     CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, level);
                 }
                 else

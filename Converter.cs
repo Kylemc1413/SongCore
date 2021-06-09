@@ -20,10 +20,10 @@ namespace SongCore
 
         public static void PrepareExistingLibrary()
         {
-            Logging.Log("Attempting to Convert Existing Library");
+            Logging.Logger.Info("Attempting to Convert Existing Library");
             if (!Directory.Exists(oldFolderPath))
             {
-                Logging.logger.Notice("No Existing Library to Convert");
+                Logging.Logger.Notice("No Existing Library to Convert");
                 return;
             }
 
@@ -77,7 +77,8 @@ namespace SongCore
                             }
                             catch (Exception ex)
                             {
-                                Logging.logger.Error($"Error attempting to correct Subfolder {songPath}: \n {ex}");
+                                Logging.Logger.Error($"Error attempting to correct Subfolder {songPath}:");
+                                Logging.Logger.Error(ex);
                             }
                         }
 
@@ -92,7 +93,7 @@ namespace SongCore
             }
             else
             {
-                Logging.logger.Notice("Missing Songe converter, not converting");
+                Logging.Logger.Notice("Missing Songe converter, not converting");
                 Loader.Instance.RefreshSongs();
             }
         }
@@ -114,7 +115,7 @@ namespace SongCore
             process.Exited += Process_Exited;
             process.Start();
             yield return new WaitUntil((() => doneConverting));
-            Logging.Log($"Converted {totalSongs} songs.");
+            Logging.Logger.Info($"Converted {totalSongs} songs.");
             FinishConversion();
         }
 
@@ -127,7 +128,7 @@ namespace SongCore
         {
             if (Directory.Exists(oldFolderPath))
             {
-                Logging.Log("Moving CustomSongs folder to new Location");
+                Logging.Logger.Info("Moving CustomSongs folder to new Location");
                 if (Directory.Exists(CustomLevelPathHelper.customLevelsDirectoryPath))
                 {
                     Utils.GrantAccess(CustomLevelPathHelper.customLevelsDirectoryPath);
@@ -138,7 +139,7 @@ namespace SongCore
                 Directory.Move(oldFolderPath, CustomLevelPathHelper.customLevelsDirectoryPath);
             }
 
-            Logging.Log("Conversion Finished. Loading songs");
+            Logging.Logger.Info("Conversion Finished. Loading songs");
             Loader.Instance.RefreshSongs();
         }
     }

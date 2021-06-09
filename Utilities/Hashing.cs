@@ -26,7 +26,7 @@ namespace SongCore.Utilities
                     cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
                 }
 
-                Logging.Log($"Finished reading cached hashes for {cachedSongHashData.Count} songs!");
+                Logging.Logger.Info($"Finished reading cached hashes for {cachedSongHashData.Count} songs!");
             }
         }
 
@@ -49,7 +49,7 @@ namespace SongCore.Utilities
                 }
             }
 
-            Logging.Log($"Updating cached hashes for {cachedSongHashData.Count} songs!");
+            Logging.Logger.Info($"Updating cached hashes for {cachedSongHashData.Count} songs!");
             File.WriteAllText(cachedHashDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedSongHashData));
         }
 
@@ -63,7 +63,7 @@ namespace SongCore.Utilities
                     cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
                 }
 
-                Logging.Log($"Finished reading cached Durations for {cachedAudioData.Count} songs!");
+                Logging.Logger.Info($"Finished reading cached Durations for {cachedAudioData.Count} songs!");
             }
         }
 
@@ -86,7 +86,7 @@ namespace SongCore.Utilities
                 }
             }
 
-            Logging.Log($"Updating cached Map Lengths for {cachedAudioData.Count} songs!");
+            Logging.Logger.Info($"Updating cached Map Lengths for {cachedAudioData.Count} songs!");
             File.WriteAllText(cachedAudioDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedAudioData));
         }
 

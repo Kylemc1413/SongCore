@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using SongCore.Utilities;
 using UnityEngine;
 
 namespace SongCore.Data
@@ -282,7 +283,8 @@ namespace SongCore.Data
             }
             catch (Exception ex)
             {
-                Utilities.Logging.Log($"Error in Level {songPath}: \n {ex}", IPA.Logging.Logger.Level.Error);
+                Logging.Logger.Error($"Error in Level {songPath}:");
+                Logging.Logger.Error(ex);
             }
         }
     }
