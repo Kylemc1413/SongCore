@@ -39,7 +39,7 @@ namespace SongCore
                     var results = Directory.GetFiles(folder, "info.json", SearchOption.AllDirectories);
                     foreach (var result in results)
                     {
-                        var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
+                        var songPath = Path.GetDirectoryName(result)!;
                         if (!Directory.Exists(songPath))
                         {
                             continue;

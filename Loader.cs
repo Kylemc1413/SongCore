@@ -302,9 +302,6 @@ namespace SongCore
                 ? new ConcurrentDictionary<string, bool>()
                 : new ConcurrentDictionary<string, bool>(Hashing.cachedSongHashData.Keys.ToDictionary(x => x, _ => false));
 
-            var baseProjectPath = CustomLevelPathHelper.baseProjectPath;
-            var customLevelsPath = CustomLevelPathHelper.customLevelsDirectoryPath;
-
             Action job = () =>
             {
                 #region AddOfficialBeatmaps
@@ -337,19 +334,18 @@ namespace SongCore
 
                 #region AddCustomBeatmaps
 
+                var customLevelsPath = Path.GetFullPath(CustomLevelPathHelper.customLevelsDirectoryPath);
+
                 try
                 {
                     #region DirectorySetup
-
-                    var path = CustomLevelPathHelper.baseProjectPath;
-                    path = path.Replace('\\', '/');
 
                     if (!Directory.Exists(customLevelsPath))
                     {
                         Directory.CreateDirectory(customLevelsPath);
                     }
 
-                    var customWipLevelsPath = Path.Combine(baseProjectPath, "CustomWIPLevels");
+                    var customWipLevelsPath = Path.Combine(UnityGame.InstallPath, "CustomWIPLevels");
                     if (!Directory.Exists(customWipLevelsPath))
                     {
                         Directory.CreateDirectory(customWipLevelsPath);
@@ -364,9 +360,8 @@ namespace SongCore
                     {
                         try
                         {
-                            var wipPath = Path.Combine(path, "CustomWIPLevels");
-                            var cachePath = Path.Combine(path, "CustomWIPLevels", "Cache");
-                            CacheZIPs(cachePath, wipPath);
+                            var cachePath = Path.Combine(customWipLevelsPath, "Cache");
+                            CacheZIPs(cachePath, customWipLevelsPath);
 
                             var cacheFolders = Directory.GetDirectories(cachePath).ToArray();
                             LoadCachedZIPs(cacheFolders, fullRefresh, CachedWIPLevels);
@@ -409,7 +404,7 @@ namespace SongCore
                     #region LoadCustomLevels
 
                     // Get Levels from CustomLevels and CustomWIPLevels folders
-                    var songFolders = Directory.GetDirectories(Path.Combine(path, "CustomLevels")).ToList().Concat(Directory.GetDirectories(Path.Combine(path, "CustomWIPLevels"))).ToList();
+                    var songFolders = Directory.GetDirectories(customLevelsPath).ToList().Concat(Directory.GetDirectories(customWipLevelsPath)).ToList();
                     var loadedData = new ConcurrentBag<string>();
 
                     var processedSongsCount = 0;
@@ -436,8 +431,8 @@ namespace SongCore
                         {
                             try
                             {
-                                var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
-                                if (Directory.GetParent(songPath).Name == "Backups")
+                                var songPath = Path.GetDirectoryName(result)!;
+                                if (Directory.GetParent(songPath)?.Name == "Backups")
                                 {
                                     continue;
                                 }
@@ -548,7 +543,7 @@ namespace SongCore
                                     {
                                         // On quick refresh: Check if the beatmap directory is already present in the respective beatmap dictionary
                                         // If it is already present on a non full refresh, it will be ignored (changes to the beatmap will not be applied)
-                                        var songPath = Path.GetDirectoryName(result.Replace('\\', '/'));
+                                        var songPath = Path.GetDirectoryName(result)!;
                                         if (!fullRefresh)
                                         {
                                             if (entry.SongFolderEntry.Pack == FolderLevelPack.NewPack && SearchBeatmapInMapPack(entry.Levels, songPath))

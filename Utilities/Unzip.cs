@@ -445,8 +445,9 @@ namespace SongCore.Utilities
                 var entry = Entries[index];
 
                 // create target directory for the file
-                var fileName = Path.Combine(directoryName, entry.Name);
-                var dirName = Path.GetDirectoryName(fileName);
+                // GetFullPath normalizes the input path internally
+                var fileName = Path.GetFullPath(Path.Combine(directoryName, entry.Name));
+                var dirName = Path.GetDirectoryName(fileName)!;
                 Directory.CreateDirectory(dirName);
 
                 // save file if it is not only a directory
