@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace SongCore.Data
@@ -72,7 +73,7 @@ namespace SongCore.Data
         {
         }
 
-        [Newtonsoft.Json.JsonConstructor]
+        [JsonConstructor]
         public ExtraSongData(string levelID, Contributor[] contributors, string customEnvironmentName, string customEnvironmentHash, DifficultyData[] difficulties)
         {
             this.contributors = contributors;
@@ -85,7 +86,7 @@ namespace SongCore.Data
         {
             try
             {
-                if (!File.Exists(songPath + "/info.dat"))
+                if (!File.Exists(Path.Combine(songPath, "info.dat")))
                 {
                     return;
                 }
@@ -254,12 +255,15 @@ namespace SongCore.Data
 
                         RequirementData diffReqData = new RequirementData
                         {
-                            _requirements = diffRequirements.ToArray(), _suggestions = diffSuggestions.ToArray(), _information = diffInfo.ToArray(), _warnings = diffWarnings.ToArray()
+                            _requirements = diffRequirements.ToArray(),
+                            _suggestions = diffSuggestions.ToArray(),
+                            _information = diffInfo.ToArray(),
+                            _warnings = diffWarnings.ToArray()
                         };
 
                         diffData.Add(new DifficultyData
                         {
-                            _beatmapCharacteristicName = SetCharacteristic,
+                            _beatmapCharacteristicName = setCharacteristic,
                             _difficulty = diffDifficulty,
                             _difficultyLabel = diffLabel,
                             additionalDifficultyData = diffReqData,

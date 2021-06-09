@@ -55,8 +55,7 @@ namespace SongCore.HarmonyPatches
             currentLabels.ExpertPlusOverride = null;
         }
 
-        private static void Postfix(StandardLevelDetailView __instance, ref LevelParamsPanel ____levelParamsPanel, ref IDifficultyBeatmap ____selectedDifficultyBeatmap,
-            ref PlayerData ____playerData, ref LevelBar ____levelBar, ref Button ____actionButton, ref Button ____practiceButton,
+        private static void Postfix(StandardLevelDetailView __instance, ref IDifficultyBeatmap ____selectedDifficultyBeatmap, ref Button ____actionButton, ref Button ____practiceButton,
             ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
             ref BeatmapCharacteristicSegmentedControlController ____beatmapCharacteristicSegmentedControlController)
         {
@@ -129,9 +128,9 @@ namespace SongCore.HarmonyPatches
 
             if (diffData != null)
             {
-                for (var i = 0; i < diffData.additionalDifficultyData._requirements.Count(); i++)
+                foreach (var requirement in diffData.additionalDifficultyData._requirements)
                 {
-                    if (!Collections.capabilities.Contains(diffData.additionalDifficultyData._requirements[i]))
+                    if (!Collections.capabilities.Contains(requirement))
                     {
                         ____actionButton.interactable = false;
                         ____practiceButton.interactable = false;
@@ -157,7 +156,7 @@ namespace SongCore.HarmonyPatches
 
             //Difficulty Label Handling
             LevelLabels.Clear();
-            string currentCharacteristic = "";
+            string currentCharacteristic = string.Empty;
             foreach (Data.ExtraSongData.DifficultyData diffLevel in songData._difficulties)
             {
                 var difficulty = diffLevel._difficulty;

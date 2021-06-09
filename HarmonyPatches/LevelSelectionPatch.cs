@@ -10,14 +10,10 @@ namespace SongCore.HarmonyPatches
     {
         private static void Prefix(LevelCollectionTableView tableView, IPreviewBeatmapLevel level)
         {
-            if (level is CustomPreviewBeatmapLevel)
+            if (level is CustomPreviewBeatmapLevel customLevel)
             {
-                var customLevel = level as CustomPreviewBeatmapLevel;
-                if (customLevel != null)
-                {
-                    Collections.AddSong(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
-                    Collections.SaveExtraSongData();
-                }
+                Collections.AddSong(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
+                Collections.SaveExtraSongData();
             }
         }
     }
@@ -26,21 +22,20 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch("SetDataFromLevelAsync", MethodType.Normal)]
     internal class LevelListTableCellSetDataFromLevel
     {
-        private static void Postfix(IPreviewBeatmapLevel level, bool isFavorite, ref TextMeshProUGUI ____songAuthorText, TextMeshProUGUI ____songDurationText)
+        private static void Postfix(IPreviewBeatmapLevel level, bool isFavorite, ref TextMeshProUGUI ____songAuthorText)
         {
-            if (!(level is CustomPreviewBeatmapLevel))
+            if (!(level is CustomPreviewBeatmapLevel customLevel))
             {
                 return;
             }
 
-            var customLevel = level as CustomPreviewBeatmapLevel;
             /* Plan B
            IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew( async () => { var token = new CancellationTokenSource().Token; var audio = await level.GetPreviewAudioClipAsync(token); customLevel.SetField("_songDuration", audio.length);  ____songDurationText.text = customLevel.songDuration.MinSecDurationText(); });
             */
             ____songAuthorText.richText = true;
             if (!string.IsNullOrWhiteSpace(customLevel.levelAuthorName))
             {
-                ____songAuthorText.text = customLevel.songAuthorName + " <size=80%>[" + customLevel.levelAuthorName.Replace(@"<", "<\u200B").Replace(@">", ">\u200B") + "]</size>";
+                ____songAuthorText.text = $"{customLevel.songAuthorName} <size=80%>[{customLevel.levelAuthorName.Replace(@"<", "<\u200B").Replace(@">", ">\u200B")}]</size>";
             }
         }
     }

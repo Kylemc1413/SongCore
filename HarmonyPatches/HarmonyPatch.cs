@@ -3,7 +3,7 @@
 namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(Harmony))]
-    [HarmonyPatch("UnpatchAll", MethodType.Normal)]
+    [HarmonyPatch(nameof(Harmony.UnpatchAll), MethodType.Normal)]
     internal class StopModsFromBreakingOtherModsAccidentallyPatch
     {
         private static void Prefix(Harmony __instance, ref string harmonyID)

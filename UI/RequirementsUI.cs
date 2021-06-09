@@ -131,7 +131,7 @@ namespace SongCore.UI
                         if (!string.IsNullOrWhiteSpace(author._iconPath))
                         {
                             author.icon = Utils.LoadSpriteFromFile(Path.Combine(level.customLevelPath, author._iconPath));
-                            customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon ?? InfoIcon));
+                            customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon != null ? author.icon : InfoIcon));
                         }
                         else
                         {

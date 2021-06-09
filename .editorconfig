@@ -34,6 +34,7 @@ resharper_web_config_wrong_module_highlighting = warning
 # Organize usings
 dotnet_sort_system_directives_first = true
 dotnet_separate_import_directive_groups = false
+csharp_using_directive_placement = outside_namespace:warning
 
 # this. preferences
 dotnet_style_qualification_for_field = false:warning

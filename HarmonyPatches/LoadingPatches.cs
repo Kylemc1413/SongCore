@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using IPA.Utilities;
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,12 +9,12 @@ using System.Diagnostics;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(NUnit.Framework.Assert), "IsTrue", typeof(bool), typeof(string), typeof(object[]))]
+    [HarmonyPatch(typeof(NUnit.Framework.Assert), nameof(NUnit.Framework.Assert.IsTrue), typeof(bool), typeof(string), typeof(object[]))]
     internal class WhyIsAssertMeanPatch
     {
         private static void Prefix(ref bool condition)
         {
-            if (condition == true)
+            if (condition)
             {
                 return;
             }
