@@ -969,7 +969,7 @@ namespace SongCore
 
             foreach (var zip in zips)
             {
-                var unzip = new Unzip(zip);
+                using var unzip = new Unzip(zip);
                 try
                 {
                     unzip.ExtractToDirectory(Path.Combine(cachePath, new FileInfo(zip).Name));
@@ -979,8 +979,6 @@ namespace SongCore
                     Logging.Logger.Warn($"Failed to extract zip: {zip}:");
                     Logging.Logger.Warn(ex);
                 }
-
-                unzip.Dispose();
             }
         }
 

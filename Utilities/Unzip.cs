@@ -11,7 +11,7 @@ namespace SongCore.Utilities
     // Unzip class for .NET 3.5 Client Profile or Mono 2.10
     // Written by Alexey Yakovlev <yallie@yandex.ru>
     // https://github.com/yallie/unzip
-    internal class Unzip
+    internal class Unzip : IDisposable
     {
         /// <summary>
         /// Zip archive entry.
@@ -337,7 +337,7 @@ namespace SongCore.Utilities
 
             private uint crcValue = 0xffffffff;
 
-            public uint Crc32 { get { return crcValue ^ 0xffffffff; } }
+            public uint Crc32 => crcValue ^ 0xffffffff;
 
             public void UpdateWithBlock(byte[] buffer, int numberOfBytes)
             {
@@ -480,9 +480,7 @@ namespace SongCore.Utilities
             var fileInfo = new FileInfo(outputFileName);
             if (fileInfo.Length != entry.OriginalSize)
             {
-                throw new InvalidDataException(string.Format(
-                    "Corrupted archive: {0} has an uncompressed size {1} which does not match its expected size {2}",
-                    outputFileName, fileInfo.Length, entry.OriginalSize));
+                throw new InvalidDataException($"Corrupted archive: {outputFileName} has an uncompressed size {fileInfo.Length} which does not match its expected size {entry.OriginalSize}");
             }
 
             File.SetLastWriteTime(outputFileName, entry.Timestamp);
@@ -558,9 +556,7 @@ namespace SongCore.Utilities
 
             if (crc32Calculator.Crc32 != entry.Crc32)
             {
-                throw new InvalidDataException(string.Format(
-                    "Corrupted archive: CRC32 doesn't match on file {0}: expected {1:x8}, got {2:x8}.",
-                    entry.Name, entry.Crc32, crc32Calculator.Crc32));
+                throw new InvalidDataException($"Corrupted archive: CRC32 doesn't match on file {entry.Name}: expected {entry.Crc32:x8}, got {crc32Calculator.Crc32:x8}.");
             }
         }
 
