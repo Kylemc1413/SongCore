@@ -410,7 +410,7 @@ namespace SongCore
                                 }
 
                                 var wip = songPath.Contains("CustomWIPLevels");
-                                var saveData = GetStandardLevelInfoSaveData(songPath);
+                                var saveData = _customLevelLoader.LoadCustomLevelInfoSaveData(songPath);
                                 if (saveData == null)
                                 {
                                     //       Logging.Log("Null save data", LogSeverity.Notice);
@@ -534,7 +534,7 @@ namespace SongCore
                                             }
                                         }
 
-                                        var saveData = GetStandardLevelInfoSaveData(songPath);
+                                        var saveData = _customLevelLoader.LoadCustomLevelInfoSaveData(songPath);
                                         if (saveData == null)
                                         {
                                             //       Logging.Log("Null save data", LogSeverity.Notice);
@@ -697,12 +697,6 @@ namespace SongCore
             // await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(finish).ConfigureAwait(false);
             //  _loadingTask = new HMTask(job, finish);
             //  _loadingTask.Run();
-        }
-
-        public static StandardLevelInfoSaveData? GetStandardLevelInfoSaveData(string path)
-        {
-            var text = File.ReadAllText(Path.Combine(path, "info.dat"));
-            return StandardLevelInfoSaveData.DeserializeFromJSONString(text);
         }
 
         /// <summary>
@@ -958,7 +952,7 @@ namespace SongCore
                             }
                         }
 
-                        var saveData = GetStandardLevelInfoSaveData(songPath);
+                        var saveData = _customLevelLoader.LoadCustomLevelInfoSaveData(songPath);
                         if (saveData == null)
                         {
                             continue;
