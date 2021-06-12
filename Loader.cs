@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -305,7 +305,7 @@ namespace SongCore
                         Directory.CreateDirectory(customLevelsPath);
                     }
 
-                    var customWipLevelsPath = Path.Combine(UnityGame.InstallPath, "CustomWIPLevels");
+                    var customWipLevelsPath = Path.Combine(Application.dataPath, "CustomWIPLevels");
                     if (!Directory.Exists(customWipLevelsPath))
                     {
                         Directory.CreateDirectory(customWipLevelsPath);
