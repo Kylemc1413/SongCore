@@ -38,7 +38,7 @@ namespace SongCore.HarmonyPatches
             ____songAuthorText.richText = true;
             if (!string.IsNullOrWhiteSpace(customLevel.levelAuthorName))
             {
-                ____songAuthorText.text = $"{customLevel.songAuthorName} <size=80%>[{customLevel.levelAuthorName.Replace(@"<", "<\u200B").Replace(@">", ">\u200B")}]</size>";
+                ____songAuthorText.text = $"<size=80%>{customLevel.songAuthorName}</size> <size=90%>[<color=#89ff89>{customLevel.levelAuthorName.Replace(@"<", "<\u200B").Replace(@">", ">\u200B")}</color>]</size>";
             }
         }
     }
