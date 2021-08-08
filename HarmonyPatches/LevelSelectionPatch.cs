@@ -22,8 +22,11 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch("SetDataFromLevelAsync", MethodType.Normal)]
     internal class LevelListTableCellSetDataFromLevel
     {
-        private static void Postfix(IPreviewBeatmapLevel level, bool isFavorite, ref TextMeshProUGUI ____songAuthorText)
+        private static void Postfix(IPreviewBeatmapLevel level, bool isFavorite, ref TextMeshProUGUI ____songAuthorText, ref TextMeshProUGUI ____songBpmText)
         {
+            // Rounding BPM display for all maps, including official ones
+            ____songBpmText.text = System.Math.Round(level.beatsPerMinute).ToString();
+
             if (!(level is CustomPreviewBeatmapLevel customLevel))
             {
                 return;
