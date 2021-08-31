@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -48,7 +48,7 @@ namespace SongCore.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(NotesInTimeRowProcessor))]
+    [HarmonyPatch(typeof(BeatmapObjectsInTimeRowProcessor))]
     [HarmonyPatch("ProcessAllNotesInTimeRow", MethodType.Normal)]
     internal class NoteProcessorClampPatch
     {
@@ -82,22 +82,22 @@ namespace SongCore.HarmonyPatches
             return instructionList.AsEnumerable();
         }
 
-        private static void Postfix(List<NoteData> notes)
+        private static void Postfix(List<NoteData> notesInTimeRow)
         {
-            if (!notes.Any(x => x.lineIndex > 3 || x.lineIndex < 0))
+            if (!notesInTimeRow.Any(x => x.lineIndex > 3 || x.lineIndex < 0))
             {
                 return;
             }
 
             Dictionary<int, List<NoteData>> notesInColumn = new Dictionary<int, List<NoteData>>();
-            foreach (NoteData note in notes)
+            foreach (NoteData note in notesInTimeRow)
             {
                 notesInColumn[note.lineIndex] = new List<NoteData>(3);
             }
 
-            for (var j = 0; j < notes.Count; j++)
+            for (var j = 0; j < notesInTimeRow.Count; j++)
             {
-                NoteData noteData = notes[j];
+                NoteData noteData = notesInTimeRow[j];
                 List<NoteData> list = notesInColumn[noteData.lineIndex];
                 var flag = false;
                 for (var k = 0; k < list.Count; k++)
@@ -120,7 +120,7 @@ namespace SongCore.HarmonyPatches
             {
                 for (var m = 0; m < list.Count; m++)
                 {
-                    list[m].SetNoteStartLineLayer((NoteLineLayer) m);
+                    list[m].SetBeforeJumpNoteLineLayer((NoteLineLayer) m);
                 }
             }
         }
