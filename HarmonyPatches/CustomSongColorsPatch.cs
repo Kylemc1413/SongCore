@@ -11,7 +11,7 @@ namespace SongCore.HarmonyPatches
         private static void Prefix(ref IDifficultyBeatmap difficultyBeatmap, ref ColorScheme? overrideColorScheme)
         {
             var environmentInfoSO = difficultyBeatmap.GetEnvironmentInfo();
-            var fallbackScheme = new ColorScheme(environmentInfoSO.colorScheme);
+            var fallbackScheme = overrideColorScheme ?? new ColorScheme(environmentInfoSO.colorScheme);
 
             var songData = Collections.RetrieveDifficultyData(difficultyBeatmap);
             if (songData == null)
@@ -38,7 +38,7 @@ namespace SongCore.HarmonyPatches
                 var envLeftBoost = songData._envColorLeftBoost == null ? envLeft : Utils.ColorFromMapColor(songData._envColorLeftBoost);
                 var envRightBoost = songData._envColorRightBoost == null ? envRight : Utils.ColorFromMapColor(songData._envColorRightBoost);
                 var obstacle = songData._obstacleColor == null ? fallbackScheme.obstaclesColor : Utils.ColorFromMapColor(songData._obstacleColor);
-                overrideColorScheme = overrideColorScheme ?? new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", true, "SongCore Map Color Scheme", false, saberLeft, saberRight, envLeft,
+                overrideColorScheme = new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", true, "SongCore Map Color Scheme", false, saberLeft, saberRight, envLeft,
                     envRight, true, envLeftBoost, envRightBoost, obstacle);
             }
         }
