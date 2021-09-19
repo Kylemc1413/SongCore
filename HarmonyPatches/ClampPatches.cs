@@ -60,6 +60,8 @@ namespace SongCore.HarmonyPatches
             new CodeInstruction(OpCodes.Call, clampMethod)
         };
 
+        private static List<NoteData> notesInTimeRowRepopulated = new List<NoteData>();
+
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
@@ -82,8 +84,15 @@ namespace SongCore.HarmonyPatches
             return instructionList.AsEnumerable();
         }
 
-        private static void Postfix(List<NoteData> notesInTimeRow)
+        private static void Prefix(List<NoteData> notesInTimeRow)
         {
+            notesInTimeRowRepopulated = new List<NoteData>(notesInTimeRow);
+        }
+
+        private static void Postfix(ref List<NoteData> notesInTimeRow)
+        {
+            notesInTimeRow = notesInTimeRowRepopulated;
+
             if (!notesInTimeRow.Any(x => x.lineIndex > 3 || x.lineIndex < 0))
             {
                 return;
