@@ -1,4 +1,4 @@
-﻿using BeatSaberMarkupLanguage.Settings;
+using BeatSaberMarkupLanguage.Settings;
 using HarmonyLib;
 using IPA;
 using SongCore.UI;
@@ -91,7 +91,7 @@ namespace SongCore
         private void BSEvents_menuSceneLoadedFresh(ScenesTransitionSetupDataSO data)
         {
             Loader.OnLoad();
-            RequirementsUI.instance.Setup();
+           // RequirementsUI.instance.Setup();
         }
 
         private void BSEvents_gameSceneLoaded()
