@@ -21,7 +21,7 @@ namespace SongCore
     {
         private static Harmony? _harmony;
 
-        internal static bool CustomSongColors = SCSettings.instance.Colors;
+        internal static bool CustomSongColors = ColorsUI.instance.Colors;
         internal static bool CustomSongPlatforms = SCSettings.instance.Platforms;
         internal static bool DisplayDiffLabels = SCSettings.instance.DiffLabels;
         internal static bool ForceLongPreviews = SCSettings.instance.LongPreviews;
@@ -92,6 +92,7 @@ namespace SongCore
         {
             Loader.OnLoad();
             RequirementsUI.instance.Setup();
+            ColorsUI.instance.Setup();
         }
 
         private void BSEvents_gameSceneLoaded()

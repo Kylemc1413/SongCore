@@ -1,20 +1,9 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Attributes;
 
 namespace SongCore.UI
 {
     public class SCSettings : PersistentSingleton<SCSettings>
     {
-        [UIValue("colors")]
-        public bool Colors
-        {
-            get => BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
-            set
-            {
-                Plugin.CustomSongColors = value;
-                BasicUI.ModPrefs.SetBool("SongCore", "customSongColors", value);
-            }
-        }
-
         [UIValue("platforms")]
         public bool Platforms
         {
