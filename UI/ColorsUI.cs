@@ -13,6 +13,8 @@ namespace SongCore.UI
     {
         private ColorSchemeView colorSchemeView;
 
+        private readonly Color voidColor = new Color(0.5f, 0.5f, 0.5f, 0.25f);
+
         [UIComponent("selected-color")]
         private readonly RectTransform selectedColorTransform;
 
@@ -51,15 +53,15 @@ namespace SongCore.UI
 
             selectedColorTransform.gameObject.SetActive(true);
 
-            Color saberLeft = songData._colorLeft == null ? Color.clear : Utils.ColorFromMapColor(songData._colorLeft);
-            Color saberRight = songData._colorRight == null ? Color.clear : Utils.ColorFromMapColor(songData._colorRight);
+            Color saberLeft = songData._colorLeft == null ? voidColor : Utils.ColorFromMapColor(songData._colorLeft);
+            Color saberRight = songData._colorRight == null ? voidColor : Utils.ColorFromMapColor(songData._colorRight);
             Color envLeft = songData._envColorLeft == null
-                ? songData._colorLeft == null ? Color.clear : Utils.ColorFromMapColor(songData._colorLeft)
+                ? songData._colorLeft == null ? voidColor : Utils.ColorFromMapColor(songData._colorLeft)
                 : Utils.ColorFromMapColor(songData._envColorLeft);
             Color envRight = songData._envColorRight == null
-                ? songData._colorRight == null ? Color.clear : Utils.ColorFromMapColor(songData._colorRight)
+                ? songData._colorRight == null ? voidColor : Utils.ColorFromMapColor(songData._colorRight)
                 : Utils.ColorFromMapColor(songData._envColorRight);
-            Color obstacle = songData._obstacleColor == null ? Color.clear : Utils.ColorFromMapColor(songData._obstacleColor);
+            Color obstacle = songData._obstacleColor == null ? voidColor : Utils.ColorFromMapColor(songData._obstacleColor);
 
             colorSchemeView.SetColors(saberLeft, saberRight, envLeft, envRight, obstacle);
         }
