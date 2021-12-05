@@ -3,6 +3,8 @@ using System.Reflection;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
+using SongCore.Data;
+using SongCore.Utilities;
 using UnityEngine;
 
 namespace SongCore.UI
@@ -11,8 +13,8 @@ namespace SongCore.UI
     {
         private ColorSchemeView colorSchemeView;
 
-        [UIComponent("horizontal")]
-        private readonly RectTransform horizontalTransform;
+        [UIComponent("selected-color")]
+        private readonly RectTransform selectedColorTransform;
 
         [UIValue("colors")]
         public bool Colors
@@ -34,7 +36,37 @@ namespace SongCore.UI
         [UIAction("#post-parse")]
         private void PostParse()
         {
-            colorSchemeView = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), horizontalTransform);
+            colorSchemeView = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
+            selectedColorTransform.gameObject.SetActive(false);
+        }
+
+        internal void SetColors(ExtraSongData.DifficultyData songData)
+        {
+            if (songData._colorLeft == null && songData._colorRight == null && songData._envColorLeft == null &&
+                songData._envColorRight == null && songData._obstacleColor == null)
+            {
+                HideColors();
+                return;
+            }
+
+            selectedColorTransform.gameObject.SetActive(true);
+
+            Color saberLeft = songData._colorLeft == null ? Color.clear : Utils.ColorFromMapColor(songData._colorLeft);
+            Color saberRight = songData._colorRight == null ? Color.clear : Utils.ColorFromMapColor(songData._colorRight);
+            Color envLeft = songData._envColorLeft == null
+                ? songData._colorLeft == null ? Color.clear : Utils.ColorFromMapColor(songData._colorLeft)
+                : Utils.ColorFromMapColor(songData._envColorLeft);
+            Color envRight = songData._envColorRight == null
+                ? songData._colorRight == null ? Color.clear : Utils.ColorFromMapColor(songData._colorRight)
+                : Utils.ColorFromMapColor(songData._envColorRight);
+            Color obstacle = songData._obstacleColor == null ? Color.clear : Utils.ColorFromMapColor(songData._obstacleColor);
+
+            colorSchemeView.SetColors(saberLeft, saberRight, envLeft, envRight, obstacle);
+        }
+
+        internal void HideColors()
+        {
+            selectedColorTransform.gameObject.SetActive(false);
         }
     }
 }

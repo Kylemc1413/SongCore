@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using SongCore.UI;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,6 +72,7 @@ namespace SongCore.HarmonyPatches
 
             RequirementsUI.instance.ButtonGlowColor = false;
             RequirementsUI.instance.ButtonInteractable = false;
+            ColorsUI.instance.HideColors();
             if (level == null)
             {
                 return;
@@ -116,6 +117,7 @@ namespace SongCore.HarmonyPatches
                         ____actionButton.interactable = false;
                     }
                 }
+                ColorsUI.instance.SetColors(diffData);
             }
 
             if (level.levelID.EndsWith(" WIP"))
