@@ -1,3 +1,6 @@
-<vertical anchor-pos-y='-9.9' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+<vertical anchor-pos-y='-14' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
     <checkbox-setting text='Allow Custom Song Colors' value='colors' hover-hint='Allow Custom Songs to override note/light colors.' apply-on-change='true' bind-value='true' />
+    <horizontal id='horizontal' spacing='15'>
+        <text text='Selected Song&#39;s Colors' italics='true' />
+    </horizontal>
 </vertical>

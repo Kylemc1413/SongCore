@@ -9,6 +9,11 @@ namespace SongCore.UI
 {
     public class ColorsUI : NotifiableSingleton<ColorsUI>
     {
+        private ColorSchemeView colorSchemeView;
+
+        [UIComponent("horizontal")]
+        private readonly RectTransform horizontalTransform;
+
         [UIValue("colors")]
         public bool Colors
         {
@@ -23,7 +28,13 @@ namespace SongCore.UI
         internal void Setup()
         {
             ColorsOverrideSettingsPanelController colorsOverrideSettings = Resources.FindObjectsOfTypeAll<ColorsOverrideSettingsPanelController>().First();
-            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.colors.bsml"), colorsOverrideSettings.transform.Find("Settings").gameObject, this);
+            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.colors.bsml"), colorsOverrideSettings.transform.Find("Settings").gameObject, this);            
+        }
+
+        [UIAction("#post-parse")]
+        private void PostParse()
+        {
+            colorSchemeView = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), horizontalTransform);
         }
     }
 }
