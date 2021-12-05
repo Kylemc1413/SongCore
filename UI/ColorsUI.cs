@@ -3,6 +3,7 @@ using System.Reflection;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
+using BS_Utils.Utilities;
 using SongCore.Data;
 using SongCore.Utilities;
 using UnityEngine;
@@ -11,7 +12,7 @@ namespace SongCore.UI
 {
     public class ColorsUI : NotifiableSingleton<ColorsUI>
     {
-        private ColorSchemeView colorSchemeView;
+        private BoostedColorSchemeView boostedColorSchemeView;
 
         private readonly Color voidColor = new Color(0.5f, 0.5f, 0.5f, 0.25f);
 
@@ -38,7 +39,10 @@ namespace SongCore.UI
         [UIAction("#post-parse")]
         private void PostParse()
         {
-            colorSchemeView = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
+            ColorSchemeView colorSchemeView = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
+            boostedColorSchemeView = (BoostedColorSchemeView) ReflectionUtil.CopyComponent(colorSchemeView, typeof(ColorSchemeView), typeof(BoostedColorSchemeView), colorSchemeView.gameObject);
+            DestroyImmediate(colorSchemeView);
+            boostedColorSchemeView.Setup();
             selectedColorTransform.gameObject.SetActive(false);
         }
 
@@ -61,9 +65,11 @@ namespace SongCore.UI
             Color envRight = songData._envColorRight == null
                 ? songData._colorRight == null ? voidColor : Utils.ColorFromMapColor(songData._colorRight)
                 : Utils.ColorFromMapColor(songData._envColorRight);
+            var envLeftBoost = songData._envColorLeftBoost == null ? voidColor : Utils.ColorFromMapColor(songData._envColorLeftBoost);
+            var envRightBoost = songData._envColorRightBoost == null ? voidColor : Utils.ColorFromMapColor(songData._envColorRightBoost);
             Color obstacle = songData._obstacleColor == null ? voidColor : Utils.ColorFromMapColor(songData._obstacleColor);
 
-            colorSchemeView.SetColors(saberLeft, saberRight, envLeft, envRight, obstacle);
+            boostedColorSchemeView.SetColors(saberLeft, saberRight, envLeft, envRight, envLeftBoost, envRightBoost, obstacle);
         }
 
         internal void HideColors()

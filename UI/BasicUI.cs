@@ -1,9 +1,13 @@
-﻿using UnityEngine;
+using System.Linq;
+using HMUI;
+using UnityEngine;
+using BS_Utils.Utilities;
 
 namespace SongCore.UI
 {
     internal static class BasicUI
     {
+        private static HoverHintController? hoverHintController = null;
         internal static readonly BS_Utils.Utilities.Config ModPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
 
         internal static Sprite? MissingCharIcon;
@@ -38,6 +42,19 @@ namespace SongCore.UI
             {
                 FolderIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.FolderIcon.png")!;
             }
+        }
+
+        internal static HoverHint AddHoverHintToObject(GameObject gameObject)
+        {
+            HoverHint hoverHint = gameObject.AddComponent<HoverHint>();
+
+            if (hoverHintController == null)
+            {
+                hoverHintController = Resources.FindObjectsOfTypeAll<HoverHintController>().First();
+            }
+
+            hoverHint.SetField("_hoverHintController", hoverHintController);
+            return hoverHint;
         }
     }
 }
