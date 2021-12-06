@@ -116,7 +116,7 @@ namespace SongCore.HarmonyPatches
                     {
                         ____actionButton.interactable = false;
                     }
-                    RequirementsUI.instance.SetRainbowColors(false);
+                    RequirementsUI.instance.SetRainbowColors(Utilities.Utils.DiffHasColors(diffData));
                 }
             }
 
