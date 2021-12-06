@@ -8,12 +8,17 @@ using System.Reflection;
 using UnityEngine;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 using HMUI;
+using Tweening;
 
 namespace SongCore.UI
 {
     public class RequirementsUI : NotifiableSingleton<RequirementsUI>
     {
         private StandardLevelDetailViewController standardLevel;
+        private TweeningManager tweenyManager;
+        private ImageView buttonBG;
+        private Color originalColor0;
+        private Color originalColor1;
 
         internal Sprite? HaveReqIcon;
         internal Sprite? MissingReqIcon;
@@ -68,10 +73,19 @@ namespace SongCore.UI
         {
             GetIcons();
             standardLevel = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().First();
+            tweenyManager = Resources.FindObjectsOfTypeAll<TweeningManager>().First();
             BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"),
                 standardLevel.transform.Find("LevelDetail").gameObject, this);
+        }
+
+        [UIAction("#post-parse")]
+        private void PostParse()
+        {
             infoButtonTransform.localScale *= 0.7f; //no scale property in bsml as of now so manually scaling it
             (standardLevel.transform.Find("LevelDetail").Find("FavoriteToggle")?.transform as RectTransform).anchoredPosition = new Vector2(3, -2);
+            buttonBG = infoButtonTransform.Find("BG").GetComponent<ImageView>();
+            originalColor0 = buttonBG.color0;
+            originalColor1 = buttonBG.color1;
         }
 
         private void GetIcons()
@@ -208,6 +222,27 @@ namespace SongCore.UI
             if (diffData != null && customListTableData.data[index].icon == ColorsIcon)
             {
                 modal.Hide(false, () => ColorsUI.instance.ShowColors(diffData));
+            }
+        }
+
+        internal void SetRainbowColors(bool shouldSet, bool firstPulse = true)
+        {
+            tweenyManager.KillAllTweens(buttonBG);
+            if (shouldSet)
+            {
+                FloatTween tween = new FloatTween(firstPulse ? 0 : 1, firstPulse ? 1 : 0, val =>
+                {
+                    buttonBG.color0 = new Color(1 - val, val, 0);
+                    buttonBG.color1 = new Color(0, 1 - val, val);
+                    buttonBG.SetAllDirty();
+                }, 5f, EaseType.InOutSine);
+                tweenyManager.AddTween(tween, buttonBG);
+                tween.onCompleted = delegate () { SetRainbowColors(true, !firstPulse); };
+            }
+            else
+            {
+                buttonBG.color0 = originalColor0;
+                buttonBG.color1 = originalColor1;
             }
         }
     }

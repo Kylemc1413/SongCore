@@ -106,6 +106,7 @@ namespace SongCore.HarmonyPatches
                 {
                     RequirementsUI.instance.ButtonGlowColor = true;
                     RequirementsUI.instance.ButtonInteractable = true;
+                    RequirementsUI.instance.SetRainbowColors(Utilities.Utils.DiffHasColors(diffData));
                 }
                 else if (diffData.additionalDifficultyData._warnings.Any())
                 {
@@ -115,6 +116,7 @@ namespace SongCore.HarmonyPatches
                     {
                         ____actionButton.interactable = false;
                     }
+                    RequirementsUI.instance.SetRainbowColors(false);
                 }
             }
 
