@@ -20,6 +20,8 @@ namespace SongCore.UI
         [UIComponent("modal")]
         private readonly ModalView modal;
 
+        private Vector3 modalPosition;
+
         [UIComponent("selected-color")]
         private readonly RectTransform selectedColorTransform;
 
@@ -49,6 +51,7 @@ namespace SongCore.UI
                 BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.colors.bsml"),
                     standardLevel.transform.Find("LevelDetail").gameObject, this);
             }
+            modal.transform.localPosition = modalPosition;
         }
 
         [UIAction("#post-parse")]
@@ -58,6 +61,7 @@ namespace SongCore.UI
             boostedColorSchemeView = (BoostedColorSchemeView) ReflectionUtil.CopyComponent(colorSchemeView, typeof(ColorSchemeView), typeof(BoostedColorSchemeView), colorSchemeView.gameObject);
             DestroyImmediate(colorSchemeView);
             boostedColorSchemeView.Setup();
+            modalPosition = modal.transform.localPosition;
             modal.blockerClickedEvent += Dismiss;
         }
 

@@ -66,6 +66,8 @@ namespace SongCore.UI
         [UIComponent("modal")]
         private ModalView modal;
 
+        private Vector3 modalPosition;
+
         [UIComponent("info-button")]
         private Transform infoButtonTransform;
 
@@ -86,6 +88,7 @@ namespace SongCore.UI
             buttonBG = infoButtonTransform.Find("BG").GetComponent<ImageView>();
             originalColor0 = buttonBG.color0;
             originalColor1 = buttonBG.color1;
+            modalPosition = modal.transform.localPosition;
         }
 
         private void GetIcons()
@@ -129,6 +132,7 @@ namespace SongCore.UI
         [UIAction("button-click")]
         internal void ShowRequirements()
         {
+            modal.transform.localPosition = modalPosition;
             modal.Show(true);
             customListTableData.data.Clear();
 
