@@ -1,5 +1,6 @@
-<settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+﻿<settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
                     xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+    <checkbox-setting text='Allow Custom Song Colors' value='colors' hover-hint='Allow Custom Songs to override note/light colors if Custom Colors or Chroma is installed'/>
     <checkbox-setting text='Custom Song Platforms ' value='platforms' hover-hint='Allow Custom Songs to override your Custom Platform if Custom Platforms is installed.'/>
     <checkbox-setting text='Display Custom Difficulty Labels' value='diffLabels' hover-hint='Display Custom Difficulty Labels if used by the mapper.'/>
     <checkbox-setting text='Force Long Song Previews' value='longPreviews'
