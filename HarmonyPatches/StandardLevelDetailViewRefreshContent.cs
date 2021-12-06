@@ -72,7 +72,6 @@ namespace SongCore.HarmonyPatches
 
             RequirementsUI.instance.ButtonGlowColor = false;
             RequirementsUI.instance.ButtonInteractable = false;
-            ColorsUI.instance.HideColors();
             if (level == null)
             {
                 return;
@@ -98,7 +97,7 @@ namespace SongCore.HarmonyPatches
                     !diffData.additionalDifficultyData._suggestions.Any() &&
                     !diffData.additionalDifficultyData._warnings.Any() &&
                     !diffData.additionalDifficultyData._information.Any() &&
-                    !songData.contributors.Any())
+                    !songData.contributors.Any() && !Utilities.Utils.DiffHasColors(diffData))
                 {
                     RequirementsUI.instance.ButtonGlowColor = false;
                     RequirementsUI.instance.ButtonInteractable = false;
@@ -117,7 +116,6 @@ namespace SongCore.HarmonyPatches
                         ____actionButton.interactable = false;
                     }
                 }
-                ColorsUI.instance.SetColors(diffData);
             }
 
             if (level.levelID.EndsWith(" WIP"))

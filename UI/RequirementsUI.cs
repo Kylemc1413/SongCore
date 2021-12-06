@@ -21,6 +21,7 @@ namespace SongCore.UI
         internal Sprite? MissingSuggestionIcon;
         internal Sprite? WarningIcon;
         internal Sprite? InfoIcon;
+        internal Sprite? ColorsIcon;
 
         //Currently selected song data
         public CustomPreviewBeatmapLevel level;
@@ -56,6 +57,9 @@ namespace SongCore.UI
                 NotifyPropertyChanged();
             }
         }
+
+        [UIComponent("modal")]
+        private ModalView modal;
 
         [UIComponent("info-button")]
         private Transform infoButtonTransform;
@@ -101,11 +105,17 @@ namespace SongCore.UI
             {
                 InfoIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Info.png")!;
             }
+
+            if (!ColorsIcon)
+            {
+                ColorsIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Colors.png")!;
+            }
         }
 
         [UIAction("button-click")]
-        private void ShowRequirements()
+        internal void ShowRequirements()
         {
+            modal.Show(true);
             customListTableData.data.Clear();
 
             //Requirements
@@ -155,6 +165,11 @@ namespace SongCore.UI
             //Additional Diff Info
             if (diffData != null)
             {
+                if (Utils.DiffHasColors(diffData))
+                {
+                    customListTableData.data.Add(new CustomCellInfo($"<size=75%>Custom Colors Availaible", $"Click here to preview & {(Plugin.CustomSongColors ? "disable" : "enable")} it.", ColorsIcon));
+                }
+
                 if (diffData.additionalDifficultyData._warnings.Length > 0)
                 {
                     foreach (string req in diffData.additionalDifficultyData._warnings)
@@ -190,6 +205,10 @@ namespace SongCore.UI
         private void Select(TableView _, int index)
         {
             customListTableData.tableView.ClearSelection();
+            if (diffData != null && customListTableData.data[index].icon == ColorsIcon)
+            {
+                modal.Hide(false, () => ColorsUI.instance.ShowColors(diffData));
+            }
         }
     }
 }

@@ -4,6 +4,7 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BS_Utils.Utilities;
+using HMUI;
 using SongCore.Data;
 using SongCore.Utilities;
 using UnityEngine;
@@ -15,6 +16,9 @@ namespace SongCore.UI
         private BoostedColorSchemeView boostedColorSchemeView;
 
         private readonly Color voidColor = new Color(0.5f, 0.5f, 0.5f, 0.25f);
+
+        [UIComponent("modal")]
+        private readonly ModalView modal;
 
         [UIComponent("selected-color")]
         private readonly RectTransform selectedColorTransform;
@@ -30,10 +34,21 @@ namespace SongCore.UI
             }
         }
 
-        internal void Setup()
+        internal void ShowColors(ExtraSongData.DifficultyData songData)
         {
-            ColorsOverrideSettingsPanelController colorsOverrideSettings = Resources.FindObjectsOfTypeAll<ColorsOverrideSettingsPanelController>().First();
-            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.colors.bsml"), colorsOverrideSettings.transform.Find("Settings").gameObject, this);            
+            Parse();
+            modal.Show(true);
+            SetColors(songData);
+        }
+
+        private void Parse()
+        {
+            if (!modal)
+            {
+                StandardLevelDetailViewController standardLevel = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().First();
+                BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.colors.bsml"),
+                    standardLevel.transform.Find("LevelDetail").gameObject, this);
+            }
         }
 
         [UIAction("#post-parse")]
@@ -43,20 +58,16 @@ namespace SongCore.UI
             boostedColorSchemeView = (BoostedColorSchemeView) ReflectionUtil.CopyComponent(colorSchemeView, typeof(ColorSchemeView), typeof(BoostedColorSchemeView), colorSchemeView.gameObject);
             DestroyImmediate(colorSchemeView);
             boostedColorSchemeView.Setup();
-            selectedColorTransform.gameObject.SetActive(false);
+            modal.blockerClickedEvent += Dismiss;
         }
 
-        internal void SetColors(ExtraSongData.DifficultyData songData)
+        private void Dismiss()
         {
-            if (songData._colorLeft == null && songData._colorRight == null && songData._envColorLeft == null &&
-                songData._envColorRight == null && songData._obstacleColor == null)
-            {
-                HideColors();
-                return;
-            }
+            modal.Hide(false, () => RequirementsUI.instance.ShowRequirements());
+        }
 
-            selectedColorTransform.gameObject.SetActive(true);
-
+        private void SetColors(ExtraSongData.DifficultyData songData)
+        {
             Color saberLeft = songData._colorLeft == null ? voidColor : Utils.ColorFromMapColor(songData._colorLeft);
             Color saberRight = songData._colorRight == null ? voidColor : Utils.ColorFromMapColor(songData._colorRight);
             Color envLeft = songData._envColorLeft == null
@@ -70,11 +81,6 @@ namespace SongCore.UI
             Color obstacle = songData._obstacleColor == null ? voidColor : Utils.ColorFromMapColor(songData._obstacleColor);
 
             boostedColorSchemeView.SetColors(saberLeft, saberRight, envLeft, envRight, envLeftBoost, envRightBoost, obstacle);
-        }
-
-        internal void HideColors()
-        {
-            selectedColorTransform.gameObject.SetActive(false);
         }
     }
 }

@@ -65,7 +65,6 @@ namespace SongCore
             BS_Utils.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
             BS_Utils.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
             BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
-            BS_Utils.Utilities.BSEvents.difficultySelected += BSEvents_difficultySelected;
 
             if (!File.Exists(Collections.DataPath))
             {
@@ -93,7 +92,6 @@ namespace SongCore
         {
             Loader.OnLoad();
             RequirementsUI.instance.Setup();
-            ColorsUI.instance.Setup();
         }
 
         private void BSEvents_gameSceneLoaded()
@@ -128,20 +126,6 @@ namespace SongCore
                     CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
                 }
             }
-        }
-
-        private void BSEvents_difficultySelected(StandardLevelDetailViewController _, IDifficultyBeatmap difficulty)
-        {
-            if (difficulty.level is CustomPreviewBeatmapLevel)
-            {
-                Data.ExtraSongData.DifficultyData? songData = Collections.RetrieveDifficultyData(difficulty);
-                if (songData != null)
-                {
-                    ColorsUI.instance.SetColors(songData);
-                    return;
-                }
-            }
-            ColorsUI.instance.HideColors();
         }
 
         private void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
