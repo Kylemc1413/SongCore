@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
+using HMUI;
 
 namespace SongCore.UI
 {
@@ -69,7 +70,7 @@ namespace SongCore.UI
             (standardLevel.transform.Find("LevelDetail").Find("FavoriteToggle")?.transform as RectTransform).anchoredPosition = new Vector2(3, -2);
         }
 
-        internal void GetIcons()
+        private void GetIcons()
         {
             if (!MissingReqIcon)
             {
@@ -103,7 +104,7 @@ namespace SongCore.UI
         }
 
         [UIAction("button-click")]
-        internal void ShowRequirements()
+        private void ShowRequirements()
         {
             customListTableData.data.Clear();
 
@@ -182,7 +183,13 @@ namespace SongCore.UI
             }
 
             customListTableData.tableView.ReloadData();
-            customListTableData.tableView.ScrollToCellWithIdx(0, HMUI.TableView.ScrollPositionType.Beginning, false);
+            customListTableData.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
+        }
+
+        [UIAction("list-select")]
+        private void Select(TableView _, int index)
+        {
+            customListTableData.tableView.ClearSelection();
         }
     }
 }
