@@ -8,7 +8,8 @@ using IPA.Utilities;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(StandardLevelDetailViewController))]
+    // TODO: Method got full-on yeeted, check whether an alternative approach is required
+    /*[HarmonyPatch(typeof(StandardLevelDetailViewController))]
     [HarmonyPatch("UpdateActionButtonIntractability", MethodType.Normal)]
     internal class BlockGameButtonInteractabilityUpdateAsItLiterallyAlwaysEnablesIt
     {
@@ -16,7 +17,7 @@ namespace SongCore.HarmonyPatches
         {
             return false;
         }
-    }
+    }*/
 
     [HarmonyPatch(typeof(StandardLevelDetailView))]
     [HarmonyPatch("RefreshContent", MethodType.Normal)]
