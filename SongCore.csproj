@@ -85,10 +85,6 @@
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
             <Private>False</Private>
         </Reference>
-        <Reference Include="MediaLoader">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\MediaLoader.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
         <Reference Include="nunit.framework">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\nunit.framework.dll</HintPath>
             <Private>False</Private>
