@@ -832,7 +832,7 @@ namespace SongCore
                 }
 
                 result = new CustomPreviewBeatmapLevel(defaultCoverImage, saveData, songPath,
-                    cachedMediaAsyncLoaderSO, cachedMediaAsyncLoaderSO, levelID, songName, songSubName,
+                    cachedMediaAsyncLoaderSO, levelID, songName, songSubName,
                     songAuthorName, levelAuthorName, beatsPerMinute, songTimeOffset, shuffle, shufflePeriod,
                     previewStartTime, previewDuration, environmentSceneInfo, allDirectionEnvironmentInfo, list.ToArray());
 
