@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using IPA.Utilities;
 using System.Linq;
 using System.Threading;
@@ -68,8 +68,7 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch(typeof(CustomBeatmapLevel))]
     [HarmonyPatch(new[]
     {
-        typeof(CustomPreviewBeatmapLevel),
-        typeof(AudioClip)
+        typeof(CustomPreviewBeatmapLevel)
     })]
     [HarmonyPatch(MethodType.Constructor)]
     internal class CustomBeatmapLevelDurationPatch
