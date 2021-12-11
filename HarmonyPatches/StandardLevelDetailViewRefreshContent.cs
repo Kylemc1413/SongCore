@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using SongCore.UI;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,16 +8,6 @@ using IPA.Utilities;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(StandardLevelDetailViewController))]
-    [HarmonyPatch("UpdateActionButtonIntractability", MethodType.Normal)]
-    internal class BlockGameButtonInteractabilityUpdateAsItLiterallyAlwaysEnablesIt
-    {
-        private static bool Prefix()
-        {
-            return false;
-        }
-    }
-
     [HarmonyPatch(typeof(StandardLevelDetailView))]
     [HarmonyPatch("RefreshContent", MethodType.Normal)]
     internal class StandardLevelDetailViewRefreshContent
