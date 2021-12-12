@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using SongCore.Data;
 using UnityEngine;
 
 namespace SongCore.Utilities
@@ -13,6 +14,12 @@ namespace SongCore.Utilities
         public static bool IsModInstalled(string modName)
         {
             return IPA.Loader.PluginManager.Plugins.Any(mod => mod.Name == modName) || IPA.Loader.PluginManager.EnabledPlugins.Any(mod => mod.Id == modName);
+        }
+
+        public static bool DiffHasColors(ExtraSongData.DifficultyData songData)
+        {
+            return songData._colorLeft != null || songData._colorRight != null || songData._envColorLeft != null || songData._envColorRight != null
+                || songData._envColorLeftBoost != null || songData._envColorRightBoost != null || songData._obstacleColor != null;
         }
 
         public static Color ColorFromMapColor(Data.ExtraSongData.MapColor mapColor)

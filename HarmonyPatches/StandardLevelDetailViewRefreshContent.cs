@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using SongCore.UI;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,7 +97,7 @@ namespace SongCore.HarmonyPatches
                     !diffData.additionalDifficultyData._suggestions.Any() &&
                     !diffData.additionalDifficultyData._warnings.Any() &&
                     !diffData.additionalDifficultyData._information.Any() &&
-                    !songData.contributors.Any())
+                    !songData.contributors.Any() && !Utilities.Utils.DiffHasColors(diffData))
                 {
                     RequirementsUI.instance.ButtonGlowColor = false;
                     RequirementsUI.instance.ButtonInteractable = false;
@@ -106,6 +106,7 @@ namespace SongCore.HarmonyPatches
                 {
                     RequirementsUI.instance.ButtonGlowColor = true;
                     RequirementsUI.instance.ButtonInteractable = true;
+                    RequirementsUI.instance.SetRainbowColors(Utilities.Utils.DiffHasColors(diffData));
                 }
                 else if (diffData.additionalDifficultyData._warnings.Any())
                 {
@@ -115,6 +116,7 @@ namespace SongCore.HarmonyPatches
                     {
                         ____actionButton.interactable = false;
                     }
+                    RequirementsUI.instance.SetRainbowColors(Utilities.Utils.DiffHasColors(diffData));
                 }
             }
 

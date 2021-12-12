@@ -1,0 +1,8 @@
+<modal id='modal' anchor-pos-x='-5' anchor-pos-y='5' clickerino-offerino-closerino='false' size-delta-x='85' size-delta-y='25' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+    <vertical horizontal-fit='PreferredSize' pref-width='80'>
+        <checkbox-setting text='Allow Custom Song Colors' value='colors' hover-hint='Allow Custom Songs to override note/light colors.' apply-on-change='true' bind-value='true' />
+        <horizontal id='selected-color' spacing='-5'>
+            <text text='Selected Custom Song&#39;s Colors' italics='true' />
+        </horizontal>
+    </vertical>
+</modal>

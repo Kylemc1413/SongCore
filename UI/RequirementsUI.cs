@@ -7,12 +7,18 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
+using HMUI;
+using Tweening;
 
 namespace SongCore.UI
 {
     public class RequirementsUI : NotifiableSingleton<RequirementsUI>
     {
         private StandardLevelDetailViewController standardLevel;
+        private TweeningManager tweenyManager;
+        private ImageView buttonBG;
+        private Color originalColor0;
+        private Color originalColor1;
 
         internal Sprite? HaveReqIcon;
         internal Sprite? MissingReqIcon;
@@ -20,6 +26,7 @@ namespace SongCore.UI
         internal Sprite? MissingSuggestionIcon;
         internal Sprite? WarningIcon;
         internal Sprite? InfoIcon;
+        internal Sprite? ColorsIcon;
 
         //Currently selected song data
         public CustomPreviewBeatmapLevel level;
@@ -56,6 +63,11 @@ namespace SongCore.UI
             }
         }
 
+        [UIComponent("modal")]
+        private ModalView modal;
+
+        private Vector3 modalPosition;
+
         [UIComponent("info-button")]
         private Transform infoButtonTransform;
 
@@ -63,13 +75,23 @@ namespace SongCore.UI
         {
             GetIcons();
             standardLevel = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().First();
+            tweenyManager = Resources.FindObjectsOfTypeAll<TweeningManager>().First();
             BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"),
                 standardLevel.transform.Find("LevelDetail").gameObject, this);
-            infoButtonTransform.localScale *= 0.7f; //no scale property in bsml as of now so manually scaling it
-            (standardLevel.transform.Find("LevelDetail").Find("FavoriteToggle")?.transform as RectTransform).anchoredPosition = new Vector2(3, -2);
         }
 
-        internal void GetIcons()
+        [UIAction("#post-parse")]
+        private void PostParse()
+        {
+            infoButtonTransform.localScale *= 0.7f; //no scale property in bsml as of now so manually scaling it
+            (standardLevel.transform.Find("LevelDetail").Find("FavoriteToggle")?.transform as RectTransform).anchoredPosition = new Vector2(3, -2);
+            buttonBG = infoButtonTransform.Find("BG").GetComponent<ImageView>();
+            originalColor0 = buttonBG.color0;
+            originalColor1 = buttonBG.color1;
+            modalPosition = modal.transform.localPosition;
+        }
+
+        private void GetIcons()
         {
             if (!MissingReqIcon)
             {
@@ -100,11 +122,18 @@ namespace SongCore.UI
             {
                 InfoIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Info.png")!;
             }
+
+            if (!ColorsIcon)
+            {
+                ColorsIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Colors.png")!;
+            }
         }
 
         [UIAction("button-click")]
         internal void ShowRequirements()
         {
+            modal.transform.localPosition = modalPosition;
+            modal.Show(true);
             customListTableData.data.Clear();
 
             //Requirements
@@ -154,6 +183,11 @@ namespace SongCore.UI
             //Additional Diff Info
             if (diffData != null)
             {
+                if (Utils.DiffHasColors(diffData))
+                {
+                    customListTableData.data.Add(new CustomCellInfo($"<size=75%>Custom Colors Availaible", $"Click here to preview & {(Plugin.CustomSongColors ? "disable" : "enable")} it.", ColorsIcon));
+                }
+
                 if (diffData.additionalDifficultyData._warnings.Length > 0)
                 {
                     foreach (string req in diffData.additionalDifficultyData._warnings)
@@ -182,7 +216,38 @@ namespace SongCore.UI
             }
 
             customListTableData.tableView.ReloadData();
-            customListTableData.tableView.ScrollToCellWithIdx(0, HMUI.TableView.ScrollPositionType.Beginning, false);
+            customListTableData.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
+        }
+
+        [UIAction("list-select")]
+        private void Select(TableView _, int index)
+        {
+            customListTableData.tableView.ClearSelection();
+            if (diffData != null && customListTableData.data[index].icon == ColorsIcon)
+            {
+                modal.Hide(false, () => ColorsUI.instance.ShowColors(diffData));
+            }
+        }
+
+        internal void SetRainbowColors(bool shouldSet, bool firstPulse = true)
+        {
+            tweenyManager.KillAllTweens(buttonBG);
+            if (shouldSet)
+            {
+                FloatTween tween = new FloatTween(firstPulse ? 0 : 1, firstPulse ? 1 : 0, val =>
+                {
+                    buttonBG.color0 = new Color(1 - val, val, 0);
+                    buttonBG.color1 = new Color(0, 1 - val, val);
+                    buttonBG.SetAllDirty();
+                }, 5f, EaseType.InOutSine);
+                tweenyManager.AddTween(tween, buttonBG);
+                tween.onCompleted = delegate () { SetRainbowColors(true, !firstPulse); };
+            }
+            else
+            {
+                buttonBG.color0 = originalColor0;
+                buttonBG.color1 = originalColor1;
+            }
         }
     }
 }
