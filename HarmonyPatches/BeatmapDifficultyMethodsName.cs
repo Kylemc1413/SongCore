@@ -3,7 +3,7 @@
 namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(BeatmapDifficultyMethods))]
-    [HarmonyPatch("Name", MethodType.Normal)]
+    [HarmonyPatch(nameof(BeatmapDifficultyMethods.Name), MethodType.Normal)]
     internal class BeatmapDifficultyMethodsName
     {
         private static void Postfix(BeatmapDifficulty difficulty, ref string __result)

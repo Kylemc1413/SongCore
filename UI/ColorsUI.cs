@@ -53,7 +53,7 @@ namespace SongCore.UI
         [UIAction("#post-parse")]
         private void PostParse()
         {
-            ColorSchemeView colorSchemeView = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
+            ColorSchemeView colorSchemeView = Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
             boostedColorSchemeView = (BoostedColorSchemeView) ReflectionUtil.CopyComponent(colorSchemeView, typeof(ColorSchemeView), typeof(BoostedColorSchemeView), colorSchemeView.gameObject);
             DestroyImmediate(colorSchemeView);
             boostedColorSchemeView.Setup();
