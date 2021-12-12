@@ -9,6 +9,8 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using IPA.Config;
+using IPA.Config.Stores;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
@@ -21,10 +23,7 @@ namespace SongCore
     {
         private static Harmony? _harmony;
 
-        internal static bool CustomSongColors = SCSettings.instance.Colors;
-        internal static bool CustomSongPlatforms = SCSettings.instance.Platforms;
-        internal static bool DisplayDiffLabels = SCSettings.instance.DiffLabels;
-        internal static bool ForceLongPreviews = SCSettings.instance.LongPreviews;
+        internal static SConfiguration Configuration { get; private set; }
 
         public static Action<bool, string, string, IPreviewBeatmapLevel>? CustomSongPlatformSelectionDidChange;
 
@@ -33,30 +32,39 @@ namespace SongCore
         public static string noArrowsCharacteristicName = "NoArrows";
 
         [Init]
-        public void Init(IPALogger pluginLogger)
+        public void Init([Config.Name(nameof(SongCore) + "/" + nameof(SongCore))]Config conf, IPALogger pluginLogger)
         {
+            Configuration = conf.Generated<SConfiguration>();
             Logging.Logger = pluginLogger;
         }
 
         [OnStart]
         public void OnApplicationStart()
         {
-            BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", SCSettings.instance);
-            SceneManager.activeSceneChanged += OnActiveSceneChanged;
-
-            //Delete Old Config
-            try
+            var songCoreIniPath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "SongCore.ini");
+            if (File.Exists(songCoreIniPath))
             {
-                var songCoreIniPath = Path.Combine(UnityGame.UserDataPath, "SongCore.ini");
-                if (File.Exists(songCoreIniPath))
+                var modPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
+
+                Configuration.CustomSongColors = modPrefs.GetBool("SongCore", "customSongColors", true, true);
+                Configuration.CustomSongPlatforms = modPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
+                Configuration.DisplayDiffLabels = modPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
+                Configuration.ForceLongPreviews = modPrefs.GetBool("SongCore", "forceLongPreviews", false, true);
+
+                //Delete Old Config
+                try
                 {
                     File.Delete(songCoreIniPath);
                 }
+                catch
+                {
+                    Logging.Logger.Warn("Failed to delete old config file!");
+                }
             }
-            catch
-            {
-                Logging.Logger.Warn("Failed to delete old config file!");
-            }
+
+
+            BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", new SCSettingsController());
+            SceneManager.activeSceneChanged += OnActiveSceneChanged;
 
             _harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
             _harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -116,7 +124,7 @@ namespace SongCore
                     return;
                 }
 
-                if (CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
+                if (Configuration.CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
                     Logging.Logger.Debug("Custom song with platform selected");
                     CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
@@ -130,9 +138,6 @@ namespace SongCore
 
         private void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
         {
-            CustomSongColors = BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
-            CustomSongPlatforms = BasicUI.ModPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
-            DisplayDiffLabels = BasicUI.ModPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
             Object.Destroy(GameObject.Find("SongCore Color Setter"));
 
             if (nextScene.name == "MenuViewControllers")
