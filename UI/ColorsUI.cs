@@ -3,7 +3,6 @@ using System.Reflection;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
-using BS_Utils.Utilities;
 using HMUI;
 using SongCore.Data;
 using SongCore.Utilities;
@@ -54,7 +53,7 @@ namespace SongCore.UI
         private void PostParse()
         {
             ColorSchemeView colorSchemeView = Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
-            boostedColorSchemeView = (BoostedColorSchemeView) ReflectionUtil.CopyComponent(colorSchemeView, typeof(ColorSchemeView), typeof(BoostedColorSchemeView), colorSchemeView.gameObject);
+            boostedColorSchemeView = IPA.Utilities.ReflectionUtil.CopyComponent<BoostedColorSchemeView>(colorSchemeView, colorSchemeView.gameObject);
             DestroyImmediate(colorSchemeView);
             boostedColorSchemeView.Setup();
             modalPosition = modal.transform.localPosition;
