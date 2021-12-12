@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace SongCore.UI
 {
-    internal class ProgressBar : MonoBehaviour
+    public class ProgressBar : MonoBehaviour
     {
         private Canvas? _canvas;
         private TMP_Text? _authorNameText;
