@@ -60,8 +60,6 @@ namespace SongCore.HarmonyPatches
             new CodeInstruction(OpCodes.Call, clampMethod)
         };
 
-        private static List<NoteData> notesInTimeRowRepopulated = new List<NoteData>();
-
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
@@ -84,30 +82,34 @@ namespace SongCore.HarmonyPatches
             return instructionList.AsEnumerable();
         }
 
-        private static void Prefix(List<NoteData> notesInTimeRow)
+        private static void Prefix(List<NoteData> notesInTimeRow, out List<NoteData> __state)
         {
-            notesInTimeRowRepopulated = new List<NoteData>(notesInTimeRow);
+            __state = new List<NoteData>(notesInTimeRow);
         }
 
-        private static void Postfix(ref List<NoteData> notesInTimeRow)
+        private static void Postfix(List<NoteData> __state)
         {
-            notesInTimeRow = notesInTimeRowRepopulated;
-
-            if (!notesInTimeRow.Any(x => x.lineIndex > 3 || x.lineIndex < 0))
+            var notesInTimeRowRepopulated = __state;
+            if (!notesInTimeRowRepopulated.Any(x => x.lineIndex > 3 || x.lineIndex < 0))
             {
                 return;
             }
 
-            Dictionary<int, List<NoteData>> notesInColumn = new Dictionary<int, List<NoteData>>();
-            foreach (NoteData note in notesInTimeRow)
+            Dictionary<int, List<NoteData>> notesInColumns = new Dictionary<int, List<NoteData>>();
+            foreach (NoteData note in notesInTimeRowRepopulated)
             {
-                notesInColumn[note.lineIndex] = new List<NoteData>(3);
+                if (notesInColumns.ContainsKey(note.lineIndex))
+                {
+                    continue;
+                }
+
+                notesInColumns[note.lineIndex] = new List<NoteData>(3);
             }
 
-            for (var j = 0; j < notesInTimeRow.Count; j++)
+            for (var j = 0; j < notesInTimeRowRepopulated.Count; j++)
             {
-                NoteData noteData = notesInTimeRow[j];
-                List<NoteData> list = notesInColumn[noteData.lineIndex];
+                NoteData noteData = notesInTimeRowRepopulated[j];
+                List<NoteData> list = notesInColumns[noteData.lineIndex];
                 var flag = false;
                 for (var k = 0; k < list.Count; k++)
                 {
@@ -125,7 +127,7 @@ namespace SongCore.HarmonyPatches
                 }
             }
 
-            foreach (var list in notesInColumn.Values)
+            foreach (var list in notesInColumns.Values)
             {
                 for (var m = 0; m < list.Count; m++)
                 {
@@ -151,7 +153,7 @@ namespace SongCore.HarmonyPatches
             {
                 BeatmapLineData[] beatmapLinesData = _beatmapLinesData;
                 int[] idxs = new int[beatmapLinesData.Length];
-                for (;;)
+                while(true)
                 {
                     BeatmapObjectData? minBeatmapObjectData = null;
                     var num = float.MaxValue;
