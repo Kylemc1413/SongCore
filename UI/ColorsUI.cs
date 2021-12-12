@@ -28,12 +28,8 @@ namespace SongCore.UI
         [UIValue("colors")]
         public bool Colors
         {
-            get => BasicUI.ModPrefs.GetBool("SongCore", "customSongColors", true, true);
-            set
-            {
-                Plugin.CustomSongColors = value;
-                BasicUI.ModPrefs.SetBool("SongCore", "customSongColors", value);
-            }
+            get => SCSettings.instance.Colors;
+            set => SCSettings.instance.Colors = value;
         }
 
         internal void ShowColors(ExtraSongData.DifficultyData songData)

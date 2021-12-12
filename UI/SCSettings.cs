@@ -1,8 +1,9 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components;
 
 namespace SongCore.UI
 {
-    public class SCSettings : PersistentSingleton<SCSettings>
+    public class SCSettings : NotifiableSingleton<SCSettings>
     {
         [UIValue("colors")]
         public bool Colors
@@ -12,6 +13,7 @@ namespace SongCore.UI
             {
                 Plugin.CustomSongColors = value;
                 BasicUI.ModPrefs.SetBool("SongCore", "customSongColors", value);
+                NotifyPropertyChanged();
             }
         }
 
