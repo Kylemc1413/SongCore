@@ -11,6 +11,7 @@ using IPA.Utilities;
 using IPA.Utilities.Async;
 using SongCore.Data;
 using SongCore.OverrideClasses;
+using SongCore.UI;
 using SongCore.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;

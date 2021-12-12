@@ -1,15 +1,15 @@
 ﻿using System;
-using SongCore.Utilities;
 using System.Collections;
 using System.Collections.Concurrent;
+using SongCore.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace SongCore
+namespace SongCore.UI
 {
-    public class ProgressBar : MonoBehaviour
+    internal class ProgressBar : MonoBehaviour
     {
         private Canvas? _canvas;
         private TMP_Text? _authorNameText;
