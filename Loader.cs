@@ -725,6 +725,7 @@ namespace SongCore
             {
                 await Task.Run(() => DeleteSingleSong(folderPath, deleteFolder));
             }
+
             await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
               {
                   Hashing.UpdateCachedHashes(new HashSet<string>(CustomLevels.Keys.Concat(CustomWIPLevels.Keys)));
@@ -737,16 +738,7 @@ namespace SongCore
             //Remove the level from SongCore Collections
             try
             {
-                if (CustomLevels.TryRemove(folderPath, out var level))
-                {
-                }
-                else if (CustomWIPLevels.TryRemove(folderPath, out level))
-                {
-                }
-                else if (CachedWIPLevels.TryRemove(folderPath, out level))
-                {
-                }
-                else
+                if (!(CustomLevels.TryRemove(folderPath, out var level) || CustomWIPLevels.TryRemove(folderPath, out level) || CachedWIPLevels.TryRemove(folderPath, out level)))
                 {
                     foreach (var folderEntry in SeperateSongFolders)
                     {
