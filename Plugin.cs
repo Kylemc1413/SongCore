@@ -34,7 +34,10 @@ namespace SongCore
         [Init]
         public void Init([Config.Name(nameof(SongCore) + "/" + nameof(SongCore))]Config conf, IPALogger pluginLogger)
         {
+            // Workaround for creating BSIPA config in Userdata subdir
+            Directory.CreateDirectory(Path.Combine(UnityGame.UserDataPath, nameof(SongCore)));
             Configuration = conf.Generated<SConfiguration>();
+
             Logging.Logger = pluginLogger;
         }
 
