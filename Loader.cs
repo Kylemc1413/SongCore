@@ -708,19 +708,37 @@ namespace SongCore
         public void DeleteSong(string folderPath, bool deleteFolder = true)
         {
             DeletingSong?.Invoke();
+            DeleteSingleSong(folderPath, deleteFolder);
+            Hashing.UpdateCachedHashes(new HashSet<string>((CustomLevels.Keys.Concat(CustomWIPLevels.Keys))));
+            RefreshLevelPacks();
+        }
+
+        /// <summary>
+        /// Delete multiple beatmaps in bulk (is only used by other mods)
+        /// </summary>
+        /// <param name="folderPaths">Directories of the beatmaps</param>
+        /// <param name="deleteFolder">Option to delete the base folder of the beatmap</param>
+        public async Task DeleteSongsAsync(List<string> folderPaths, bool deleteFolder = true)
+        {
+            DeletingSong?.Invoke();
+            foreach(string folderPath in folderPaths)
+            {
+                await Task.Run(() => DeleteSingleSong(folderPath, deleteFolder));
+            }
+
+            await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+              {
+                  Hashing.UpdateCachedHashes(new HashSet<string>(CustomLevels.Keys.Concat(CustomWIPLevels.Keys)));
+                  RefreshLevelPacks();
+              });
+        }
+
+        private void DeleteSingleSong(string folderPath, bool deleteFolder)
+        {
             //Remove the level from SongCore Collections
             try
             {
-                if (CustomLevels.TryRemove(folderPath, out var level))
-                {
-                }
-                else if (CustomWIPLevels.TryRemove(folderPath, out level))
-                {
-                }
-                else if (CachedWIPLevels.TryRemove(folderPath, out level))
-                {
-                }
-                else
+                if (!(CustomLevels.TryRemove(folderPath, out var level) || CustomWIPLevels.TryRemove(folderPath, out level) || CachedWIPLevels.TryRemove(folderPath, out level)))
                 {
                     foreach (var folderEntry in SeperateSongFolders)
                     {
@@ -745,7 +763,6 @@ namespace SongCore
                     }
 
                     CustomLevelsById.TryRemove(level.levelID, out _);
-                    Hashing.UpdateCachedHashes(new HashSet<string>((CustomLevels.Keys.Concat(CustomWIPLevels.Keys))));
                 }
 
                 //Delete the directory
@@ -756,8 +773,6 @@ namespace SongCore
                         Directory.Delete(folderPath, true);
                     }
                 }
-
-                RefreshLevelPacks();
             }
             catch (Exception ex)
             {
