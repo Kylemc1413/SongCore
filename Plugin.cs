@@ -44,6 +44,7 @@ namespace SongCore
         [OnStart]
         public void OnApplicationStart()
         {
+            // TODO: Remove this migration path at some point
             var songCoreIniPath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "SongCore.ini");
             if (File.Exists(songCoreIniPath))
             {
