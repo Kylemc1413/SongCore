@@ -1,23 +1,8 @@
-﻿using HarmonyLib;
-using SongCore.Utilities;
+using HarmonyLib;
 using TMPro;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(LevelCollectionViewController))]
-    [HarmonyPatch("HandleLevelCollectionTableViewDidSelectLevel", MethodType.Normal)]
-    internal class LevelPackLevelsSelectedPatch
-    {
-        private static void Prefix(LevelCollectionTableView tableView, IPreviewBeatmapLevel level)
-        {
-            if (level is CustomPreviewBeatmapLevel customLevel)
-            {
-                Collections.AddSong(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
-                Collections.SaveExtraSongData();
-            }
-        }
-    }
-
     [HarmonyPatch(typeof(LevelListTableCell))]
     [HarmonyPatch("SetDataFromLevelAsync", MethodType.Normal)]
     internal class LevelListTableCellSetDataFromLevel
