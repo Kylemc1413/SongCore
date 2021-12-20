@@ -70,8 +70,7 @@ namespace SongCore
             BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", new SCSettingsController());
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
 
-            _harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
-            _harmony.PatchAll(Assembly.GetExecutingAssembly());
+            _harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), "com.kyle1413.BeatSaber.SongCore");
 
             BasicUI.GetIcons();
             BS_Utils.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
