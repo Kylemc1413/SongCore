@@ -9,7 +9,6 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
@@ -89,6 +88,12 @@ namespace SongCore
             Loader.SeperateSongFolders.InsertRange(0, Data.SeperateSongFolder.ReadSeperateFoldersFromFile(foldersXmlFilePath));
         }
 
+        [OnExit]
+        public void OnApplicationQuit()
+        {
+            Collections.SaveExtraSongData();
+        }
+
         private void BSEvents_menuSceneLoadedFresh(ScenesTransitionSetupDataSO data)
         {
             Loader.OnLoad();
@@ -109,26 +114,22 @@ namespace SongCore
         {
             if (level is CustomPreviewBeatmapLevel customLevel)
             {
-                Task.Run(() =>
+                var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
+
+                if (songData == null)
                 {
-                    var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
-                    Collections.SaveExtraSongData();
+                    return;
+                }
 
-                    if (songData == null)
-                    {
-                        return;
-                    }
-
-                    if (CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
-                    {
-                        Logging.Logger.Debug("Custom song with platform selected");
-                        CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
-                    }
-                    else
-                    {
-                        CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
-                    }
-                });
+                if (CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
+                {
+                    Logging.Logger.Debug("Custom song with platform selected");
+                    CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
+                }
+                else
+                {
+                    CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
+                }
             }
         }
 
