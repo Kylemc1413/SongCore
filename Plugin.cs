@@ -32,11 +32,11 @@ namespace SongCore
         public static string noArrowsCharacteristicName = "NoArrows";
 
         [Init]
-        public void Init([Config.Name(nameof(SongCore) + "/" + nameof(SongCore))]Config conf, IPALogger pluginLogger)
+        public void Init(IPALogger pluginLogger)
         {
             // Workaround for creating BSIPA config in Userdata subdir
             Directory.CreateDirectory(Path.Combine(UnityGame.UserDataPath, nameof(SongCore)));
-            Configuration = conf.Generated<SConfiguration>();
+            Configuration = Config.GetConfigFor(nameof(SongCore) + Path.DirectorySeparatorChar + nameof(SongCore)).Generated<SConfiguration>();
 
             Logging.Logger = pluginLogger;
         }
