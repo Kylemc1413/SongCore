@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using SongCore.Data;
 using SongCore.Utilities;
 using IPA.Utilities;
@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SongCore
@@ -42,32 +43,33 @@ namespace SongCore
             return HashLevelDictionary.TryGetValue(hash.ToUpper(), out var songs) ? songs : new List<string>();
         }
 
-        public static void AddSong(string levelID, string path)
+        internal static void AddExtraSongData(string hash, string path, string rawSongData)
         {
-            if (!CustomSongsData.ContainsKey(levelID))
+            if (!CustomSongsData.ContainsKey(hash))
             {
-                CustomSongsData.TryAdd(levelID, new ExtraSongData(levelID, path));
+                CustomSongsData.TryAdd(hash, new ExtraSongData(rawSongData, path));
             }
         }
 
-        public static ExtraSongData? RetrieveExtraSongData(string levelID, string loadIfNullPath = "")
+        [Obsolete("This does nothing. Extra song data is now loaded with songs.", true)]
+        public static void AddSong(string hash, string path)
         {
-            if (CustomSongsData.TryGetValue(levelID, out var songData))
+        }
+
+        public static ExtraSongData? RetrieveExtraSongData(string hash)
+        {
+            if (CustomSongsData.TryGetValue(hash, out var songData))
             {
                 return songData;
             }
 
-            if (!string.IsNullOrWhiteSpace(loadIfNullPath))
-            {
-                AddSong(levelID, loadIfNullPath);
-
-                if (CustomSongsData.TryGetValue(levelID, out songData))
-                {
-                    return songData;
-                }
-            }
-
             return null;
+        }
+
+        [Obsolete("loadIfNullPath isn't needed anymore.", true)]
+        public static ExtraSongData? RetrieveExtraSongData(string hash, string loadIfNullPath = "")
+        {
+            return RetrieveExtraSongData(hash);
         }
 
         public static ExtraSongData.DifficultyData? RetrieveDifficultyData(IDifficultyBeatmap beatmap)
@@ -76,7 +78,7 @@ namespace SongCore
 
             if (beatmap.level is CustomPreviewBeatmapLevel customLevel)
             {
-                songData = RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel), customLevel.customLevelPath);
+                songData = RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel));
             }
 
             var diffData = songData?._difficulties.FirstOrDefault(x =>
@@ -86,14 +88,15 @@ namespace SongCore
             return diffData;
         }
 
-        public static void LoadExtraSongData()
+        internal static void LoadExtraSongData()
         {
             CustomSongsData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, ExtraSongData>?>(File.ReadAllText(DataPath)) ?? new ConcurrentDictionary<string, ExtraSongData>();
         }
 
-        public static void SaveExtraSongData()
+        internal static async Task SaveExtraSongDataAsync()
         {
-            File.WriteAllText(DataPath, JsonConvert.SerializeObject(CustomSongsData, Formatting.None));
+            using var writer = new StreamWriter(DataPath);
+            await writer.WriteAsync(JsonConvert.SerializeObject(CustomSongsData, Formatting.None));
         }
 
         public static void RegisterCapability(string capability)

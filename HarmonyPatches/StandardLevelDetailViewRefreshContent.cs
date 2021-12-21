@@ -67,7 +67,7 @@ namespace SongCore.HarmonyPatches
                 return;
             }
 
-            var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(level), level.customLevelPath);
+            var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(level));
 
             if (songData == null)
             {
