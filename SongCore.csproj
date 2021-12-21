@@ -118,7 +118,7 @@
     <ItemGroup>
         <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
         <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
-        <None Include="HitScoreVisualizer.csproj.user" Condition="Exists('HitScoreVisualizer.csproj.user')" />
+        <None Include="SongCore.csproj.user" Condition="Exists('SongCore.csproj.user')" />
     </ItemGroup>
 
     <ItemGroup>
@@ -129,7 +129,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.4.3">
+        <PackageReference Include="BeatSaberModdingTools.Tasks" Version="2.0.0-beta4">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
