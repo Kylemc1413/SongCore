@@ -99,12 +99,11 @@ namespace SongCore.Data
             try
             {
                 JObject info = JObject.Parse(rawSongData);
-                JObject infoData;
                 List<Contributor> levelContributors = new List<Contributor>();
                 //Check if song uses legacy value for full song One Saber mode
                 if (info.TryGetValue("_customData", out var data))
                 {
-                    infoData = (JObject) data;
+                    JObject infoData = (JObject) data;
                     if (infoData.TryGetValue("_contributors", out var contributors))
                     {
                         levelContributors.AddRange(contributors.ToObject<Contributor[]>());
