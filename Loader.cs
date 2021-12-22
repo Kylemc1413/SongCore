@@ -592,7 +592,7 @@ namespace SongCore
                 int folderCount = songCount - songCountWSF;
                 string songOrSongs = songCount == 1 ? "song" : "songs";
                 string folderOrFolders = folderCount == 1 ? "folder" : "folders";
-                Logging.Logger.Info($"Loaded {songCount} new songs ({songCountWSF}) in CustomLevels | {folderCount} in seperate {folderOrFolders}) in {stopwatch.Elapsed.TotalSeconds} seconds");
+                Logging.Logger.Info($"Loaded {songCount} new {songOrSongs} ({songCountWSF}) in CustomLevels | {folderCount} in seperate {folderOrFolders}) in {stopwatch.Elapsed.TotalSeconds} seconds");
                 try
                 {
                     //Handle LevelPacks
