@@ -90,7 +90,7 @@ namespace SongCore
         {
             _customWIPPath = Path.Combine(Application.dataPath, "CustomWIPLevels");
             _customLevelsPath = Path.GetFullPath(CustomLevelPathHelper.customLevelsDirectoryPath);
-            _ = BeatmapLevelsModelSO;
+            _ = BeatmapLevelsModelSO; // This is to cache the BeatmapLevelsModel while we're on the main thread, since we need to access it when we're not on the main thread (which Unity debug doesn't like).
 
             Instance = this;
             _progressBar = ProgressBar.Create();
@@ -289,8 +289,8 @@ namespace SongCore
 
                     OfficialSongs.Clear();
 
-                    AddOfficialPackCollection(_beatmapLevelsModel.ostAndExtrasPackCollection);
-                    AddOfficialPackCollection(_beatmapLevelsModel.dlcBeatmapLevelPackCollection);
+                    AddOfficialPackCollection(BeatmapLevelsModelSO.ostAndExtrasPackCollection);
+                    AddOfficialPackCollection(BeatmapLevelsModelSO.dlcBeatmapLevelPackCollection);
                 }
                 catch (Exception ex)
                 {
