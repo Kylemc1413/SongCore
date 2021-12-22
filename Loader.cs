@@ -589,7 +589,10 @@ namespace SongCore
                 var songCountWSF = CustomLevels.Count + CustomWIPLevels.Count;
                 var songCount = songCountWSF + SeperateSongFolders.Sum(f => f.Levels.Count);
 
-                Logging.Logger.Info($"Loaded {songCount} new songs ({songCountWSF}) in CustomLevels | {songCount - songCountWSF} in seperate folders) in {stopwatch.Elapsed.TotalSeconds} seconds");
+                int folderCount = songCount - songCountWSF;
+                string songOrSongs = songCount == 1 ? "song" : "songs";
+                string folderOrFolders = folderCount == 1 ? "folder" : "folders";
+                Logging.Logger.Info($"Loaded {songCount} new songs ({songCountWSF}) in CustomLevels | {folderCount} in seperate {folderOrFolders}) in {stopwatch.Elapsed.TotalSeconds} seconds");
                 try
                 {
                     //Handle LevelPacks
