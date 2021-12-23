@@ -3,7 +3,6 @@ using System.Reflection;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
-using BS_Utils.Utilities;
 using HMUI;
 using SongCore.Data;
 using SongCore.Utilities;
@@ -28,8 +27,8 @@ namespace SongCore.UI
         [UIValue("colors")]
         public bool Colors
         {
-            get => SCSettings.instance.Colors;
-            set => SCSettings.instance.Colors = value;
+            get => Plugin.Configuration.CustomSongColors;
+            set => Plugin.Configuration.CustomSongColors = value;
         }
 
         internal void ShowColors(ExtraSongData.DifficultyData songData)
@@ -53,8 +52,8 @@ namespace SongCore.UI
         [UIAction("#post-parse")]
         private void PostParse()
         {
-            ColorSchemeView colorSchemeView = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
-            boostedColorSchemeView = (BoostedColorSchemeView) ReflectionUtil.CopyComponent(colorSchemeView, typeof(ColorSchemeView), typeof(BoostedColorSchemeView), colorSchemeView.gameObject);
+            ColorSchemeView colorSchemeView = Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
+            boostedColorSchemeView = IPA.Utilities.ReflectionUtil.CopyComponent<BoostedColorSchemeView>(colorSchemeView, colorSchemeView.gameObject);
             DestroyImmediate(colorSchemeView);
             boostedColorSchemeView.Setup();
             modalPosition = modal.transform.localPosition;

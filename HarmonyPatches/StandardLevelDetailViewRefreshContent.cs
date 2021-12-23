@@ -8,16 +8,6 @@ using IPA.Utilities;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(StandardLevelDetailViewController))]
-    [HarmonyPatch("UpdateActionButtonIntractability", MethodType.Normal)]
-    internal class BlockGameButtonInteractabilityUpdateAsItLiterallyAlwaysEnablesIt
-    {
-        private static bool Prefix()
-        {
-            return false;
-        }
-    }
-
     [HarmonyPatch(typeof(StandardLevelDetailView))]
     [HarmonyPatch("RefreshContent", MethodType.Normal)]
     internal class StandardLevelDetailViewRefreshContent
@@ -77,7 +67,7 @@ namespace SongCore.HarmonyPatches
                 return;
             }
 
-            var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(level), level.customLevelPath);
+            var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(level));
 
             if (songData == null)
             {

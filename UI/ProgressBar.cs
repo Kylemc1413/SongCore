@@ -1,13 +1,13 @@
-﻿using System;
-using SongCore.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
+using SongCore.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace SongCore
+namespace SongCore.UI
 {
     public class ProgressBar : MonoBehaviour
     {
@@ -111,7 +111,8 @@ namespace SongCore
         private void SongLoaderOnSongsLoadedEvent(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> customLevels)
         {
             _showingMessage = false;
-            _headerText.text = $"{customLevels.Count} {(_jokeTime ? "songs deleted" : "songs loaded.")}";
+            string songOrSongs = customLevels.Count == 1 ? "song" : "songs";
+            _headerText.text = $"{customLevels.Count} {(_jokeTime ? $"{songOrSongs} deleted" : $"{songOrSongs} loaded.")}";
             _loadingBar.enabled = false;
             _loadingBackg.enabled = false;
             StartCoroutine(DisableCanvasRoutine(5f));

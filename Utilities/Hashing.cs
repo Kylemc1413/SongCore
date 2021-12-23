@@ -109,13 +109,10 @@ namespace SongCore.Utilities
         {
             directoryHash = GetDirectoryHash(customLevelPath);
             cachedSongHash = string.Empty;
-            if (cachedSongHashData.TryGetValue(customLevelPath, out var cachedSong))
+            if (cachedSongHashData.TryGetValue(customLevelPath, out var cachedSong) && cachedSong.directoryHash == directoryHash)
             {
-                if (cachedSong.directoryHash == directoryHash)
-                {
-                    cachedSongHash = cachedSong.songHash;
-                    return true;
-                }
+                cachedSongHash = cachedSong.songHash;
+                return true;
             }
 
             return false;
@@ -129,14 +126,15 @@ namespace SongCore.Utilities
             }
 
             List<byte> combinedBytes = new List<byte>();
-            combinedBytes.AddRange(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat"));
+            combinedBytes.AddRange(File.ReadAllBytes(Path.Combine(level.customLevelPath, "info.dat")));
             for (var i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
             {
                 for (var i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
                 {
-                    if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
+                    var beatmapPath = Path.Combine(level.customLevelPath, level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename);
+                    if (File.Exists(beatmapPath))
                     {
-                        combinedBytes.AddRange(File.ReadAllBytes(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename));
+                        combinedBytes.AddRange(File.ReadAllBytes(beatmapPath));
                     }
                 }
             }
@@ -153,15 +151,16 @@ namespace SongCore.Utilities
                 return songHash;
             }
 
-            byte[] combinedBytes = new byte[0];
-            combinedBytes = combinedBytes.Concat(File.ReadAllBytes(customLevelPath + '/' + "info.dat")).ToArray();
+            byte[] combinedBytes = Array.Empty<byte>();
+            combinedBytes = combinedBytes.Concat(File.ReadAllBytes(Path.Combine(customLevelPath, "info.dat"))).ToArray();
             for (var i = 0; i < level.difficultyBeatmapSets.Length; i++)
             {
                 for (var i2 = 0; i2 < level.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
                 {
-                    if (File.Exists(customLevelPath + '/' + level.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
+                    var beatmapPath = Path.Combine(customLevelPath, level.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename);
+                    if (File.Exists(beatmapPath))
                     {
-                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(customLevelPath + '/' + level.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename)).ToArray();
+                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(beatmapPath)).ToArray();
                     }
                 }
             }
@@ -178,16 +177,16 @@ namespace SongCore.Utilities
                 return songHash;
             }
 
-            byte[] combinedBytes = new byte[0];
-            combinedBytes = combinedBytes.Concat(File.ReadAllBytes(level.customLevelPath + '/' + "info.dat")).ToArray();
+            byte[] combinedBytes = Array.Empty<byte>();
+            combinedBytes = combinedBytes.Concat(File.ReadAllBytes(Path.Combine(level.customLevelPath, "info.dat"))).ToArray();
             for (var i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
             {
                 for (var i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
                 {
-                    if (File.Exists(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename))
+                    var beatmapPath = Path.Combine(level.customLevelPath, level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename);
+                    if (File.Exists(beatmapPath))
                     {
-                        combinedBytes = combinedBytes
-                            .Concat(File.ReadAllBytes(level.customLevelPath + '/' + level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename)).ToArray();
+                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(beatmapPath)).ToArray();
                     }
                 }
             }
@@ -200,44 +199,35 @@ namespace SongCore.Utilities
         public static string CreateSha1FromString(string input)
         {
             // Use input string to calculate MD5 hash
-            using (var sha1 = SHA1.Create())
-            {
-                var inputBytes = Encoding.ASCII.GetBytes(input);
-                var hashBytes = sha1.ComputeHash(inputBytes);
+            using var sha1 = SHA1.Create();
+            var inputBytes = Encoding.ASCII.GetBytes(input);
+            var hashBytes = sha1.ComputeHash(inputBytes);
 
-                return BitConverter.ToString(hashBytes).Replace("-", string.Empty);
-            }
+            return BitConverter.ToString(hashBytes).Replace("-", string.Empty);
         }
 
         public static string CreateSha1FromBytes(byte[] input)
         {
             // Use input string to calculate MD5 hash
-            using (var sha1 = SHA1.Create())
-            {
-                var inputBytes = input;
-                var hashBytes = sha1.ComputeHash(inputBytes);
+            using var sha1 = SHA1.Create();
+            var hashBytes = sha1.ComputeHash(input);
 
-                return BitConverter.ToString(hashBytes).Replace("-", string.Empty);
-            }
+            return BitConverter.ToString(hashBytes).Replace("-", string.Empty);
         }
 
         public static bool CreateSha1FromFile(string path, out string hash)
         {
-            hash = "";
+            hash = string.Empty;
             if (!File.Exists(path))
             {
                 return false;
             }
 
-            using (var sha1 = SHA1.Create())
-            {
-                using (var stream = File.OpenRead(path))
-                {
-                    var hashBytes = sha1.ComputeHash(stream);
-                    hash = BitConverter.ToString(hashBytes).Replace("-", string.Empty);
-                    return true;
-                }
-            }
+            using var sha1 = SHA1.Create();
+            using var stream = File.OpenRead(path);
+            var hashBytes = sha1.ComputeHash(stream);
+            hash = BitConverter.ToString(hashBytes).Replace("-", string.Empty);
+            return true;
         }
     }
 }

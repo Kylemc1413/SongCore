@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using SongCore.Utilities;
@@ -9,6 +8,18 @@ using UnityEngine;
 
 namespace SongCore.Data
 {
+    public class SongData
+    {
+        public string RawSongData;
+        public StandardLevelInfoSaveData SaveData;
+
+        public SongData(string rawSongData, StandardLevelInfoSaveData saveData)
+        {
+            RawSongData = rawSongData;
+            SaveData = saveData;
+        }
+    }
+
     [Serializable]
     public class ExtraSongData
     {
@@ -83,24 +94,16 @@ namespace SongCore.Data
             _difficulties = difficulties;
         }
 
-        public ExtraSongData(string levelID, string songPath)
+        internal ExtraSongData(string rawSongData, string songPath)
         {
             try
             {
-                if (!File.Exists(Path.Combine(songPath, "info.dat")))
-                {
-                    return;
-                }
-
-                var infoText = File.ReadAllText(songPath + "/info.dat");
-
-                JObject info = JObject.Parse(infoText);
-                JObject infoData;
+                JObject info = JObject.Parse(rawSongData);
                 List<Contributor> levelContributors = new List<Contributor>();
                 //Check if song uses legacy value for full song One Saber mode
                 if (info.TryGetValue("_customData", out var data))
                 {
-                    infoData = (JObject) data;
+                    JObject infoData = (JObject) data;
                     if (infoData.TryGetValue("_contributors", out var contributors))
                     {
                         levelContributors.AddRange(contributors.ToObject<Contributor[]>());
