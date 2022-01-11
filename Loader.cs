@@ -987,11 +987,12 @@ namespace SongCore
                                 return;
                             }
 
-                            var level = LoadSong(songData.SaveData, songPath, out _, folderEntry);
+                            var level = LoadSong(songData.SaveData, songPath, out var hash, folderEntry);
                             if (level != null)
                             {
                                 beatmapDictionary[songPath] = level;
                             }
+                            Collections.AddExtraSongData(hash, songPath, songData.RawSongData);
                         });
                     }
                     catch (Exception ex)
