@@ -991,8 +991,8 @@ namespace SongCore
                             if (level != null)
                             {
                                 beatmapDictionary[songPath] = level;
+                                Collections.AddExtraSongData(hash, songPath, songData.RawSongData);
                             }
-                            Collections.AddExtraSongData(hash, songPath, songData.RawSongData);
                         });
                     }
                     catch (Exception ex)
