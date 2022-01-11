@@ -173,5 +173,11 @@ namespace SongCore
 
             spawnMovementData.Update(bpm, spawnController.GetField<float, BeatmapObjectSpawnController>("_jumpOffsetY"));
         }
+
+        [OnExit]
+        public void OnApplicationExit()
+        {
+            // Suppress BSIPA warning about missing [OnExit] annotated method
+        }
     }
 }
