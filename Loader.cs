@@ -601,34 +601,34 @@ namespace SongCore
                 Logging.Logger.Info($"Loaded {songCount} new {songOrSongs} ({songCountWSF}) in CustomLevels | {folderCount} in seperate {folderOrFolders}) in {stopwatch.Elapsed.TotalSeconds} seconds");
                 try
                 {
+                    #region AddSeperateFolderBeatmapsToRespectivePacks
+
+                    foreach (var folderEntry in SeperateSongFolders)
+                    {
+                        switch (folderEntry.SongFolderEntry.Pack)
+                        {
+                            case FolderLevelPack.CustomLevels:
+                                CustomLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>(CustomLevels.Concat(folderEntry.Levels.Where(x => !CustomLevels.ContainsKey(x.Key)))
+                                    .ToDictionary(x => x.Key, x => x.Value));
+                                break;
+                            case FolderLevelPack.CustomWIPLevels:
+                                CustomWIPLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>(CustomWIPLevels
+                                    .Concat(folderEntry.Levels.Where(x => !CustomWIPLevels.ContainsKey(x.Key))).ToDictionary(x => x.Key, x => x.Value));
+                                break;
+                            case FolderLevelPack.CachedWIPLevels:
+                                CachedWIPLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>(CachedWIPLevels
+                                    .Concat(folderEntry.Levels.Where(x => !CachedWIPLevels.ContainsKey(x.Key))).ToDictionary(x => x.Key, x => x.Value));
+                                break;
+                        }
+                    }
+
+                    #endregion
+
                     //Handle LevelPacks
                     if (CustomBeatmapLevelPackCollectionSO == null || CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks.Length == 0)
                     {
                         // var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
                         CustomBeatmapLevelPackCollectionSO = await UnityMainThreadTaskScheduler.Factory.StartNew(SongCoreBeatmapLevelPackCollectionSO.CreateNew);
-
-                        #region AddSeperateFolderBeatmapsToRespectivePacks
-
-                        foreach (var folderEntry in SeperateSongFolders)
-                        {
-                            switch (folderEntry.SongFolderEntry.Pack)
-                            {
-                                case FolderLevelPack.CustomLevels:
-                                    CustomLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>(CustomLevels.Concat(folderEntry.Levels.Where(x => !CustomLevels.ContainsKey(x.Key)))
-                                        .ToDictionary(x => x.Key, x => x.Value));
-                                    break;
-                                case FolderLevelPack.CustomWIPLevels:
-                                    CustomWIPLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>(CustomWIPLevels
-                                        .Concat(folderEntry.Levels.Where(x => !CustomWIPLevels.ContainsKey(x.Key))).ToDictionary(x => x.Key, x => x.Value));
-                                    break;
-                                case FolderLevelPack.CachedWIPLevels:
-                                    CachedWIPLevels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>(CachedWIPLevels
-                                        .Concat(folderEntry.Levels.Where(x => !CachedWIPLevels.ContainsKey(x.Key))).ToDictionary(x => x.Key, x => x.Value));
-                                    break;
-                            }
-                        }
-
-                        #endregion
 
                         #region CreateLevelPacks
 
