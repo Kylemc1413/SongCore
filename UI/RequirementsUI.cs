@@ -14,6 +14,7 @@ namespace SongCore.UI
 {
     public class RequirementsUI : NotifiableSingleton<RequirementsUI>
     {
+        private const string BUTTON_BSML = "<bg id='root'><action-button id='info-button' text='?' active='~button-glow' interactable='~button-interactable' anchor-pos-x='31' anchor-pos-y='0' pref-width='12' pref-height='9' on-click='button-click'/></bg>";
         private StandardLevelDetailViewController standardLevel;
         private TweeningManager tweenyManager;
         private ImageView buttonBG;
@@ -71,24 +72,21 @@ namespace SongCore.UI
         [UIComponent("info-button")]
         private Transform infoButtonTransform;
 
+        [UIComponent("root")]
+        protected readonly RectTransform _root = null!;
+
         internal void Setup()
         {
             GetIcons();
             standardLevel = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().First();
             tweenyManager = Resources.FindObjectsOfTypeAll<TweeningManager>().First();
-            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"),
-                standardLevel.transform.Find("LevelDetail").gameObject, this);
-        }
+            BSMLParser.instance.Parse(BUTTON_BSML, standardLevel.transform.Find("LevelDetail").gameObject, this);
 
-        [UIAction("#post-parse")]
-        private void PostParse()
-        {
             infoButtonTransform.localScale *= 0.7f; //no scale property in bsml as of now so manually scaling it
-            (standardLevel.transform.Find("LevelDetail").Find("FavoriteToggle")?.transform as RectTransform).anchoredPosition = new Vector2(3, -2);
+            (standardLevel.transform.Find("LevelDetail").Find("FavoriteToggle")?.transform as RectTransform)!.anchoredPosition = new Vector2(3, -2);
             buttonBG = infoButtonTransform.Find("BG").GetComponent<ImageView>();
             originalColor0 = buttonBG.color0;
             originalColor1 = buttonBG.color1;
-            modalPosition = modal.transform.localPosition;
         }
 
         private void GetIcons()
@@ -132,6 +130,13 @@ namespace SongCore.UI
         [UIAction("button-click")]
         internal void ShowRequirements()
         {
+            if (modal == null)
+            {
+                BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"), _root.gameObject, this);
+                modalPosition = modal!.transform.localPosition;
+
+            }
+
             modal.transform.localPosition = modalPosition;
             modal.Show(true);
             customListTableData.data.Clear();
@@ -241,7 +246,8 @@ namespace SongCore.UI
                     buttonBG.SetAllDirty();
                 }, 5f, EaseType.InOutSine);
                 tweenyManager.AddTween(tween, buttonBG);
-                tween.onCompleted = delegate () { SetRainbowColors(true, !firstPulse); };
+                tween.onCompleted = delegate ()
+                { SetRainbowColors(true, !firstPulse); };
             }
             else
             {
