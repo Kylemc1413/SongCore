@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using ProtoBuf;
 
 namespace SongCore.Utilities
 {
@@ -13,17 +14,16 @@ namespace SongCore.Utilities
     {
         internal static ConcurrentDictionary<string, SongHashData> cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
         internal static ConcurrentDictionary<string, AudioCacheData> cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
-        public static readonly string cachedHashDataPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "UserData", "SongCore", "SongHashData.dat");
-        public static readonly string cachedAudioDataPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "UserData", "SongCore", "SongDurationCache.dat");
+        public static readonly string cachedHashDataPath = Path.Combine(IPA.Utilities.UnityGame.UserDataPath, "SongCore", "SongHashData.bin");
+        public static readonly string cachedAudioDataPath = Path.Combine(IPA.Utilities.UnityGame.UserDataPath, "SongCore", "SongDurationCache.bin");
 
         public static void ReadCachedSongHashes()
         {
             if (File.Exists(cachedHashDataPath))
             {
-                cachedSongHashData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
-                if (cachedSongHashData == null)
+                using (var cachedSongHashDataStream = File.OpenRead(cachedHashDataPath))
                 {
-                    cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
+                    cachedSongHashData = Serializer.Deserialize<ConcurrentDictionary<string, SongHashData>>(cachedSongHashDataStream) ?? new ConcurrentDictionary<string, SongHashData>();
                 }
 
                 Logging.Logger.Info($"Finished reading cached hashes for {cachedSongHashData.Count} songs!");
@@ -50,17 +50,18 @@ namespace SongCore.Utilities
             }
 
             Logging.Logger.Info($"Updating cached hashes for {cachedSongHashData.Count} songs!");
-            File.WriteAllText(cachedHashDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedSongHashData));
+
+            using var cachedSongHashDataStream = File.Create(cachedHashDataPath);
+            Serializer.Serialize(cachedSongHashDataStream, cachedSongHashData);
         }
 
         public static void ReadCachedAudioData()
         {
             if (File.Exists(cachedAudioDataPath))
             {
-                cachedAudioData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
-                if (cachedAudioData == null)
+                using (var cachedAudioDataStream = File.OpenRead(cachedAudioDataPath))
                 {
-                    cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
+                    cachedAudioData = Serializer.Deserialize<ConcurrentDictionary<string, AudioCacheData>>(cachedAudioDataStream) ?? new ConcurrentDictionary<string, AudioCacheData>();
                 }
 
                 Logging.Logger.Info($"Finished reading cached Durations for {cachedAudioData.Count} songs!");
@@ -87,7 +88,9 @@ namespace SongCore.Utilities
             }
 
             Logging.Logger.Info($"Updating cached Map Lengths for {cachedAudioData.Count} songs!");
-            File.WriteAllText(cachedAudioDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedAudioData));
+
+            using var cachedAudioDataStream = File.Create(cachedAudioDataPath);
+            Serializer.Serialize(cachedAudioDataStream, cachedAudioData);
         }
 
         private static long GetDirectoryHash(string directory)

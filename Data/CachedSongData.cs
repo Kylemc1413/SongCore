@@ -1,12 +1,16 @@
 ﻿using System;
 using Newtonsoft.Json;
+using ProtoBuf;
 
 namespace SongCore.Data
 {
-    [Serializable]
+    [ProtoContract]
     public class SongHashData
     {
+        [ProtoMember(1)]
         public long directoryHash;
+
+        [ProtoMember(2)]
         public string songHash;
 
         [JsonConstructor]
@@ -17,10 +21,13 @@ namespace SongCore.Data
         }
     }
 
-    [Serializable]
+    [ProtoContract]
     public class AudioCacheData
     {
+        [ProtoMember(1)]
         public string id;
+
+        [ProtoMember(2)]
         public float duration;
 
         [JsonConstructor]
