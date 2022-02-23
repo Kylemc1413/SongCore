@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using IPA.Utilities;
 using System.Linq;
 using System.Threading;
@@ -6,48 +6,42 @@ using System.Threading.Tasks;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(NUnit.Framework.Assert), nameof(NUnit.Framework.Assert.IsTrue), typeof(bool), typeof(string), typeof(object[]))]
-    internal class WhyIsAssertMeanPatch
+    [HarmonyPatch]
+    internal class RemoveAssertStuffs
     {
-        private static void Prefix(ref bool condition)
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase __originalMethod)
         {
-            if (condition)
-            {
-                return;
-            }
+            var inst = instructions;
 
-            var stack = new StackTrace();
-            for (var i = 0; i < stack.FrameCount; i++)
+            if (__originalMethod.Name == "InsertBeatmapEventData")
             {
-                var callingMethodName = stack.GetFrame(i).GetMethod().Name;
-                if (callingMethodName.Contains("AddBeatmapEventData") || callingMethodName.Contains("AddBeatmapObjectData"))
+                // Skip the LessOrEqual and GreaterOrEqual Asserts
+                if ((instructions.ElementAt(29).operand as MethodBase)?.Name == "GreaterOrEqual")
                 {
-                    Utilities.Logging.Logger.Debug("Blocking Assert Failure");
-                    condition = true;
-                    return;
+                    return instructions.Skip(30);
                 }
             }
-        }
-    }
+            else
+            {
+                // Skip the IsTrue Assert
+                if ((instructions.ElementAt(9).operand as MethodBase)?.Name == "IsTrue")
+                {
+                    return instructions.Skip(10);
+                }
+            }
 
-    [HarmonyPatch(typeof(NUnit.Framework.Assert), "LessOrEqual", typeof(float), typeof(float), typeof(string), typeof(object[]))]
-    internal class WhyIsAssertMeanPatch2
-    {
-        private static bool Prefix()
-        {
-            return false;
+            return instructions;
         }
-    }
 
-    [HarmonyPatch(typeof(NUnit.Framework.Assert), "GreaterOrEqual", typeof(float), typeof(float), typeof(string), typeof(object[]))]
-    internal class WhyIsAssertMeanPatch3
-    {
-        private static bool Prefix()
+        private static IEnumerable<MethodBase> TargetMethods()
         {
-            return false;
+            yield return AccessTools.Method(typeof(BeatmapData), nameof(BeatmapData.AddBeatmapObjectData));
+            yield return AccessTools.Method(typeof(BeatmapData), nameof(BeatmapData.AddBeatmapEventData));
+            yield return AccessTools.Method(typeof(BeatmapData), nameof(BeatmapData.InsertBeatmapEventData));
         }
     }
 
