@@ -93,7 +93,9 @@ namespace SongCore
             var foldersXmlFilePath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "folders.xml");
             if (!File.Exists(foldersXmlFilePath))
             {
-                File.WriteAllBytes(foldersXmlFilePath, Utilities.Utils.GetResource(Assembly.GetExecutingAssembly(), "SongCore.Data.folders.xml"));
+                using var foldersXmlResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SongCore.Data.folders.xml");
+                using var fileStream = File.OpenWrite(foldersXmlFilePath);
+                foldersXmlResourceStream!.CopyTo(fileStream);
             }
 
             Loader.SeperateSongFolders.InsertRange(0, Data.SeperateSongFolder.ReadSeperateFoldersFromFile(foldersXmlFilePath));
