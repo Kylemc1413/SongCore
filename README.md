@@ -277,6 +277,15 @@ The following is a template for you to use:
 | "Lawless"| SongCore |
 | "Lightshow"| SongCore |
 
+### Custom Mod Characteristics
+- You may encounter map leaderboards with beatmap characteristics for which the map does not contain difficulty files. These characteristics are registered by mods. To access and play maps with these characteristics, you need to download their source mod. Do not map to these SerializedNames as it will render your map unplayable by SongCore.
+
+| Custom Characteristic | Can Be Applied To | Description | Source Mod |
+| - | - | - | - |
+| "Horizontal" | "Standard", "NoArrows", "OneSaber", "Lawless" | Invert Left-Right | Chirality |
+| "Vertical" | "Standard", "NoArrows", "OneSaber", "Lawless" | Invert Up-Down | Chirality |
+| "Inverse" | "Standard", "NoArrows", "OneSaber", "Lawless" | Inverse | Chirality |
+
 ## Keyboard Shortcuts
 *(Make sure Beat Saber's window is in focus when using these shortcuts)*
 ---
