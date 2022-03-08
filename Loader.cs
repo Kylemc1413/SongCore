@@ -15,7 +15,7 @@ using SongCore.UI;
 using SongCore.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Reflection;
+
 namespace SongCore
 {
     public class Loader : MonoBehaviour
