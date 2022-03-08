@@ -1163,12 +1163,11 @@ namespace SongCore
                     Hashing.cachedAudioData[songPath] = new AudioCacheData(levelid, length);
                 }
 
-            //    var durationField = typeof(CustomPreviewBeatmapLevel).GetField(string.Format("<{0}>k_BackingField", "songDuration"), BindingFlags.Instance | BindingFlags.NonPublic);
-              //  durationField.SetValue(level, length);
+                Accessors.SongDurationSetter(ref level) = length;
 
                 if (Plugin.Configuration.ForceLongPreviews)
                 {
-                   // level.SetField("<previewDuration>k_BackingField", Mathf.Max(level.previewDuration, length - level.previewStartTime));
+                   level.SetField($"<{nameof(CustomPreviewBeatmapLevel.previewDuration)}>k__BackingField", Mathf.Max(level.previewDuration, length - level.previewStartTime));
                 }
             }
             catch (Exception ex)

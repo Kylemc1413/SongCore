@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Diagnostics;
+using SongCore.Utilities;
 
 namespace SongCore.HarmonyPatches
 {
@@ -76,7 +76,8 @@ namespace SongCore.HarmonyPatches
     {
         private static void Postfix(CustomBeatmapLevel __instance, CustomPreviewBeatmapLevel customPreviewBeatmapLevel)
         {
-         //   __instance.SetField<CustomPreviewBeatmapLevel, float>("<songDuration>k_BackingField", customPreviewBeatmapLevel.songDuration);
+            var thisInstance = (CustomPreviewBeatmapLevel) __instance;
+            Accessors.SongDurationSetter(ref thisInstance) = customPreviewBeatmapLevel.songDuration;
         }
     }
 
