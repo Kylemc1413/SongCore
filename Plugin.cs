@@ -74,7 +74,6 @@ namespace SongCore
 
             BasicUI.GetIcons();
             BS_Utils.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
-            BS_Utils.Utilities.BSEvents.gameSceneLoaded += BSEvents_gameSceneLoaded;
             BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh += BSEvents_menuSceneLoadedFresh;
 
             if (!File.Exists(Collections.DataPath))
@@ -105,16 +104,6 @@ namespace SongCore
         {
             Loader.OnLoad();
             RequirementsUI.instance.Setup();
-        }
-
-        private void BSEvents_gameSceneLoaded()
-        {
-            if (!BS_Utils.Plugin.LevelData.IsSet)
-            {
-                return;
-            }
-
-            SharedCoroutineStarter.instance.StartCoroutine(DelayedNoteJumpMovementSpeedFix());
         }
 
         private void BSEvents_levelSelected(LevelCollectionViewController arg1, IPreviewBeatmapLevel level)
@@ -148,32 +137,6 @@ namespace SongCore
             {
                 BS_Utils.Gameplay.Gamemode.Init();
             }
-        }
-
-        private IEnumerator DelayedNoteJumpMovementSpeedFix()
-        {
-            yield return new WaitForSeconds(0.1f);
-            //Beat Saber 0.11.1 introduced a check for if noteJumpMovementSpeed <= 0
-            //This breaks songs that have a negative noteJumpMovementSpeed and previously required a patcher to get working again
-            //I've added this to add support for that again, because why not.
-            if (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpMovementSpeed < 0)
-            {
-                var beatmapObjectSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().LastOrDefault();
-
-                SetNJS(beatmapObjectSpawnController);
-            }
-        }
-
-        public static void SetNJS(BeatmapObjectSpawnController spawnController)
-        {
-            BeatmapObjectSpawnMovementData spawnMovementData = spawnController.GetField<BeatmapObjectSpawnMovementData, BeatmapObjectSpawnController>("_beatmapObjectSpawnMovementData");
-
-            var bpm = spawnController.GetField<VariableBpmProcessor, BeatmapObjectSpawnController>("_variableBPMProcessor").currentBpm;
-
-            spawnMovementData.SetField("_startNoteJumpMovementSpeed", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpMovementSpeed);
-            spawnMovementData.SetField("_noteJumpStartBeatOffset", BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.noteJumpStartBeatOffset);
-
-            spawnMovementData.Update(bpm, spawnController.GetField<float, BeatmapObjectSpawnController>("_jumpOffsetY"));
         }
 
         [OnExit]
