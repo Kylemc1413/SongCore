@@ -51,11 +51,6 @@ namespace SongCore
             }
         }
 
-        [Obsolete("This does nothing. Extra song data is now loaded with songs.", true)]
-        public static void AddSong(string hash, string path)
-        {
-        }
-
         public static ExtraSongData? RetrieveExtraSongData(string hash)
         {
             if (CustomSongsData.TryGetValue(hash, out var songData))
@@ -64,12 +59,6 @@ namespace SongCore
             }
 
             return null;
-        }
-
-        [Obsolete("loadIfNullPath isn't needed anymore.", true)]
-        public static ExtraSongData? RetrieveExtraSongData(string hash, string loadIfNullPath = "")
-        {
-            return RetrieveExtraSongData(hash);
         }
 
         public static ExtraSongData.DifficultyData? RetrieveDifficultyData(IDifficultyBeatmap beatmap)
