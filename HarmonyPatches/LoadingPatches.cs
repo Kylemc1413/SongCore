@@ -1,14 +1,15 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using IPA.Utilities;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Diagnostics;
+using SongCore.Utilities;
 
 namespace SongCore.HarmonyPatches
 {
+    /*
     [HarmonyPatch(typeof(NUnit.Framework.Assert), nameof(NUnit.Framework.Assert.IsTrue), typeof(bool), typeof(string), typeof(object[]))]
     internal class WhyIsAssertMeanPatch
     {
@@ -64,7 +65,7 @@ namespace SongCore.HarmonyPatches
             ____prevAddedBeatmapObjectDataTime = float.MinValue;
         }
     }
-
+    */
     [HarmonyPatch(typeof(CustomBeatmapLevel))]
     [HarmonyPatch(new[]
     {
@@ -75,7 +76,8 @@ namespace SongCore.HarmonyPatches
     {
         private static void Postfix(CustomBeatmapLevel __instance, CustomPreviewBeatmapLevel customPreviewBeatmapLevel)
         {
-            __instance.SetField<CustomPreviewBeatmapLevel, float>("_songDuration", customPreviewBeatmapLevel.songDuration);
+            var thisInstance = (CustomPreviewBeatmapLevel) __instance;
+            Accessors.SongDurationSetter(ref thisInstance) = customPreviewBeatmapLevel.songDuration;
         }
     }
 

@@ -1,10 +1,9 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using SongCore.Utilities;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.Init), typeof(string), typeof(IDifficultyBeatmap), typeof(IPreviewBeatmapLevel), typeof(OverrideEnvironmentSettings),
-        typeof(ColorScheme), typeof(GameplayModifiers), typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool))]
+    [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO))]
     [HarmonyPatch("Init", MethodType.Normal)]
     internal class SceneTransitionPatch
     {

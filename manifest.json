@@ -1,17 +1,17 @@
 {
-  "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
-  "author": "Kyle1413",
-  "description": "A plugin for handling custom song additions in Beat Saber.",
-  "gameVersion": "1.19.0",
-  "id": "SongCore",
-  "name": "SongCore",
-  "version": "3.9.4",
-  "dependsOn": {
-    "BeatSaberMarkupLanguage": "^1.6.0",
-    "BSIPA": "^4.2.1",
-    "BS Utils": "^1.11.1"
-  },
-  "links": {
-    "project-source": "https://github.com/Kylemc1413/SongCore"
-  }
+    "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
+    "author": "Kyle1413",
+    "description": "A plugin for handling custom song additions in Beat Saber.",
+    "gameVersion": "1.20.0",
+    "id": "SongCore",
+    "name": "SongCore",
+    "version": "3.9.5",
+    "dependsOn": {
+        "BeatSaberMarkupLanguage": "^1.6.0",
+        "BSIPA": "^4.2.1",
+        "BS Utils": "^1.12.0"
+    },
+    "links": {
+        "project-source": "https://github.com/Kylemc1413/SongCore"
+    }
 }

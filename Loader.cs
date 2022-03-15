@@ -1163,11 +1163,11 @@ namespace SongCore
                     Hashing.cachedAudioData[songPath] = new AudioCacheData(levelid, length);
                 }
 
-                level.SetField("_songDuration", length);
+                Accessors.SongDurationSetter(ref level) = length;
 
                 if (Plugin.Configuration.ForceLongPreviews)
                 {
-                    level.SetField("_previewDuration", Mathf.Max(level.previewDuration, length - level.previewStartTime));
+                   level.SetField($"<{nameof(CustomPreviewBeatmapLevel.previewDuration)}>k__BackingField", Mathf.Max(level.previewDuration, length - level.previewStartTime));
                 }
             }
             catch (Exception ex)
@@ -1180,18 +1180,22 @@ namespace SongCore
         public static float GetLengthFromMap(CustomPreviewBeatmapLevel level, string songPath)
         {
             var diff = level.standardLevelInfoSaveData.difficultyBeatmapSets.First().difficultyBeatmaps.Last().beatmapFilename;
-            var beatmapsave = BeatmapSaveData.DeserializeFromJSONString(File.ReadAllText(Path.Combine(songPath, diff)));
+            var version = level.standardLevelInfoSaveData.version.Trim();
+            var saveDataString = File.ReadAllText(Path.Combine(songPath, diff));
+            var beatmapsave = BeatmapSaveDataVersion3.BeatmapSaveData.DeserializeFromJSONString(saveDataString);
+
             float highestTime = 0;
-            if (beatmapsave.notes.Count > 0)
+            if (beatmapsave.colorNotes.Count > 0)
             {
-                highestTime = beatmapsave.notes.Max(x => x.time);
+                highestTime = beatmapsave.colorNotes.Max(x => x.beat);
             }
-            else if (beatmapsave.events.Count > 0)
+            else if (beatmapsave.basicBeatmapEvents.Count > 0)
             {
-                highestTime = beatmapsave.events.Max(x => x.time);
+                highestTime = beatmapsave.basicBeatmapEvents.Max(x => x.beat);
             }
 
-            return loader.GetRealTimeFromBPMTime(highestTime, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
+            var bpmtimeprocessor = new BeatmapDataLoader.BpmTimeProcessor(level.beatsPerMinute, beatmapsave.bpmEvents);
+            return bpmtimeprocessor.ConvertBeatToTime(highestTime);
         }
 
 
