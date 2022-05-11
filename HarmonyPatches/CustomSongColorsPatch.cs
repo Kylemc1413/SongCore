@@ -20,7 +20,7 @@ namespace SongCore.HarmonyPatches
                 return;
             }
 
-            if (songData._colorLeft == null && songData._colorRight == null && songData._envColorLeft == null && songData._envColorRight == null && songData._obstacleColor == null)
+            if (songData._colorLeft == null && songData._colorRight == null && songData._envColorLeft == null && songData._envColorRight == null && songData._obstacleColor == null && songData._envColorLeftBoost == null && songData._envColorRightBoost == null)
             {
                 return;
             }
