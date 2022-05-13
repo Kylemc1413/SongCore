@@ -51,8 +51,10 @@ namespace SongCore.Data
             public MapColor? _colorRight;
             public MapColor? _envColorLeft;
             public MapColor? _envColorRight;
+            public MapColor? _envColorWhite;
             public MapColor? _envColorLeftBoost;
             public MapColor? _envColorRightBoost;
+            public MapColor? _envColorWhiteBoost;
             public MapColor? _obstacleColor;
         }
 
@@ -145,8 +147,10 @@ namespace SongCore.Data
                         MapColor? diffRight = null;
                         MapColor? diffEnvLeft = null;
                         MapColor? diffEnvRight = null;
+                        MapColor? diffEnvWhite = null;
                         MapColor? diffEnvLeftBoost = null;
                         MapColor? diffEnvRightBoost = null;
+                        MapColor? diffEnvWhiteBoost = null;
                         MapColor? diffObstacle = null;
 
                         var diffDifficulty = Utils.ToEnum((string) diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
@@ -203,6 +207,17 @@ namespace SongCore.Data
                                 }
                             }
 
+                            if (beatmapData.TryGetValue("_envColorWhite", out var envColorWhite))
+                            {
+                                if (envColorWhite.Children().Count() == 3)
+                                {
+                                    diffEnvWhite = new MapColor(
+                                        (float) (envColorWhite["r"] ?? 0),
+                                        (float) (envColorWhite["g"] ?? 0),
+                                        (float) (envColorWhite["b"] ?? 0));
+                                }
+                            }
+
                             if (beatmapData.TryGetValue("_envColorLeftBoost", out var envColorLeftBoost))
                             {
                                 if (envColorLeftBoost.Children().Count() == 3)
@@ -222,6 +237,17 @@ namespace SongCore.Data
                                         (float) (envColorRightBoost["r"] ?? 0),
                                         (float) (envColorRightBoost["g"] ?? 0),
                                         (float) (envColorRightBoost["b"] ?? 0));
+                                }
+                            }
+
+                            if (beatmapData.TryGetValue("_envColorWhiteBoost", out var envColorWhiteBoost))
+                            {
+                                if (envColorWhiteBoost.Children().Count() == 3)
+                                {
+                                    diffEnvWhiteBoost = new MapColor(
+                                        (float) (envColorWhiteBoost["r"] ?? 0),
+                                        (float) (envColorWhiteBoost["g"] ?? 0),
+                                        (float) (envColorWhiteBoost["b"] ?? 0));
                                 }
                             }
 
@@ -275,8 +301,10 @@ namespace SongCore.Data
                             _colorRight = diffRight,
                             _envColorLeft = diffEnvLeft,
                             _envColorRight = diffEnvRight,
+                            _envColorWhite = diffEnvWhite,
                             _envColorLeftBoost = diffEnvLeftBoost,
                             _envColorRightBoost = diffEnvRightBoost,
+                            _envColorWhiteBoost = diffEnvWhiteBoost,
                             _obstacleColor = diffObstacle
                         });
                     }
