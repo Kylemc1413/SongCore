@@ -108,92 +108,73 @@ namespace SongCore.Utilities
         private static bool GetCachedSongData(string customLevelPath, out long directoryHash, out string cachedSongHash)
         {
             directoryHash = GetDirectoryHash(customLevelPath);
-            cachedSongHash = string.Empty;
+
             if (cachedSongHashData.TryGetValue(customLevelPath, out var cachedSong) && cachedSong.directoryHash == directoryHash)
             {
                 cachedSongHash = cachedSong.songHash;
                 return true;
             }
 
+            cachedSongHash = string.Empty;
             return false;
         }
 
         public static string GetCustomLevelHash(CustomPreviewBeatmapLevel level)
         {
-            if (GetCachedSongData(level.customLevelPath, out var directoryHash, out var songHash))
-            {
-                return songHash;
-            }
-
-            List<byte> combinedBytes = new List<byte>();
-            combinedBytes.AddRange(File.ReadAllBytes(Path.Combine(level.customLevelPath, "info.dat")));
-            for (var i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
-            {
-                for (var i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
-                {
-                    var beatmapPath = Path.Combine(level.customLevelPath, level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename);
-                    if (File.Exists(beatmapPath))
-                    {
-                        combinedBytes.AddRange(File.ReadAllBytes(beatmapPath));
-                    }
-                }
-            }
-
-            string hash = CreateSha1FromBytes(combinedBytes.ToArray());
-            cachedSongHashData[level.customLevelPath] = new SongHashData(directoryHash, hash);
-            return hash;
+            return GetCustomLevelHash(level.customLevelPath, level.standardLevelInfoSaveData.difficultyBeatmapSets);
         }
 
         public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
         {
-            if (GetCachedSongData(customLevelPath, out var directoryHash, out var songHash))
-            {
-                return songHash;
-            }
-
-            byte[] combinedBytes = Array.Empty<byte>();
-            combinedBytes = combinedBytes.Concat(File.ReadAllBytes(Path.Combine(customLevelPath, "info.dat"))).ToArray();
-            for (var i = 0; i < level.difficultyBeatmapSets.Length; i++)
-            {
-                for (var i2 = 0; i2 < level.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
-                {
-                    var beatmapPath = Path.Combine(customLevelPath, level.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename);
-                    if (File.Exists(beatmapPath))
-                    {
-                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(beatmapPath)).ToArray();
-                    }
-                }
-            }
-
-            string hash = CreateSha1FromBytes(combinedBytes.ToArray());
-            cachedSongHashData[customLevelPath] = new SongHashData(directoryHash, hash);
-            return hash;
+            return GetCustomLevelHash(customLevelPath, level.difficultyBeatmapSets);
         }
 
         public static string GetCustomLevelHash(CustomBeatmapLevel level)
         {
-            if (GetCachedSongData(level.customLevelPath, out var directoryHash, out var songHash))
+            return GetCustomLevelHash(level.customLevelPath, level.standardLevelInfoSaveData.difficultyBeatmapSets);
+        }
+
+        private static string GetCustomLevelHash(string levelPath, StandardLevelInfoSaveData.DifficultyBeatmapSet[] beatmapSets)
+        {
+            if (GetCachedSongData(levelPath, out var directoryHash, out var songHash))
             {
                 return songHash;
             }
 
-            byte[] combinedBytes = Array.Empty<byte>();
-            combinedBytes = combinedBytes.Concat(File.ReadAllBytes(Path.Combine(level.customLevelPath, "info.dat"))).ToArray();
-            for (var i = 0; i < level.standardLevelInfoSaveData.difficultyBeatmapSets.Length; i++)
+            var levelFolder = levelPath + Path.DirectorySeparatorChar;
+            IEnumerable<byte> combinedBytes = File.ReadAllBytes(levelFolder + "info.dat");
+
+            foreach(var beatmapSet in beatmapSets)
             {
-                for (var i2 = 0; i2 < level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps.Length; i2++)
+                foreach(var difficultyBeatmap in beatmapSet.difficultyBeatmaps)
                 {
-                    var beatmapPath = Path.Combine(level.customLevelPath, level.standardLevelInfoSaveData.difficultyBeatmapSets[i].difficultyBeatmaps[i2].beatmapFilename);
+                    var beatmapPath = levelFolder + difficultyBeatmap.beatmapFilename;
                     if (File.Exists(beatmapPath))
                     {
-                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(beatmapPath)).ToArray();
+                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(beatmapPath));
                     }
                 }
             }
 
             string hash = CreateSha1FromBytes(combinedBytes.ToArray());
-            cachedSongHashData[level.customLevelPath] = new SongHashData(directoryHash, hash);
+            cachedSongHashData[levelPath] = new SongHashData(directoryHash, hash);
             return hash;
+        }
+
+
+        // Black magic https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa/14333437#14333437
+        static string ByteToHexBitFiddle(byte[] bytes)
+        {
+            char[] c = new char[bytes.Length * 2];
+            int b;
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                b = bytes[i] >> 4;
+                c[i * 2] = (char) (55 + b + (((b - 10) >> 31) & -7));
+                b = bytes[i] & 0xF;
+                c[i * 2 + 1] = (char) (55 + b + (((b - 10) >> 31) & -7));
+            }
+            return new string(c);
         }
 
         public static string CreateSha1FromString(string input)
@@ -203,7 +184,7 @@ namespace SongCore.Utilities
             var inputBytes = Encoding.ASCII.GetBytes(input);
             var hashBytes = sha1.ComputeHash(inputBytes);
 
-            return BitConverter.ToString(hashBytes).Replace("-", string.Empty);
+            return ByteToHexBitFiddle(hashBytes);
         }
 
         public static string CreateSha1FromBytes(byte[] input)
@@ -212,7 +193,7 @@ namespace SongCore.Utilities
             using var sha1 = SHA1.Create();
             var hashBytes = sha1.ComputeHash(input);
 
-            return BitConverter.ToString(hashBytes).Replace("-", string.Empty);
+            return ByteToHexBitFiddle(hashBytes);
         }
 
         public static bool CreateSha1FromFile(string path, out string hash)
@@ -226,7 +207,7 @@ namespace SongCore.Utilities
             using var sha1 = SHA1.Create();
             using var stream = File.OpenRead(path);
             var hashBytes = sha1.ComputeHash(stream);
-            hash = BitConverter.ToString(hashBytes).Replace("-", string.Empty);
+            hash = ByteToHexBitFiddle(hashBytes);
             return true;
         }
     }
