@@ -1039,6 +1039,9 @@ namespace SongCore
             {
                 var rawSongData = File.ReadAllText(path);
                 var saveData = StandardLevelInfoSaveData.DeserializeFromJSONString(rawSongData);
+
+                if (saveData == null)
+                    return null;
                 return new SongData(rawSongData, saveData);
             }
             return null;
