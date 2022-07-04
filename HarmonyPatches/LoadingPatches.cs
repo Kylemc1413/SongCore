@@ -85,46 +85,44 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch("ReloadCustomLevelPackCollectionAsync", MethodType.Normal)]
     internal class StopVanillaLoadingPatch
     {
-        private static void Prefix(Task<IBeatmapLevelPackCollection> __result)
-        {
-            var cancel = Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().First().GetField<CancellationTokenSource, LevelFilteringNavigationController>("_cancellationTokenSource");
-            cancel.Cancel();
-        }
+        private static bool Prefix() => false;
     }
 
     [HarmonyPatch(typeof(LevelFilteringNavigationController))]
     [HarmonyPatch("UpdateCustomSongs", MethodType.Normal)]
     internal class StopVanillaLoadingPatch2
     {
-        private static void Postfix(ref LevelFilteringNavigationController __instance, LevelSearchViewController ____levelSearchViewController,
+        private static bool Prefix(ref LevelFilteringNavigationController __instance, LevelSearchViewController ____levelSearchViewController,
             SelectLevelCategoryViewController ____selectLevelCategoryViewController, ref IBeatmapLevelPack[] ____ostBeatmapLevelPacks, ref IBeatmapLevelPack[] ____musicPacksBeatmapLevelPacks,
             ref IBeatmapLevelPack[] ____customLevelPacks, ref IBeatmapLevelPack[] ____allBeatmapLevelPacks)
         {
             if (Loader.CustomBeatmapLevelPackCollectionSO == null)
             {
-                return;
+                return false;
             }
 
             ____customLevelPacks = Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks;
-            List<IBeatmapLevelPack> packs = new List<IBeatmapLevelPack>();
+            IEnumerable<IBeatmapLevelPack>? packs = null;
             if (____ostBeatmapLevelPacks != null)
             {
-                packs = packs.Concat(____ostBeatmapLevelPacks).ToList();
+                packs = ____ostBeatmapLevelPacks;
             }
 
             if (____musicPacksBeatmapLevelPacks != null)
             {
-                packs = packs.Concat(____musicPacksBeatmapLevelPacks).ToList();
+                packs = packs == null ? ____musicPacksBeatmapLevelPacks : packs.Concat(____musicPacksBeatmapLevelPacks);
             }
 
             if (____customLevelPacks != null)
             {
-                packs = packs.Concat(____customLevelPacks).ToList();
+                packs = packs == null ? ____customLevelPacks : packs.Concat(____customLevelPacks);
             }
 
             ____allBeatmapLevelPacks = packs.ToArray();
             ____levelSearchViewController.Setup(____allBeatmapLevelPacks);
             __instance.UpdateSecondChildControllerContent(____selectLevelCategoryViewController.selectedLevelCategory);
+
+            return false;
         }
     }
 }
