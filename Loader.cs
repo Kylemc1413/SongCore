@@ -840,9 +840,12 @@ namespace SongCore
                 var previewDuration = saveData.previewDuration;
                 EnvironmentInfoSO environmentSceneInfo = _customLevelLoader.LoadEnvironmentInfo(saveData.environmentName, false);
                 EnvironmentInfoSO allDirectionEnvironmentInfo = _customLevelLoader.LoadEnvironmentInfo(saveData.allDirectionsEnvironmentName, true);
-                List<PreviewDifficultyBeatmapSet> list = new List<PreviewDifficultyBeatmapSet>();
-                foreach (StandardLevelInfoSaveData.DifficultyBeatmapSet difficultyBeatmapSet in saveData.difficultyBeatmapSets)
+                PreviewDifficultyBeatmapSet[] beatmapsets = new PreviewDifficultyBeatmapSet[saveData.difficultyBeatmapSets.Length];
+
+                for (var i = 0; i < saveData.difficultyBeatmapSets.Length; i++)
                 {
+                    var difficultyBeatmapSet = saveData.difficultyBeatmapSets[i];
+
                     var beatmapCharacteristicBySerializedName = beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(difficultyBeatmapSet.beatmapCharacteristicName);
                     var array = new BeatmapDifficulty[difficultyBeatmapSet.difficultyBeatmaps.Length];
                     for (var j = 0; j < difficultyBeatmapSet.difficultyBeatmaps.Length; j++)
@@ -851,13 +854,13 @@ namespace SongCore
                         array[j] = beatmapDifficulty;
                     }
 
-                    list.Add(new PreviewDifficultyBeatmapSet(beatmapCharacteristicBySerializedName, array));
+                    beatmapsets[i] = new PreviewDifficultyBeatmapSet(beatmapCharacteristicBySerializedName, array);
                 }
 
                 result = new CustomPreviewBeatmapLevel(defaultCoverImage, saveData, songPath,
                     cachedMediaAsyncLoaderSO, levelID, songName, songSubName,
                     songAuthorName, levelAuthorName, beatsPerMinute, songTimeOffset, shuffle, shufflePeriod,
-                    previewStartTime, previewDuration, environmentSceneInfo, allDirectionEnvironmentInfo, list.ToArray());
+                    previewStartTime, previewDuration, environmentSceneInfo, allDirectionEnvironmentInfo, beatmapsets);
 
                 GetSongDuration(result, songPath, Path.Combine(songPath, saveData.songFilename));
             }
