@@ -12,7 +12,7 @@ namespace SongCore.UI
 {
     public class ColorsUI : NotifiableSingleton<ColorsUI>
     {
-        private BoostedColorSchemeView boostedColorSchemeView;
+        private ColorSchemeView colorSchemeView;
 
         private readonly Color voidColor = new Color(0.5f, 0.5f, 0.5f, 0.25f);
 
@@ -52,10 +52,9 @@ namespace SongCore.UI
         [UIAction("#post-parse")]
         private void PostParse()
         {
-            ColorSchemeView colorSchemeView = Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
-            boostedColorSchemeView = IPA.Utilities.ReflectionUtil.CopyComponent<BoostedColorSchemeView>(colorSchemeView, colorSchemeView.gameObject);
-            DestroyImmediate(colorSchemeView);
-            boostedColorSchemeView.Setup();
+            ColorSchemeView colorSchemeViewPrefab = Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
+            colorSchemeView = IPA.Utilities.ReflectionUtil.CopyComponent<ColorSchemeView>(colorSchemeViewPrefab, colorSchemeViewPrefab.gameObject);
+            DestroyImmediate(colorSchemeViewPrefab);
             modalPosition = modal.transform.localPosition;
             modal.blockerClickedEvent += Dismiss;
         }
@@ -79,7 +78,7 @@ namespace SongCore.UI
             var envRightBoost = songData._envColorRightBoost == null ? voidColor : Utils.ColorFromMapColor(songData._envColorRightBoost);
             Color obstacle = songData._obstacleColor == null ? voidColor : Utils.ColorFromMapColor(songData._obstacleColor);
 
-            boostedColorSchemeView.SetColors(saberLeft, saberRight, envLeft, envRight, envLeftBoost, envRightBoost, obstacle);
+            colorSchemeView.SetColors(saberLeft, saberRight, envLeft, envRight, envLeftBoost, envRightBoost, obstacle);
         }
     }
 }
