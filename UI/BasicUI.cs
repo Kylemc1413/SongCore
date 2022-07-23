@@ -42,18 +42,5 @@ namespace SongCore.UI
                 FolderIcon = Utilities.Utils.LoadSpriteFromResources("SongCore.Icons.FolderIcon.png")!;
             }
         }
-
-        internal static HoverHint AddHoverHintToObject(GameObject gameObject)
-        {
-            HoverHint hoverHint = gameObject.AddComponent<HoverHint>();
-
-            if (hoverHintController == null)
-            {
-                hoverHintController = Resources.FindObjectsOfTypeAll<HoverHintController>().First();
-            }
-
-            hoverHint.SetField("_hoverHintController", hoverHintController);
-            return hoverHint;
-        }
     }
 }
