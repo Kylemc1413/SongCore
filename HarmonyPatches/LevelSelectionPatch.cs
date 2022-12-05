@@ -4,7 +4,7 @@ using TMPro;
 namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(LevelListTableCell))]
-    [HarmonyPatch("SetDataFromLevelAsync", MethodType.Normal)]
+    [HarmonyPatch(nameof(LevelListTableCell.SetDataFromLevelAsync), MethodType.Normal)]
     internal class LevelListTableCellSetDataFromLevel
     {
         private static void Postfix(IPreviewBeatmapLevel level, TextMeshProUGUI ____songAuthorText, TextMeshProUGUI ____songBpmText)

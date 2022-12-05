@@ -82,7 +82,7 @@ namespace SongCore.HarmonyPatches
     }
 
     [HarmonyPatch(typeof(BeatmapLevelsModel))]
-    [HarmonyPatch("ReloadCustomLevelPackCollectionAsync", MethodType.Normal)]
+    [HarmonyPatch(nameof(BeatmapLevelsModel.ReloadCustomLevelPackCollectionAsync), MethodType.Normal)]
     internal class StopVanillaLoadingPatch
     {
         private static void Prefix(Task<IBeatmapLevelPackCollection> __result)
@@ -93,7 +93,7 @@ namespace SongCore.HarmonyPatches
     }
 
     [HarmonyPatch(typeof(LevelFilteringNavigationController))]
-    [HarmonyPatch("UpdateCustomSongs", MethodType.Normal)]
+    [HarmonyPatch(nameof(LevelFilteringNavigationController.UpdateCustomSongs), MethodType.Normal)]
     internal class StopVanillaLoadingPatch2
     {
         private static void Postfix(ref LevelFilteringNavigationController __instance, LevelSearchViewController ____levelSearchViewController,
