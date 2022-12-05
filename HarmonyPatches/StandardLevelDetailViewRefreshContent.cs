@@ -9,7 +9,7 @@ using IPA.Utilities;
 namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(StandardLevelDetailView))]
-    [HarmonyPatch("RefreshContent", MethodType.Normal)]
+    [HarmonyPatch(nameof(StandardLevelDetailView.RefreshContent), MethodType.Normal)]
     internal class StandardLevelDetailViewRefreshContent
     {
         private static readonly Dictionary<string, OverrideLabels> LevelLabels = new Dictionary<string, OverrideLabels>();

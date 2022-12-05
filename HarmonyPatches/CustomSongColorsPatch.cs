@@ -4,7 +4,7 @@ using SongCore.Utilities;
 namespace SongCore.HarmonyPatches
 {
     [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO))]
-    [HarmonyPatch("Init", MethodType.Normal)]
+    [HarmonyPatch(nameof(StandardLevelScenesTransitionSetupDataSO.Init), MethodType.Normal)]
     internal class SceneTransitionPatch
     {
         private static void Prefix(ref IDifficultyBeatmap difficultyBeatmap, ref ColorScheme? overrideColorScheme)
