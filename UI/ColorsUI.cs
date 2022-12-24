@@ -24,11 +24,25 @@ namespace SongCore.UI
         [UIComponent("selected-color")]
         private readonly RectTransform selectedColorTransform;
 
-        [UIValue("colors")]
-        public bool Colors
+        [UIValue("noteColors")]
+        public bool NoteColors
         {
-            get => Plugin.Configuration.CustomSongColors;
-            set => Plugin.Configuration.CustomSongColors = value;
+            get => Plugin.Configuration.CustomSongNoteColors;
+            set => Plugin.Configuration.CustomSongNoteColors = value;
+        }
+
+        [UIValue("obstacleColors")]
+        public bool ObstacleColors
+        {
+            get => Plugin.Configuration.CustomSongObstacleColors;
+            set => Plugin.Configuration.CustomSongObstacleColors = value;
+        }
+
+        [UIValue("environmentColors")]
+        public bool EnvironmentColors
+        {
+            get => Plugin.Configuration.CustomSongEnvironmentColors;
+            set => Plugin.Configuration.CustomSongEnvironmentColors = value;
         }
 
         internal void ShowColors(ExtraSongData.DifficultyData songData)
@@ -68,14 +82,10 @@ namespace SongCore.UI
         {
             Color saberLeft = songData._colorLeft == null ? voidColor : Utils.ColorFromMapColor(songData._colorLeft);
             Color saberRight = songData._colorRight == null ? voidColor : Utils.ColorFromMapColor(songData._colorRight);
-            Color envLeft = songData._envColorLeft == null
-                ? songData._colorLeft == null ? voidColor : Utils.ColorFromMapColor(songData._colorLeft)
-                : Utils.ColorFromMapColor(songData._envColorLeft);
-            Color envRight = songData._envColorRight == null
-                ? songData._colorRight == null ? voidColor : Utils.ColorFromMapColor(songData._colorRight)
-                : Utils.ColorFromMapColor(songData._envColorRight);
-            var envLeftBoost = songData._envColorLeftBoost == null ? voidColor : Utils.ColorFromMapColor(songData._envColorLeftBoost);
-            var envRightBoost = songData._envColorRightBoost == null ? voidColor : Utils.ColorFromMapColor(songData._envColorRightBoost);
+            Color envLeft = songData._envColorLeft == null ? voidColor : Utils.ColorFromMapColor(songData._envColorLeft);
+            Color envRight = songData._envColorRight == null ? voidColor : Utils.ColorFromMapColor(songData._envColorRight);
+            Color envLeftBoost = songData._envColorLeftBoost == null ? voidColor : Utils.ColorFromMapColor(songData._envColorLeftBoost);
+            Color envRightBoost = songData._envColorRightBoost == null ? voidColor : Utils.ColorFromMapColor(songData._envColorRightBoost);
             Color obstacle = songData._obstacleColor == null ? voidColor : Utils.ColorFromMapColor(songData._obstacleColor);
 
             colorSchemeView.SetColors(saberLeft, saberRight, envLeft, envRight, envLeftBoost, envRightBoost, obstacle);
