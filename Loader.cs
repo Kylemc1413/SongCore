@@ -383,9 +383,10 @@ namespace SongCore
                           {
                               results = Directory.GetFiles(folder, "info.dat", SearchOption.TopDirectoryOnly);
                           }
-                          catch (DirectoryNotFoundException)
+                          catch (Exception ex)
                           {
                               Logging.Logger.Warn($"Skipping missing or corrupt folder: '{folder}'");
+                              Logging.Logger.Warn(ex);
                               return;
                           }
 
@@ -485,9 +486,10 @@ namespace SongCore
                                 {
                                     results = Directory.GetFiles(folder, "info.dat", SearchOption.TopDirectoryOnly);
                                 }
-                                catch (DirectoryNotFoundException)
+                                catch (Exception ex)
                                 {
                                     Logging.Logger.Warn($"Skipping missing or corrupt folder: '{folder}'");
+                                    Logging.Logger.Warn(ex);
                                     continue;
                                 }
 
