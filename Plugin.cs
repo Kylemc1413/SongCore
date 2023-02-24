@@ -7,6 +7,7 @@ using IPA.Utilities;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using IPA.Config;
 using IPA.Config.Stores;
 using UnityEngine;
@@ -40,7 +41,7 @@ namespace SongCore
         }
 
         [OnStart]
-        public void OnApplicationStart()
+        public async Task OnApplicationStartAsync()
         {
             // TODO: Remove this migration path at some point
             var songCoreIniPath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "SongCore.ini");
@@ -82,7 +83,7 @@ namespace SongCore
             }
             else
             {
-                Collections.LoadExtraSongData();
+                await Collections.LoadExtraSongDataAsync();
             }
 
             Collections.RegisterCustomCharacteristic(BasicUI.MissingCharIcon!, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic", false, false, 1000);
