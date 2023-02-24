@@ -48,7 +48,9 @@ namespace SongCore
             {
                 var modPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
 
-                Configuration.CustomSongColors = modPrefs.GetBool("SongCore", "customSongColors", true, true);
+                Configuration.CustomSongNoteColors = modPrefs.GetBool("SongCore", "customSongNoteColors", true, true);
+                Configuration.CustomSongObstacleColors = modPrefs.GetBool("SongCore", "customSongObstacleColors", true, true);
+                Configuration.CustomSongEnvironmentColors = modPrefs.GetBool("SongCore", "customSongEnvironmentColors", true, true);
                 Configuration.CustomSongPlatforms = modPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
                 Configuration.DisplayDiffLabels = modPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
                 Configuration.ForceLongPreviews = modPrefs.GetBool("SongCore", "forceLongPreviews", false, true);

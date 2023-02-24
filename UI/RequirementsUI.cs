@@ -190,7 +190,7 @@ namespace SongCore.UI
             {
                 if (Utils.DiffHasColors(diffData))
                 {
-                    customListTableData.data.Add(new CustomCellInfo($"<size=75%>Custom Colors Available", $"Click here to preview & {(Plugin.Configuration.CustomSongColors ? "disable" : "enable")} it.", ColorsIcon));
+                    customListTableData.data.Add(new CustomCellInfo($"<size=75%>Custom Colors Available", $"Click here to preview & enable or disable it.", ColorsIcon));
                 }
 
                 if (diffData.additionalDifficultyData._warnings.Length > 0)

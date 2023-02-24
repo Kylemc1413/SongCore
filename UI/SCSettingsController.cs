@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -7,13 +7,35 @@ namespace SongCore.UI
 {
     internal class SCSettingsController : INotifyPropertyChanged
     {
-        [UIValue("colors")]
-        public bool Colors
+        [UIValue("noteColors")]
+        public bool NoteColors
         {
-            get => Plugin.Configuration.CustomSongColors;
+            get => Plugin.Configuration.CustomSongNoteColors;
             set
             {
-                Plugin.Configuration.CustomSongColors = value;
+                Plugin.Configuration.CustomSongNoteColors = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [UIValue("obstacleColors")]
+        public bool ObstacleColors
+        {
+            get => Plugin.Configuration.CustomSongObstacleColors;
+            set
+            {
+                Plugin.Configuration.CustomSongObstacleColors = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [UIValue("environmentColors")]
+        public bool EnvironmentColors
+        {
+            get => Plugin.Configuration.CustomSongEnvironmentColors;
+            set
+            {
+                Plugin.Configuration.CustomSongEnvironmentColors = value;
                 OnPropertyChanged();
             }
         }
