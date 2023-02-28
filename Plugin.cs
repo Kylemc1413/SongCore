@@ -90,7 +90,6 @@ namespace SongCore
             Collections.RegisterCustomCharacteristic(BasicUI.LightshowIcon!, "Lightshow", "Lightshow", "Lightshow", "Lightshow", false, false, 100);
             Collections.RegisterCustomCharacteristic(BasicUI.ExtraDiffsIcon!, "Lawless", "Lawless - Anything Goes", "Lawless", "Lawless", false, false, 101);
             // Reload player data to account for custom characteristics.
-            Object.FindObjectOfType<PlayerDataModel>().Load();
 
             var foldersXmlFilePath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "folders.xml");
             if (!File.Exists(foldersXmlFilePath))
@@ -105,6 +104,7 @@ namespace SongCore
 
         private void BSEvents_menuSceneLoadedFresh(ScenesTransitionSetupDataSO data)
         {
+            Object.FindObjectOfType<PlayerDataModel>()?.Load();
             Loader.OnLoad();
             RequirementsUI.instance.Setup();
         }
