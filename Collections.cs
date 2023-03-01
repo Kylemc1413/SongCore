@@ -90,7 +90,7 @@ namespace SongCore
                 catch (Exception ex)
                 {
                     Logging.Logger.Error($"Error loading extra song data: {ex.Message}");
-                    Logging.Logger.Debug(ex);
+                    Logging.Logger.Error(ex);
                 }
             });
         }

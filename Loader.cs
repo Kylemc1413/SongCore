@@ -295,7 +295,7 @@ namespace SongCore
                 catch (Exception ex)
                 {
                     Logging.Logger.Error($"Error populating official songs: {ex.Message}");
-                    Logging.Logger.Debug(ex);
+                    Logging.Logger.Error(ex);
                 }
 
                 #endregion
