@@ -77,10 +77,22 @@ namespace SongCore
             return diffData;
         }
 
-        internal static async Task LoadExtraSongDataAsync()
+        internal static void LoadExtraSongData()
         {
-            using var reader = new StreamReader(DataPath);
-            CustomSongsData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, ExtraSongData>?>(await reader.ReadToEndAsync()) ?? new ConcurrentDictionary<string, ExtraSongData>();
+            Task.Run(() =>
+            {
+                try
+                {
+                    using var reader = new JsonTextReader(new StreamReader(DataPath));
+                    var serializer = JsonSerializer.CreateDefault();
+                    CustomSongsData = serializer.Deserialize<ConcurrentDictionary<string, ExtraSongData>?>(reader) ?? new ConcurrentDictionary<string, ExtraSongData>();
+                }
+                catch (Exception ex)
+                {
+                    Logging.Logger.Error($"Error loading extra song data: {ex.Message}");
+                    Logging.Logger.Debug(ex);
+                }
+            });
         }
 
         internal static async Task SaveExtraSongDataAsync()
