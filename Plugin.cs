@@ -6,10 +6,10 @@ using SongCore.Utilities;
 using IPA.Utilities;
 using System;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using IPA.Config;
 using IPA.Config.Stores;
+using IPA.Loader;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
@@ -20,6 +20,7 @@ namespace SongCore
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
+        private static PluginMetadata _metadata;
         private static Harmony? _harmony;
 
         internal static SConfiguration Configuration { get; private set; }
@@ -31,13 +32,14 @@ namespace SongCore
         public static string noArrowsCharacteristicName = "NoArrows";
 
         [Init]
-        public void Init(IPALogger pluginLogger)
+        public void Init(IPALogger pluginLogger, PluginMetadata metadata)
         {
             // Workaround for creating BSIPA config in Userdata subdir
             Directory.CreateDirectory(Path.Combine(UnityGame.UserDataPath, nameof(SongCore)));
             Configuration = Config.GetConfigFor(nameof(SongCore) + Path.DirectorySeparatorChar + nameof(SongCore)).Generated<SConfiguration>();
 
             Logging.Logger = pluginLogger;
+            _metadata = metadata;
         }
 
         [OnStart]
@@ -71,7 +73,7 @@ namespace SongCore
             BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", new SCSettingsController());
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
 
-            _harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), "com.kyle1413.BeatSaber.SongCore");
+            _harmony = Harmony.CreateAndPatchAll(_metadata.Assembly, "com.kyle1413.BeatSaber.SongCore");
 
             BasicUI.GetIcons();
             BS_Utils.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
@@ -95,7 +97,7 @@ namespace SongCore
             var foldersXmlFilePath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "folders.xml");
             if (!File.Exists(foldersXmlFilePath))
             {
-                using var foldersXmlResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SongCore.Data.folders.xml");
+                using var foldersXmlResourceStream = _metadata.Assembly.GetManifestResourceStream("SongCore.Data.folders.xml");
                 using var fileStream = File.OpenWrite(foldersXmlFilePath);
                 foldersXmlResourceStream!.CopyTo(fileStream);
             }
