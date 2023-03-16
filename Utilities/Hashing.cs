@@ -43,7 +43,7 @@ namespace SongCore.Utilities
         {
             foreach (var hashData in cachedSongHashData.ToArray())
             {
-                if (!currentSongPaths.Contains(hashData.Key))
+                if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || GetAbsolutePath(hashData.Key) == hashData.Key)
                 {
                     cachedSongHashData.TryRemove(hashData.Key, out _);
                 }
@@ -80,7 +80,7 @@ namespace SongCore.Utilities
         {
             foreach (var hashData in cachedAudioData.ToArray())
             {
-                if (!currentSongPaths.Contains(hashData.Key))
+                if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || GetAbsolutePath(hashData.Key) == hashData.Key)
                 {
                     cachedAudioData.TryRemove(hashData.Key, out _);
                 }
@@ -109,7 +109,7 @@ namespace SongCore.Utilities
         {
             directoryHash = GetDirectoryHash(customLevelPath);
 
-            if (cachedSongHashData.TryGetValue(customLevelPath, out var cachedSong) && cachedSong.directoryHash == directoryHash)
+            if (cachedSongHashData.TryGetValue(GetRelativePath(customLevelPath), out var cachedSong) && cachedSong.directoryHash == directoryHash)
             {
                 cachedSongHash = cachedSong.songHash;
                 return true;
@@ -157,10 +157,44 @@ namespace SongCore.Utilities
             }
 
             string hash = CreateSha1FromBytes(combinedBytes.ToArray());
-            cachedSongHashData[levelPath] = new SongHashData(directoryHash, hash);
+            cachedSongHashData[GetRelativePath(levelPath)] = new SongHashData(directoryHash, hash);
             return hash;
         }
 
+        public static string GetAbsolutePath(string path)
+        {
+            path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            if (path.StartsWith("." + Path.DirectorySeparatorChar))
+            {
+                return Path.Combine(IPA.Utilities.UnityGame.InstallPath, path.Substring(2));
+            }
+
+            return path;
+        }
+
+        public static string GetRelativePath(string path)
+        {
+            string fromPath = IPA.Utilities.UnityGame.InstallPath;
+
+            if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            {
+                fromPath += Path.DirectorySeparatorChar;
+            }
+
+            if(!path.StartsWith(fromPath)) return path;
+
+            Uri fromUri = new Uri(fromPath);
+            Uri toUri = new Uri(path);
+
+            string relativePath = Uri.UnescapeDataString(fromUri.MakeRelativeUri(toUri).ToString());
+
+            if (!relativePath.StartsWith("."))
+            {
+                relativePath = Path.Combine(".", relativePath);
+            }
+
+            return relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        }
 
         // Black magic https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa/14333437#14333437
         static string ByteToHexBitFiddle(byte[] bytes)
