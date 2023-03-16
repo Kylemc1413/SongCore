@@ -268,7 +268,7 @@ namespace SongCore
 
             ConcurrentDictionary<string, bool> foundSongPaths = fullRefresh
                 ? new ConcurrentDictionary<string, bool>()
-                : new ConcurrentDictionary<string, bool>(Hashing.cachedSongHashData.Keys.ToDictionary(x => x, _ => false));
+                : new ConcurrentDictionary<string, bool>(Hashing.cachedSongHashData.Keys.ToDictionary(Hashing.GetAbsolutePath, _ => false));
 
             Action job = () =>
             {
@@ -1134,7 +1134,7 @@ namespace SongCore
             {
                 string levelid = level.levelID;
                 float length = 0;
-                if (Hashing.cachedAudioData.TryGetValue(songPath, out var data))
+                if (Hashing.cachedAudioData.TryGetValue(Hashing.GetRelativePath(songPath), out var data))
                 {
                     if (data.id == levelid)
                     {
@@ -1168,7 +1168,7 @@ namespace SongCore
                 }
                 else
                 {
-                    Hashing.cachedAudioData[songPath] = new AudioCacheData(levelid, length);
+                    Hashing.cachedAudioData[Hashing.GetRelativePath(songPath)] = new AudioCacheData(levelid, length);
                 }
 
                 Accessors.SongDurationSetter(ref level) = length;
