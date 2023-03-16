@@ -43,7 +43,7 @@ namespace SongCore.Utilities
         {
             foreach (var hashData in cachedSongHashData.ToArray())
             {
-                if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || GetAbsolutePath(hashData.Key) == hashData.Key)
+                if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || (GetAbsolutePath(hashData.Key) == hashData.Key && IsInInstallPath(hashData.Key)))
                 {
                     cachedSongHashData.TryRemove(hashData.Key, out _);
                 }
@@ -80,7 +80,7 @@ namespace SongCore.Utilities
         {
             foreach (var hashData in cachedAudioData.ToArray())
             {
-                if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || GetAbsolutePath(hashData.Key) == hashData.Key)
+                if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || (GetAbsolutePath(hashData.Key) == hashData.Key && IsInInstallPath(hashData.Key)))
                 {
                     cachedAudioData.TryRemove(hashData.Key, out _);
                 }
@@ -194,6 +194,18 @@ namespace SongCore.Utilities
             }
 
             return relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        }
+
+        public static bool IsInInstallPath(string path)
+        {
+            string fromPath = IPA.Utilities.UnityGame.InstallPath;
+
+            if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            {
+                fromPath += Path.DirectorySeparatorChar;
+            }
+
+            return path.StartsWith(fromPath);
         }
 
         // Black magic https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa/14333437#14333437
