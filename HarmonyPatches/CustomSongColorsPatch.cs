@@ -77,10 +77,10 @@ namespace SongCore.HarmonyPatches
                 ? fallbackScheme.saberBColor
                 : Utils.ColorFromMapColor(songData._colorRight);
             var envLeft = (songData._envColorLeft == null || !Plugin.Configuration.CustomSongEnvironmentColors)
-                ? fallbackScheme.environmentColor0
+                ? songData._colorLeft == null ? fallbackScheme.environmentColor0 : Utils.ColorFromMapColor(songData._colorLeft)
                 : Utils.ColorFromMapColor(songData._envColorLeft);
             var envRight = (songData._envColorRight == null || !Plugin.Configuration.CustomSongEnvironmentColors)
-                ? fallbackScheme.environmentColor1
+                ? songData._colorRight == null ? fallbackScheme.environmentColor1 : Utils.ColorFromMapColor(songData._colorRight)
                 : Utils.ColorFromMapColor(songData._envColorRight);
             var envWhite = (songData._envColorWhite == null || !Plugin.Configuration.CustomSongEnvironmentColors)
                 ? fallbackScheme.environmentColorW
