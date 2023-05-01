@@ -4,5 +4,20 @@
     <PropertyGroup>
         <ImportBSMTTargets>True</ImportBSMTTargets>
         <BSMTProjectType>BSIPA</BSMTProjectType>
+        <GenerateManifest>True</GenerateManifest>
+        <BaseManifestPath>manifest.json</BaseManifestPath>
+    </PropertyGroup>
+
+    <!-- Overriding default csproj property values which would otherwise interfere with the manifest regeneration. -->
+    <PropertyGroup>
+        <Authors>Kyle1413</Authors>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <DisableZipRelease>True</DisableZipRelease>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <DisableZipRelease>False</DisableZipRelease>
     </PropertyGroup>
 </Project>

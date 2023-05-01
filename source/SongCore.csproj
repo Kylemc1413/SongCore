@@ -19,15 +19,6 @@
         <DebugType>pdbonly</DebugType>
     </PropertyGroup>
 
-    <PropertyGroup Condition="$(DefineConstants.Contains('CIBuild')) OR '$(NCrunch)' == '1'">
-        <DisableCopyToPlugins>True</DisableCopyToPlugins>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(NCrunch)' == '1'">
-        <DisableCopyToPlugins>True</DisableCopyToPlugins>
-        <DisableZipRelease>True</DisableZipRelease>
-    </PropertyGroup>
-
     <ItemGroup>
         <Reference Include="Unity.TextMeshPro">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll</HintPath>
@@ -117,19 +108,17 @@
 
     <ItemGroup>
         <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
-        <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
         <None Include="SongCore.csproj.user" Condition="Exists('SongCore.csproj.user')" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="manifest.json" />
         <EmbeddedResource Include="Data\folders.xml" />
         <EmbeddedResource Include="Icons\*.png" />
         <EmbeddedResource Include="UI\*.bsml" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="BeatSaberModdingTools.Tasks" Version="2.0.0-beta4">
+        <PackageReference Include="BeatSaberModdingTools.Tasks" Version="2.0.0-beta7">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
