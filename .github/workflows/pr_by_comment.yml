@@ -1,0 +1,45 @@
+name: pr build by comment
+
+on:
+    issue_comment:
+        types: [created, edited]
+
+jobs:
+    workflow:
+        name: PR Comment Pipeline
+        if: github.event.issue.pull_request
+            && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+            && contains(github.event.comment.body, '/build')
+        runs-on: ubuntu-latest
+        steps:
+            - id: comment-branch
+              name: Get PR comment branch
+              uses: xt0rted/pull-request-comment-branch@v2
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+                  ref: refs/pull/${{ github.event.issue.number }}/merge
+            - name: Set commit status as pending
+              uses: myrotvorets/set-commit-status-action@1e0d009edcc8c999a7ef68b5f1d9c45cb40abd96
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  sha: ${{ steps.comment-branch.outputs.head_sha }}
+                  status: pending
+            - name: Run './build.cmd Compile'
+              id: NukeBuild
+              run: ./build.cmd Compile
+              env:
+                  GH_PACKAGES_USER: ${{ github.repository_owner }}
+                  GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  SIRA_SERVER_CODE: ${{ secrets.SIRA_SERVER_CODE }}
+            - uses: actions/upload-artifact@v3
+              with:
+                  name: ${{ steps.NukeBuild.outputs.filename }}
+                  path: ${{ steps.NukeBuild.outputs.artifactpath }}
+            - name: Set final commit status
+              uses: myrotvorets/set-commit-status-action@1e0d009edcc8c999a7ef68b5f1d9c45cb40abd96
+              if: always()
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  sha: ${{ steps.comment-branch.outputs.head_sha }}
+                  status: ${{ job.status }}
