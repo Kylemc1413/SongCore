@@ -2,5 +2,5 @@
     "$schema": "./build.schema.json",
     "Solution": "SongCore.sln",
     "SourceDirectory": "./source",
-    "ManifestPath": "./source/manifest.json"
+    "ManifestPath": "./source/SongCore/manifest.json"
 }
