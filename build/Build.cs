@@ -40,7 +40,7 @@ partial class Build : NukeBuild, ICleanRefs, IDeserializeManifest, IDownloadGame
 
 	Target GrabRefs => _ => _
 		.After(RestorePackages)
-		// .OnlyWhenStatic(() => IsServerBuild)
+		.OnlyWhenStatic(() => IsServerBuild)
 		.WhenSkipped(DependencyBehavior.Skip)
         .DependsOn<ICleanRefs>()
 		.DependsOn<IDownloadGameRefs>()
@@ -62,8 +62,7 @@ partial class Build : NukeBuild, ICleanRefs, IDeserializeManifest, IDownloadGame
 				.SetVersion(GitVersion.FullSemVer)
 				.SetAssemblyVersion(GitVersion.AssemblySemVer)
 				.SetFileVersion(GitVersion.AssemblySemFileVer)
-				.SetInformationalVersion(GitVersion.InformationalVersion)
-                .SetVerbosity(DotNetVerbosity.Detailed));
+				.SetInformationalVersion(GitVersion.InformationalVersion));
 		});
 
 	[GitRepository]
