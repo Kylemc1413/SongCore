@@ -64,8 +64,8 @@
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
             <Private>False</Private>
         </Reference>
-        <Reference Include="GamePlayCore">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GamePlayCore.dll</HintPath>
+        <Reference Include="GameplayCore">
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="HMLib">
