@@ -28,7 +28,7 @@ jobs:
     workflow:
         name: PR Pipeline
         if: github.event_name == 'push' ||
-            (github.event_name == 'pull_request' && github.event.pull_request.base.repo.name == github.repository)
+            (github.event_name == 'pull_request' && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association))
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
