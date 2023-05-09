@@ -19,10 +19,10 @@ name: pr build
 on:
     push:
         branches:
-            - main
+            - master
     pull_request:
         branches:
-            - main
+            - master
 
 jobs:
     workflow:
