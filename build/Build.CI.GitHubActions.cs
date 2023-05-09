@@ -10,8 +10,8 @@ using Nuke.Common.CI.GitHubActions;
 	FetchDepth = 0, // Only a single commit is fetched by default, for the ref/SHA that triggered the workflow. Make sure to fetch whole git history, in order to get GitVersion to work.
 	ImportSecrets = new[] { "SIRA_SERVER_CODE" },
 	InvokedTargets = new[] { nameof(Compile) },
-	OnPushBranches = new[] { "main" },
-	OnPullRequestBranches = new[] { "main" },
+	OnPushBranches = new[] { "master" },
+	OnPullRequestBranches = new[] { "master" },
 	PublishArtifacts = true)]
 [GitHubActions(
 	"publish",
