@@ -42,29 +42,6 @@ namespace SongCore.Utilities
             return !Directory.EnumerateFileSystemEntries(path).Any();
         }
 
-        public static void GrantAccess(string file)
-        {
-            var exists = Directory.Exists(file);
-            DirectoryInfo? di = null;
-            if (!exists)
-            {
-                di = Directory.CreateDirectory(file);
-            }
-
-            try
-            {
-                di ??= new DirectoryInfo(file);
-                DirectorySecurity dSecurity = di.GetAccessControl();
-                dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl,
-                    InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
-                di.SetAccessControl(dSecurity);
-            }
-            catch
-            {
-                Logging.Logger.Error($"Exception trying to Grant access to {file}");
-            }
-        }
-
         public static string TrimEnd(this string text, string value)
         {
             return !text.EndsWith(value) ? text : text.Remove(text.LastIndexOf(value, StringComparison.Ordinal));
