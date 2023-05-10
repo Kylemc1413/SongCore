@@ -104,14 +104,7 @@ namespace SongCore
 
         private void Initialize()
         {
-            if (Directory.Exists(Converter.oldFolderPath))
-            {
-                Converter.PrepareExistingLibrary();
-            }
-            else
-            {
-                RefreshSongs();
-            }
+            RefreshSongs();
         }
 
         internal void CancelSongLoading()
