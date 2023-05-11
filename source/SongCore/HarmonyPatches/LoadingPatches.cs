@@ -77,7 +77,7 @@ namespace SongCore.HarmonyPatches
         private static void Postfix(CustomBeatmapLevel __instance, CustomPreviewBeatmapLevel customPreviewBeatmapLevel)
         {
             var thisInstance = (CustomPreviewBeatmapLevel) __instance;
-            Accessors.SongDurationSetter(ref thisInstance) = customPreviewBeatmapLevel.songDuration;
+            Accessors.SongDurationAccessor(ref thisInstance) = customPreviewBeatmapLevel.songDuration;
         }
     }
 

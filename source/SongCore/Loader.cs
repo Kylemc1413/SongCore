@@ -1164,12 +1164,9 @@ namespace SongCore
                     Hashing.cachedAudioData[Hashing.GetRelativePath(songPath)] = new AudioCacheData(levelid, length);
                 }
 
-                Accessors.SongDurationSetter(ref level) = length;
-
-                if (Plugin.Configuration.ForceLongPreviews)
-                {
-                   level.SetField($"<{nameof(CustomPreviewBeatmapLevel.previewDuration)}>k__BackingField", Mathf.Max(level.previewDuration, length - level.previewStartTime));
-                }
+                Accessors.SongDurationAccessor(ref level) = Plugin.Configuration.ForceLongPreviews
+                    ? Mathf.Max(level.previewDuration, length - level.previewStartTime)
+                    : length;
             }
             catch (Exception ex)
             {
