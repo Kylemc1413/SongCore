@@ -1016,12 +1016,14 @@ namespace SongCore
             return false;
         }
 
-        private bool AssignBeatmapToSeperateFolder(ConcurrentDictionary<string, CustomPreviewBeatmapLevel> mapPack, string songPath,
-            ConcurrentDictionary<string, CustomPreviewBeatmapLevel> seperateFolder)
+        private bool AssignBeatmapToSeperateFolder(
+            ConcurrentDictionary<string, CustomPreviewBeatmapLevel> mapPack,
+            string songPath,
+            ConcurrentDictionary<string, CustomPreviewBeatmapLevel> separateFolder)
         {
             if (mapPack.TryGetValue(songPath, out var customPreviewBeatmapLevel) && customPreviewBeatmapLevel != null)
             {
-                seperateFolder[songPath] = customPreviewBeatmapLevel;
+                separateFolder[songPath] = customPreviewBeatmapLevel;
                 return true;
             }
 
@@ -1036,9 +1038,9 @@ namespace SongCore
                 var rawSongData = File.ReadAllText(path);
                 var saveData = StandardLevelInfoSaveData.DeserializeFromJSONString(rawSongData);
 
-                if (saveData == null)
-                    return null;
-                return new SongData(rawSongData, saveData);
+                return saveData == null
+                    ? null
+                    : new SongData(rawSongData, saveData);
             }
             return null;
         }
@@ -1121,7 +1123,7 @@ namespace SongCore
 
         private static readonly BeatmapDataLoader loader = new BeatmapDataLoader();
 
-        static void GetSongDuration(CustomPreviewBeatmapLevel level, string songPath, string oggFile)
+        private static void GetSongDuration(CustomPreviewBeatmapLevel level, string songPath, string oggFile)
         {
             try
             {
@@ -1178,24 +1180,22 @@ namespace SongCore
         public static float GetLengthFromMap(CustomPreviewBeatmapLevel level, string songPath)
         {
             var diff = level.standardLevelInfoSaveData.difficultyBeatmapSets.First().difficultyBeatmaps.Last().beatmapFilename;
-            var version = level.standardLevelInfoSaveData.version.Trim();
             var saveDataString = File.ReadAllText(Path.Combine(songPath, diff));
-            var beatmapsave = BeatmapSaveDataVersion3.BeatmapSaveData.DeserializeFromJSONString(saveDataString);
+            var beatmapSaveData = BeatmapSaveDataVersion3.BeatmapSaveData.DeserializeFromJSONString(saveDataString);
 
             float highestTime = 0;
-            if (beatmapsave.colorNotes.Count > 0)
+            if (beatmapSaveData.colorNotes.Count > 0)
             {
-                highestTime = beatmapsave.colorNotes.Max(x => x.beat);
+                highestTime = beatmapSaveData.colorNotes.Max(x => x.beat);
             }
-            else if (beatmapsave.basicBeatmapEvents.Count > 0)
+            else if (beatmapSaveData.basicBeatmapEvents.Count > 0)
             {
-                highestTime = beatmapsave.basicBeatmapEvents.Max(x => x.beat);
+                highestTime = beatmapSaveData.basicBeatmapEvents.Max(x => x.beat);
             }
 
-            var bpmtimeprocessor = new BeatmapDataLoader.BpmTimeProcessor(level.beatsPerMinute, beatmapsave.bpmEvents);
+            var bpmtimeprocessor = new BeatmapDataLoader.BpmTimeProcessor(level.beatsPerMinute, beatmapSaveData.bpmEvents);
             return bpmtimeprocessor.ConvertBeatToTime(highestTime);
         }
-
 
         private static readonly byte[] oggBytes =
         {
@@ -1209,107 +1209,106 @@ namespace SongCore
 
         public static float GetLengthFromOgg(string oggFile)
         {
-            using (FileStream fs = File.OpenRead(oggFile))
-            using (BinaryReader br = new BinaryReader(fs, Encoding.ASCII))
-            {
-                /*
+            using FileStream fs = File.OpenRead(oggFile);
+            using BinaryReader br = new BinaryReader(fs, Encoding.ASCII);
+
+            /*
                  * Tries to find the array of bytes from the stream
                  */
-                bool FindBytes(byte[] bytes, int searchLength)
+            bool FindBytes(byte[] bytes, int searchLength)
+            {
+                for (var i = 0; i < searchLength; i++)
                 {
-                    for (var i = 0; i < searchLength; i++)
+                    var b = br.ReadByte();
+                    if (b != bytes[0])
                     {
-                        var b = br.ReadByte();
-                        if (b != bytes[0])
-                        {
-                            continue;
-                        }
-
-                        var by = br.ReadBytes(bytes.Length - 1);
-                        // hardcoded 6 bytes compare, is fine because all inputs used are 6 bytes
-                        // bitwise AND the last byte to read only the flag bit for lastSample searching
-                        // shouldn't cause issues finding rate, hopefully
-                        if (by[0] == bytes[1] && by[1] == bytes[2] && by[2] == bytes[3] && by[3] == bytes[4] && (by[4] & bytes[5]) == bytes[5])
-                        {
-                            return true;
-                        }
-
-                        var index = Array.IndexOf(@by, bytes[0]);
-                        if (index != -1)
-                        {
-                            fs.Position += index - (bytes.Length - 1);
-                            i += index;
-                        }
-                        else
-                        {
-                            i += (bytes.Length - 1);
-                        }
+                        continue;
                     }
 
-                    return false;
+                    var by = br.ReadBytes(bytes.Length - 1);
+                    // hardcoded 6 bytes compare, is fine because all inputs used are 6 bytes
+                    // bitwise AND the last byte to read only the flag bit for lastSample searching
+                    // shouldn't cause issues finding rate, hopefully
+                    if (by[0] == bytes[1] && by[1] == bytes[2] && by[2] == bytes[3] && by[3] == bytes[4] && (by[4] & bytes[5]) == bytes[5])
+                    {
+                        return true;
+                    }
+
+                    var index = Array.IndexOf(by, bytes[0]);
+                    if (index != -1)
+                    {
+                        fs.Position += index - (bytes.Length - 1);
+                        i += index;
+                    }
+                    else
+                    {
+                        i += (bytes.Length - 1);
+                    }
                 }
 
-                var rate = -1;
-                long lastSample = -1;
+                return false;
+            }
 
-                //Skip Capture Pattern
-                fs.Position = 24;
+            var rate = -1;
+            long lastSample = -1;
 
-                //{0x76, 0x6F, 0x72, 0x62, 0x69, 0x73} = "vorbis" in byte values
-                var foundVorbis = FindBytes(new byte[]
-                {
-                    0x76,
-                    0x6F,
-                    0x72,
-                    0x62,
-                    0x69,
-                    0x73
-                }, 256);
-                if (foundVorbis)
-                {
-                    fs.Position += 5;
-                    rate = br.ReadInt32();
-                }
-                else
-                {
-                    Logging.Logger.Warn($"could not find rate for {oggFile}");
-                    return -1;
-                }
+            //Skip Capture Pattern
+            fs.Position = 24;
 
-                /*
+            //{0x76, 0x6F, 0x72, 0x62, 0x69, 0x73} = "vorbis" in byte values
+            var foundVorbis = FindBytes(new byte[]
+            {
+                0x76,
+                0x6F,
+                0x72,
+                0x62,
+                0x69,
+                0x73
+            }, 256);
+            if (foundVorbis)
+            {
+                fs.Position += 5;
+                rate = br.ReadInt32();
+            }
+            else
+            {
+                Logging.Logger.Warn($"could not find rate for {oggFile}");
+                return -1;
+            }
+
+            /*
                  * this finds the last occurrence of OggS in the file by checking for a bit flag (0x04)
                  * reads in blocks determined by seekBlockSize
                  * 6144 does not add significant overhead and speeds up the search significantly
                  */
-                const int seekBlockSize = 6144;
-                const int seekTries = 10; // 60 KiB should be enough for any sane ogg file
-                for (var i = 0; i < seekTries; i++)
+            const int seekBlockSize = 6144;
+            const int seekTries = 10; // 60 KiB should be enough for any sane ogg file
+            for (var i = 0; i < seekTries; i++)
+            {
+                var seekPos = (i + 1) * seekBlockSize * -1;
+                var overshoot = Math.Max((int) (-seekPos - fs.Length), 0);
+                if (overshoot >= seekBlockSize)
                 {
-                    var seekPos = (i + 1) * seekBlockSize * -1;
-                    var overshoot = Math.Max((int) (-seekPos - fs.Length), 0);
-                    if (overshoot >= seekBlockSize)
-                    {
-                        break;
-                    }
-
-                    fs.Seek(seekPos + overshoot, SeekOrigin.End);
-                    var foundOggS = FindBytes(oggBytes, seekBlockSize - overshoot);
-                    if (foundOggS)
-                    {
-                        lastSample = br.ReadInt64();
-                        break;
-                    }
+                    break;
                 }
 
-                if (lastSample == -1)
+                fs.Seek(seekPos + overshoot, SeekOrigin.End);
+                var foundOggS = FindBytes(oggBytes, seekBlockSize - overshoot);
+                if (foundOggS)
                 {
-                    Logging.Logger.Warn($"could not find lastSample for {oggFile}");
-                    return -1;
+                    lastSample = br.ReadInt64();
+                    break;
                 }
-
-                var length = lastSample / (float) rate;
-                return length;
             }
+
+            if (lastSample == -1)
+            {
+                Logging.Logger.Warn($"could not find lastSample for {oggFile}");
+                return -1;
+            }
+
+            var length = lastSample / (float) rate;
+            return length;
         }
 
         /// <summary>

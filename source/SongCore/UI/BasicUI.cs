@@ -1,7 +1,5 @@
-using System.Linq;
 using HMUI;
 using UnityEngine;
-using IPA.Utilities;
 
 namespace SongCore.UI
 {
