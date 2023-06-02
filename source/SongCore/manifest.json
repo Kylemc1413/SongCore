@@ -7,9 +7,9 @@
     "name": "SongCore",
     "version": "3.10.2",
     "dependsOn": {
-        "BeatSaberMarkupLanguage": "^1.6.0",
-        "BSIPA": "^4.2.1",
-        "BS Utils": "^1.12.2"
+        "BeatSaberMarkupLanguage": "^1.7.0",
+        "BSIPA": "^4.3.0",
+        "BS Utils": "^1.12.3"
     },
     "links": {
         "project-source": "https://github.com/Kylemc1413/SongCore"
