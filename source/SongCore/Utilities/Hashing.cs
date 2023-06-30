@@ -164,7 +164,7 @@ namespace SongCore.Utilities
         public static string GetAbsolutePath(string path)
         {
             path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-            if (path.StartsWith("." + Path.DirectorySeparatorChar))
+            if (path.StartsWith("." + Path.DirectorySeparatorChar, StringComparison.Ordinal))
             {
                 return Path.Combine(IPA.Utilities.UnityGame.InstallPath, path.Substring(2));
             }
@@ -176,19 +176,19 @@ namespace SongCore.Utilities
         {
             string fromPath = IPA.Utilities.UnityGame.InstallPath;
 
-            if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
             {
                 fromPath += Path.DirectorySeparatorChar;
             }
 
-            if(!path.StartsWith(fromPath)) return path;
+            if(!path.StartsWith(fromPath, StringComparison.Ordinal)) return path;
 
             Uri fromUri = new Uri(fromPath);
             Uri toUri = new Uri(path);
 
             string relativePath = Uri.UnescapeDataString(fromUri.MakeRelativeUri(toUri).ToString());
 
-            if (!relativePath.StartsWith("."))
+            if (!relativePath.StartsWith(".", StringComparison.Ordinal))
             {
                 relativePath = Path.Combine(".", relativePath);
             }
@@ -200,12 +200,12 @@ namespace SongCore.Utilities
         {
             string fromPath = IPA.Utilities.UnityGame.InstallPath;
 
-            if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
             {
                 fromPath += Path.DirectorySeparatorChar;
             }
 
-            return path.StartsWith(fromPath);
+            return path.StartsWith(fromPath, StringComparison.Ordinal);
         }
 
         // Black magic https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa/14333437#14333437
