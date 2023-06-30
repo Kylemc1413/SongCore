@@ -1090,7 +1090,7 @@ namespace SongCore
             }
 
             IPreviewBeatmapLevel? level = null;
-            if (levelId.StartsWith("custom_level_"))
+            if (levelId.StartsWith(CustomLevelLoader.kCustomLevelPrefixId, StringComparison.Ordinal))
             {
                 if (CustomLevelsById.TryGetValue(levelId, out CustomPreviewBeatmapLevel customLevel))
                 {
@@ -1117,7 +1117,7 @@ namespace SongCore
                 return null;
             }
 
-            CustomLevelsById.TryGetValue($"custom_level_{hash.ToUpper()}", out CustomPreviewBeatmapLevel level);
+            CustomLevelsById.TryGetValue(CustomLevelLoader.kCustomLevelPrefixId + hash.ToUpperInvariant(), out CustomPreviewBeatmapLevel level);
             return level;
         }
 

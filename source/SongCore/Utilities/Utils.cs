@@ -42,7 +42,7 @@ namespace SongCore.Utilities
 
         public static string TrimEnd(this string text, string value)
         {
-            return !text.EndsWith(value) ? text : text.Remove(text.LastIndexOf(value, StringComparison.Ordinal));
+            return !text.EndsWith(value, StringComparison.Ordinal) ? text : text.Remove(text.LastIndexOf(value, StringComparison.Ordinal));
         }
 
         public static Sprite? LoadSpriteRaw(byte[] image, float pixelsPerUnit = 100.0f)

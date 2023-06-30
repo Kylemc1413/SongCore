@@ -1,3 +1,4 @@
+using System;
 using HarmonyLib;
 using SongCore.UI;
 using System.Collections.Generic;
@@ -109,7 +110,7 @@ namespace SongCore.HarmonyPatches
                 }
             }
 
-            if (level.levelID.EndsWith(" WIP"))
+            if (level.levelID.EndsWith(" WIP", StringComparison.Ordinal))
             {
                 RequirementsUI.instance.ButtonGlowColor = true;
                 RequirementsUI.instance.ButtonInteractable = true;

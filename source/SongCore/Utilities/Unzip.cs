@@ -51,7 +51,7 @@ namespace SongCore.Utilities
             /// <summary>
             /// Gets a value indicating whether this <see cref="Entry" /> is a directory.
             /// </summary>
-            public bool IsDirectory => Name.EndsWith("/");
+            public bool IsDirectory => Name.EndsWith("/", StringComparison.Ordinal);
 
             /// <summary>
             /// Gets or sets the timestamp.
@@ -560,7 +560,7 @@ namespace SongCore.Utilities
         /// <summary>
         /// Gets the file names.
         /// </summary>
-        public IEnumerable<string> FileNames => Entries.Select(e => e.Name).Where(f => !f.EndsWith("/")).OrderBy(f => f);
+        public IEnumerable<string> FileNames => Entries.Select(e => e.Name).Where(f => !f.EndsWith("/", StringComparison.Ordinal)).OrderBy(f => f);
 
         private Entry[]? entries;
 
