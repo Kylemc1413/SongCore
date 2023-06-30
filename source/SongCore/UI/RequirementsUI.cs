@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage.Components;
 using SongCore.Utilities;
 using System.Linq;
 using System.Reflection;
+using BeatSaberMarkupLanguage.Util;
 using UnityEngine;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 using HMUI;

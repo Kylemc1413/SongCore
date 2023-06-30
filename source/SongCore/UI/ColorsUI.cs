@@ -2,7 +2,7 @@ using System.Linq;
 using System.Reflection;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components;
+using BeatSaberMarkupLanguage.Util;
 using HMUI;
 using SongCore.Data;
 using SongCore.Utilities;
@@ -66,9 +66,9 @@ namespace SongCore.UI
         [UIAction("#post-parse")]
         private void PostParse()
         {
-            ColorSchemeView colorSchemeViewPrefab = Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
+            ColorSchemeView colorSchemeViewPrefab = Object.Instantiate(Resources.FindObjectsOfTypeAll<ColorSchemeView>().First(), selectedColorTransform);
             colorSchemeView = IPA.Utilities.ReflectionUtil.CopyComponent<ColorSchemeView>(colorSchemeViewPrefab, colorSchemeViewPrefab.gameObject);
-            DestroyImmediate(colorSchemeViewPrefab);
+            Object.DestroyImmediate(colorSchemeViewPrefab);
             modalPosition = modal.transform.localPosition;
             modal.blockerClickedEvent += Dismiss;
         }
