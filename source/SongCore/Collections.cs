@@ -114,14 +114,14 @@ namespace SongCore
         {
             var newChar = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
 
-            newChar.SetField("_icon", icon);
-            newChar.SetField("_descriptionLocalizationKey", hintText);
-            newChar.SetField("_serializedName", serializedName);
-            newChar.SetField("_characteristicNameLocalizationKey", characteristicName);
-            newChar.SetField("_compoundIdPartName", compoundIdPartName);
-            newChar.SetField("_requires360Movement", requires360Movement);
-            newChar.SetField("_containsRotationEvents", containsRotationEvents);
-            newChar.SetField("_sortingOrder", sortingOrder);
+            newChar._icon = icon;
+            newChar._descriptionLocalizationKey = hintText;
+            newChar._serializedName= serializedName;
+            newChar._characteristicNameLocalizationKey = characteristicName;
+            newChar._compoundIdPartName = compoundIdPartName;
+            newChar._requires360Movement = requires360Movement;
+            newChar._containsRotationEvents = containsRotationEvents;
+            newChar._sortingOrder = sortingOrder;
 
             if (_customCharacteristics.All(x => x.serializedName != newChar.serializedName))
             {
