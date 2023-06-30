@@ -79,7 +79,7 @@ namespace SongCore.UI
         {
             GetIcons();
             standardLevel = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().First();
-            tweenyManager = Resources.FindObjectsOfTypeAll<TweeningManager>().First();
+            tweenyManager = Object.FindObjectOfType<TweeningManager>();
             BSMLParser.instance.Parse(BUTTON_BSML, standardLevel.transform.Find("LevelDetail").gameObject, this);
 
             infoButtonTransform.localScale *= 0.7f; //no scale property in bsml as of now so manually scaling it

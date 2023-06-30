@@ -56,7 +56,7 @@ namespace SongCore.UI
         {
             if (!modal)
             {
-                StandardLevelDetailViewController standardLevel = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().First();
+                StandardLevelDetailViewController standardLevel = Object.FindObjectOfType<StandardLevelDetailViewController>();
                 BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.colors.bsml"),
                     standardLevel.transform.Find("LevelDetail").gameObject, this);
             }
