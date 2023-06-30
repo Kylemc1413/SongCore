@@ -20,6 +20,7 @@ namespace SongCore.HarmonyPatches
                     typeof(IPreviewBeatmapLevel),
                     typeof(OverrideEnvironmentSettings),
                     typeof(ColorScheme),
+                    typeof(ColorScheme),
                     typeof(GameplayModifiers),
                     typeof(PlayerSpecificSettings),
                     typeof(PracticeSettings),
