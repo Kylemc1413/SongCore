@@ -7,6 +7,9 @@ namespace SongCore.Utilities
         internal static readonly FieldAccessor<CustomPreviewBeatmapLevel, float>.Accessor SongDurationAccessor =
             FieldAccessor<CustomPreviewBeatmapLevel, float>.GetAccessor(ReflectionUtil.ToCompilerGeneratedBackingField(nameof(CustomPreviewBeatmapLevel.songDuration)));
 
+        internal static readonly FieldAccessor<CustomPreviewBeatmapLevel, float>.Accessor PreviewDurationAccessor =
+            FieldAccessor<CustomPreviewBeatmapLevel, float>.GetAccessor(ReflectionUtil.ToCompilerGeneratedBackingField(nameof(CustomPreviewBeatmapLevel.previewDuration)));
+
         internal static readonly FieldAccessor<CustomBeatmapLevelPack, IBeatmapLevelCollection>.Accessor BeatmapLevelCollectionAccessor =
             FieldAccessor<CustomBeatmapLevelPack, IBeatmapLevelCollection>.GetAccessor(ReflectionUtil.ToCompilerGeneratedBackingField(nameof(CustomBeatmapLevelPack.beatmapLevelCollection)));
     }
