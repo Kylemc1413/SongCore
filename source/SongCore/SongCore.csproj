@@ -28,10 +28,6 @@
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll</HintPath>
             <Private>False</Private>
         </Reference>
-        <Reference Include="UnityEngine.AudioModule">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
         <Reference Include="UnityEngine.CoreModule">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
             <Private>False</Private>
@@ -43,10 +39,6 @@
         <Reference Include="UnityEngine.InputLegacyModule">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
             <Private>False</Private>
-        </Reference>
-        <Reference Include="UnityEngine.JSONSerializeModule">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
-            <Private>false</Private>
         </Reference>
         <Reference Include="UnityEngine.UI">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
@@ -84,10 +76,6 @@
         </Reference>
         <Reference Include="HMUI">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
-        <Reference Include="nunit.framework">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\nunit.framework.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="0Harmony">
