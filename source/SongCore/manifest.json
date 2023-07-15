@@ -5,7 +5,7 @@
     "gameVersion": "1.31.0",
     "id": "SongCore",
     "name": "SongCore",
-    "version": "3.10.2",
+    "version": "3.11.1",
     "dependsOn": {
         "BSIPA": "^4.3.0",
         "BeatSaberMarkupLanguage": "^1.7.6",

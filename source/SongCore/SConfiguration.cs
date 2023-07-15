@@ -11,6 +11,7 @@ namespace SongCore
         public virtual bool CustomSongEnvironmentColors { get; set; } = true;
         public virtual bool CustomSongPlatforms { get; set; } = true;
         public virtual bool DisplayDiffLabels { get; set; } = true;
+        public virtual bool DisplayCustomCharacteristics { get; set; } = true;
         public virtual bool ForceLongPreviews { get; set; } = true;
     }
 }

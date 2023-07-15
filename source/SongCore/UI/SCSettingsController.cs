@@ -54,6 +54,13 @@ namespace SongCore.UI
             set => Plugin.Configuration.DisplayDiffLabels = value;
         }
 
+        [UIValue("customChara")]
+        public bool CustomChara
+        {
+            get => Plugin.Configuration.DisplayCustomCharacteristics;
+            set => Plugin.Configuration.DisplayCustomCharacteristics = value;
+        }
+
         [UIValue("longPreviews")]
         public bool LongPreviews
         {

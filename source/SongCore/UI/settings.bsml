@@ -5,6 +5,7 @@
     <checkbox-setting text='Allow Custom Song Environment Colors' value='environmentColors' hover-hint='Allow Custom Songs to override environment colors' bind-value='true' />
     <checkbox-setting text='Custom Song Platforms ' value='platforms' hover-hint='Allow Custom Songs to override your Custom Platform if Custom Platforms is installed.'/>
     <checkbox-setting text='Display Custom Difficulty Labels' value='diffLabels' hover-hint='Display Custom Difficulty Labels if used by the mapper.'/>
+    <checkbox-setting text='Display Custom Characteristics' value='customChara' hover-hint='Display Custom Characteristic Icons and Labels if used by the mapper.'/>
     <checkbox-setting text='Force Long Song Previews' value='longPreviews'
                       hover-hint='Force song previews to last the entire song past the starting point. Must fully refresh songs after changing this for it to take effect.'/>
 </settings-container>
