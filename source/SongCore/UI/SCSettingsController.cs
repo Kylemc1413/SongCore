@@ -68,6 +68,20 @@ namespace SongCore.UI
             set => Plugin.Configuration.ForceLongPreviews = value;
         }
 
+        [UIValue("mappercolor")]
+        public bool MapperColor
+        {
+            get => Plugin.Configuration.GreenMapperColor;
+            set => Plugin.Configuration.GreenMapperColor = value;
+        }
+
+        [UIValue("spawnlines")]
+        public bool SpawnLines
+        {
+            get => Plugin.Configuration.DisableRotationSpawnLinesOverride;
+            set => Plugin.Configuration.DisableRotationSpawnLinesOverride = value;
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         [NotifyPropertyChangedInvocator]

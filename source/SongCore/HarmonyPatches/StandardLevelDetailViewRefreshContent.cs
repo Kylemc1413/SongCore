@@ -141,6 +141,7 @@ namespace SongCore.HarmonyPatches
             }
 
             RequirementsUI.instance.level = level;
+            RequirementsUI.instance.difficultyBeatmap = ____selectedDifficultyBeatmap;
             RequirementsUI.instance.songData = songData;
             RequirementsUI.instance.diffData = diffData;
             RequirementsUI.instance.wipFolder = wipFolderSong;
