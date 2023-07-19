@@ -125,7 +125,9 @@ namespace SongCore.HarmonyPatches
 
                         if (detail != null)
                         {
-                            Sprite sprite = Utilities.Utils.LoadSpriteFromFile(Path.Combine(level.customLevelPath, detail._characteristicIconFilePath)) ?? characteristic.icon;
+                            Sprite sprite = characteristic.icon;
+                            if (detail._characteristicIconFilePath != null)
+                                sprite = Utilities.Utils.LoadSpriteFromFile(Path.Combine(level.customLevelPath, detail._characteristicIconFilePath)) ?? characteristic.icon;
                             string label = detail._characteristicLabel ?? Polyglot.Localization.Get(characteristic.descriptionLocalizationKey);
                             newDataItems.Add(new IconSegmentedControl.DataItem(sprite, label));
                         }
