@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -121,8 +122,10 @@ namespace SongCore.Data
             public float r;
             public float g;
             public float b;
-            public float a;
 
+            [DefaultValue(1)]
+            [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+            public float a = 1f;
 
             public MapColor(float r, float g, float b, float a = 1f)
             {

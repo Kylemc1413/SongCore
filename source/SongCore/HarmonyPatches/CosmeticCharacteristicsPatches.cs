@@ -95,20 +95,22 @@ namespace SongCore.HarmonyPatches
             //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
             private static void Postfix(IReadOnlyList<IDifficultyBeatmapSet> difficultyBeatmapSets, BeatmapCharacteristicSO selectedBeatmapCharacteristic, ref List<BeatmapCharacteristicSO> ____beatmapCharacteristics, ref IconSegmentedControl ____segmentedControl)
             {
-                if (!Plugin.Configuration.DisplayCustomCharacteristics)
-                    return;
-                var diffBeatmapLevel = difficultyBeatmapSets.FirstOrDefault().difficultyBeatmaps.FirstOrDefault().level;
+                if (!Plugin.Configuration.DisplayCustomCharacteristics) return;
+
+                var diffBeatmapSetsBeatmaps = difficultyBeatmapSets.FirstOrDefault().difficultyBeatmaps;
+                if (diffBeatmapSetsBeatmaps == null) return;
+                var diffBeatmapItem = diffBeatmapSetsBeatmaps.FirstOrDefault();
+                if (diffBeatmapItem == null) return;
+                var diffBeatmapLevel = diffBeatmapItem.level;
+
                 var level = diffBeatmapLevel is CustomBeatmapLevel ? diffBeatmapLevel as CustomPreviewBeatmapLevel : null;
 
-                if (level == null)
-                    return;
-
+                if (level == null) return;
                 var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(level));
-                if (songData == null)
-                    return;
-                if (songData._characteristicDetails == null)
-                    return;
 
+                if (songData == null) return;
+                if (songData._characteristicDetails == null) return;
+                if (____segmentedControl == null) return;
 
                 if (songData._characteristicDetails.Length > 0)
                 {
@@ -137,7 +139,7 @@ namespace SongCore.HarmonyPatches
                         }
 
                         if (characteristic == selectedBeatmapCharacteristic)
-                        {
+                        { 
                             cell = i;
                         }
                         i++;
