@@ -1,10 +1,17 @@
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using HarmonyLib;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SongCore.Utilities;
 using UnityEngine;
+using UnityEngine.UI;
+using static BloomPrePassBackgroundColorsGradientFromColorSchemeColors;
 
 namespace SongCore.Data
 {
@@ -23,11 +30,27 @@ namespace SongCore.Data
     [Serializable]
     public class ExtraSongData
     {
+        public string[] _genreTags;
         public Contributor[] contributors; //convert legacy mappers/lighters fields into contributors
         public string _customEnvironmentName;
         public string _customEnvironmentHash;
         public DifficultyData[] _difficulties;
         public string _defaultCharacteristic = null;
+
+        public ColorScheme[] _colorSchemes; //beatmap 2.1.0, community decided to song-core ify colour stuff
+        public string[] _environmentNames; //these have underscores but the actual format doesnt, I genuinely dont know what to go by so I went consistent with songcore
+
+        //PinkCore Port
+        public CharacteristicDetails[] _characteristicDetails;
+
+        [Serializable]
+        public class CharacteristicDetails
+        {
+            public string _beatmapCharacteristicName;
+            public string? _characteristicLabel;
+            public string? _characteristicIconFilePath = null;
+        }
+
 
         [Serializable]
         public class Contributor
@@ -56,7 +79,33 @@ namespace SongCore.Data
             public MapColor? _envColorRightBoost;
             public MapColor? _envColorWhiteBoost;
             public MapColor? _obstacleColor;
+            public int? _beatmapColorSchemeIdx;
+            public int? _environmentNameIdx;
+
+            //PinkCore Port
+            public bool? _oneSaber;
+            public bool? _showRotationNoteSpawnLines;
+            //Tags
+            public string[] _styleTags;
         }
+
+        [Serializable]
+        public class ColorScheme //stuck to the same naming convention as the json itself
+        {
+            public bool useOverride;
+            public string colorSchemeId;
+            public MapColor? saberAColor;
+            public MapColor? saberBColor;
+            public MapColor? environmentColor0;
+            public MapColor? environmentColor1;
+            public MapColor? obstaclesColor;
+            public MapColor? environmentColor0Boost;
+            public MapColor? environmentColor1Boost;
+            //Not officially within the default scheme, added for consistency
+            public MapColor? environmentColorW;
+            public MapColor? environmentColorWBoost;
+        }
+
 
         [Serializable]
         public class RequirementData
@@ -74,12 +123,16 @@ namespace SongCore.Data
             public float g;
             public float b;
 
+            [DefaultValue(1)]
+            [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+            public float a = 1f;
 
-            public MapColor(float r, float g, float b)
+            public MapColor(float r, float g, float b, float a = 1f)
             {
                 this.r = r;
                 this.g = g;
                 this.b = b;
+                this.a = a;
             }
         }
 
@@ -125,17 +178,130 @@ namespace SongCore.Data
                     {
                         _defaultCharacteristic = (string) defaultChar;
                     }
+
+                    var genreTags = new List<string>();
+                    if (infoData.TryGetValue("_genreTags", out var genreTagsObj))
+                    {
+                        genreTags.AddRange(((JArray) genreTagsObj).Select(c => (string) c));
+                    }
+                    _genreTags = genreTags.ToArray();
                 }
 
                 contributors = levelContributors.ToArray();
 
+                var envNames = new List<string>();
+                if (info.TryGetValue("_environmentNames", out var environmentNames))
+                {
+                    envNames.AddRange(((JArray) environmentNames).Select(c => (string) c));
+                }
+                _environmentNames = envNames.ToArray();
+
+
+                List<ColorScheme> colorSchemeList = new List<ColorScheme>();
+                if (info.TryGetValue("_colorSchemes", out var colorSchemes)) //I DO NOT TRUST THAT PEOPLE DO THIS PROPERLY
+                {
+                    JArray colorSchemeListData = (JArray) colorSchemes;
+                    foreach (var colorSchemeItem in colorSchemeListData)
+                    {
+                        JObject colorSchemeItemData = (JObject) colorSchemeItem;
+                        bool _useOverride = false;
+                        string _colorSchemeId = "SongCoreDefaultID";
+                        MapColor? _saberAColor = null;
+                        MapColor? _saberBColor = null;
+                        MapColor? _environmentColor0 = null;
+                        MapColor? _environmentColor1 = null;
+                        MapColor? _obstaclesColor = null;
+                        MapColor? _environmentColor0Boost = null;
+                        MapColor? _environmentColor1Boost = null;
+                        MapColor? _environmentColorW = null;
+                        MapColor? _environmentColorWBoost = null;
+                        if (colorSchemeItemData.TryGetValue("useOverride", out var useOverrideVal))
+                        {
+                            _useOverride = (bool) useOverrideVal;
+                        }
+
+                        if (colorSchemeItemData.TryGetValue("colorScheme", out var colorScheme))
+                        {
+                            JObject colorSchemeData = (JObject) colorScheme;
+
+                            if (colorSchemeData.TryGetValue("colorSchemeId", out var colorSchemeIdVal))
+                            {
+                                _colorSchemeId = (string) colorSchemeIdVal;
+                            }
+
+                            _saberAColor = GetMapColorFromJObject(colorSchemeData, "saberAColor");
+                            _saberBColor = GetMapColorFromJObject(colorSchemeData, "saberBColor");
+                            _environmentColor0 = GetMapColorFromJObject(colorSchemeData, "environmentColor0");
+                            _environmentColor1 = GetMapColorFromJObject(colorSchemeData, "environmentColor1");
+                            _obstaclesColor = GetMapColorFromJObject(colorSchemeData, "obstaclesColor");
+                            _environmentColor0Boost = GetMapColorFromJObject(colorSchemeData, "environmentColor0Boost");
+                            _environmentColor1Boost = GetMapColorFromJObject(colorSchemeData, "environmentColor1Boost");
+                            _environmentColorW = GetMapColorFromJObject(colorSchemeData, "environmentColorW");
+                            _environmentColorWBoost = GetMapColorFromJObject(colorSchemeData, "environmentColorWBoost");
+
+                        }
+
+                        colorSchemeList.Add(new ColorScheme
+                        {
+                            useOverride = _useOverride,
+                            saberAColor = _saberAColor,
+                            saberBColor = _saberBColor,
+                            environmentColor0 = _environmentColor0,
+                            environmentColor1 = _environmentColor1,
+                            obstaclesColor = _obstaclesColor,
+                            environmentColor0Boost = _environmentColor0Boost,
+                            environmentColor1Boost = _environmentColor1Boost,
+                            environmentColorW = _environmentColorW,
+                            environmentColorWBoost = _environmentColorWBoost
+                        });
+
+                    }
+                }
+
+                _colorSchemes = colorSchemeList.ToArray();
+
 
                 var diffData = new List<DifficultyData>();
                 var diffSets = (JArray) info["_difficultyBeatmapSets"];
+
+
+                List<CharacteristicDetails> characteristicsDetails = new List<CharacteristicDetails>();
+
                 foreach (var diffSet in diffSets)
                 {
                     var setCharacteristic = (string) diffSet["_beatmapCharacteristicName"];
                     JArray diffBeatmaps = (JArray) diffSet["_difficultyBeatmaps"];
+                    JObject diffBeatmapSetObj = (JObject) diffSet;
+
+
+                    if (diffBeatmapSetObj.TryGetValue("_customData", out var characteristicCustom))
+                    {
+                        JObject characteristicCustomObj = (JObject) characteristicCustom;
+
+                        string? characteristicLabel = null;
+                        string? characteristicIconFilePath = null;
+
+                        if (characteristicCustomObj.TryGetValue("_characteristicLabel", out var characteristicLabelObj))
+                        {
+                            characteristicLabel = (string) characteristicLabelObj;
+                        }
+
+                        if (characteristicCustomObj.TryGetValue("_characteristicIconImageFilename", out var characteristicIconImageFilenameObj))
+                        {
+                            characteristicIconFilePath = (string) characteristicIconImageFilenameObj;
+                        }
+
+                        characteristicsDetails.Add(new CharacteristicDetails
+                        {
+                            _characteristicLabel = characteristicLabel,
+                            _beatmapCharacteristicName = setCharacteristic,
+                            _characteristicIconFilePath = characteristicIconFilePath
+                        });
+
+                    }
+
+
+
                     foreach (JObject diffBeatmap in diffBeatmaps)
                     {
                         var diffRequirements = new List<string>();
@@ -152,114 +318,75 @@ namespace SongCore.Data
                         MapColor? diffEnvRightBoost = null;
                         MapColor? diffEnvWhiteBoost = null;
                         MapColor? diffObstacle = null;
+                        int? beatmapColorSchemeIdx = null;
+                        int? environmentNameIdx = null;
+                        bool? oneSaber = null;
+                        bool? showRotationNoteSpawnLines = null;
+                        var styleTags = new List<string>();
 
                         var diffDifficulty = Utils.ToEnum((string) diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
+
+                        if (diffBeatmap.TryGetValue("_beatmapColorSchemeIdx", out var beatmapColorSchemeIdxVal))
+                        {
+                            beatmapColorSchemeIdx = (int) beatmapColorSchemeIdxVal;
+                        }
+
+                        if (diffBeatmap.TryGetValue("_environmentNameIdx", out var environmentNameIdxVal))
+                        {
+                            environmentNameIdx = (int) environmentNameIdxVal;
+                        }
+
+
+                        bool useSongCoreColours = true;
+
+                        if (beatmapColorSchemeIdx != null)
+                        {
+                            var colorScheme = _colorSchemes.ElementAtOrDefault(beatmapColorSchemeIdx.Value);
+                            if (colorScheme != null)
+                            {
+                                if (colorScheme.useOverride)
+                                {
+                                    useSongCoreColours = false;
+                                    diffLeft = colorScheme.saberAColor;
+                                    diffRight = colorScheme.saberBColor;
+                                    diffEnvLeft = colorScheme.environmentColor0;
+                                    diffEnvRight = colorScheme.environmentColor1;
+                                    diffEnvWhite = colorScheme.environmentColorW;
+                                    diffEnvLeftBoost = colorScheme.environmentColor0Boost;
+                                    diffEnvRightBoost = colorScheme.environmentColor1Boost;
+                                    diffEnvWhiteBoost = colorScheme.environmentColorWBoost;
+                                    diffObstacle = colorScheme.obstaclesColor;
+                                }
+                            }
+                        }
+
                         if (diffBeatmap.TryGetValue("_customData", out var customData))
                         {
                             JObject beatmapData = (JObject) customData;
+                            if (info.TryGetValue("_styleTags", out var tagObj))
+                            {
+                                styleTags.AddRange(((JArray) tagObj).Select(c => (string) c));
+                            }
+
                             if (beatmapData.TryGetValue("_difficultyLabel", out var difficultyLabel))
                             {
                                 diffLabel = (string) difficultyLabel;
                             }
 
-                            //Get difficulty json fields
-                            if (beatmapData.TryGetValue("_colorLeft", out var colorLeft))
+                            if (useSongCoreColours)
                             {
-                                if (colorLeft.Children().Count() == 3)
-                                {
-                                    diffLeft = new MapColor(
-                                        (float) (colorLeft["r"] ?? 0),
-                                        (float) (colorLeft["g"] ?? 0),
-                                        (float) (colorLeft["b"] ?? 0));
-                                }
-                            }
+                                //Get difficulty json fields
 
-                            if (beatmapData.TryGetValue("_colorRight", out var colorRight))
-                            {
-                                if (colorRight.Children().Count() == 3)
-                                {
-                                    diffRight = new MapColor(
-                                        (float) (colorRight["r"] ?? 0),
-                                        (float) (colorRight["g"] ?? 0),
-                                        (float) (colorRight["b"] ?? 0));
-                                }
-                            }
+                                diffLeft = GetMapColorFromJObject(beatmapData, "_colorLeft");
+                                diffRight = GetMapColorFromJObject(beatmapData, "_colorRight");
+                                diffEnvLeft = GetMapColorFromJObject(beatmapData, "_envColorLeft");
+                                diffEnvRight = GetMapColorFromJObject(beatmapData, "_envColorRight");
+                                diffEnvWhite = GetMapColorFromJObject(beatmapData, "_envColorWhite");
+                                diffEnvLeftBoost = GetMapColorFromJObject(beatmapData, "_envColorLeftBoost");
+                                diffEnvRightBoost = GetMapColorFromJObject(beatmapData, "_envColorRightBoost");
+                                diffEnvWhiteBoost = GetMapColorFromJObject(beatmapData, "_envColorWhiteBoost");
+                                diffObstacle = GetMapColorFromJObject(beatmapData, "_obstacleColor");
 
-                            if (beatmapData.TryGetValue("_envColorLeft", out var envColorLeft))
-                            {
-                                if (envColorLeft.Children().Count() == 3)
-                                {
-                                    diffEnvLeft = new MapColor(
-                                        (float) (envColorLeft["r"] ?? 0),
-                                        (float) (envColorLeft["g"] ?? 0),
-                                        (float) (envColorLeft["b"] ?? 0));
-                                }
-                            }
-
-                            if (beatmapData.TryGetValue("_envColorRight", out var envColorRight))
-                            {
-                                if (envColorRight.Children().Count() == 3)
-                                {
-                                    diffEnvRight = new MapColor(
-                                        (float) (envColorRight["r"] ?? 0),
-                                        (float) (envColorRight["g"] ?? 0),
-                                        (float) (envColorRight["b"] ?? 0));
-                                }
-                            }
-
-                            if (beatmapData.TryGetValue("_envColorWhite", out var envColorWhite))
-                            {
-                                if (envColorWhite.Children().Count() == 3)
-                                {
-                                    diffEnvWhite = new MapColor(
-                                        (float) (envColorWhite["r"] ?? 0),
-                                        (float) (envColorWhite["g"] ?? 0),
-                                        (float) (envColorWhite["b"] ?? 0));
-                                }
-                            }
-
-                            if (beatmapData.TryGetValue("_envColorLeftBoost", out var envColorLeftBoost))
-                            {
-                                if (envColorLeftBoost.Children().Count() == 3)
-                                {
-                                    diffEnvLeftBoost = new MapColor(
-                                        (float) (envColorLeftBoost["r"] ?? 0),
-                                        (float) (envColorLeftBoost["g"] ?? 0),
-                                        (float) (envColorLeftBoost["b"] ?? 0));
-                                }
-                            }
-
-                            if (beatmapData.TryGetValue("_envColorRightBoost", out var envColorRightBoost))
-                            {
-                                if (envColorRightBoost.Children().Count() == 3)
-                                {
-                                    diffEnvRightBoost = new MapColor(
-                                        (float) (envColorRightBoost["r"] ?? 0),
-                                        (float) (envColorRightBoost["g"] ?? 0),
-                                        (float) (envColorRightBoost["b"] ?? 0));
-                                }
-                            }
-
-                            if (beatmapData.TryGetValue("_envColorWhiteBoost", out var envColorWhiteBoost))
-                            {
-                                if (envColorWhiteBoost.Children().Count() == 3)
-                                {
-                                    diffEnvWhiteBoost = new MapColor(
-                                        (float) (envColorWhiteBoost["r"] ?? 0),
-                                        (float) (envColorWhiteBoost["g"] ?? 0),
-                                        (float) (envColorWhiteBoost["b"] ?? 0));
-                                }
-                            }
-
-                            if (beatmapData.TryGetValue("_obstacleColor", out var obColor))
-                            {
-                                if (obColor.Children().Count() == 3)
-                                {
-                                    diffObstacle = new MapColor(
-                                        (float) (obColor["r"] ?? 0),
-                                        (float) (obColor["g"] ?? 0),
-                                        (float) (obColor["b"] ?? 0));
-                                }
                             }
 
                             if (beatmapData.TryGetValue("_warnings", out var warnings))
@@ -281,6 +408,17 @@ namespace SongCore.Data
                             {
                                 diffRequirements.AddRange(((JArray) requirements).Select(c => (string) c));
                             }
+
+                            if (beatmapData.TryGetValue("_oneSaber", out var oneSaberObj))
+                            {
+                                oneSaber = (bool) oneSaberObj;
+                            }
+
+                            if (beatmapData.TryGetValue("_showRotationNoteSpawnLines", out var showRotationNoteSpawnLinesObj))
+                            {
+                                showRotationNoteSpawnLines = (bool) showRotationNoteSpawnLinesObj;
+                            }
+
                         }
 
                         RequirementData diffReqData = new RequirementData
@@ -305,18 +443,40 @@ namespace SongCore.Data
                             _envColorLeftBoost = diffEnvLeftBoost,
                             _envColorRightBoost = diffEnvRightBoost,
                             _envColorWhiteBoost = diffEnvWhiteBoost,
-                            _obstacleColor = diffObstacle
+                            _obstacleColor = diffObstacle,
+                            _beatmapColorSchemeIdx = beatmapColorSchemeIdx,
+                            _environmentNameIdx = environmentNameIdx,
+                            _oneSaber = oneSaber,
+                            _showRotationNoteSpawnLines = showRotationNoteSpawnLines,
+                            _styleTags = styleTags.ToArray()
                         });
                     }
                 }
 
                 _difficulties = diffData.ToArray();
+                _characteristicDetails = characteristicsDetails.ToArray();
             }
             catch (Exception ex)
             {
                 Logging.Logger.Error($"Error in Level {songPath}:");
                 Logging.Logger.Error(ex);
             }
+        }
+
+        public static MapColor? GetMapColorFromJObject(JObject jObject, string key)
+        {
+            if (jObject.TryGetValue(key, out var envColorWhiteBoost))
+            {
+                if (envColorWhiteBoost.Children().Count() >= 3)
+                {
+                    return new MapColor(
+                        (float) (envColorWhiteBoost["r"] ?? 0),
+                        (float) (envColorWhiteBoost["g"] ?? 0),
+                        (float) (envColorWhiteBoost["b"] ?? 0),
+                        (float) (envColorWhiteBoost["a"] ?? 1));
+                }
+            }
+            return null;
         }
     }
 }

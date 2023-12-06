@@ -71,8 +71,11 @@ Required files:
 ```
 
 ### info.dat Explanation
+
+v1.31.0 has recently released info.dat v2.1.0 which adds _colorSchemes and _environmentNames, read the bsmg wiki if you intend to use these features [https://bsmg.wiki/mapping/infodat-format.html#color-schemes](https://bsmg.wiki/mapping/infodat-format.html#info-dat)
+
 ```
-"_version": - Format Version, leave this as 2.0.0
+"_version": - Format Version, below is an example of 2.0.0
 "_songName": - Name of your song
 "_songSubName": - Text rendered in smaller letters next to song name. "ft. Artist"
 "_songAuthorName": - Author of the song itself
@@ -112,6 +115,11 @@ Required files:
 "_difficultyBeatmapSets": [
 {
   "_beatmapCharacteristicName": - Characteristic of the BeatmapSet, Refer to Characteristics further down
+  "_customData":
+  {
+    "_characteristicLabel" : - The name to display for this selected characteristic when the icon is hovered
+    "_characteristicIconImageFilename" : - The file name of the characteristic icon
+  },
   "_difficultyBeatmaps": [ - DifficultyBeatmaps must be listed in Ascending Oder to show properly in Game
     {
       "_difficulty": - Name of the Difficulty (Easy/Normal/Hard/Expert/ExpertPlus)
@@ -120,6 +128,8 @@ Required files:
       "_noteJumpMovementSpeed": 10,
       "_noteJumpStartBeatOffset": 0,
       "_customData": {
+        "_oneSaber" : - true means the level is One Saber, false means the level uses both sabers
+        "_showRotationNoteSpawnLines" : - false disables the lower note spawn line on rotational maps
         "_difficultyLabel" - The name to display for the difficulty in game
           Note: Difficulty labels are unique per _beatmapCharacteristicName
         "_editorOffset": 0,
@@ -204,6 +214,10 @@ The following is a template for you to use:
  		"_customEnvironmentHash": "<platform's ModelSaber md5sum hash>"
 	},
 	"_difficultyBeatmapSets": [{
+                        "_customData" : {
+                                "_characteristicLabel" : "MyCharacteristic",
+                                "_characteristicIconImageFilename" : "test.png"
+                        },
 			"_beatmapCharacteristicName": "Standard",
 			"_difficultyBeatmaps": [{
 					"_difficulty": "Easy",
@@ -212,6 +226,8 @@ The following is a template for you to use:
 					"_noteJumpMovementSpeed": 10,
 					"_noteJumpStartBeatOffset": 0,
 					"_customData": {
+			                        "_oneSaber" : true,
+                                                "_showRotationNoteSpawnLines" : false,
 						"_difficultyLabel": "",
 						"_editorOffset": 0,
 						"_editorOldOffset": 0,
@@ -274,10 +290,50 @@ The following is a template for you to use:
 | "Standard"| Base Game |
 | "NoArrows"| Base Game |
 | "OneSaber"| Base Game |
+| "Legacy"| Base Game |
 | "Lawless"| SongCore |
 | "Lightshow"| SongCore |
 
-### Custom Generated Mod Characteristics
+## Characteristics Editing
+__Characteristic Labels__
+- As a mapper, you are able to change the Label and Icon for each given characteristic.
+- Add a `_customData` field before the `_difficultyBeatmaps` array to specifcy the characteristics label.
+- Both are not required if you only intend to change one.
+```
+"_customData" : {
+        "_characteristicLabel" : "30 Degree",
+        "_characteristicIconImageFilename" : "30Degree.png"
+}
+```
+![image](https://github.com/ModdingPink/SongCoreLegacy/assets/62712899/aa767f0b-c06b-4dcf-b574-1d28cbc9ac10)
+
+__Saber Count__
+- You are also able to change the saber count if your map requires it. 
+- Re-mapping a One Saber map and need it to load properly in the Legacy Characteristic? Apply `"_oneSaber" : true` to the customData and it'll load as a One Saber map!
+```
+"_customData" : {
+        "_oneSaber" : true
+}
+```
+- True will always make the level One Saber, false will always make the level have both sabers.
+
+__Rotational Spawn Lines__
+- If you require note spawn lines to not be shown due to rotational events within your map, you can apply `"_showRotationNoteSpawnLines" : false` to the customData.
+```
+"_customData" : {
+        "_showRotationNoteSpawnLines" : false
+}
+```
+- True will only show the spawn lines if the map has rotational events, false will hide these spawn lines.
+
+__All Directions Environment outside of 90/360__
+
+- Use the v2.1.0 info.dat format to do this by setting one of the `_environmentNames` to an `allDirections` environment such as `GlassDesertEnvironment`.
+- Environment Overrides from the player will apply correctly once set.
+- Information about the v2.1.0 format can be found [here](https://bsmg.wiki/mapping/infodat-format.html#info-dat).
+
+
+## Custom Generated Mod Characteristics
 - You may encounter map leaderboards with beatmap characteristics for which the map does not contain difficulty files. These characteristics are registered by generative mods. To access and play maps with these characteristics, you need to download their source mod. Do not map to these SerializedNames as it will render your map unplayable by SongCore.
 
 | Custom Characteristic | Can Be Applied To | Description | Source Mod |

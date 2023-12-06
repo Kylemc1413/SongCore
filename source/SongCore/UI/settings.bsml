@@ -1,10 +1,16 @@
 <settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
                     xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+
+    <text text='Color Settings' italics='true' font-size='6.5' align='Left' size-delta-y='9'/>
     <checkbox-setting text='Allow Custom Song Note Colors' value='noteColors' hover-hint='Allow Custom Songs to override note colors' bind-value='true' />
     <checkbox-setting text='Allow Custom Song Obstacle Colors' value='obstacleColors' hover-hint='Allow Custom Songs to override obstacle colors' bind-value='true' />
     <checkbox-setting text='Allow Custom Song Environment Colors' value='environmentColors' hover-hint='Allow Custom Songs to override environment colors' bind-value='true' />
-    <checkbox-setting text='Custom Song Platforms ' value='platforms' hover-hint='Allow Custom Songs to override your Custom Platform if Custom Platforms is installed.'/>
+    <text text='Map Label Settings' italics='true' font-size='6.5' align='Left' size-delta-y='9'/>
     <checkbox-setting text='Display Custom Difficulty Labels' value='diffLabels' hover-hint='Display Custom Difficulty Labels if used by the mapper.'/>
-    <checkbox-setting text='Force Long Song Previews' value='longPreviews'
-                      hover-hint='Force song previews to last the entire song past the starting point. Must fully refresh songs after changing this for it to take effect.'/>
+    <checkbox-setting text='Display Custom Characteristic Visuals' value='customChara' hover-hint='Display Custom Characteristic Icons and Labels if used by the mapper.'/>
+    <text text='Misc Settings' italics='true' font-size='6.5' align='Left' size-delta-y='9'/>
+    <checkbox-setting text='Force Long Song Previews' value='longPreviews' hover-hint='Force song previews to last the entire song past the starting point. Must fully refresh songs after changing this for it to take effect.'/>
+    <checkbox-setting text='Custom Song Platforms ' value='platforms' hover-hint='Allow Custom Songs to override your Custom Platform if Custom Platforms is installed.'/>
+    <checkbox-setting text='Change Mapper Text To Green' value='mappercolor' hover-hint='Reverts the Pink mapper text to Green.'/>
+    <checkbox-setting text='Always Show Rotation Note Spawn Lines' value='spawnlines' hover-hint='Mappers can hide the lower line that appears when a note spawns in certain maps that rotate, this setting allows these lines to always show.'/>
 </settings-container>

@@ -29,11 +29,15 @@ namespace SongCore.UI
         internal Sprite? WarningIcon;
         internal Sprite? InfoIcon;
         internal Sprite? ColorsIcon;
+        internal Sprite? OneSaberIcon;
+        internal Sprite? EnvironmentIcon;
+        internal Sprite? StandardIcon;
 
         //Currently selected song data
         public CustomPreviewBeatmapLevel level;
         public Data.ExtraSongData songData;
         public Data.ExtraSongData.DifficultyData? diffData;
+        public IDifficultyBeatmap difficultyBeatmap;
         public bool wipFolder;
 
         [UIComponent("list")]
@@ -126,6 +130,21 @@ namespace SongCore.UI
             {
                 ColorsIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Colors.png")!;
             }
+
+            if (!EnvironmentIcon)
+            {
+                EnvironmentIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Environment.png")!;
+            }
+
+            if (!OneSaberIcon)
+            {
+                OneSaberIcon = Utils.LoadSpriteFromResources("SongCore.Icons.OneSaber.png")!;
+            }
+
+            if (!StandardIcon)
+            {
+                StandardIcon = Utils.LoadSpriteFromResources("SongCore.Icons.Standard.png")!;
+            }
         }
 
         [UIAction("button-click")]
@@ -137,7 +156,6 @@ namespace SongCore.UI
                 modalPosition = modal!.transform.localPosition;
 
             }
-
             modal.transform.localPosition = modalPosition;
             modal.Show(true);
             customListTableData.data.Clear();
@@ -193,6 +211,19 @@ namespace SongCore.UI
                 {
                     customListTableData.data.Add(new CustomCellInfo($"<size=75%>Custom Colors Available", $"Click here to preview & enable or disable it.", ColorsIcon));
                 }
+                string? environmentName = null;
+
+                if (diffData._environmentNameIdx != null)
+                {
+                    var environmentInfoName = songData._environmentNames.ElementAtOrDefault(diffData._environmentNameIdx.Value);
+                    if (environmentInfoName != null)
+                    {
+                        if (environmentInfoName != level.environmentInfo.serializedName)
+                        {
+                            environmentName = Loader._customLevelLoader.LoadEnvironmentInfo(environmentInfoName, false).environmentName;
+                        }
+                    }
+                }
 
                 if (diffData.additionalDifficultyData._warnings.Length > 0)
                 {
@@ -219,6 +250,22 @@ namespace SongCore.UI
                             : new CustomCellInfo($"<size=75%>{req}", "Suggestion", HaveSuggestionIcon));
                     }
                 }
+
+                if (diffData._oneSaber != null)
+                {
+                    string enabledText = Plugin.Configuration.DisableOneSaberOverride ? "[<color=#ff5072>Disabled</color>]" : "[<color=#89ff89>Enabled</color>]";
+                    string enabledSubtext = Plugin.Configuration.DisableOneSaberOverride ? "enable" : "disable";
+                    string saberCountText = diffData._oneSaber.Value ? "Forced One Saber" : "Forced Standard";
+                    customListTableData.data.Add(new CustomCellInfo($"<size=75%>{saberCountText} {enabledText}", $"Map changes saber count, click here to {enabledSubtext}.", diffData._oneSaber.Value ? OneSaberIcon : StandardIcon));
+                }
+
+                if (customListTableData.data.Count > 0)
+                {
+                    if (environmentName == null && difficultyBeatmap != null)
+                        environmentName = difficultyBeatmap.GetEnvironmentInfo().environmentName;
+                    customListTableData.data.Add(new CustomCellInfo("<size=75%>Environment Info", $"This Map uses the Environment: {environmentName}", EnvironmentIcon));
+
+                }
             }
 
             customListTableData.tableView.ReloadData();
@@ -229,9 +276,18 @@ namespace SongCore.UI
         private void Select(TableView _, int index)
         {
             customListTableData.tableView.ClearSelection();
-            if (diffData != null && customListTableData.data[index].icon == ColorsIcon)
+            if (diffData != null)
             {
-                modal.Hide(false, () => ColorsUI.instance.ShowColors(diffData));
+                var iconSelected = customListTableData.data[index].icon;
+                if (iconSelected == ColorsIcon)
+                {
+                    modal.Hide(false, () => ColorsUI.instance.ShowColors(diffData));
+                }
+                else if (iconSelected == StandardIcon || iconSelected == OneSaberIcon)
+                {
+                    Plugin.Configuration.DisableOneSaberOverride = !Plugin.Configuration.DisableOneSaberOverride;
+                    modal.Hide(true);
+                }
             }
         }
 
