@@ -48,7 +48,7 @@ namespace SongCore
         private CancellationTokenSource _loadingTaskCancellationTokenSource = new CancellationTokenSource();
         private bool _loadingCancelled;
 
-        private static CustomLevelLoader _customLevelLoader;
+        internal static CustomLevelLoader _customLevelLoader;
 
         public static BeatmapLevelsModel BeatmapLevelsModelSO
         {
