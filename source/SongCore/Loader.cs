@@ -48,7 +48,7 @@ namespace SongCore
         private CancellationTokenSource _loadingTaskCancellationTokenSource = new CancellationTokenSource();
         private bool _loadingCancelled;
 
-        private static CustomLevelLoader _customLevelLoader;
+        internal static CustomLevelLoader _customLevelLoader;
 
         public static BeatmapLevelsModel BeatmapLevelsModelSO
         {
@@ -857,7 +857,7 @@ namespace SongCore
                             var environmentColor1Boost = colorSchemeSaveData.colorScheme.environmentColor1Boost;
                             var obstaclesColor = colorSchemeSaveData.colorScheme.obstaclesColor;
                             overrideColorSchemes[i] = new ColorScheme(colorSchemeId, colorSchemeId, true, colorSchemeId, false,
-                                saberAColor, saberBColor, environmentColor0, environmentColor1,true, environmentColor0Boost, environmentColor1Boost, obstaclesColor);
+                                saberAColor, saberBColor, environmentColor0, environmentColor1, Color.white, true, environmentColor0Boost, environmentColor1Boost, Color.white, obstaclesColor);
                         }
                         else
                         {
@@ -879,7 +879,7 @@ namespace SongCore
                 result = new CustomPreviewBeatmapLevel(defaultCoverImage, saveData, songPath,
                     cachedMediaAsyncLoaderSO, levelID, songName, songSubName,
                     songAuthorName, levelAuthorName, beatsPerMinute, songTimeOffset, shuffle, shufflePeriod, previewStartTime, previewDuration,
-                    environmentSceneInfo, allDirectionEnvironmentInfo, environmentInfos, overrideColorSchemes, beatmapsets);
+                    environmentSceneInfo, allDirectionEnvironmentInfo, environmentInfos, overrideColorSchemes, PlayerSensitivityFlag.Safe, beatmapsets);
 
                 GetSongDuration(result, songPath, Path.Combine(songPath, saveData.songFilename));
             }
