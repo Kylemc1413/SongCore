@@ -27,7 +27,8 @@ namespace SongCore.HarmonyPatches
                     typeof(string),
                     typeof(bool),
                     typeof(bool),
-                    typeof(BeatmapDataCache)
+                    typeof(BeatmapDataCache),
+                    typeof(RecordingToolManager.SetupData?)
                 });
 
             yield return AccessTools.Method(typeof(MultiplayerLevelScenesTransitionSetupDataSO), nameof(MultiplayerLevelScenesTransitionSetupDataSO.Init),
