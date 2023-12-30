@@ -49,6 +49,18 @@ namespace SongCore.HarmonyPatches
 
         private static void Prefix(ref IDifficultyBeatmap difficultyBeatmap, ref ColorScheme? overrideColorScheme)
         {
+            if(overrideColorScheme != null)
+            {
+                if(overrideColorScheme._environmentColor0Boost.a == 0)
+                {
+                    overrideColorScheme._environmentColor0Boost = overrideColorScheme._environmentColor0;
+                }
+                if (overrideColorScheme._environmentColor1Boost.a == 0)
+                {
+                    overrideColorScheme._environmentColor1Boost = overrideColorScheme._environmentColor1;
+                }
+            }
+            
             if (difficultyBeatmap == null || !Plugin.Configuration.CustomSongNoteColors && !Plugin.Configuration.CustomSongEnvironmentColors && !Plugin.Configuration.CustomSongObstacleColors)
             {
                 return;
