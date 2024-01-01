@@ -9,6 +9,7 @@ using System.IO;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
+using SongCore.HarmonyPatches;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
@@ -19,8 +20,8 @@ namespace SongCore
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        private static PluginMetadata _metadata;
-        private static Harmony? _harmony;
+        private readonly PluginMetadata _metadata;
+        private readonly Harmony _harmony;
 
         internal static SConfiguration Configuration { get; private set; }
 
@@ -31,7 +32,7 @@ namespace SongCore
         public static string noArrowsCharacteristicName = "NoArrows";
 
         [Init]
-        public void Init(IPALogger pluginLogger, PluginMetadata metadata)
+        public Plugin(IPALogger pluginLogger, PluginMetadata metadata)
         {
             // Workaround for creating BSIPA config in Userdata subdir
             Directory.CreateDirectory(Path.Combine(UnityGame.UserDataPath, nameof(SongCore)));
@@ -39,6 +40,7 @@ namespace SongCore
 
             Logging.Logger = pluginLogger;
             _metadata = metadata;
+            _harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
         }
 
         [OnStart]
@@ -69,7 +71,8 @@ namespace SongCore
             BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", new SCSettingsController());
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
 
-            _harmony = Harmony.CreateAndPatchAll(_metadata.Assembly, "com.kyle1413.BeatSaber.SongCore");
+            _harmony.Patch(HarmonyTranspilersFixPatch.TargetMethod(), null, null, new HarmonyMethod(AccessTools.Method(typeof(HarmonyTranspilersFixPatch), nameof(HarmonyTranspilersFixPatch.Transpiler))));
+            _harmony.PatchAll(_metadata.Assembly);
 
             BasicUI.GetIcons();
             BS_Utils.Utilities.BSEvents.levelSelected += BSEvents_levelSelected;
