@@ -45,20 +45,22 @@ namespace SongCore.HarmonyPatches
             currentLabels.ExpertPlusOverride = null;
         }
 
-        private static void Postfix(StandardLevelDetailView __instance, ref IDifficultyBeatmap ____selectedDifficultyBeatmap, ref Button ____actionButton, ref Button ____practiceButton,
-            ref BeatmapDifficultySegmentedControlController ____beatmapDifficultySegmentedControlController,
-            ref BeatmapCharacteristicSegmentedControlController ____beatmapCharacteristicSegmentedControlController)
+        private static void Postfix(StandardLevelDetailView __instance)
         {
             var firstSelection = false;
-            var level = ____selectedDifficultyBeatmap.level is CustomBeatmapLevel ? ____selectedDifficultyBeatmap.level as CustomPreviewBeatmapLevel : null;
+            var selectedDifficultyBeatmap = __instance.selectedDifficultyBeatmap;
+            var actionButton = __instance.actionButton;
+            var practiceButton = __instance.practiceButton;
+            var level = selectedDifficultyBeatmap.level is CustomBeatmapLevel ? selectedDifficultyBeatmap.level as CustomPreviewBeatmapLevel : null;
+
             if (level != lastLevel)
             {
                 firstSelection = true;
                 lastLevel = level;
             }
 
-            ____actionButton.interactable = true;
-            ____practiceButton.interactable = true;
+            actionButton.interactable = true;
+            practiceButton.interactable = true;
 
             RequirementsUI.instance.ButtonGlowColor = false;
             RequirementsUI.instance.ButtonInteractable = false;
@@ -77,8 +79,7 @@ namespace SongCore.HarmonyPatches
             }
 
             var wipFolderSong = false;
-            var selectedDiff = ____selectedDifficultyBeatmap;
-            var diffData = Collections.RetrieveDifficultyData(selectedDiff);
+            var diffData = Collections.RetrieveDifficultyData(selectedDifficultyBeatmap);
 
             if (diffData != null)
             {
@@ -104,7 +105,7 @@ namespace SongCore.HarmonyPatches
                     RequirementsUI.instance.ButtonInteractable = true;
                     if (diffData.additionalDifficultyData._warnings.Contains("WIP"))
                     {
-                        ____actionButton.interactable = false;
+                        actionButton.interactable = false;
                     }
                     RequirementsUI.instance.SetRainbowColors(Utilities.Utils.DiffHasColors(diffData));
                 }
@@ -114,7 +115,7 @@ namespace SongCore.HarmonyPatches
             {
                 RequirementsUI.instance.ButtonGlowColor = true;
                 RequirementsUI.instance.ButtonInteractable = true;
-                ____actionButton.interactable = false;
+                actionButton.interactable = false;
                 wipFolderSong = true;
             }
 
@@ -124,24 +125,24 @@ namespace SongCore.HarmonyPatches
                 {
                     if (!Collections.capabilities.Contains(requirement))
                     {
-                        ____actionButton.interactable = false;
-                        ____practiceButton.interactable = false;
+                        actionButton.interactable = false;
+                        practiceButton.interactable = false;
                         RequirementsUI.instance.ButtonGlowColor = true;
                         RequirementsUI.instance.ButtonInteractable = true;
                     }
                 }
             }
 
-            if (selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName == "MissingCharacteristic")
+            if (selectedDifficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName == "MissingCharacteristic")
             {
-                ____actionButton.interactable = false;
-                ____practiceButton.interactable = false;
+                actionButton.interactable = false;
+                practiceButton.interactable = false;
                 RequirementsUI.instance.ButtonGlowColor = true;
                 RequirementsUI.instance.ButtonInteractable = true;
             }
 
             RequirementsUI.instance.level = level;
-            RequirementsUI.instance.difficultyBeatmap = ____selectedDifficultyBeatmap;
+            RequirementsUI.instance.difficultyBeatmap = selectedDifficultyBeatmap;
             RequirementsUI.instance.songData = songData;
             RequirementsUI.instance.diffData = diffData;
             RequirementsUI.instance.wipFolder = wipFolderSong;
@@ -154,7 +155,7 @@ namespace SongCore.HarmonyPatches
             {
                 var difficulty = diffLevel._difficulty;
                 string characteristic = diffLevel._beatmapCharacteristicName;
-                if (characteristic == selectedDiff.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName)
+                if (characteristic == selectedDifficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName)
                 {
                     currentCharacteristic = characteristic;
                 }
@@ -197,17 +198,16 @@ namespace SongCore.HarmonyPatches
                 ClearOverrideLabels();
             }
 
-            ____beatmapDifficultySegmentedControlController.SetData(____selectedDifficultyBeatmap.parentDifficultyBeatmapSet.difficultyBeatmaps,
-                ____beatmapDifficultySegmentedControlController.selectedDifficulty);
+            __instance._beatmapDifficultySegmentedControlController.SetData(selectedDifficultyBeatmap.parentDifficultyBeatmapSet.difficultyBeatmaps,
+                __instance._beatmapDifficultySegmentedControlController.selectedDifficulty);
             ClearOverrideLabels();
 
             // TODO: Check if this whole if block is still needed
             if (songData._defaultCharacteristic != null && firstSelection)
             {
-                if (____beatmapCharacteristicSegmentedControlController.selectedBeatmapCharacteristic.serializedName != songData._defaultCharacteristic)
+                if (__instance._beatmapCharacteristicSegmentedControlController.selectedBeatmapCharacteristic.serializedName != songData._defaultCharacteristic)
                 {
-                    var chars =
-                        ____beatmapCharacteristicSegmentedControlController._beatmapCharacteristics;
+                    var chars = __instance._beatmapCharacteristicSegmentedControlController._beatmapCharacteristics;
                     var index = 0;
                     foreach (var characteristic in chars)
                     {
@@ -221,10 +221,10 @@ namespace SongCore.HarmonyPatches
 
                     if (index != chars.Count)
                     {
-                        ____beatmapCharacteristicSegmentedControlController._segmentedControl
+                        __instance._beatmapCharacteristicSegmentedControlController._segmentedControl
                             .SelectCellWithNumber(index);
-                        ____beatmapCharacteristicSegmentedControlController.HandleDifficultySegmentedControlDidSelectCell(
-                            ____beatmapCharacteristicSegmentedControlController._segmentedControl, index);
+                        __instance._beatmapCharacteristicSegmentedControlController.HandleDifficultySegmentedControlDidSelectCell(
+                            __instance._beatmapCharacteristicSegmentedControlController._segmentedControl, index);
                     }
                 }
             }

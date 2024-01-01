@@ -92,35 +92,33 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch(nameof(LevelFilteringNavigationController.UpdateCustomSongs), MethodType.Normal)]
     internal class StopVanillaLoadingPatch2
     {
-        private static bool Prefix(ref LevelFilteringNavigationController __instance, LevelSearchViewController ____levelSearchViewController,
-            SelectLevelCategoryViewController ____selectLevelCategoryViewController, ref IBeatmapLevelPack[] ____ostBeatmapLevelPacks, ref IBeatmapLevelPack[] ____musicPacksBeatmapLevelPacks,
-            ref IBeatmapLevelPack[] ____customLevelPacks, ref IBeatmapLevelPack[] ____allBeatmapLevelPacks)
+        private static bool Prefix(LevelFilteringNavigationController __instance)
         {
             if (Loader.CustomBeatmapLevelPackCollectionSO == null)
             {
                 return false;
             }
 
-            ____customLevelPacks = Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks;
+            __instance._customLevelPacks = Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks;
             IEnumerable<IBeatmapLevelPack>? packs = null;
-            if (____ostBeatmapLevelPacks != null)
+            if (__instance._ostBeatmapLevelPacks != null)
             {
-                packs = ____ostBeatmapLevelPacks;
+                packs = __instance._ostBeatmapLevelPacks;
             }
 
-            if (____musicPacksBeatmapLevelPacks != null)
+            if (__instance._musicPacksBeatmapLevelPacks != null)
             {
-                packs = packs == null ? ____musicPacksBeatmapLevelPacks : packs.Concat(____musicPacksBeatmapLevelPacks);
+                packs = packs == null ? __instance._musicPacksBeatmapLevelPacks : packs.Concat(__instance._musicPacksBeatmapLevelPacks);
             }
 
-            if (____customLevelPacks != null)
+            if (__instance._customLevelPacks != null)
             {
-                packs = packs == null ? ____customLevelPacks : packs.Concat(____customLevelPacks);
+                packs = packs == null ? __instance._customLevelPacks : packs.Concat(__instance._customLevelPacks);
             }
 
-            ____allBeatmapLevelPacks = packs.ToArray();
-            ____levelSearchViewController.Setup(____allBeatmapLevelPacks);
-            __instance.UpdateSecondChildControllerContent(____selectLevelCategoryViewController.selectedLevelCategory);
+            __instance._allBeatmapLevelPacks = packs.ToArray();
+            __instance._levelSearchViewController.Setup(__instance._allBeatmapLevelPacks);
+            __instance.UpdateSecondChildControllerContent(__instance._selectLevelCategoryViewController.selectedLevelCategory);
 
             return false;
         }

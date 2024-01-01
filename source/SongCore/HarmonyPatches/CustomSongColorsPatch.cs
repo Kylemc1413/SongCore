@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
-using IPA.Utilities;
 using SongCore.Utilities;
 using Utils = SongCore.Utilities.Utils;
 
