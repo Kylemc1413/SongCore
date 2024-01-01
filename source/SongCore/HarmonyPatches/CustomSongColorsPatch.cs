@@ -12,39 +12,8 @@ namespace SongCore.HarmonyPatches
     {
         private static IEnumerable<MethodBase> TargetMethods()
         {
-            yield return AccessTools.Method(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.Init),
-                new[]
-                {
-                    typeof(string),
-                    typeof(IDifficultyBeatmap),
-                    typeof(IPreviewBeatmapLevel),
-                    typeof(OverrideEnvironmentSettings),
-                    typeof(ColorScheme),
-                    typeof(ColorScheme),
-                    typeof(GameplayModifiers),
-                    typeof(PlayerSpecificSettings),
-                    typeof(PracticeSettings),
-                    typeof(string),
-                    typeof(bool),
-                    typeof(bool),
-                    typeof(BeatmapDataCache),
-                    typeof(RecordingToolManager.SetupData?)
-                });
-
-            yield return AccessTools.Method(typeof(MultiplayerLevelScenesTransitionSetupDataSO), nameof(MultiplayerLevelScenesTransitionSetupDataSO.Init),
-                new[]
-                {
-                    typeof(string),
-                    typeof(IPreviewBeatmapLevel),
-                    typeof(BeatmapDifficulty),
-                    typeof(BeatmapCharacteristicSO),
-                    typeof(IDifficultyBeatmap),
-                    typeof(ColorScheme),
-                    typeof(GameplayModifiers),
-                    typeof(PlayerSpecificSettings),
-                    typeof(PracticeSettings),
-                    typeof(bool)
-                });
+            yield return AccessTools.DeclaredMethod(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.Init));
+            yield return AccessTools.DeclaredMethod(typeof(MultiplayerLevelScenesTransitionSetupDataSO), nameof(MultiplayerLevelScenesTransitionSetupDataSO.Init));
         }
 
         private static void Prefix(ref IDifficultyBeatmap difficultyBeatmap, ref ColorScheme? overrideColorScheme)
