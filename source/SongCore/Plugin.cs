@@ -44,30 +44,7 @@ namespace SongCore
         [OnStart]
         public void OnApplicationStart()
         {
-            // TODO: Remove this migration path at some point
-            var songCoreIniPath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "SongCore.ini");
-            if (File.Exists(songCoreIniPath))
-            {
-                var modPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
-
-                Configuration.CustomSongPlatforms = modPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
-                Configuration.DisplayDiffLabels = modPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
-                Configuration.ForceLongPreviews = modPrefs.GetBool("SongCore", "forceLongPreviews", false, true);
-
-                //Delete Old Config
-                try
-                {
-                    File.Delete(songCoreIniPath);
-                }
-                catch
-                {
-                    Logging.Logger.Warn("Failed to delete old config file!");
-                }
-            }
-
-
             BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", new SCSettingsController());
-            SceneManager.activeSceneChanged += OnActiveSceneChanged;
 
             _harmony = Harmony.CreateAndPatchAll(_metadata.Assembly, "com.kyle1413.BeatSaber.SongCore");
 
@@ -125,16 +102,6 @@ namespace SongCore
                 {
                     CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
                 }
-            }
-        }
-
-        private void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
-        {
-            Object.Destroy(GameObject.Find("SongCore Color Setter"));
-
-            if (nextScene.name == "MenuViewControllers")
-            {
-                BS_Utils.Gameplay.Gamemode.Init();
             }
         }
 

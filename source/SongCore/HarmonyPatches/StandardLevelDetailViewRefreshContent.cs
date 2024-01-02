@@ -3,7 +3,6 @@ using HarmonyLib;
 using SongCore.UI;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.UI;
 using SongCore.Utilities;
 
 namespace SongCore.HarmonyPatches

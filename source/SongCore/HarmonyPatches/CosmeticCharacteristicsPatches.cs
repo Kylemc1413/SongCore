@@ -1,16 +1,11 @@
-using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HarmonyLib;
 using HMUI;
 using SongCore.Data;
 using SongCore.Utilities;
 using UnityEngine;
-using static IPA.Logging.Logger;
 
 namespace SongCore.HarmonyPatches
 {
@@ -91,7 +86,6 @@ namespace SongCore.HarmonyPatches
         [HarmonyPatch(nameof(BeatmapCharacteristicSegmentedControlController.SetData), MethodType.Normal)]
         internal class CosmeticCharacteristicsPatch
         {
-            //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
             private static void Postfix(BeatmapCharacteristicSegmentedControlController __instance, IReadOnlyList<IDifficultyBeatmapSet> difficultyBeatmapSets, BeatmapCharacteristicSO selectedBeatmapCharacteristic)
             {
                 if (!Plugin.Configuration.DisplayCustomCharacteristics) return;

@@ -12,9 +12,6 @@ namespace SongCore.HarmonyPatches
             // Rounding BPM display for all maps, including official ones
             __instance._songBpmText.text = System.Math.Round(level.beatsPerMinute).ToString(CultureInfo.InvariantCulture);
 
-            /* Plan B
-           IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew( async () => { var token = new CancellationTokenSource().Token; var audio = await level.GetPreviewAudioClipAsync(token); customLevel.SetField("_songDuration", audio.length);  ____songDurationText.text = customLevel.songDuration.MinSecDurationText(); });
-            */
             if (!string.IsNullOrWhiteSpace(level.levelAuthorName))
             {
                 __instance._songAuthorText.richText = true;

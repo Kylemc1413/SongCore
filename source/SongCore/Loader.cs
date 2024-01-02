@@ -112,7 +112,6 @@ namespace SongCore
             _loadingCancelled = true;
             AreSongsLoading = false;
             LoadingProgress = 0;
-            StopAllCoroutines();
             _progressBar.ShowMessage("Loading cancelled\n<size=80%>Press Ctrl+R to refresh</size>");
         }
 
@@ -611,7 +610,6 @@ namespace SongCore
                     //Handle LevelPacks
                     if (CustomBeatmapLevelPackCollectionSO == null || CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks.Length == 0)
                     {
-                        // var beatmapLevelPackCollectionSO = Resources.FindObjectsOfTypeAll<BeatmapLevelPackCollectionSO>().FirstOrDefault();
                         CustomBeatmapLevelPackCollectionSO = await UnityMainThreadTaskScheduler.Factory.StartNew(SongCoreBeatmapLevelPackCollectionSO.CreateNew);
 
                         #region CreateLevelPacks
@@ -683,10 +681,6 @@ namespace SongCore
             {
                 Logging.Logger.Warn($"Song Loading Task Cancelled.");
             }
-
-            // await IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory.StartNew(finish).ConfigureAwait(false);
-            //  _loadingTask = new HMTask(job, finish);
-            //  _loadingTask.Run();
         }
 
         /// <summary>

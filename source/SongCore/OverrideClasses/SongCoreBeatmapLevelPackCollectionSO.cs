@@ -6,10 +6,6 @@ namespace SongCore.OverrideClasses
     {
         internal readonly List<CustomBeatmapLevelPack> _customBeatmapLevelPacks = new List<CustomBeatmapLevelPack>();
 
-        public SongCoreBeatmapLevelPackCollectionSO()
-        {
-        }
-
         public static SongCoreBeatmapLevelPackCollectionSO CreateNew()
         {
             var newCollection = CreateInstance<SongCoreBeatmapLevelPackCollectionSO>();

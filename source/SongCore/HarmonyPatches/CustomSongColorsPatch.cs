@@ -82,8 +82,6 @@ namespace SongCore.HarmonyPatches
                 : Utils.ColorFromMapColor(songData._obstacleColor);
             overrideColorScheme = new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", true, "SongCore Map Color Scheme", false, saberLeft, saberRight, envLeft,
                 envRight, envWhite, true, envLeftBoost, envRightBoost, envWhiteBoost, obstacle);
-            overrideColorScheme._environmentColorW = envWhite;
-            overrideColorScheme._environmentColorWBoost = envWhiteBoost;
         }
     }
 }
