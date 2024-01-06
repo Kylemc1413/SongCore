@@ -12,6 +12,7 @@ namespace SongCore.HarmonyPatches
     /// <see cref="HarmonyLib.Internal.Patching.ILManipulator.WriteTo" /> that deletes existing <c>Leave</c>, <c>Endfinally</c>
     /// and <c>Endfilter</c> instructions from the patched method when they are followed by an exception block.
     /// </summary>
+    // TODO: Remove this once fixed.
     internal class HarmonyTranspilersFixPatch
     {
         public static MethodBase TargetMethod() => AccessTools.Method("HarmonyLib.Internal.Patching.ILManipulator:WriteTo");

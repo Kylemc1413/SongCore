@@ -14,6 +14,7 @@ namespace SongCore.HarmonyPatches
     /// This patch catches all exceptions and displays an error message to the user
     /// in the <see cref="StandardLevelDetailView"/> when the game is loading beatmap levels.
     /// </summary>
+    // TODO: Make this use MethodType.Async once supported.
     [HarmonyPatch]
     internal class StandardLevelDetailViewControllerPatch
     {
