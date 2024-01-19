@@ -169,7 +169,7 @@ namespace SongCore
                 _levelFilteringNavigationController.UpdateCustomSongs();
             }
 
-            OnLevelPacksRefreshed?.Invoke();
+            await UnityMainThreadTaskScheduler.Factory.StartNew(() => OnLevelPacksRefreshed?.Invoke());
         }
 
         public void RefreshSongs(bool fullRefresh = true)
