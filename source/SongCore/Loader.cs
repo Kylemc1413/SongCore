@@ -164,12 +164,16 @@ namespace SongCore
             BeatmapLevelsModelSO._customLevelPackCollection = CustomBeatmapLevelPackCollectionSO;
             BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
             BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
-            if (_levelFilteringNavigationController.isActiveAndEnabled)
-            {
-                _levelFilteringNavigationController.UpdateCustomSongs();
-            }
 
-            await UnityMainThreadTaskScheduler.Factory.StartNew(() => OnLevelPacksRefreshed?.Invoke());
+            await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+            {
+                if (_levelFilteringNavigationController.isActiveAndEnabled)
+                {
+                    _levelFilteringNavigationController.UpdateCustomSongs();
+                }
+
+                OnLevelPacksRefreshed?.Invoke();
+            });
         }
 
         public void RefreshSongs(bool fullRefresh = true)
