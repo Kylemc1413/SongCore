@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net472</TargetFramework>
         <OutputType>Library</OutputType>
-        <LangVersion>8</LangVersion>
+        <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
@@ -24,6 +24,10 @@
             <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
             <Private>False</Private>
         </Reference>
+        <Reference Include="BeatmapCore">
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
         <Reference Include="BGLib.AppFlow">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.AppFlow.dll</HintPath>
             <Private>false</Private>
@@ -32,16 +36,12 @@
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BGLib.UnityExtension.dll</HintPath>
             <Private>false</Private>
         </Reference>
-        <Reference Include="BSML">
-            <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
         <Reference Include="BS_Utils">
             <HintPath>$(BeatSaberDir)\Plugins\BS_Utils.dll</HintPath>
             <Private>False</Private>
         </Reference>
-        <Reference Include="BeatmapCore">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+        <Reference Include="BSML">
+            <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="Colors">
@@ -71,9 +71,17 @@
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Menu.ColorSettings.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="MonoMod.Utils">
+            <HintPath>$(BeatSaberDir)\Libs\MonoMod.Utils.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="Newtonsoft.Json">
             <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
             <Private>False</Private>
+        </Reference>
+        <Reference Include="Polyglot">
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Polyglot.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="Tweening">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Tweening.dll</HintPath>
@@ -109,10 +117,6 @@
         </Reference>
         <Reference Include="Zenject-usage">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll</HintPath>
-            <Private>false</Private>
-        </Reference>        
-		<Reference Include="Polyglot">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Polyglot.dll</HintPath>
             <Private>false</Private>
         </Reference>
     </ItemGroup>
