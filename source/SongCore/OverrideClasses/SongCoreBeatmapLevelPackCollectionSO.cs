@@ -4,11 +4,7 @@ namespace SongCore.OverrideClasses
 {
     public class SongCoreBeatmapLevelPackCollectionSO : BeatmapLevelPackCollectionSO
     {
-        internal readonly List<CustomBeatmapLevelPack> _customBeatmapLevelPacks = new List<CustomBeatmapLevelPack>();
-
-        public SongCoreBeatmapLevelPackCollectionSO()
-        {
-        }
+        private readonly List<CustomBeatmapLevelPack> _customBeatmapLevelPacks = new List<CustomBeatmapLevelPack>();
 
         public static SongCoreBeatmapLevelPackCollectionSO CreateNew()
         {
@@ -39,6 +35,11 @@ namespace SongCore.OverrideClasses
                 _customBeatmapLevelPacks.Remove(pack);
                 UpdateArray();
             }
+        }
+
+        public void ClearLevelPacks()
+        {
+            _customBeatmapLevelPacks.Clear();
         }
 
         private void UpdateArray()

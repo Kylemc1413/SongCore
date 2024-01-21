@@ -116,7 +116,7 @@ namespace SongCore
 
             newChar._icon = icon;
             newChar._descriptionLocalizationKey = hintText;
-            newChar._serializedName= serializedName;
+            newChar._serializedName = serializedName;
             newChar._characteristicNameLocalizationKey = characteristicName;
             newChar._compoundIdPartName = compoundIdPartName;
             newChar._requires360Movement = requires360Movement;
