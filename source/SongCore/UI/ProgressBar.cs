@@ -108,7 +108,7 @@ namespace SongCore.UI
             _canvas.enabled = true;
         }
 
-        private void SongLoaderOnSongsLoadedEvent(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> customLevels)
+        private void SongLoaderOnSongsLoadedEvent(Loader loader, ConcurrentDictionary<string, BeatmapLevel> customLevels)
         {
             _showingMessage = false;
             string songOrSongs = customLevels.Count == 1 ? "song" : "songs";

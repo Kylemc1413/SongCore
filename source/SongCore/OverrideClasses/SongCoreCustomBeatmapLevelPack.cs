@@ -3,17 +3,17 @@ using UnityEngine;
 
 namespace SongCore.OverrideClasses
 {
-    public class SongCoreCustomBeatmapLevelPack : CustomBeatmapLevelPack
+    public class SongCoreCustomBeatmapLevelPack : BeatmapLevelPack
     {
-        public SongCoreCustomBeatmapLevelPack(string packID, string packName, Sprite coverImage, CustomBeatmapLevelCollection customBeatmapLevelCollection, string shortPackName = "")
-            : base(packID, packName, shortPackName == string.Empty ? packName : shortPackName, Sprite.Create(coverImage.texture, coverImage.rect, coverImage.pivot, coverImage.texture.width), coverImage, customBeatmapLevelCollection)
+        public SongCoreCustomBeatmapLevelPack(string packID, string packName, Sprite coverImage, BeatmapLevel[] beatmapLevels, string shortPackName = "")
+            : base(packID, packName, shortPackName == string.Empty ? packName : shortPackName, Sprite.Create(coverImage.texture, coverImage.rect, coverImage.pivot, coverImage.texture.width), coverImage, beatmapLevels, PlayerSensitivityFlag.Safe)
         {
         }
 
-        public void UpdateLevelCollection(CustomBeatmapLevelCollection newLevelCollection)
+        public void UpdateBeatmapLevels(BeatmapLevel[] beatmapLevels)
         {
-            var that = (CustomBeatmapLevelPack) this;
-            Accessors.BeatmapLevelCollectionAccessor(ref that) = newLevelCollection;
+            var that = (BeatmapLevelPack)this;
+            Accessors.BeatmapLevelsAccessor(ref that) = beatmapLevels;
         }
     }
 }

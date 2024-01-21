@@ -23,7 +23,7 @@ namespace SongCore
 
         internal static SConfiguration Configuration { get; private set; }
 
-        public static Action<bool, string, string, IPreviewBeatmapLevel>? CustomSongPlatformSelectionDidChange;
+        public static Action<bool, string, string, BeatmapLevel>? CustomSongPlatformSelectionDidChange;
 
         public static string standardCharacteristicName = "Standard";
         public static string oneSaberCharacteristicName = "OneSaber";
@@ -88,18 +88,18 @@ namespace SongCore
             RequirementsUI.instance.Setup();
         }
 
-        private void BSEvents_levelSelected(LevelCollectionViewController arg1, IPreviewBeatmapLevel level)
+        private void BSEvents_levelSelected(LevelCollectionViewController arg1, BeatmapLevel level)
         {
-            if (level is CustomPreviewBeatmapLevel customLevel && Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel)) is { } songData)
+            if (!level.hasPrecalculatedData && Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(level)) is { } songData)
             {
                 if (Configuration.CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
                     Logging.Logger.Debug("Custom song with platform selected");
-                    CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
+                    CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, level);
                 }
                 else
                 {
-                    CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
+                    CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, level);
                 }
             }
         }

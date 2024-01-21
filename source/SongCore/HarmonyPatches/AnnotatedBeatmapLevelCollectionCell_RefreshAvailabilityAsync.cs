@@ -12,7 +12,7 @@ namespace SongCore.HarmonyPatches
     {
         private static void Postfix(AnnotatedBeatmapLevelCollectionCell __instance)
         {
-            if (__instance._annotatedBeatmapLevelCollection is CustomBeatmapLevelPack)
+            if (__instance._beatmapLevelPack.packID.StartsWith(CustomLevelLoader.kCustomLevelPackPrefixId))
             {
                 __instance.SetDownloadIconVisible(false);
             }
