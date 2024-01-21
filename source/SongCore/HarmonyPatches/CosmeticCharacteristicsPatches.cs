@@ -1,17 +1,11 @@
-using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HarmonyLib;
 using HMUI;
-using IPA.Utilities;
 using SongCore.Data;
 using SongCore.Utilities;
 using UnityEngine;
-using static IPA.Logging.Logger;
 
 namespace SongCore.HarmonyPatches
 {
@@ -53,7 +47,7 @@ namespace SongCore.HarmonyPatches
                 if (Plugin.Configuration.DisableOneSaberOverride)
                     return;
 
-                sceneSetupData = __instance.GetField<GameplayCoreSceneSetupData, GameplayCoreInstaller>("_sceneSetupData");
+                sceneSetupData = __instance._sceneSetupData;
 
                 var diffBeatmapLevel = sceneSetupData.difficultyBeatmap.level;
                 var level = diffBeatmapLevel is CustomBeatmapLevel ? diffBeatmapLevel as CustomPreviewBeatmapLevel : null;
@@ -68,7 +62,7 @@ namespace SongCore.HarmonyPatches
                 if (diffData._oneSaber != null && !Plugin.Configuration.DisableOneSaberOverride)
                 {
                     numberOfColors = sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.numberOfColors;
-                    sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.SetField("_numberOfColors", diffData._oneSaber.Value == true ? 1 : 2);
+                    sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic._numberOfColors = diffData._oneSaber.Value == true ? 1 : 2;
                 }
 
             }
@@ -81,7 +75,7 @@ namespace SongCore.HarmonyPatches
 
                 if (diffData._oneSaber != null && !Plugin.Configuration.DisableOneSaberOverride)
                 {
-                    sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.SetField("_numberOfColors", numberOfColors);
+                    sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic._numberOfColors = numberOfColors;
                 }
             }
 
@@ -92,8 +86,7 @@ namespace SongCore.HarmonyPatches
         [HarmonyPatch(nameof(BeatmapCharacteristicSegmentedControlController.SetData), MethodType.Normal)]
         internal class CosmeticCharacteristicsPatch
         {
-            //      public static OverrideClasses.CustomLevel previouslySelectedSong = null;
-            private static void Postfix(IReadOnlyList<IDifficultyBeatmapSet> difficultyBeatmapSets, BeatmapCharacteristicSO selectedBeatmapCharacteristic, ref List<BeatmapCharacteristicSO> ____beatmapCharacteristics, ref IconSegmentedControl ____segmentedControl)
+            private static void Postfix(BeatmapCharacteristicSegmentedControlController __instance, IReadOnlyList<IDifficultyBeatmapSet> difficultyBeatmapSets, BeatmapCharacteristicSO selectedBeatmapCharacteristic)
             {
                 if (!Plugin.Configuration.DisplayCustomCharacteristics) return;
 
@@ -110,18 +103,18 @@ namespace SongCore.HarmonyPatches
 
                 if (songData == null) return;
                 if (songData._characteristicDetails == null) return;
-                if (____segmentedControl == null) return;
+                if (__instance._segmentedControl == null) return;
 
                 if (songData._characteristicDetails.Length > 0)
                 {
-                    var dataItems = ____segmentedControl.GetField<IconSegmentedControl.DataItem[], IconSegmentedControl>("_dataItems");
+                    var dataItems = __instance._segmentedControl._dataItems;
                     List<IconSegmentedControl.DataItem> newDataItems = new List<IconSegmentedControl.DataItem>();
 
                     int i = 0;
                     int cell = 0;
                     foreach (var item in dataItems)
                     {
-                        var characteristic = ____beatmapCharacteristics[i];
+                        var characteristic = __instance._beatmapCharacteristics[i];
                         string serializedName = characteristic.serializedName;
                         ExtraSongData.CharacteristicDetails? detail = songData._characteristicDetails.Where(x => x._beatmapCharacteristicName == serializedName).FirstOrDefault();
 
@@ -139,13 +132,13 @@ namespace SongCore.HarmonyPatches
                         }
 
                         if (characteristic == selectedBeatmapCharacteristic)
-                        { 
+                        {
                             cell = i;
                         }
                         i++;
                     }
-                    ____segmentedControl.SetData(newDataItems.ToArray());
-                    ____segmentedControl.SelectCellWithNumber(cell);
+                    __instance._segmentedControl.SetData(newDataItems.ToArray());
+                    __instance._segmentedControl.SelectCellWithNumber(cell);
                 }
             }
         }

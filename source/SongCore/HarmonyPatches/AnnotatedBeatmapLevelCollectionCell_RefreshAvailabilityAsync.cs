@@ -10,9 +10,9 @@ namespace SongCore.HarmonyPatches
     [HarmonyPatch(typeof(AnnotatedBeatmapLevelCollectionCell), nameof(AnnotatedBeatmapLevelCollectionCell.RefreshAvailabilityAsync))]
     internal class AnnotatedBeatmapLevelCollectionCell_RefreshAvailabilityAsync
     {
-        private static void Postfix(AnnotatedBeatmapLevelCollectionCell __instance, IAnnotatedBeatmapLevelCollection ____annotatedBeatmapLevelCollection)
+        private static void Postfix(AnnotatedBeatmapLevelCollectionCell __instance)
         {
-            if (____annotatedBeatmapLevelCollection is CustomBeatmapLevelPack)
+            if (__instance._annotatedBeatmapLevelCollection is CustomBeatmapLevelPack)
             {
                 __instance.SetDownloadIconVisible(false);
             }

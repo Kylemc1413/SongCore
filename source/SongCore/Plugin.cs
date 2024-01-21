@@ -11,9 +11,7 @@ using IPA.Config.Stores;
 using IPA.Loader;
 using SongCore.HarmonyPatches;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
-using Object = UnityEngine.Object;
 
 namespace SongCore
 {
@@ -46,30 +44,7 @@ namespace SongCore
         [OnStart]
         public void OnApplicationStart()
         {
-            // TODO: Remove this migration path at some point
-            var songCoreIniPath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "SongCore.ini");
-            if (File.Exists(songCoreIniPath))
-            {
-                var modPrefs = new BS_Utils.Utilities.Config("SongCore/SongCore");
-
-                Configuration.CustomSongPlatforms = modPrefs.GetBool("SongCore", "customSongPlatforms", true, true);
-                Configuration.DisplayDiffLabels = modPrefs.GetBool("SongCore", "displayDiffLabels", true, true);
-                Configuration.ForceLongPreviews = modPrefs.GetBool("SongCore", "forceLongPreviews", false, true);
-
-                //Delete Old Config
-                try
-                {
-                    File.Delete(songCoreIniPath);
-                }
-                catch
-                {
-                    Logging.Logger.Warn("Failed to delete old config file!");
-                }
-            }
-
-
-            BSMLSettings.instance.AddSettingsMenu("SongCore", "SongCore.UI.settings.bsml", new SCSettingsController());
-            SceneManager.activeSceneChanged += OnActiveSceneChanged;
+            BSMLSettings.instance.AddSettingsMenu(nameof(SongCore), "SongCore.UI.settings.bsml", new SCSettingsController());
 
             _harmony.Patch(HarmonyTranspilersFixPatch.TargetMethod(), null, null, new HarmonyMethod(AccessTools.Method(typeof(HarmonyTranspilersFixPatch), nameof(HarmonyTranspilersFixPatch.Transpiler))));
             _harmony.PatchAll(_metadata.Assembly);
@@ -104,21 +79,19 @@ namespace SongCore
 
         private void BSEvents_menuSceneLoadedFresh(ScenesTransitionSetupDataSO data)
         {
-            Loader.OnLoad();
+            if (Loader.Instance == null)
+            {
+                new GameObject("SongCore Loader").AddComponent<Loader>();
+            }
+
+            Loader.Instance!.MenuLoadedFresh();
             RequirementsUI.instance.Setup();
         }
 
         private void BSEvents_levelSelected(LevelCollectionViewController arg1, IPreviewBeatmapLevel level)
         {
-            if (level is CustomPreviewBeatmapLevel customLevel)
+            if (level is CustomPreviewBeatmapLevel customLevel && Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel)) is { } songData)
             {
-                var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(customLevel));
-
-                if (songData == null)
-                {
-                    return;
-                }
-
                 if (Configuration.CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
                     Logging.Logger.Debug("Custom song with platform selected");
@@ -128,16 +101,6 @@ namespace SongCore
                 {
                     CustomSongPlatformSelectionDidChange?.Invoke(false, songData._customEnvironmentName, songData._customEnvironmentHash, customLevel);
                 }
-            }
-        }
-
-        private void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
-        {
-            Object.Destroy(GameObject.Find("SongCore Color Setter"));
-
-            if (nextScene.name == "MenuViewControllers")
-            {
-                BS_Utils.Gameplay.Gamemode.Init();
             }
         }
 

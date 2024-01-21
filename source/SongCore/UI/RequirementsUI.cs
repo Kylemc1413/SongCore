@@ -83,7 +83,7 @@ namespace SongCore.UI
         internal void Setup()
         {
             GetIcons();
-            standardLevel = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().First();
+            standardLevel = Object.FindObjectOfType<StandardLevelDetailViewController>(true);
             tweenyManager = Object.FindObjectOfType<TweeningManager>();
             BSMLParser.instance.Parse(BUTTON_BSML, standardLevel.transform.Find("LevelDetail").gameObject, this);
 
@@ -220,7 +220,7 @@ namespace SongCore.UI
                     {
                         if (environmentInfoName != level.environmentInfo.serializedName)
                         {
-                            environmentName = Loader._customLevelLoader.LoadEnvironmentInfo(environmentInfoName, false).environmentName;
+                            environmentName = Loader.CustomLevelLoader.LoadEnvironmentInfo(environmentInfoName, false).environmentName;
                         }
                     }
                 }

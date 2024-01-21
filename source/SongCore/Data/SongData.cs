@@ -1,17 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using HarmonyLib;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SongCore.Utilities;
 using UnityEngine;
-using UnityEngine.UI;
-using static BloomPrePassBackgroundColorsGradientFromColorSchemeColors;
 
 namespace SongCore.Data
 {

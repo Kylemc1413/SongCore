@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
-using IPA.Utilities;
 using SongCore.Utilities;
 using Utils = SongCore.Utilities.Utils;
 
@@ -12,55 +11,25 @@ namespace SongCore.HarmonyPatches
     {
         private static IEnumerable<MethodBase> TargetMethods()
         {
-            yield return AccessTools.Method(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.Init),
-                new[]
-                {
-                    typeof(string),
-                    typeof(IDifficultyBeatmap),
-                    typeof(IPreviewBeatmapLevel),
-                    typeof(OverrideEnvironmentSettings),
-                    typeof(ColorScheme),
-                    typeof(ColorScheme),
-                    typeof(GameplayModifiers),
-                    typeof(PlayerSpecificSettings),
-                    typeof(PracticeSettings),
-                    typeof(string),
-                    typeof(bool),
-                    typeof(bool),
-                    typeof(BeatmapDataCache),
-                    typeof(RecordingToolManager.SetupData?)
-                });
-
-            yield return AccessTools.Method(typeof(MultiplayerLevelScenesTransitionSetupDataSO), nameof(MultiplayerLevelScenesTransitionSetupDataSO.Init),
-                new[]
-                {
-                    typeof(string),
-                    typeof(IPreviewBeatmapLevel),
-                    typeof(BeatmapDifficulty),
-                    typeof(BeatmapCharacteristicSO),
-                    typeof(IDifficultyBeatmap),
-                    typeof(ColorScheme),
-                    typeof(GameplayModifiers),
-                    typeof(PlayerSpecificSettings),
-                    typeof(PracticeSettings),
-                    typeof(bool)
-                });
+            yield return AccessTools.DeclaredMethod(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.Init));
+            yield return AccessTools.DeclaredMethod(typeof(MultiplayerLevelScenesTransitionSetupDataSO), nameof(MultiplayerLevelScenesTransitionSetupDataSO.Init));
         }
 
         private static void Prefix(ref IDifficultyBeatmap difficultyBeatmap, ref ColorScheme? overrideColorScheme)
         {
-            if(overrideColorScheme != null)
+            // TODO: Remove this when it gets fixed.
+            if (overrideColorScheme != null)
             {
-                if(overrideColorScheme._environmentColor0Boost.a == 0)
+                if (overrideColorScheme._environmentColor0Boost == default)
                 {
                     overrideColorScheme._environmentColor0Boost = overrideColorScheme._environmentColor0;
                 }
-                if (overrideColorScheme._environmentColor1Boost.a == 0)
+                if (overrideColorScheme._environmentColor1Boost == default)
                 {
                     overrideColorScheme._environmentColor1Boost = overrideColorScheme._environmentColor1;
                 }
             }
-            
+
             if (difficultyBeatmap == null || !Plugin.Configuration.CustomSongNoteColors && !Plugin.Configuration.CustomSongEnvironmentColors && !Plugin.Configuration.CustomSongObstacleColors)
             {
                 return;
@@ -113,8 +82,6 @@ namespace SongCore.HarmonyPatches
                 : Utils.ColorFromMapColor(songData._obstacleColor);
             overrideColorScheme = new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", true, "SongCore Map Color Scheme", false, saberLeft, saberRight, envLeft,
                 envRight, envWhite, true, envLeftBoost, envRightBoost, envWhiteBoost, obstacle);
-            overrideColorScheme._environmentColorW = envWhite;
-            overrideColorScheme._environmentColorWBoost = envWhiteBoost;
         }
     }
 }
