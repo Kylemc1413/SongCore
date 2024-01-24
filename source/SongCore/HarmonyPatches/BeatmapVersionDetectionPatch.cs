@@ -40,7 +40,7 @@ namespace SongCore.HarmonyPatches
         private static void Postfix(ref string __result)
         {
             // TODO: Current logic for v1 beatmaps is throwing a null ref.
-            if (string.IsNullOrWhiteSpace(__result) || __result == StandardLevelInfoSaveData_V100.kCurrentVersion)
+            if (__result == StandardLevelInfoSaveData_V100.kCurrentVersion)
             {
                 __result = StandardLevelInfoSaveData.kCurrentVersion;
             }
