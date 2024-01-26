@@ -164,7 +164,7 @@ namespace SongCore
 
             await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
             {
-                if (_levelFilteringNavigationController.isActiveAndEnabled)
+                if (!_loadingCancelled && _levelFilteringNavigationController.isActiveAndEnabled)
                 {
                     _levelFilteringNavigationController.UpdateCustomSongs();
                 }
