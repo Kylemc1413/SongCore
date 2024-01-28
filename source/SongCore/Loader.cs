@@ -37,6 +37,7 @@ namespace SongCore
 
         private static readonly ConcurrentDictionary<string, OfficialSongEntry> OfficialSongs = new ConcurrentDictionary<string, OfficialSongEntry>();
         private static readonly ConcurrentDictionary<string, BeatmapLevel> CustomLevelsById = new ConcurrentDictionary<string, BeatmapLevel>();
+        private static readonly ConcurrentDictionary<string, IBeatmapLevelData> LoadedBeatmapLevelsData = new ConcurrentDictionary<string, IBeatmapLevelData>();
         public static ConcurrentDictionary<string, BeatmapLevel> CustomLevels = new ConcurrentDictionary<string, BeatmapLevel>();
         public static ConcurrentDictionary<string, BeatmapLevel> CustomWIPLevels = new ConcurrentDictionary<string, BeatmapLevel>();
         public static ConcurrentDictionary<string, BeatmapLevel> CachedWIPLevels = new ConcurrentDictionary<string, BeatmapLevel>();
@@ -214,6 +215,7 @@ namespace SongCore
                 CustomLevels.Clear();
                 CustomWIPLevels.Clear();
                 CachedWIPLevels.Clear();
+                LoadedBeatmapLevelsData.Clear();
                 CustomLevelLoader.ClearCache();
                 Collections.LevelHashDictionary.Clear();
                 Collections.HashLevelDictionary.Clear();
@@ -415,6 +417,14 @@ namespace SongCore
 
                           LoadingProgress = (float) Interlocked.Increment(ref processedSongsCount) / songFolders.Count;
                       });
+
+                    foreach (var beatmapLevelData in LoadedBeatmapLevelsData)
+                    {
+                        if (!_customLevelLoader._loadedBeatmapLevelsData.ContainsKey(beatmapLevelData.Key))
+                        {
+                            _customLevelLoader._loadedBeatmapLevelsData.Add(beatmapLevelData.Key, beatmapLevelData.Value);
+                        }
+                    }
 
                     #endregion
 
@@ -780,7 +790,7 @@ namespace SongCore
                 beatmapLevel = CustomLevelLoader.CreateBeatmapLevelFromV3(songPath, saveData);
                 Accessors.LevelIDAccessor(ref beatmapLevel) = levelID;
 
-                CustomLevelLoader._loadedBeatmapLevelsData.Add(beatmapLevel.levelID, CustomLevelLoader.CreateBeatmapLevelDataFromV3(saveData, songPath));
+                LoadedBeatmapLevelsData.TryAdd(beatmapLevel.levelID, CustomLevelLoader.CreateBeatmapLevelDataFromV3(saveData, songPath));
 
                 GetSongDuration(saveData, beatmapLevel, songPath, Path.Combine(songPath, saveData.songFilename));
             }
