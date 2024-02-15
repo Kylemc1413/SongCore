@@ -22,7 +22,7 @@ namespace SongCore.Utilities
 
         public static Color ColorFromMapColor(Data.ExtraSongData.MapColor mapColor)
         {
-            return new Color(mapColor.r, mapColor.g, mapColor.b);
+            return new Color(mapColor.r, mapColor.g, mapColor.b, mapColor.a);
         }
 
         public static TEnum ToEnum<TEnum>(this string strEnumValue, TEnum defaultValue)
