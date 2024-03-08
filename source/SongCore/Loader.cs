@@ -784,7 +784,6 @@ namespace SongCore
                     levelID += " WIP";
                 }
 
-                Collections.LevelAuthorDictionary.TryAdd(levelID, saveData.levelAuthorName);
                 Collections.LevelPathDictionary.TryAdd(levelID, songPath);
 
                 beatmapLevel = CustomLevelLoader.CreateBeatmapLevelFromV3(songPath, saveData);

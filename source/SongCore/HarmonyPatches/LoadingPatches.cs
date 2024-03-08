@@ -50,47 +50,4 @@ namespace SongCore.HarmonyPatches
             return false;
         }
     }
-
-    // TODO: Remove once fixed.
-    [HarmonyPatch(typeof(CustomLevelLoader))]
-    internal class CustomLevelLoadingPatches
-    {
-        [HarmonyPatch(nameof(CustomLevelLoader.CreateEnvironmentName))]
-        [HarmonyPrefix]
-        private static void FixEnvironmentNameCreation(ref string? environmentSerializedField)
-        {
-            if (environmentSerializedField == null)
-            {
-                environmentSerializedField = "DefaultEnvironment";
-            }
-        }
-
-        [HarmonyPatch(nameof(CustomLevelLoader.CreateBeatmapLevelFromV3))]
-        [HarmonyPatch(nameof(CustomLevelLoader.CreateBeatmapLevelDataFromV3))]
-        [HarmonyTranspiler]
-        private static IEnumerable<CodeInstruction> FixBeatmapLevelCreation(IEnumerable<CodeInstruction> instructions)
-        {
-            return new CodeMatcher(instructions)
-                .End()
-                .MatchStartBackwards(new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == nameof(Dictionary<object, object>.Add)))
-                .ThrowIfInvalid()
-                .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Ldarg_1),
-                    new CodeInstruction(OpCodes.Ldarg_2),
-                    Transpilers.EmitDelegate<Action<Dictionary<ValueTuple<BeatmapCharacteristicSO, BeatmapDifficulty>, BeatmapBasicData>, ValueTuple<BeatmapCharacteristicSO, BeatmapDifficulty>, BeatmapBasicData, object, object>>((dictionary, key, value, arg1, arg2) =>
-                    {
-                        if (dictionary.ContainsKey(key))
-                        {
-                            var customLevelPath = arg1 is string ? arg1 : arg2;
-                            Logging.Logger.Warn($"Duplicate characteristic found while creating beatmap level: {customLevelPath}");
-                        }
-                        else
-                        {
-                            dictionary.Add(key, value);
-                        }
-                    }))
-                .RemoveInstruction()
-                .InstructionEnumeration();
-        }
-    }
 }

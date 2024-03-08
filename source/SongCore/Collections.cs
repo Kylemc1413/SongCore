@@ -21,7 +21,6 @@ namespace SongCore
         internal static readonly string DataPath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "SongCoreExtraData.dat");
         internal static readonly ConcurrentDictionary<string, string> LevelHashDictionary = new ConcurrentDictionary<string, string>();
         internal static readonly ConcurrentDictionary<string, List<string>> HashLevelDictionary = new ConcurrentDictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-        internal static readonly ConcurrentDictionary<string, string> LevelAuthorDictionary = new ConcurrentDictionary<string, string>();
         internal static readonly ConcurrentDictionary<string, string> LevelPathDictionary = new ConcurrentDictionary<string, string>();
 
         internal static BeatmapLevelPack? WipLevelPack;

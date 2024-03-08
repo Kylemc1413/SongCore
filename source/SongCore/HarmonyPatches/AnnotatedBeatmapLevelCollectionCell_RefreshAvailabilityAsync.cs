@@ -1,3 +1,4 @@
+using System;
 using HarmonyLib;
 
 /*
@@ -12,7 +13,7 @@ namespace SongCore.HarmonyPatches
     {
         private static void Postfix(AnnotatedBeatmapLevelCollectionCell __instance)
         {
-            if (__instance._beatmapLevelPack.packID.StartsWith(CustomLevelLoader.kCustomLevelPackPrefixId))
+            if (__instance._beatmapLevelPack.packID.StartsWith(CustomLevelLoader.kCustomLevelPackPrefixId, StringComparison.Ordinal))
             {
                 __instance.SetDownloadIconVisible(false);
             }
