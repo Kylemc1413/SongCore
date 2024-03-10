@@ -50,4 +50,16 @@ namespace SongCore.HarmonyPatches
             return false;
         }
     }
+
+    // TODO: Fixes a bug in game v1.35.0 where it unloads cached custom levels forever. Remove when fixed.
+    [HarmonyPatch(typeof(BeatmapLevelLoader), nameof(BeatmapLevelLoader.HandleItemWillBeRemovedFromCache))]
+    internal class BeatmapLevelLoaderHandleItemWillBeRemovedFromCachePatch
+    {
+        private static bool Prefix(BeatmapLevelLoader __instance, string beatmapLevelId)
+        {
+            __instance._beatmapLevelDataLoader.TryUnload(beatmapLevelId);
+
+            return false;
+        }
+    }
 }

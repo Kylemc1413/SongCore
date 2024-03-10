@@ -160,7 +160,7 @@ namespace SongCore
             }
 
             BeatmapLevelsModelSO._customLevelsRepository = CustomLevelsRepository;
-            BeatmapLevelsModelSO.UpdateAllLoadedBeatmapLevelPacks();
+            BeatmapLevelsModelSO._allLoadedBeatmapLevelsRepository = BeatmapLevelsModelSO.CreateAllLoadedBeatmapLevelPacks();
             BeatmapLevelsModelSO.UpdateLoadedPreviewLevels();
 
             await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
@@ -216,7 +216,7 @@ namespace SongCore
                 CustomWIPLevels.Clear();
                 CachedWIPLevels.Clear();
                 LoadedBeatmapLevelsData.Clear();
-                CustomLevelLoader.ClearCache();
+                _beatmapLevelsModel.ClearLoadedBeatmapLevelsCaches();
                 Collections.LevelHashDictionary.Clear();
                 Collections.HashLevelDictionary.Clear();
                 foreach (var folder in SeperateSongFolders)
@@ -250,7 +250,7 @@ namespace SongCore
 
                     OfficialSongs.Clear();
 
-                    AddOfficialBeatmapLevelsRepository(BeatmapLevelsModelSO.ostAndExtrasPackCollection);
+                    AddOfficialBeatmapLevelsRepository(BeatmapLevelsModelSO.ostAndExtrasBeatmapLevelsRepository);
                     AddOfficialBeatmapLevelsRepository(BeatmapLevelsModelSO.dlcBeatmapLevelsRepository);
                 }
                 catch (Exception ex)
