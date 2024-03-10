@@ -1,8 +1,7 @@
-using System.Linq;
 using System.Reflection;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Util;
+using BeatSaberMarkupLanguage.Components;
 using HMUI;
 using SongCore.Data;
 using SongCore.Utilities;
@@ -10,8 +9,19 @@ using UnityEngine;
 
 namespace SongCore.UI
 {
-    public class ColorsUI : NotifiableSingleton<ColorsUI>
+    public class ColorsUI : NotifiableBase
     {
+        private readonly StandardLevelDetailViewController _standardLevelDetailViewController;
+        private readonly GameplaySetupViewController _gameplaySetupViewController;
+        private readonly BSMLParser _bsmlParser;
+
+        private ColorsUI(StandardLevelDetailViewController standardLevelDetailViewController, GameplaySetupViewController gameplaySetupViewController, BSMLParser bsmlParser)
+        {
+            _standardLevelDetailViewController = standardLevelDetailViewController;
+            _gameplaySetupViewController = gameplaySetupViewController;
+            _bsmlParser = bsmlParser;
+        }
+
         private ColorSchemeView colorSchemeView;
 
         private readonly Color voidColor = new Color(0.5f, 0.5f, 0.5f, 0.25f);
@@ -56,9 +66,8 @@ namespace SongCore.UI
         {
             if (!modal)
             {
-                StandardLevelDetailViewController standardLevel = Object.FindObjectOfType<StandardLevelDetailViewController>();
-                BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.colors.bsml"),
-                    standardLevel.transform.Find("LevelDetail").gameObject, this);
+                _bsmlParser.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.colors.bsml"),
+                    _standardLevelDetailViewController._standardLevelDetailView.gameObject, this);
             }
             modal.transform.localPosition = modalPosition;
         }
@@ -66,7 +75,7 @@ namespace SongCore.UI
         [UIAction("#post-parse")]
         private void PostParse()
         {
-            ColorSchemeView colorSchemeViewPrefab = Object.Instantiate(Object.FindObjectOfType<ColorSchemeView>(true), selectedColorTransform);
+            ColorSchemeView colorSchemeViewPrefab = Object.Instantiate(_gameplaySetupViewController._colorsOverrideSettingsPanelController._colorSchemeDropDown._colorSchemeView, selectedColorTransform);
             colorSchemeView = IPA.Utilities.ReflectionUtil.CopyComponent<ColorSchemeView>(colorSchemeViewPrefab, colorSchemeViewPrefab.gameObject);
             Object.DestroyImmediate(colorSchemeViewPrefab);
             modalPosition = modal.transform.localPosition;
@@ -75,7 +84,7 @@ namespace SongCore.UI
 
         private void Dismiss()
         {
-            modal.Hide(false, () => RequirementsUI.instance.ShowRequirements());
+            modal.Hide(true);
         }
 
         private void SetColors(ExtraSongData.DifficultyData songData)

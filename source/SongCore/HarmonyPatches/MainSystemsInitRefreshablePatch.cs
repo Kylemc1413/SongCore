@@ -1,17 +1,15 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using Zenject;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(MainSystemInit), nameof(MainSystemInit.InstallBindings))]
     internal class MainSystemsInitRefreshablePatch
     {
         public const string refreshableID = "SongCore.Loader.Refresh";
         public const string didLoadEventID = "SongCore.Loader.Loaded";
 
-        private static void Postfix(DiContainer container)
+        public static void Postfix(DiContainer container)
         {
             container.Bind<IRefreshable>().WithId(refreshableID).To<SongCoreRefreshable>().AsSingle();
             container.Bind(typeof(IInitializable), typeof(IDisposable), typeof(SongCoreLoaderDidLoad)).To<SongCoreLoaderDidLoad>().AsSingle();

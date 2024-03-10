@@ -1,19 +1,27 @@
-using System.Linq;
-using HarmonyLib;
+using SiraUtil.Affinity;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(BeatmapObjectSpawnMovementData))]
-    [HarmonyPatch(nameof(BeatmapObjectSpawnMovementData.Init), MethodType.Normal)]
-    internal class AllowNegativeNjsValuesPatch
+    internal class AllowNegativeNjsValuesPatch : IAffinity
     {
-        private static void Prefix(ref float startNoteJumpMovementSpeed)
+        private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
+        private readonly BeatmapKey _beatmapKey;
+
+        private AllowNegativeNjsValuesPatch(GameplayCoreSceneSetupData gameplayCoreSceneSetupData, BeatmapKey beatmapKey)
         {
-            if (!BS_Utils.Plugin.LevelData.IsSet) return;
-            var sceneSetupData = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData;
-            var mapNjs = sceneSetupData.beatmapLevel.beatmapBasicData.First(p => p.Key == (sceneSetupData.beatmapKey.beatmapCharacteristic, sceneSetupData.beatmapKey.difficulty)).Value.noteJumpMovementSpeed;
-            if (mapNjs < 0)
-                startNoteJumpMovementSpeed = mapNjs;
+            _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
+            _beatmapKey = beatmapKey;
+        }
+
+        [AffinityPatch(typeof(BeatmapObjectSpawnMovementData), nameof(BeatmapObjectSpawnMovementData.Init))]
+        [AffinityPrefix]
+        private void ForceNegativeStartNoteJumpMovementSpeed(ref float startNoteJumpMovementSpeed)
+        {
+            var noteJumpMovementSpeed = _gameplayCoreSceneSetupData.beatmapLevel.beatmapBasicData[(_beatmapKey.beatmapCharacteristic, _beatmapKey.difficulty)].noteJumpMovementSpeed;
+            if (noteJumpMovementSpeed < 0)
+            {
+                startNoteJumpMovementSpeed = noteJumpMovementSpeed;
+            }
         }
     }
 }

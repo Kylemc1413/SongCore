@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
@@ -5,19 +6,34 @@ using BeatSaberMarkupLanguage.Components;
 using SongCore.Utilities;
 using System.Linq;
 using System.Reflection;
-using BeatSaberMarkupLanguage.Util;
 using UnityEngine;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 using HMUI;
+using SiraUtil.Affinity;
 using Tweening;
+using Zenject;
 
 namespace SongCore.UI
 {
-    public class RequirementsUI : NotifiableSingleton<RequirementsUI>
+    public class RequirementsUI : NotifiableBase, IInitializable, IAffinity
     {
+        private readonly StandardLevelDetailViewController _standardLevelDetailViewController;
+        private readonly TimeTweeningManager _tweeningManager;
+        private readonly BSMLParser _bsmlParser;
+        private readonly ColorsUI _colorsUI;
+
+        private RequirementsUI(StandardLevelDetailViewController standardLevelDetailViewController, TimeTweeningManager tweeningManager, BSMLParser bsmlParser, ColorsUI colorsUI)
+        {
+            _standardLevelDetailViewController = standardLevelDetailViewController;
+            _tweeningManager = tweeningManager;
+            _bsmlParser = bsmlParser;
+            _colorsUI = colorsUI;
+            instance = this;
+        }
+
+        public static RequirementsUI instance { get; set; }
+
         private const string BUTTON_BSML = "<bg id='root'><action-button id='info-button' text='?' active='~button-glow' interactable='~button-interactable' anchor-pos-x='31' anchor-pos-y='0' pref-width='12' pref-height='9' on-click='button-click'/></bg>";
-        private StandardLevelDetailViewController standardLevel;
-        private TweeningManager tweenyManager;
         private ImageView buttonBG;
         private Color originalColor0;
         private Color originalColor1;
@@ -80,15 +96,13 @@ namespace SongCore.UI
         [UIComponent("root")]
         protected readonly RectTransform _root = null!;
 
-        internal void Setup()
+        public void Initialize()
         {
             GetIcons();
-            standardLevel = Object.FindObjectOfType<StandardLevelDetailViewController>(true);
-            tweenyManager = Object.FindObjectOfType<TweeningManager>();
-            BSMLParser.instance.Parse(BUTTON_BSML, standardLevel.transform.Find("LevelDetail").gameObject, this);
+            _bsmlParser.Parse(BUTTON_BSML, _standardLevelDetailViewController._standardLevelDetailView.gameObject, this);
 
             infoButtonTransform.localScale *= 0.7f; //no scale property in bsml as of now so manually scaling it
-            (standardLevel.transform.Find("LevelDetail").Find("FavoriteToggle")?.transform as RectTransform)!.anchoredPosition = new Vector2(3, -2);
+            ((RectTransform)_standardLevelDetailViewController._standardLevelDetailView._favoriteToggle.transform).anchoredPosition = new Vector2(3, -2);
             buttonBG = infoButtonTransform.Find("BG").GetComponent<ImageView>();
             originalColor0 = buttonBG.color0;
             originalColor1 = buttonBG.color1;
@@ -152,9 +166,8 @@ namespace SongCore.UI
         {
             if (modal == null)
             {
-                BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"), _root.gameObject, this);
+                _bsmlParser.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "SongCore.UI.requirements.bsml"), _root.gameObject, this);
                 modalPosition = modal!.transform.localPosition;
-
             }
             modal.transform.localPosition = modalPosition;
             modal.Show(true);
@@ -264,7 +277,7 @@ namespace SongCore.UI
 
                 if (customListTableData.data.Count > 0)
                 {
-                    if (environmentName == null && beatmapLevel != null)
+                    if (environmentName == null && beatmapLevel != null) // TODO: Can this actually be null?
                         environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
                     customListTableData.data.Add(new CustomCellInfo("<size=75%>Environment Info", $"This Map uses the Environment: {environmentName}", EnvironmentIcon));
 
@@ -284,7 +297,7 @@ namespace SongCore.UI
                 var iconSelected = customListTableData.data[index].icon;
                 if (iconSelected == ColorsIcon)
                 {
-                    modal.Hide(false, () => ColorsUI.instance.ShowColors(diffData));
+                    modal.Hide(false, () => _colorsUI.ShowColors(diffData));
                 }
                 else if (iconSelected == StandardIcon || iconSelected == OneSaberIcon)
                 {
@@ -296,7 +309,7 @@ namespace SongCore.UI
 
         internal void SetRainbowColors(bool shouldSet, bool firstPulse = true)
         {
-            tweenyManager.KillAllTweens(buttonBG);
+            _tweeningManager.KillAllTweens(buttonBG);
             if (shouldSet)
             {
                 FloatTween tween = new FloatTween(firstPulse ? 0 : 1, firstPulse ? 1 : 0, val =>
@@ -305,7 +318,7 @@ namespace SongCore.UI
                     buttonBG.color1 = new Color(0, 1 - val, val);
                     buttonBG.SetAllDirty();
                 }, 5f, EaseType.InOutSine);
-                tweenyManager.AddTween(tween, buttonBG);
+                _tweeningManager.AddTween(tween, buttonBG);
                 tween.onCompleted = delegate ()
                 { SetRainbowColors(true, !firstPulse); };
             }
@@ -314,6 +327,97 @@ namespace SongCore.UI
                 buttonBG.color0 = originalColor0;
                 buttonBG.color1 = originalColor1;
             }
+        }
+
+        [AffinityPatch(typeof(StandardLevelDetailView), nameof(StandardLevelDetailView.CheckIfBeatmapLevelDataExists))]
+        private void EnableOrDisableSongButtons()
+        {
+            ButtonGlowColor = false;
+            ButtonInteractable = false;
+            if (_standardLevelDetailViewController._beatmapLevel.hasPrecalculatedData)
+            {
+                return;
+            }
+
+            var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(_standardLevelDetailViewController._beatmapLevel));
+
+            if (songData == null)
+            {
+                ButtonGlowColor = false;
+                ButtonInteractable = false;
+                return;
+            }
+
+            var wipFolderSong = false;
+            var diffData = Collections.RetrieveDifficultyData(_standardLevelDetailViewController._beatmapLevel, _standardLevelDetailViewController.beatmapKey);
+            var actionButton = _standardLevelDetailViewController._standardLevelDetailView.actionButton;
+            var practiceButton = _standardLevelDetailViewController._standardLevelDetailView.practiceButton;
+
+            if (diffData != null)
+            {
+                //If no additional information is present
+                if (!diffData.additionalDifficultyData._requirements.Any() &&
+                    !diffData.additionalDifficultyData._suggestions.Any() &&
+                    !diffData.additionalDifficultyData._warnings.Any() &&
+                    !diffData.additionalDifficultyData._information.Any() &&
+                    !songData.contributors.Any() && !Utils.DiffHasColors(diffData))
+                {
+                    ButtonGlowColor = false;
+                    ButtonInteractable = false;
+                }
+                else if (!diffData.additionalDifficultyData._warnings.Any())
+                {
+                    ButtonGlowColor = true;
+                    ButtonInteractable = true;
+                    SetRainbowColors(Utils.DiffHasColors(diffData));
+                }
+                else if (diffData.additionalDifficultyData._warnings.Any())
+                {
+                    ButtonGlowColor = true;
+                    ButtonInteractable = true;
+                    if (diffData.additionalDifficultyData._warnings.Contains("WIP"))
+                    {
+                        actionButton.interactable = false;
+                    }
+                    SetRainbowColors(Utils.DiffHasColors(diffData));
+                }
+            }
+
+            if (_standardLevelDetailViewController._beatmapLevel.levelID.EndsWith(" WIP", StringComparison.Ordinal))
+            {
+                ButtonGlowColor = true;
+                ButtonInteractable = true;
+                actionButton.interactable = false;
+                wipFolderSong = true;
+            }
+
+            if (diffData != null)
+            {
+                foreach (var requirement in diffData.additionalDifficultyData._requirements)
+                {
+                    if (!Collections.capabilities.Contains(requirement))
+                    {
+                        actionButton.interactable = false;
+                        practiceButton.interactable = false;
+                        ButtonGlowColor = true;
+                        ButtonInteractable = true;
+                    }
+                }
+            }
+
+            if (_standardLevelDetailViewController.beatmapKey.beatmapCharacteristic.serializedName == "MissingCharacteristic")
+            {
+                actionButton.interactable = false;
+                practiceButton.interactable = false;
+                ButtonGlowColor = true;
+                ButtonInteractable = true;
+            }
+
+            beatmapLevel = _standardLevelDetailViewController._beatmapLevel;
+            beatmapKey = _standardLevelDetailViewController.beatmapKey;
+            this.songData = songData;
+            this.diffData = diffData;
+            wipFolder = wipFolderSong;
         }
     }
 }

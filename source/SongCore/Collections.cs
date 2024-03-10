@@ -22,6 +22,7 @@ namespace SongCore
         internal static readonly ConcurrentDictionary<string, string> LevelHashDictionary = new ConcurrentDictionary<string, string>();
         internal static readonly ConcurrentDictionary<string, List<string>> HashLevelDictionary = new ConcurrentDictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         internal static readonly ConcurrentDictionary<string, string> LevelPathDictionary = new ConcurrentDictionary<string, string>();
+        internal static readonly ConcurrentDictionary<string, StandardLevelInfoSaveData> LevelSaveDataDictionary = new ConcurrentDictionary<string, StandardLevelInfoSaveData>();
 
         internal static BeatmapLevelPack? WipLevelPack;
         internal static ConcurrentDictionary<string, ExtraSongData> CustomSongsData = new ConcurrentDictionary<string, ExtraSongData>();
@@ -42,6 +43,16 @@ namespace SongCore
         public static List<string> levelIDsForHash(string hash)
         {
             return HashLevelDictionary.TryGetValue(hash, out var songs) ? songs : new List<string>();
+        }
+
+        public static string GetLevelPathByLevelId(string levelID)
+        {
+            return LevelPathDictionary.TryGetValue(levelID, out var path) ? path : string.Empty;
+        }
+
+        public static StandardLevelInfoSaveData? GetStandardLevelInfoSaveDataByLevelId(string levelID)
+        {
+            return LevelSaveDataDictionary.TryGetValue(levelID, out var standardLevelInfoSaveData) ? standardLevelInfoSaveData : null;
         }
 
         internal static void AddExtraSongData(string hash, string path, string rawSongData)

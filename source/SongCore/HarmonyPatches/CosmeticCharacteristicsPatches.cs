@@ -3,84 +3,55 @@ using System.IO;
 using System.Linq;
 using HarmonyLib;
 using HMUI;
+using IPA.Utilities;
+using SiraUtil.Affinity;
 using SongCore.Data;
 using SongCore.Utilities;
 using UnityEngine;
 
 namespace SongCore.HarmonyPatches
 {
-    internal class CosmeticCharacteristicsPatches
+    internal class CosmeticCharacteristicsPatches : IAffinity
     {
+        private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
+        private readonly BeatmapKey _beatmapKey;
 
-
-        [HarmonyPatch(typeof(BeatLineManager))]
-        [HarmonyPatch(nameof(BeatLineManager.HandleNoteWasSpawned))]
-        internal class BeatLineManager_HandleNoteWasSpawned
+        private CosmeticCharacteristicsPatches(GameplayCoreSceneSetupData gameplayCoreSceneSetupData, BeatmapKey beatmapKey)
         {
-            private static bool Prefix()
-            {
-                if (Plugin.Configuration.DisableRotationSpawnLinesOverride)
-                    return true;
+            _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
+            _beatmapKey = beatmapKey;
+        }
 
-                var sceneSetupData = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData;
-                if (sceneSetupData.beatmapLevel == null)
-                    return true;
-                var beatmapData = Collections.RetrieveDifficultyData(sceneSetupData.beatmapLevel, sceneSetupData.beatmapKey);
-                if (beatmapData == null)
-                    return true;
-                if (beatmapData._showRotationNoteSpawnLines == null)
-                    return true;
-                return beatmapData._showRotationNoteSpawnLines.Value;
+        [AffinityPatch(typeof(BeatLineManager), nameof(BeatLineManager.HandleNoteWasSpawned))]
+        [AffinityPrefix]
+        private bool ShowOrHideRotationNoteSpawnLines()
+        {
+            if (Plugin.Configuration.DisableRotationSpawnLinesOverride)
+            {
+                return true;
             }
+
+            var difficultyData = Collections.RetrieveDifficultyData(_gameplayCoreSceneSetupData.beatmapLevel, _beatmapKey);
+            return difficultyData?._showRotationNoteSpawnLines == null || difficultyData._showRotationNoteSpawnLines.Value;
         }
 
 
-        [HarmonyPatch(typeof(GameplayCoreInstaller))]
-        [HarmonyPatch(nameof(GameplayCoreInstaller.InstallBindings))]
-        internal class GameplayCoreInstaller_InstallBindingsPatch
+        [AffinityPatch(typeof(SaberManager.InitData), "ctor", AffinityMethodType.Constructor, null, typeof(bool), typeof(SaberType))]
+        private void ForceOneSaber(ref SaberManager.InitData __instance)
         {
-            private static ExtraSongData.DifficultyData? diffData = null;
-            private static int numberOfColors = -1;
-            private static GameplayCoreSceneSetupData sceneSetupData = null;
-            private static void Prefix(GameplayCoreInstaller __instance)
+            if (Plugin.Configuration.DisableOneSaberOverride || _gameplayCoreSceneSetupData.beatmapLevel.hasPrecalculatedData)
             {
-                if (Plugin.Configuration.DisableOneSaberOverride)
-                    return;
-
-                sceneSetupData = __instance._sceneSetupData;
-
-                var beatmapLevel = sceneSetupData.beatmapLevel;
-                if (beatmapLevel.hasPrecalculatedData)
-                {
-                    diffData = null;
-                    return;
-                }
-                diffData = Collections.RetrieveDifficultyData(beatmapLevel, sceneSetupData.beatmapKey);
-                if (diffData == null)
-                    return;
-                if (diffData._oneSaber != null && !Plugin.Configuration.DisableOneSaberOverride)
-                {
-                    numberOfColors = sceneSetupData.beatmapKey.beatmapCharacteristic.numberOfColors;
-                    sceneSetupData.beatmapKey.beatmapCharacteristic._numberOfColors = diffData._oneSaber.Value == true ? 1 : 2;
-                }
-
-            }
-            private static void Postfix()
-            {
-                if (Plugin.Configuration.DisableOneSaberOverride)
-                    return;
-                if (diffData == null)
-                    return;
-
-                if (diffData._oneSaber != null && !Plugin.Configuration.DisableOneSaberOverride)
-                {
-                    sceneSetupData.beatmapKey.beatmapCharacteristic._numberOfColors = numberOfColors;
-                }
+                return;
             }
 
+            var difficultyData = Collections.RetrieveDifficultyData(_gameplayCoreSceneSetupData.beatmapLevel, _beatmapKey);
+            if (difficultyData is { _oneSaber: not null })
+            {
+                __instance.SetField(nameof(__instance.oneSaberMode), difficultyData._oneSaber.Value);
+            }
         }
 
-
+        // TODO
         [HarmonyPatch(typeof(BeatmapCharacteristicSegmentedControlController))]
         [HarmonyPatch(nameof(BeatmapCharacteristicSegmentedControlController.SetData), MethodType.Normal)]
         internal class CosmeticCharacteristicsPatch
