@@ -216,7 +216,7 @@ namespace SongCore
                 CustomWIPLevels.Clear();
                 CachedWIPLevels.Clear();
                 LoadedBeatmapLevelsData.Clear();
-                _beatmapLevelsModel.ClearLoadedBeatmapLevelsCaches();
+                BeatmapLevelsModelSO.ClearLoadedBeatmapLevelsCaches();
                 Collections.LevelHashDictionary.Clear();
                 Collections.HashLevelDictionary.Clear();
                 foreach (var folder in SeperateSongFolders)
@@ -420,9 +420,9 @@ namespace SongCore
 
                     foreach (var beatmapLevelData in LoadedBeatmapLevelsData)
                     {
-                        if (!_customLevelLoader._loadedBeatmapLevelsData.ContainsKey(beatmapLevelData.Key))
+                        if (!CustomLevelLoader._loadedBeatmapLevelsData.ContainsKey(beatmapLevelData.Key))
                         {
-                            _customLevelLoader._loadedBeatmapLevelsData.Add(beatmapLevelData.Key, beatmapLevelData.Value);
+                            CustomLevelLoader._loadedBeatmapLevelsData.Add(beatmapLevelData.Key, beatmapLevelData.Value);
                         }
                     }
 
