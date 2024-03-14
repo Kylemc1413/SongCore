@@ -1,3 +1,4 @@
+using SongCore.HarmonyPatches;
 using SongCore.UI;
 using Zenject;
 
@@ -11,6 +12,7 @@ namespace SongCore.Installers
             Container.BindInterfacesAndSelfTo<ColorsUI>().AsSingle();
             Container.Bind<ProgressBar>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesAndSelfTo<RequirementsUI>().AsSingle();
+            Container.BindInterfacesTo<CosmeticCharacteristicsPatch>().AsSingle();
         }
     }
 }

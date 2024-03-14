@@ -4,20 +4,18 @@ namespace SongCore.HarmonyPatches
 {
     internal class AllowNegativeNjsValuesPatch : IAffinity
     {
-        private readonly GameplayCoreSceneSetupData _gameplayCoreSceneSetupData;
-        private readonly BeatmapKey _beatmapKey;
+        private readonly BeatmapBasicData _beatmapBasicData;
 
-        private AllowNegativeNjsValuesPatch(GameplayCoreSceneSetupData gameplayCoreSceneSetupData, BeatmapKey beatmapKey)
+        private AllowNegativeNjsValuesPatch(BeatmapBasicData beatmapBasicData)
         {
-            _gameplayCoreSceneSetupData = gameplayCoreSceneSetupData;
-            _beatmapKey = beatmapKey;
+            _beatmapBasicData = beatmapBasicData;
         }
 
         [AffinityPatch(typeof(BeatmapObjectSpawnMovementData), nameof(BeatmapObjectSpawnMovementData.Init))]
         [AffinityPrefix]
         private void ForceNegativeStartNoteJumpMovementSpeed(ref float startNoteJumpMovementSpeed)
         {
-            var noteJumpMovementSpeed = _gameplayCoreSceneSetupData.beatmapLevel.beatmapBasicData[(_beatmapKey.beatmapCharacteristic, _beatmapKey.difficulty)].noteJumpMovementSpeed;
+            var noteJumpMovementSpeed = _beatmapBasicData.noteJumpMovementSpeed;
             if (noteJumpMovementSpeed < 0)
             {
                 startNoteJumpMovementSpeed = noteJumpMovementSpeed;

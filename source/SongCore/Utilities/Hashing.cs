@@ -119,16 +119,21 @@ namespace SongCore.Utilities
             return false;
         }
 
-        public static string GetCustomLevelHash(BeatmapLevel level)
+        public static string? GetCustomLevelHash(BeatmapLevel level)
         {
-            var standardLevelInfoSaveData = Collections.GetStandardLevelInfoSaveDataByLevelId(level.levelID);
+            var standardLevelInfoSaveData = Collections.GetStandardLevelInfoSaveData(level.levelID);
             if (standardLevelInfoSaveData == null)
             {
                 return null;
             }
 
-            var levelPath = Collections.GetLevelPathByLevelId(level.levelID);
-            return GetCustomLevelHash(levelPath, standardLevelInfoSaveData.difficultyBeatmapSets);
+            var customLevelPath = Collections.GetCustomLevelPath(level.levelID);
+            if (customLevelPath == null)
+            {
+                return null;
+            }
+
+            return GetCustomLevelHash(customLevelPath, standardLevelInfoSaveData.difficultyBeatmapSets);
         }
 
         public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)

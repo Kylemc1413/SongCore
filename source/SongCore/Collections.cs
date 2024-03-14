@@ -45,14 +45,16 @@ namespace SongCore
             return HashLevelDictionary.TryGetValue(hash, out var songs) ? songs : new List<string>();
         }
 
-        public static string GetLevelPathByLevelId(string levelID)
+        public static string? GetCustomLevelPath(string levelID)
         {
-            return LevelPathDictionary.TryGetValue(levelID, out var path) ? path : string.Empty;
+            LevelPathDictionary.TryGetValue(levelID, out var path);
+            return path;
         }
 
-        public static StandardLevelInfoSaveData? GetStandardLevelInfoSaveDataByLevelId(string levelID)
+        public static StandardLevelInfoSaveData? GetStandardLevelInfoSaveData(string levelID)
         {
-            return LevelSaveDataDictionary.TryGetValue(levelID, out var standardLevelInfoSaveData) ? standardLevelInfoSaveData : null;
+            LevelSaveDataDictionary.TryGetValue(levelID, out var standardLevelInfoSaveData);
+            return standardLevelInfoSaveData;
         }
 
         internal static void AddExtraSongData(string hash, string path, string rawSongData)
