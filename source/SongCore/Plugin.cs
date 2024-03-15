@@ -49,7 +49,10 @@ namespace SongCore
         [OnStart]
         public void OnApplicationStart()
         {
-            _harmony.Patch(HarmonyTranspilersFixPatch.TargetMethod(), null, null, new HarmonyMethod(AccessTools.Method(typeof(HarmonyTranspilersFixPatch), nameof(HarmonyTranspilersFixPatch.Transpiler))));
+            if (typeof(Harmony).Assembly.GetName().Version.Minor < 12)
+            {
+                _harmony.Patch(HarmonyTranspilersFixPatch.TargetMethod(), null, null, new HarmonyMethod(AccessTools.Method(typeof(HarmonyTranspilersFixPatch), nameof(HarmonyTranspilersFixPatch.Transpiler))));
+            }
             _harmony.PatchAll(_metadata.Assembly);
 
             BasicUI.GetIcons();
