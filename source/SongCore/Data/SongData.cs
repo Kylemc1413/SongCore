@@ -9,18 +9,6 @@ using UnityEngine;
 
 namespace SongCore.Data
 {
-    public class SongData
-    {
-        public string RawSongData;
-        public StandardLevelInfoSaveData SaveData;
-
-        public SongData(string rawSongData, StandardLevelInfoSaveData saveData)
-        {
-            RawSongData = rawSongData;
-            SaveData = saveData;
-        }
-    }
-
     [Serializable]
     public class ExtraSongData
     {
