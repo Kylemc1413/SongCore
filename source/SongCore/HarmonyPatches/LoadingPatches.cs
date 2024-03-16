@@ -1,25 +1,13 @@
+using System;
 using HarmonyLib;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
 using SongCore.Utilities;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(CustomBeatmapLevel))]
-    [HarmonyPatch(new[]
-    {
-        typeof(CustomPreviewBeatmapLevel)
-    })]
-    [HarmonyPatch(MethodType.Constructor)]
-    internal class CustomBeatmapLevelDurationPatch
-    {
-        private static void Postfix(CustomBeatmapLevel __instance, CustomPreviewBeatmapLevel customPreviewBeatmapLevel)
-        {
-            var thisInstance = (CustomPreviewBeatmapLevel) __instance;
-            Accessors.SongDurationAccessor(ref thisInstance) = customPreviewBeatmapLevel.songDuration;
-        }
-    }
-
     [HarmonyPatch(typeof(BeatmapLevelsModel))]
     [HarmonyPatch(nameof(BeatmapLevelsModel.ReloadCustomLevelPackCollectionAsync), MethodType.Normal)]
     internal class StopVanillaLoadingPatch
@@ -33,13 +21,13 @@ namespace SongCore.HarmonyPatches
     {
         private static bool Prefix(LevelFilteringNavigationController __instance)
         {
-            if (Loader.CustomBeatmapLevelPackCollectionSO == null)
+            if (Loader.CustomLevelsRepository == null)
             {
                 return false;
             }
 
-            __instance._customLevelPacks = Loader.CustomBeatmapLevelPackCollectionSO.beatmapLevelPacks;
-            IEnumerable<IBeatmapLevelPack>? packs = null;
+            __instance._customLevelPacks = Loader.CustomLevelsRepository.beatmapLevelPacks;
+            IEnumerable<BeatmapLevelPack>? packs = null;
             if (__instance._ostBeatmapLevelPacks != null)
             {
                 packs = __instance._ostBeatmapLevelPacks;
@@ -58,6 +46,18 @@ namespace SongCore.HarmonyPatches
             __instance._allBeatmapLevelPacks = packs.ToArray();
             __instance._levelSearchViewController.Setup(__instance._allBeatmapLevelPacks);
             __instance.UpdateSecondChildControllerContent(__instance._selectLevelCategoryViewController.selectedLevelCategory);
+
+            return false;
+        }
+    }
+
+    // TODO: Fixes a bug in game v1.35.0 where it unloads cached custom levels forever. Remove when fixed.
+    [HarmonyPatch(typeof(BeatmapLevelLoader), nameof(BeatmapLevelLoader.HandleItemWillBeRemovedFromCache))]
+    internal class BeatmapLevelLoaderHandleItemWillBeRemovedFromCachePatch
+    {
+        private static bool Prefix(BeatmapLevelLoader __instance, string beatmapLevelId)
+        {
+            __instance._beatmapLevelDataLoader.TryUnload(beatmapLevelId);
 
             return false;
         }

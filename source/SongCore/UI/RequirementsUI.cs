@@ -34,10 +34,10 @@ namespace SongCore.UI
         internal Sprite? StandardIcon;
 
         //Currently selected song data
-        public CustomPreviewBeatmapLevel level;
+        public BeatmapLevel beatmapLevel;
+        public BeatmapKey beatmapKey;
         public Data.ExtraSongData songData;
         public Data.ExtraSongData.DifficultyData? diffData;
-        public IDifficultyBeatmap difficultyBeatmap;
         public bool wipFolder;
 
         [UIComponent("list")]
@@ -183,7 +183,10 @@ namespace SongCore.UI
                     {
                         if (!string.IsNullOrWhiteSpace(author._iconPath))
                         {
-                            author.icon = Utils.LoadSpriteFromFile(Path.Combine(level.customLevelPath, author._iconPath));
+                            if (Collections.LevelPathDictionary.TryGetValue(beatmapLevel.levelID, out var customLevelPath))
+                            {
+                                author.icon = Utils.LoadSpriteFromFile(Path.Combine(customLevelPath, author._iconPath));
+                            }
                             customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon != null ? author.icon : InfoIcon));
                         }
                         else
@@ -218,9 +221,9 @@ namespace SongCore.UI
                     var environmentInfoName = songData._environmentNames.ElementAtOrDefault(diffData._environmentNameIdx.Value);
                     if (environmentInfoName != null)
                     {
-                        if (environmentInfoName != level.environmentInfo.serializedName)
+                        if (environmentInfoName != beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty))
                         {
-                            environmentName = Loader.CustomLevelLoader.LoadEnvironmentInfo(environmentInfoName, false).environmentName;
+                            environmentName = Loader.CustomLevelLoader._environmentsListModel.GetEnvironmentInfoBySerializedNameSafe(environmentInfoName).environmentName;
                         }
                     }
                 }
@@ -261,8 +264,8 @@ namespace SongCore.UI
 
                 if (customListTableData.data.Count > 0)
                 {
-                    if (environmentName == null && difficultyBeatmap != null)
-                        environmentName = difficultyBeatmap.GetEnvironmentInfo().environmentName;
+                    if (environmentName == null && beatmapLevel != null)
+                        environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
                     customListTableData.data.Add(new CustomCellInfo("<size=75%>Environment Info", $"This Map uses the Environment: {environmentName}", EnvironmentIcon));
 
                 }

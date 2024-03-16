@@ -1,4 +1,4 @@
-﻿using SongCore.OverrideClasses;
+using SongCore.OverrideClasses;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,10 +34,9 @@ namespace SongCore.Data
 
     public class SeperateSongFolder
     {
-        public readonly ConcurrentDictionary<string, CustomPreviewBeatmapLevel> Levels = new ConcurrentDictionary<string, CustomPreviewBeatmapLevel>();
+        public readonly ConcurrentDictionary<string, BeatmapLevel> Levels = new ConcurrentDictionary<string, BeatmapLevel>();
 
         public SongFolderEntry SongFolderEntry { get; private set; }
-        public SongCoreCustomLevelCollection LevelCollection { get; private set; } = null;
         public SongCoreCustomBeatmapLevelPack LevelPack { get; private set; } = null;
         public SeperateSongFolder? CacheFolder { get; private set; }
 
@@ -48,7 +47,6 @@ namespace SongCore.Data
 
             if (folderEntry.Pack == FolderLevelPack.NewPack)
             {
-                LevelCollection = new SongCoreCustomLevelCollection(Levels.Values.ToArray());
                 var image = UI.BasicUI.FolderIcon!;
 
                 if (!string.IsNullOrEmpty(folderEntry.ImagePath))
@@ -67,7 +65,7 @@ namespace SongCore.Data
                     }
                 }
 
-                LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, image, LevelCollection);
+                LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, image, Levels.Values.ToArray());
             }
         }
 
@@ -76,9 +74,7 @@ namespace SongCore.Data
             SongFolderEntry = folderEntry;
             if (folderEntry.Pack == FolderLevelPack.NewPack)
             {
-                LevelCollection = new SongCoreCustomLevelCollection(Levels.Values.ToArray());
-
-                LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, image, LevelCollection);
+                LevelPack = new SongCoreCustomBeatmapLevelPack(CustomLevelLoader.kCustomLevelPackPrefixId + folderEntry.Name, folderEntry.Name, image, Levels.Values.ToArray());
             }
         }
 

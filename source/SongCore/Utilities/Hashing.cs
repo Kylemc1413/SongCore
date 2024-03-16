@@ -1,4 +1,4 @@
-﻿using SongCore.Data;
+using SongCore.Data;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -119,19 +119,21 @@ namespace SongCore.Utilities
             return false;
         }
 
-        public static string GetCustomLevelHash(CustomPreviewBeatmapLevel level)
+        // TODO: See if there's a way to get the path and the sava data from the level.
+        public static string? GetCustomLevelHash(BeatmapLevel level)
         {
-            return GetCustomLevelHash(level.customLevelPath, level.standardLevelInfoSaveData.difficultyBeatmapSets);
+            if (level.hasPrecalculatedData)
+            {
+                return null;
+            }
+
+            var hash = level.levelID.Split('_')[2];
+            return hash.Length == 40 ? hash : null;
         }
 
         public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
         {
             return GetCustomLevelHash(customLevelPath, level.difficultyBeatmapSets);
-        }
-
-        public static string GetCustomLevelHash(CustomBeatmapLevel level)
-        {
-            return GetCustomLevelHash(level.customLevelPath, level.standardLevelInfoSaveData.difficultyBeatmapSets);
         }
 
         private static string GetCustomLevelHash(string levelPath, StandardLevelInfoSaveData.DifficultyBeatmapSet[] beatmapSets)
@@ -142,7 +144,7 @@ namespace SongCore.Utilities
             }
 
             var levelFolder = levelPath + Path.DirectorySeparatorChar;
-            IEnumerable<byte> combinedBytes = File.ReadAllBytes(levelFolder + "info.dat");
+            IEnumerable<byte> combinedBytes = File.ReadAllBytes(levelFolder + CustomLevelPathHelper.kStandardLevelInfoFilename);
 
             foreach(var beatmapSet in beatmapSets)
             {

@@ -39,7 +39,7 @@ namespace SongCore.HarmonyPatches
                 Loader.SongsLoadedEvent += Loader_SongsLoadedEvent;
             }
 
-            private void Loader_SongsLoadedEvent(Loader _, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> __)
+            private void Loader_SongsLoadedEvent(Loader _, ConcurrentDictionary<string, BeatmapLevel> __)
             {
                 didChangeEvent?.Invoke();
             }

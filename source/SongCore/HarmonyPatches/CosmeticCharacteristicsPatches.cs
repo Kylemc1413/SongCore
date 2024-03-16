@@ -22,10 +22,10 @@ namespace SongCore.HarmonyPatches
                 if (Plugin.Configuration.DisableRotationSpawnLinesOverride)
                     return true;
 
-                var beatmap = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap;
-                if (beatmap == null)
+                var sceneSetupData = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData;
+                if (sceneSetupData.beatmapLevel == null)
                     return true;
-                var beatmapData = Collections.RetrieveDifficultyData(beatmap);
+                var beatmapData = Collections.RetrieveDifficultyData(sceneSetupData.beatmapLevel, sceneSetupData.beatmapKey);
                 if (beatmapData == null)
                     return true;
                 if (beatmapData._showRotationNoteSpawnLines == null)
@@ -49,24 +49,23 @@ namespace SongCore.HarmonyPatches
 
                 sceneSetupData = __instance._sceneSetupData;
 
-                var diffBeatmapLevel = sceneSetupData.difficultyBeatmap.level;
-                var level = diffBeatmapLevel is CustomBeatmapLevel ? diffBeatmapLevel as CustomPreviewBeatmapLevel : null;
-                if (level == null)
+                var beatmapLevel = sceneSetupData.beatmapLevel;
+                if (beatmapLevel.hasPrecalculatedData)
                 {
                     diffData = null;
                     return;
                 }
-                diffData = Collections.RetrieveDifficultyData(sceneSetupData.difficultyBeatmap);
+                diffData = Collections.RetrieveDifficultyData(beatmapLevel, sceneSetupData.beatmapKey);
                 if (diffData == null)
                     return;
                 if (diffData._oneSaber != null && !Plugin.Configuration.DisableOneSaberOverride)
                 {
-                    numberOfColors = sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.numberOfColors;
-                    sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic._numberOfColors = diffData._oneSaber.Value == true ? 1 : 2;
+                    numberOfColors = sceneSetupData.beatmapKey.beatmapCharacteristic.numberOfColors;
+                    sceneSetupData.beatmapKey.beatmapCharacteristic._numberOfColors = diffData._oneSaber.Value == true ? 1 : 2;
                 }
 
             }
-            private static void Postfix(GameplayCoreInstaller __instance)
+            private static void Postfix()
             {
                 if (Plugin.Configuration.DisableOneSaberOverride)
                     return;
@@ -75,7 +74,7 @@ namespace SongCore.HarmonyPatches
 
                 if (diffData._oneSaber != null && !Plugin.Configuration.DisableOneSaberOverride)
                 {
-                    sceneSetupData.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic._numberOfColors = numberOfColors;
+                    sceneSetupData.beatmapKey.beatmapCharacteristic._numberOfColors = numberOfColors;
                 }
             }
 
@@ -86,19 +85,13 @@ namespace SongCore.HarmonyPatches
         [HarmonyPatch(nameof(BeatmapCharacteristicSegmentedControlController.SetData), MethodType.Normal)]
         internal class CosmeticCharacteristicsPatch
         {
-            private static void Postfix(BeatmapCharacteristicSegmentedControlController __instance, IReadOnlyList<IDifficultyBeatmapSet> difficultyBeatmapSets, BeatmapCharacteristicSO selectedBeatmapCharacteristic)
+            private static void Postfix(BeatmapCharacteristicSegmentedControlController __instance, BeatmapCharacteristicSO selectedBeatmapCharacteristic)
             {
                 if (!Plugin.Configuration.DisplayCustomCharacteristics) return;
 
-                var diffBeatmapSetsBeatmaps = difficultyBeatmapSets.FirstOrDefault().difficultyBeatmaps;
-                if (diffBeatmapSetsBeatmaps == null) return;
-                var diffBeatmapItem = diffBeatmapSetsBeatmaps.FirstOrDefault();
-                if (diffBeatmapItem == null) return;
-                var diffBeatmapLevel = diffBeatmapItem.level;
+                var level = Object.FindObjectOfType<StandardLevelDetailViewController>()._beatmapLevel;
 
-                var level = diffBeatmapLevel is CustomBeatmapLevel ? diffBeatmapLevel as CustomPreviewBeatmapLevel : null;
-
-                if (level == null) return;
+                if (level.hasPrecalculatedData) return;
                 var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(level));
 
                 if (songData == null) return;
@@ -121,9 +114,9 @@ namespace SongCore.HarmonyPatches
                         if (detail != null)
                         {
                             Sprite sprite = characteristic.icon;
-                            if (detail._characteristicIconFilePath != null)
-                                sprite = Utilities.Utils.LoadSpriteFromFile(Path.Combine(level.customLevelPath, detail._characteristicIconFilePath)) ?? characteristic.icon;
-                            string label = detail._characteristicLabel ?? Polyglot.Localization.Get(characteristic.descriptionLocalizationKey);
+                            if (detail._characteristicIconFilePath != null && Collections.LevelPathDictionary.TryGetValue(level.levelID, out var customLevelPath))
+                                sprite = Utilities.Utils.LoadSpriteFromFile(Path.Combine(customLevelPath, detail._characteristicIconFilePath)) ?? characteristic.icon;
+                            string label = detail._characteristicLabel ?? BGLib.Polyglot.Localization.Get(characteristic.descriptionLocalizationKey);
                             newDataItems.Add(new IconSegmentedControl.DataItem(sprite, label));
                         }
                         else
