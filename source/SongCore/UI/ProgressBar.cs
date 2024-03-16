@@ -12,11 +12,10 @@ namespace SongCore.UI
     public class ProgressBar : MonoBehaviour
     {
         private Canvas? _canvas;
-        private TMP_Text? _authorNameText;
         private TMP_Text? _pluginNameText;
         private TMP_Text? _headerText;
         private Image? _loadingBackg;
-        internal Image? _loadingBar;
+        private Image? _loadingBar;
 
         private static bool _jokeTime = false;
         private static readonly Vector3 Position = new Vector3(0, 2.5f, 2.5f);
@@ -24,10 +23,6 @@ namespace SongCore.UI
         private static readonly Vector3 Scale = new Vector3(0.01f, 0.01f, 0.01f);
 
         private static readonly Vector2 CanvasSize = new Vector2(100, 50);
-
-        private const string AuthorNameText = "";
-        private const float AuthorNameFontSize = 7f;
-        private static readonly Vector2 AuthorNamePosition = new Vector2(10, 31);
 
         private const string PluginNameText = "SongCore Loader";
         private const float PluginNameFontSize = 9f;
@@ -140,14 +135,6 @@ namespace SongCore.UI
             _canvas.enabled = false;
             var rectTransform = _canvas.transform as RectTransform;
             rectTransform.sizeDelta = CanvasSize;
-
-            _authorNameText = BeatSaberMarkupLanguage.BeatSaberUI.CreateText(_canvas.transform as RectTransform, AuthorNameText, AuthorNamePosition);
-            rectTransform = _authorNameText.transform as RectTransform;
-            rectTransform.SetParent(_canvas.transform, false);
-            rectTransform.anchoredPosition = AuthorNamePosition;
-            rectTransform.sizeDelta = HeaderSize;
-            _authorNameText.text = AuthorNameText;
-            _authorNameText.fontSize = AuthorNameFontSize;
 
             var pluginText = _jokeTime ? "SongCore Cleaner" : PluginNameText;
             _pluginNameText = BeatSaberMarkupLanguage.BeatSaberUI.CreateText(_canvas.transform as RectTransform, pluginText, PluginNamePosition);
