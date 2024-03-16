@@ -355,7 +355,7 @@ namespace SongCore
                         }
                         catch (Exception ex)
                         {
-                            Logging.Logger.Error("Failed To Load Cached WIP Levels: ");
+                            Logging.Logger.Error("Failed to load cached WIP levels: ");
                             Logging.Logger.Error(ex);
                         }
                     }
@@ -377,7 +377,7 @@ namespace SongCore
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logging.Logger.Error("Failed To Load Cached WIP Levels:");
+                                    Logging.Logger.Error("Failed to load cached WIP levels:");
                                     Logging.Logger.Error(ex);
                                 }
                             }
@@ -411,7 +411,7 @@ namespace SongCore
 
                           if (results.Length == 0)
                           {
-                              Logging.Logger.Notice($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} files!");
+                              Logging.Logger.Notice($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} file!");
                               return;
                           }
 
@@ -518,7 +518,7 @@ namespace SongCore
 
                                 if (results.Length == 0)
                                 {
-                                    Logging.Logger.Notice($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} files!");
+                                    Logging.Logger.Notice($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} file!");
                                     continue;
                                 }
 
@@ -588,7 +588,7 @@ namespace SongCore
                         }
                         catch (Exception ex)
                         {
-                            Logging.Logger.Error($"Failed to load Separate Folder{SeperateSongFolders[k].SongFolderEntry.Name}");
+                            Logging.Logger.Error($"Failed to load separate folder{SeperateSongFolders[k].SongFolderEntry.Name}");
                             Logging.Logger.Error(ex);
                         }
                     }
@@ -681,7 +681,7 @@ namespace SongCore
                 }
                 catch (Exception ex)
                 {
-                    Logging.Logger.Error("Failed to Setup LevelPacks:");
+                    Logging.Logger.Error("Failed to setup LevelPacks:");
                     Logging.Logger.Error(ex);
                 }
 
@@ -709,7 +709,7 @@ namespace SongCore
             }
             catch (Exception ex)
             {
-                Logging.Logger.Warn($"Song Loading Task Failed. {ex.Message}");
+                Logging.Logger.Warn($"Song loading task failed. {ex.Message}");
                 return;
             }
 
@@ -719,7 +719,7 @@ namespace SongCore
             }
             else
             {
-                Logging.Logger.Warn($"Song Loading Task Cancelled.");
+                Logging.Logger.Warn($"Song loading task cancelled.");
             }
         }
 
@@ -799,7 +799,7 @@ namespace SongCore
             }
             catch (Exception ex)
             {
-                Logging.Logger.Error($"Exception trying to Delete song: {folderPath}");
+                Logging.Logger.Error($"Exception trying to delete song: {folderPath}");
                 Logging.Logger.Error(ex);
             }
         }
@@ -851,7 +851,7 @@ namespace SongCore
             }
             catch (Exception e)
             {
-                Logging.Logger.Error($"Failed to Load Song: {songPath}");
+                Logging.Logger.Error($"Failed to load song: {songPath}");
                 Logging.Logger.Error(e);
                 beatmapLevel = null;
                 hash = null;
@@ -1125,7 +1125,7 @@ namespace SongCore
                     {
                         // janky, but whatever
                         Collections.LevelPathDictionary.TryGetValue(level.levelID, out var customLevelPath);
-                        Logging.Logger.Warn($"Failed to parse song length from Ogg file, Approximating using Map length. Song: {customLevelPath}");
+                        Logging.Logger.Warn($"Failed to parse song length from audio file, approximating using map length. Song: {customLevelPath}");
                         length = GetLengthFromMap(saveData, level, songPath);
                     }
                 }
@@ -1149,7 +1149,7 @@ namespace SongCore
             }
             catch (Exception ex)
             {
-                Logging.Logger.Warn("Failed to Parse Song Duration");
+                Logging.Logger.Warn("Failed to parse song duration");
                 Logging.Logger.Warn(ex);
             }
         }
@@ -1249,7 +1249,7 @@ namespace SongCore
             }
             else
             {
-                Logging.Logger.Warn($"could not find rate for {oggFile}");
+                Logging.Logger.Warn($"Could not find rate for {oggFile}");
                 return -1;
             }
 
@@ -1280,7 +1280,7 @@ namespace SongCore
 
             if (lastSample == -1)
             {
-                Logging.Logger.Warn($"could not find lastSample for {oggFile}");
+                Logging.Logger.Warn($"Could not find lastSample for {oggFile}");
                 return -1;
             }
 
