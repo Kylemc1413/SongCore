@@ -98,7 +98,7 @@ namespace SongCore
             BeatmapLevelsModelSO = _beatmapLevelsModel;
             CustomLevelLoader = _customLevelLoader;
             cachedMediaAsyncLoaderSO = _cachedMediaAsyncLoader;
-            defaultCoverImage = _levelPackDetailViewController._defaultCoverSprite;
+            defaultCoverImage = Resources.FindObjectsOfTypeAll<Sprite>().First(s => s.name.Contains("CustomLevelsPack"));
             beatmapCharacteristicCollection = _beatmapCharacteristicCollection;
 
             if (Hashing.cachedSongHashData.Count == 0)
