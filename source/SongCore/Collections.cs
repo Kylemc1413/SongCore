@@ -148,7 +148,7 @@ namespace SongCore
             return null;
         }
 
-        public static SeperateSongFolder AddSeperateSongFolder(string name, string folderPath, FolderLevelPack pack, Sprite? image = null, bool wip = false, bool cachezips = false)
+        public static SeparateSongFolder AddSeparateSongFolder(string name, string folderPath, FolderLevelPack pack, Sprite? image = null, bool wip = false, bool cachezips = false)
         {
             UI.BasicUI.GetIcons();
             if (!Directory.Exists(folderPath))
@@ -165,14 +165,13 @@ namespace SongCore
             }
 
             var entry = new SongFolderEntry(name, folderPath, pack, "", wip, cachezips);
-            var seperateSongFolder = new ModSeperateSongFolder(entry, image == null ? UI.BasicUI.FolderIcon! : image);
+            var separateSongFolder = new ModSeparateSongFolder(entry, image == null ? UI.BasicUI.FolderIcon! : image);
 
-            Loader.SeperateSongFolders.Add(seperateSongFolder);
-            return seperateSongFolder;
+            Loader.SeparateSongFolders.Add(separateSongFolder);
+            return separateSongFolder;
         }
 
-
-        public static void DeregisterizeCapability(string capability)
+        public static void DeregisterCapability(string capability)
         {
             _capabilities.Remove(capability);
         }

@@ -78,7 +78,7 @@ namespace SongCore
                 foldersXmlResourceStream!.CopyTo(fileStream);
             }
 
-            Loader.SeperateSongFolders.InsertRange(0, Data.SeperateSongFolder.ReadSeperateFoldersFromFile(foldersXmlFilePath));
+            Loader.SeparateSongFolders.InsertRange(0, Data.SeparateSongFolder.ReadSeparateFoldersFromFile(foldersXmlFilePath));
         }
 
         [OnExit]

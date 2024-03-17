@@ -97,7 +97,7 @@ namespace SongCore.UI
         {
             StopAllCoroutines();
             _showingMessage = false;
-            _headerText.text = _jokeTime ? "Deleting Songs..." : HeaderText;
+            _headerText.text = _jokeTime ? "Deleting songs..." : HeaderText;
             _loadingBar.enabled = true;
             _loadingBackg.enabled = true;
             _canvas.enabled = true;
@@ -107,7 +107,7 @@ namespace SongCore.UI
         {
             _showingMessage = false;
             string songOrSongs = customLevels.Count == 1 ? "song" : "songs";
-            _headerText.text = $"{customLevels.Count} {(_jokeTime ? $"{songOrSongs} deleted" : $"{songOrSongs} loaded.")}";
+            _headerText.text = $"{customLevels.Count} {(_jokeTime ? $"{songOrSongs} deleted" : $"{songOrSongs} loaded")}";
             _loadingBar.enabled = false;
             _loadingBackg.enabled = false;
             StartCoroutine(DisableCanvasRoutine(5f));
@@ -124,7 +124,7 @@ namespace SongCore.UI
         {
             var time = IPA.Utilities.Utils.CanUseDateTimeNowSafely ? DateTime.Now : DateTime.UtcNow;
 
-            _jokeTime = (time.Day == 18 && time.Month == 6) || (time.Day == 1 && time.Month == 4);
+            _jokeTime = time is { Day: 18, Month: 6 } or { Day: 1, Month: 4 };
 
             gameObject.transform.position = Position;
             gameObject.transform.eulerAngles = Rotation;
