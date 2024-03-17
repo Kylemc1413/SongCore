@@ -169,8 +169,6 @@ namespace SongCore.UI
             _loadingBar.type = Image.Type.Filled;
             _loadingBar.fillMethod = Image.FillMethod.Horizontal;
             _loadingBar.color = new Color(1, 1, 1, 0.5f);
-
-            DontDestroyOnLoad(gameObject);
         }
 
         private void Update()
