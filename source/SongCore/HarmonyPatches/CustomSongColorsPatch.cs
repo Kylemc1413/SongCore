@@ -23,6 +23,10 @@ namespace SongCore.HarmonyPatches
                 {
                     colorScheme._environmentColor1Boost = colorScheme._environmentColor1;
                 }
+                if (colorScheme._environmentColorWBoost == default)
+                {
+                    colorScheme._environmentColorWBoost = colorScheme._environmentColorW;
+                }
 
                 if (!Plugin.Configuration.CustomSongNoteColors && !Plugin.Configuration.CustomSongEnvironmentColors && !Plugin.Configuration.CustomSongObstacleColors)
                 {
@@ -55,6 +59,10 @@ namespace SongCore.HarmonyPatches
                 if (colorScheme._environmentColor1Boost == default)
                 {
                     colorScheme._environmentColor1Boost = colorScheme._environmentColor1;
+                }
+                if (colorScheme._environmentColorWBoost == default)
+                {
+                    colorScheme._environmentColorWBoost = colorScheme._environmentColorW;
                 }
 
                 if (!Plugin.Configuration.CustomSongNoteColors && !Plugin.Configuration.CustomSongEnvironmentColors && !Plugin.Configuration.CustomSongObstacleColors)
