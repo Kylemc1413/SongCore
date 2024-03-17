@@ -80,7 +80,7 @@ namespace SongCore.UI
 
         private void SceneManagerOnActiveSceneChanged(Scene oldScene, Scene newScene)
         {
-            if (newScene.name == "MenuCore")
+            if (newScene.name == "MainMenu")
             {
                 if (_showingMessage)
                 {
