@@ -45,12 +45,7 @@ namespace SongCore.UI
 
         public void ShowMessage(string message, float time)
         {
-            StopAllCoroutines();
-            _showingMessage = true;
-            _headerText.text = message;
-            _loadingBar.enabled = false;
-            _loadingBackg.enabled = false;
-            _canvas.enabled = true;
+            ShowMessage(message);
             StartCoroutine(DisableCanvasRoutine(time));
         }
 

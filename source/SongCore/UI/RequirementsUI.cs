@@ -50,9 +50,9 @@ namespace SongCore.UI
         internal Sprite? StandardIcon;
 
         //Currently selected song data
-        public BeatmapLevel beatmapLevel;
-        public BeatmapKey beatmapKey;
-        public Data.ExtraSongData songData;
+        public BeatmapLevel? beatmapLevel;
+        public BeatmapKey? beatmapKey;
+        public Data.ExtraSongData? songData;
         public Data.ExtraSongData.DifficultyData? diffData;
         public bool wipFolder;
 
@@ -234,7 +234,7 @@ namespace SongCore.UI
                     var environmentInfoName = songData._environmentNames.ElementAtOrDefault(diffData._environmentNameIdx.Value);
                     if (environmentInfoName != null)
                     {
-                        if (environmentInfoName != beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty))
+                        if (environmentInfoName != beatmapLevel.GetEnvironmentName(beatmapKey.Value.beatmapCharacteristic, beatmapKey.Value.difficulty))
                         {
                             environmentName = Loader.CustomLevelLoader._environmentsListModel.GetEnvironmentInfoBySerializedNameSafe(environmentInfoName).environmentName;
                         }
@@ -277,8 +277,8 @@ namespace SongCore.UI
 
                 if (customListTableData.data.Count > 0)
                 {
-                    if (environmentName == null && beatmapLevel != null) // TODO: Can this actually be null?
-                        environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
+                    if (environmentName == null && beatmapLevel != null)
+                        environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.Value.beatmapCharacteristic, beatmapKey.Value.difficulty);
                     customListTableData.data.Add(new CustomCellInfo("<size=75%>Environment Info", $"This Map uses the Environment: {environmentName}", EnvironmentIcon));
 
                 }
@@ -339,9 +339,8 @@ namespace SongCore.UI
                 return;
             }
 
-            var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(_standardLevelDetailViewController._beatmapLevel));
-
-            if (songData == null)
+            var extraSongData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(_standardLevelDetailViewController._beatmapLevel));
+            if (extraSongData == null)
             {
                 ButtonGlowColor = false;
                 ButtonInteractable = false;
@@ -349,37 +348,36 @@ namespace SongCore.UI
             }
 
             var wipFolderSong = false;
-            var diffData = Collections.RetrieveDifficultyData(_standardLevelDetailViewController._beatmapLevel, _standardLevelDetailViewController.beatmapKey);
             var actionButton = _standardLevelDetailViewController._standardLevelDetailView.actionButton;
             var practiceButton = _standardLevelDetailViewController._standardLevelDetailView.practiceButton;
-
-            if (diffData != null)
+            var difficultyData = Collections.RetrieveDifficultyData(_standardLevelDetailViewController._beatmapLevel, _standardLevelDetailViewController.beatmapKey);
+            if (difficultyData != null)
             {
                 //If no additional information is present
-                if (!diffData.additionalDifficultyData._requirements.Any() &&
-                    !diffData.additionalDifficultyData._suggestions.Any() &&
-                    !diffData.additionalDifficultyData._warnings.Any() &&
-                    !diffData.additionalDifficultyData._information.Any() &&
-                    !songData.contributors.Any() && !Utils.DiffHasColors(diffData))
+                if (!difficultyData.additionalDifficultyData._requirements.Any() &&
+                    !difficultyData.additionalDifficultyData._suggestions.Any() &&
+                    !difficultyData.additionalDifficultyData._warnings.Any() &&
+                    !difficultyData.additionalDifficultyData._information.Any() &&
+                    !extraSongData.contributors.Any() && !Utils.DiffHasColors(difficultyData))
                 {
                     ButtonGlowColor = false;
                     ButtonInteractable = false;
                 }
-                else if (!diffData.additionalDifficultyData._warnings.Any())
+                else if (!difficultyData.additionalDifficultyData._warnings.Any())
                 {
                     ButtonGlowColor = true;
                     ButtonInteractable = true;
-                    SetRainbowColors(Utils.DiffHasColors(diffData));
+                    SetRainbowColors(Utils.DiffHasColors(difficultyData));
                 }
-                else if (diffData.additionalDifficultyData._warnings.Any())
+                else if (difficultyData.additionalDifficultyData._warnings.Any())
                 {
                     ButtonGlowColor = true;
                     ButtonInteractable = true;
-                    if (diffData.additionalDifficultyData._warnings.Contains("WIP"))
+                    if (difficultyData.additionalDifficultyData._warnings.Contains("WIP"))
                     {
                         actionButton.interactable = false;
                     }
-                    SetRainbowColors(Utils.DiffHasColors(diffData));
+                    SetRainbowColors(Utils.DiffHasColors(difficultyData));
                 }
             }
 
@@ -391,9 +389,9 @@ namespace SongCore.UI
                 wipFolderSong = true;
             }
 
-            if (diffData != null)
+            if (difficultyData != null)
             {
-                foreach (var requirement in diffData.additionalDifficultyData._requirements)
+                foreach (var requirement in difficultyData.additionalDifficultyData._requirements)
                 {
                     if (!Collections.capabilities.Contains(requirement))
                     {
@@ -415,8 +413,8 @@ namespace SongCore.UI
 
             beatmapLevel = _standardLevelDetailViewController._beatmapLevel;
             beatmapKey = _standardLevelDetailViewController.beatmapKey;
-            this.songData = songData;
-            this.diffData = diffData;
+            songData = extraSongData;
+            diffData = difficultyData;
             wipFolder = wipFolderSong;
         }
     }

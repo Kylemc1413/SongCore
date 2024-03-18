@@ -121,8 +121,6 @@ namespace SongCore
 
         public void Dispose()
         {
-            Logging.Logger.Notice(nameof(Dispose));
-
             SceneManager.activeSceneChanged -= HandleActiveSceneChanged;
 
             _gameScenesManager.transitionDidStartEvent -= CancelSongLoading;
@@ -166,12 +164,15 @@ namespace SongCore
         {
             if (_loadingTaskCancellationTokenSource.IsCancellationRequested && nextScene.name == "MainMenu")
             {
+                Logging.Logger.Notice("Song loading was cancelled. Resuming...");
                 RefreshSongs();
             }
         }
 
         private static void HandleDidSelectLevel(LevelCollectionViewController levelCollectionViewController, BeatmapLevel beatmapLevel)
         {
+            Logging.Logger.Debug($"Selected level: {beatmapLevel.levelID} | {beatmapLevel.songName}");
+
             if (!beatmapLevel.hasPrecalculatedData && Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(beatmapLevel)) is { } songData)
             {
                 if (Plugin.Configuration.CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
@@ -322,21 +323,18 @@ namespace SongCore
 
                 #region AddCustomBeatmaps
 
-                var customLevelsPath = _customLevelsPath;
-
                 try
                 {
                     #region DirectorySetup
 
-                    if (!Directory.Exists(customLevelsPath))
+                    if (!Directory.Exists(_customLevelsPath))
                     {
-                        Directory.CreateDirectory(customLevelsPath);
+                        Directory.CreateDirectory(_customLevelsPath);
                     }
 
-                    var customWipLevelsPath = _customWIPPath;
-                    if (!Directory.Exists(customWipLevelsPath))
+                    if (!Directory.Exists(_customWIPPath))
                     {
-                        Directory.CreateDirectory(customWipLevelsPath);
+                        Directory.CreateDirectory(_customWIPPath);
                     }
 
                     #endregion
@@ -348,10 +346,10 @@ namespace SongCore
                     {
                         try
                         {
-                            var cachePath = Path.Combine(customWipLevelsPath, "Cache");
-                            CacheZIPs(cachePath, customWipLevelsPath);
+                            var cachePath = Path.Combine(_customWIPPath, "Cache");
+                            CacheZIPs(cachePath, _customWIPPath);
 
-                            var cacheFolders = Directory.GetDirectories(cachePath).ToArray();
+                            var cacheFolders = Directory.GetDirectories(cachePath);
                             LoadCachedZIPs(cacheFolders, fullRefresh, CachedWIPLevels);
                         }
                         catch (Exception ex)
@@ -392,7 +390,7 @@ namespace SongCore
                     #region LoadCustomLevels
 
                     // Get Levels from CustomLevels and CustomWIPLevels folders
-                    var songFolders = Directory.GetDirectories(customLevelsPath).Concat(Directory.GetDirectories(customWipLevelsPath)).ToArray();
+                    var songFolders = Directory.GetDirectories(_customLevelsPath).Concat(Directory.GetDirectories(_customWIPPath)).ToArray();
                     var loadedData = new ConcurrentBag<string>();
 
                     var processedSongsCount = 0;
