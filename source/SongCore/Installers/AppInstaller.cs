@@ -13,8 +13,7 @@ namespace SongCore.Installers
         {
             Container.Bind<IRefreshable>().WithId(refreshableID).To<SongCoreRefreshable>().AsSingle();
             Container.Bind(typeof(IInitializable), typeof(IDisposable), typeof(SongCoreLoaderDidLoad)).To<SongCoreLoaderDidLoad>().AsSingle();
-            var loadEvent = Container.Resolve<SongCoreLoaderDidLoad>() as IObservableChange;
-            Container.BindInstance(loadEvent).WithId(didLoadEventID).AsSingle();
+            Container.Bind<IObservableChange>().WithId(didLoadEventID).FromMethod(ctx => ctx.Container.Resolve<SongCoreLoaderDidLoad>()).AsSingle();
         }
 
         private class SongCoreRefreshable : IRefreshable
