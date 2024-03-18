@@ -75,7 +75,7 @@ namespace SongCore.UI
         [UIAction("#post-parse")]
         private void PostParse()
         {
-            ColorSchemeView colorSchemeViewPrefab = Object.Instantiate(_gameplaySetupViewController._colorsOverrideSettingsPanelController._colorSchemeDropDown._colorSchemeView, selectedColorTransform);
+            ColorSchemeView colorSchemeViewPrefab = Object.Instantiate(_gameplaySetupViewController._colorsOverrideSettingsPanelController._colorSchemeDropDown._cellPrefab._colorSchemeView, selectedColorTransform);
             colorSchemeView = IPA.Utilities.ReflectionUtil.CopyComponent<ColorSchemeView>(colorSchemeViewPrefab, colorSchemeViewPrefab.gameObject);
             Object.DestroyImmediate(colorSchemeViewPrefab);
             modalPosition = modal.transform.localPosition;
