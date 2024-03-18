@@ -128,7 +128,7 @@ namespace SongCore.Utilities
             }
 
             var customLevelPath = Collections.GetCustomLevelPath(level.levelID);
-            if (customLevelPath == null)
+            if (string.IsNullOrEmpty(customLevelPath))
             {
                 return null;
             }

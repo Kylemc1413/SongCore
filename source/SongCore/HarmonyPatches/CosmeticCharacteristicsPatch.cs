@@ -54,7 +54,7 @@ namespace SongCore.HarmonyPatches
                     Sprite? icon = null;
 
                     var customLevelPath = Collections.GetCustomLevelPath(beatmapLevel.levelID);
-                    if (characteristicDetails._characteristicIconFilePath != null && customLevelPath != null)
+                    if (characteristicDetails._characteristicIconFilePath != null && !string.IsNullOrEmpty(customLevelPath))
                     {
                         icon = Utils.LoadSpriteFromFile(Path.Combine(customLevelPath, characteristicDetails._characteristicIconFilePath));
                     }
