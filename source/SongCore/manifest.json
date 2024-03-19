@@ -5,11 +5,11 @@
     "gameVersion": "1.35.0",
     "id": "SongCore",
     "name": "SongCore",
-    "version": "3.12.1",
+    "version": "3.13.0",
     "dependsOn": {
         "BSIPA": "^4.3.0",
         "BeatSaberMarkupLanguage": "^1.7.6",
-        "BS Utils": "^1.12.3"
+        "SiraUtil": "^3.0.0"
     },
     "links": {
         "project-source": "https://github.com/Kylemc1413/SongCore"

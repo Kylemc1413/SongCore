@@ -12,11 +12,10 @@ namespace SongCore.UI
     public class ProgressBar : MonoBehaviour
     {
         private Canvas? _canvas;
-        private TMP_Text? _authorNameText;
         private TMP_Text? _pluginNameText;
         private TMP_Text? _headerText;
         private Image? _loadingBackg;
-        internal Image? _loadingBar;
+        private Image? _loadingBar;
 
         private static bool _jokeTime = false;
         private static readonly Vector3 Position = new Vector3(0, 2.5f, 2.5f);
@@ -24,10 +23,6 @@ namespace SongCore.UI
         private static readonly Vector3 Scale = new Vector3(0.01f, 0.01f, 0.01f);
 
         private static readonly Vector2 CanvasSize = new Vector2(100, 50);
-
-        private const string AuthorNameText = "";
-        private const float AuthorNameFontSize = 7f;
-        private static readonly Vector2 AuthorNamePosition = new Vector2(10, 31);
 
         private const string PluginNameText = "SongCore Loader";
         private const float PluginNameFontSize = 9f;
@@ -50,12 +45,7 @@ namespace SongCore.UI
 
         public void ShowMessage(string message, float time)
         {
-            StopAllCoroutines();
-            _showingMessage = true;
-            _headerText.text = message;
-            _loadingBar.enabled = false;
-            _loadingBackg.enabled = false;
-            _canvas.enabled = true;
+            ShowMessage(message);
             StartCoroutine(DisableCanvasRoutine(time));
         }
 
@@ -85,7 +75,7 @@ namespace SongCore.UI
 
         private void SceneManagerOnActiveSceneChanged(Scene oldScene, Scene newScene)
         {
-            if (newScene.name == "MenuCore")
+            if (newScene.name == "MainMenu")
             {
                 if (_showingMessage)
                 {
@@ -102,7 +92,7 @@ namespace SongCore.UI
         {
             StopAllCoroutines();
             _showingMessage = false;
-            _headerText.text = _jokeTime ? "Deleting Songs..." : HeaderText;
+            _headerText.text = _jokeTime ? "Deleting songs..." : HeaderText;
             _loadingBar.enabled = true;
             _loadingBackg.enabled = true;
             _canvas.enabled = true;
@@ -112,7 +102,7 @@ namespace SongCore.UI
         {
             _showingMessage = false;
             string songOrSongs = customLevels.Count == 1 ? "song" : "songs";
-            _headerText.text = $"{customLevels.Count} {(_jokeTime ? $"{songOrSongs} deleted" : $"{songOrSongs} loaded.")}";
+            _headerText.text = $"{customLevels.Count} {(_jokeTime ? $"{songOrSongs} deleted" : $"{songOrSongs} loaded")}";
             _loadingBar.enabled = false;
             _loadingBackg.enabled = false;
             StartCoroutine(DisableCanvasRoutine(5f));
@@ -129,7 +119,7 @@ namespace SongCore.UI
         {
             var time = IPA.Utilities.Utils.CanUseDateTimeNowSafely ? DateTime.Now : DateTime.UtcNow;
 
-            _jokeTime = (time.Day == 18 && time.Month == 6) || (time.Day == 1 && time.Month == 4);
+            _jokeTime = time is { Day: 18, Month: 6 } or { Day: 1, Month: 4 };
 
             gameObject.transform.position = Position;
             gameObject.transform.eulerAngles = Rotation;
@@ -140,14 +130,6 @@ namespace SongCore.UI
             _canvas.enabled = false;
             var rectTransform = _canvas.transform as RectTransform;
             rectTransform.sizeDelta = CanvasSize;
-
-            _authorNameText = BeatSaberMarkupLanguage.BeatSaberUI.CreateText(_canvas.transform as RectTransform, AuthorNameText, AuthorNamePosition);
-            rectTransform = _authorNameText.transform as RectTransform;
-            rectTransform.SetParent(_canvas.transform, false);
-            rectTransform.anchoredPosition = AuthorNamePosition;
-            rectTransform.sizeDelta = HeaderSize;
-            _authorNameText.text = AuthorNameText;
-            _authorNameText.fontSize = AuthorNameFontSize;
 
             var pluginText = _jokeTime ? "SongCore Cleaner" : PluginNameText;
             _pluginNameText = BeatSaberMarkupLanguage.BeatSaberUI.CreateText(_canvas.transform as RectTransform, pluginText, PluginNamePosition);
@@ -182,8 +164,6 @@ namespace SongCore.UI
             _loadingBar.type = Image.Type.Filled;
             _loadingBar.fillMethod = Image.FillMethod.Horizontal;
             _loadingBar.color = new Color(1, 1, 1, 0.5f);
-
-            DontDestroyOnLoad(gameObject);
         }
 
         private void Update()

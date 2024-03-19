@@ -32,15 +32,15 @@ namespace SongCore.Data
         }
     }
 
-    public class SeperateSongFolder
+    public class SeparateSongFolder
     {
         public readonly ConcurrentDictionary<string, BeatmapLevel> Levels = new ConcurrentDictionary<string, BeatmapLevel>();
 
         public SongFolderEntry SongFolderEntry { get; private set; }
         public SongCoreCustomBeatmapLevelPack LevelPack { get; private set; } = null;
-        public SeperateSongFolder? CacheFolder { get; private set; }
+        public SeparateSongFolder? CacheFolder { get; private set; }
 
-        public SeperateSongFolder(SongFolderEntry folderEntry, SeperateSongFolder? cacheFolder = null)
+        public SeparateSongFolder(SongFolderEntry folderEntry, SeparateSongFolder? cacheFolder = null)
         {
             SongFolderEntry = folderEntry;
             CacheFolder = cacheFolder;
@@ -61,7 +61,7 @@ namespace SongCore.Data
                     }
                     catch
                     {
-                        Logging.Logger.Info($"Failed to Load Image For Separate Folder \"{folderEntry.Name}\"");
+                        Logging.Logger.Info($"Failed to load image for separate folder \"{folderEntry.Name}\"");
                     }
                 }
 
@@ -69,7 +69,7 @@ namespace SongCore.Data
             }
         }
 
-        public SeperateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite image)
+        public SeparateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite image)
         {
             SongFolderEntry = folderEntry;
             if (folderEntry.Pack == FolderLevelPack.NewPack)
@@ -78,9 +78,9 @@ namespace SongCore.Data
             }
         }
 
-        public static List<SeperateSongFolder> ReadSeperateFoldersFromFile(string filePath)
+        public static List<SeparateSongFolder> ReadSeparateFoldersFromFile(string filePath)
         {
-            var result = new List<SeperateSongFolder>();
+            var result = new List<SeparateSongFolder>();
             try
             {
                 XDocument file = XDocument.Load(filePath);
@@ -123,41 +123,41 @@ namespace SongCore.Data
                     //   Console.WriteLine("   " + entry.Pack);
                     //    Console.WriteLine("   " + entry.WIP);
 
-                    SeperateSongFolder? cachedSeperate = null;
+                    SeparateSongFolder? cachedSeparate = null;
                     if (zipCaching)
                     {
                         var cachePack = (FolderLevelPack) pack == FolderLevelPack.CustomWIPLevels ? FolderLevelPack.CachedWIPLevels : FolderLevelPack.NewPack;
 
                         SongFolderEntry cachedSongFolderEntry = new SongFolderEntry($"Cached {name}", Path.Combine(path, "Cache"), cachePack, imagePath, isWIP, false);
-                        cachedSeperate = new SeperateSongFolder(cachedSongFolderEntry);
+                        cachedSeparate = new SeparateSongFolder(cachedSongFolderEntry);
                     }
 
-                    var seperate = new SeperateSongFolder(entry, cachedSeperate);
+                    var seperate = new SeparateSongFolder(entry, cachedSeparate);
                     result.Add(seperate);
-                    if (cachedSeperate != null)
+                    if (cachedSeparate != null)
                     {
-                        result.Add(cachedSeperate);
+                        result.Add(cachedSeparate);
                     }
                 }
             }
             catch
             {
-                Logging.Logger.Warn("Error Reading folders.xml! Make sure the file is properly formatted.");
+                Logging.Logger.Warn("Error reading folders.xml! Make sure the file is properly formatted.");
             }
 
             return result;
         }
     }
 
-    public class ModSeperateSongFolder : SeperateSongFolder
+    public class ModSeparateSongFolder : SeparateSongFolder
     {
         public bool AlwaysShow { get; set; } = true;
 
-        public ModSeperateSongFolder(SongFolderEntry folderEntry) : base(folderEntry)
+        public ModSeparateSongFolder(SongFolderEntry folderEntry) : base(folderEntry)
         {
         }
 
-        public ModSeperateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite image) : base(folderEntry, image)
+        public ModSeparateSongFolder(SongFolderEntry folderEntry, UnityEngine.Sprite image) : base(folderEntry, image)
         {
         }
     }

@@ -23,6 +23,10 @@ namespace SongCore.HarmonyPatches
                 {
                     colorScheme._environmentColor1Boost = colorScheme._environmentColor1;
                 }
+                if (colorScheme._environmentColorWBoost == default)
+                {
+                    colorScheme._environmentColorWBoost = colorScheme._environmentColorW;
+                }
 
                 if (!Plugin.Configuration.CustomSongNoteColors && !Plugin.Configuration.CustomSongEnvironmentColors && !Plugin.Configuration.CustomSongObstacleColors)
                 {
@@ -56,6 +60,10 @@ namespace SongCore.HarmonyPatches
                 {
                     colorScheme._environmentColor1Boost = colorScheme._environmentColor1;
                 }
+                if (colorScheme._environmentColorWBoost == default)
+                {
+                    colorScheme._environmentColorWBoost = colorScheme._environmentColorW;
+                }
 
                 if (!Plugin.Configuration.CustomSongNoteColors && !Plugin.Configuration.CustomSongEnvironmentColors && !Plugin.Configuration.CustomSongObstacleColors)
                 {
@@ -83,9 +91,9 @@ namespace SongCore.HarmonyPatches
                 return null;
             }
 
-            if (Plugin.Configuration.CustomSongNoteColors) Logging.Logger.Info("Custom Song Note Colors On");
-            if (Plugin.Configuration.CustomSongEnvironmentColors) Logging.Logger.Info("Custom Song Environment Colors On");
-            if (Plugin.Configuration.CustomSongObstacleColors) Logging.Logger.Info("Custom Song Obstacle Colors On");
+            if (Plugin.Configuration.CustomSongNoteColors) Logging.Logger.Info("Custom song note colors On");
+            if (Plugin.Configuration.CustomSongEnvironmentColors) Logging.Logger.Info("Custom song environment colors On");
+            if (Plugin.Configuration.CustomSongObstacleColors) Logging.Logger.Info("Custom song obstacle colors On");
 
             var saberLeft = (songData._colorLeft == null || !Plugin.Configuration.CustomSongNoteColors)
                 ? currentColorScheme.saberAColor

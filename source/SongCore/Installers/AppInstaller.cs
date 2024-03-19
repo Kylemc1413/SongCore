@@ -1,22 +1,19 @@
-﻿using HarmonyLib;
 using System;
 using System.Collections.Concurrent;
 using Zenject;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Installers
 {
-    [HarmonyPatch(typeof(MainSystemInit), nameof(MainSystemInit.InstallBindings))]
-    internal class MainSystemsInitRefreshablePatch
+    internal class AppInstaller : Installer
     {
-        public const string refreshableID = "SongCore.Loader.Refresh";
-        public const string didLoadEventID = "SongCore.Loader.Loaded";
+        private const string refreshableID = "SongCore.Loader.Refresh";
+        private const string didLoadEventID = "SongCore.Loader.Loaded";
 
-        private static void Postfix(DiContainer container)
+        public override void InstallBindings()
         {
-            container.Bind<IRefreshable>().WithId(refreshableID).To<SongCoreRefreshable>().AsSingle();
-            container.Bind(typeof(IInitializable), typeof(IDisposable), typeof(SongCoreLoaderDidLoad)).To<SongCoreLoaderDidLoad>().AsSingle();
-            IObservableChange loadEvent = container.Resolve<SongCoreLoaderDidLoad>();
-            container.BindInstance(loadEvent).WithId(didLoadEventID).AsSingle();
+            Container.Bind<IRefreshable>().WithId(refreshableID).To<SongCoreRefreshable>().AsSingle();
+            Container.Bind(typeof(IInitializable), typeof(IDisposable), typeof(SongCoreLoaderDidLoad)).To<SongCoreLoaderDidLoad>().AsSingle();
+            Container.Bind<IObservableChange>().WithId(didLoadEventID).FromMethod(ctx => ctx.Container.Resolve<SongCoreLoaderDidLoad>()).AsSingle();
         }
 
         private class SongCoreRefreshable : IRefreshable
@@ -32,7 +29,7 @@ namespace SongCore.HarmonyPatches
 
         private class SongCoreLoaderDidLoad : IInitializable, IDisposable, IObservableChange
         {
-            public event Action didChangeEvent;
+            public event Action? didChangeEvent;
 
             public void Initialize()
             {

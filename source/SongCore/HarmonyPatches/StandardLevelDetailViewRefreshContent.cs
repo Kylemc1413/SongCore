@@ -1,14 +1,12 @@
-using System;
 using HarmonyLib;
-using SongCore.UI;
 using System.Collections.Generic;
-using System.Linq;
 using SongCore.Utilities;
 
 namespace SongCore.HarmonyPatches
 {
+    // TODO: Check if this could go somewhere else.
     [HarmonyPatch(typeof(StandardLevelDetailView))]
-    [HarmonyPatch(nameof(StandardLevelDetailView.CheckIfBeatmapLevelDataExists), MethodType.Normal)]
+    [HarmonyPatch(nameof(StandardLevelDetailView.RefreshContent), MethodType.Normal)]
     internal class StandardLevelDetailViewRefreshContent
     {
         private static readonly Dictionary<string, OverrideLabels> LevelLabels = new Dictionary<string, OverrideLabels>();
@@ -48,8 +46,6 @@ namespace SongCore.HarmonyPatches
         {
             var firstSelection = false;
             var beatmapLevel = __instance._beatmapLevel;
-            var actionButton = __instance.actionButton;
-            var practiceButton = __instance.practiceButton;
 
             if (beatmapLevel != lastLevel)
             {
@@ -57,11 +53,6 @@ namespace SongCore.HarmonyPatches
                 lastLevel = beatmapLevel;
             }
 
-            actionButton.interactable = true;
-            practiceButton.interactable = true;
-
-            RequirementsUI.instance.ButtonGlowColor = false;
-            RequirementsUI.instance.ButtonInteractable = false;
             if (beatmapLevel.hasPrecalculatedData)
             {
                 return;
@@ -71,80 +62,10 @@ namespace SongCore.HarmonyPatches
 
             if (songData == null)
             {
-                RequirementsUI.instance.ButtonGlowColor = false;
-                RequirementsUI.instance.ButtonInteractable = false;
                 return;
             }
 
             var wipFolderSong = false;
-            var diffData = Collections.RetrieveDifficultyData(beatmapLevel, __instance.beatmapKey);
-
-            if (diffData != null)
-            {
-                //If no additional information is present
-                if (!diffData.additionalDifficultyData._requirements.Any() &&
-                    !diffData.additionalDifficultyData._suggestions.Any() &&
-                    !diffData.additionalDifficultyData._warnings.Any() &&
-                    !diffData.additionalDifficultyData._information.Any() &&
-                    !songData.contributors.Any() && !Utilities.Utils.DiffHasColors(diffData))
-                {
-                    RequirementsUI.instance.ButtonGlowColor = false;
-                    RequirementsUI.instance.ButtonInteractable = false;
-                }
-                else if (!diffData.additionalDifficultyData._warnings.Any())
-                {
-                    RequirementsUI.instance.ButtonGlowColor = true;
-                    RequirementsUI.instance.ButtonInteractable = true;
-                    RequirementsUI.instance.SetRainbowColors(Utilities.Utils.DiffHasColors(diffData));
-                }
-                else if (diffData.additionalDifficultyData._warnings.Any())
-                {
-                    RequirementsUI.instance.ButtonGlowColor = true;
-                    RequirementsUI.instance.ButtonInteractable = true;
-                    if (diffData.additionalDifficultyData._warnings.Contains("WIP"))
-                    {
-                        actionButton.interactable = false;
-                    }
-                    RequirementsUI.instance.SetRainbowColors(Utilities.Utils.DiffHasColors(diffData));
-                }
-            }
-
-            if (beatmapLevel.levelID.EndsWith(" WIP", StringComparison.Ordinal))
-            {
-                RequirementsUI.instance.ButtonGlowColor = true;
-                RequirementsUI.instance.ButtonInteractable = true;
-                actionButton.interactable = false;
-                wipFolderSong = true;
-            }
-
-            if (diffData != null)
-            {
-                foreach (var requirement in diffData.additionalDifficultyData._requirements)
-                {
-                    if (!Collections.capabilities.Contains(requirement))
-                    {
-                        actionButton.interactable = false;
-                        practiceButton.interactable = false;
-                        RequirementsUI.instance.ButtonGlowColor = true;
-                        RequirementsUI.instance.ButtonInteractable = true;
-                    }
-                }
-            }
-
-            if (__instance.beatmapKey.beatmapCharacteristic.serializedName == "MissingCharacteristic")
-            {
-                actionButton.interactable = false;
-                practiceButton.interactable = false;
-                RequirementsUI.instance.ButtonGlowColor = true;
-                RequirementsUI.instance.ButtonInteractable = true;
-            }
-
-            RequirementsUI.instance.beatmapLevel = beatmapLevel;
-            RequirementsUI.instance.beatmapKey = __instance.beatmapKey;
-            RequirementsUI.instance.songData = songData;
-            RequirementsUI.instance.diffData = diffData;
-            RequirementsUI.instance.wipFolder = wipFolderSong;
-
 
             //Difficulty Label Handling
             LevelLabels.Clear();

@@ -119,16 +119,21 @@ namespace SongCore.Utilities
             return false;
         }
 
-        // TODO: See if there's a way to get the path and the sava data from the level.
         public static string? GetCustomLevelHash(BeatmapLevel level)
         {
-            if (level.hasPrecalculatedData)
+            var standardLevelInfoSaveData = Collections.GetStandardLevelInfoSaveData(level.levelID);
+            if (standardLevelInfoSaveData == null)
             {
                 return null;
             }
 
-            var hash = level.levelID.Split('_')[2];
-            return hash.Length == 40 ? hash : null;
+            var customLevelPath = Collections.GetCustomLevelPath(level.levelID);
+            if (string.IsNullOrEmpty(customLevelPath))
+            {
+                return null;
+            }
+
+            return GetCustomLevelHash(customLevelPath, standardLevelInfoSaveData.difficultyBeatmapSets);
         }
 
         public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
