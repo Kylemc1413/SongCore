@@ -1,15 +1,16 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using MessagePack;
 
 namespace SongCore.Data
 {
-    [Serializable]
+    [MessagePackObject]
     public class SongHashData
     {
+        [Key(0)]
         public long directoryHash;
+
+        [Key(1)]
         public string songHash;
 
-        [JsonConstructor]
         public SongHashData(long directoryHash, string songHash)
         {
             this.directoryHash = directoryHash;
@@ -17,13 +18,15 @@ namespace SongCore.Data
         }
     }
 
-    [Serializable]
+    [MessagePackObject]
     public class AudioCacheData
     {
+        [Key(0)]
         public string id;
+
+        [Key(1)]
         public float duration;
 
-        [JsonConstructor]
         public AudioCacheData(string audioFileHash, float duration)
         {
             id = audioFileHash;

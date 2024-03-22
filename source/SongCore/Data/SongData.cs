@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using MessagePack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SongCore.Utilities;
@@ -9,104 +10,190 @@ using UnityEngine;
 
 namespace SongCore.Data
 {
-    [Serializable]
+    [MessagePackObject]
     public class ExtraSongData
     {
+        [Key(0)]
         public string[] _genreTags;
-        public Contributor[] contributors; //convert legacy mappers/lighters fields into contributors
+
+        [Key(1)]
+        public Contributor[] contributors;
+
+        [Key(2)]
         public string _customEnvironmentName;
+
+        [Key(3)]
         public string _customEnvironmentHash;
+
+        [Key(4)]
         public DifficultyData[] _difficulties;
+
+        [Key(5)]
         public string _defaultCharacteristic = null;
 
-        public ColorScheme[] _colorSchemes; //beatmap 2.1.0, community decided to song-core ify colour stuff
-        public string[] _environmentNames; //these have underscores but the actual format doesnt, I genuinely dont know what to go by so I went consistent with songcore
+        [Key(6)]
+        public ColorScheme[] _colorSchemes;
 
-        //PinkCore Port
+        [Key(7)]
+        public string[] _environmentNames;
+
+        [Key(8)]
         public CharacteristicDetails[] _characteristicDetails;
 
-        [Serializable]
+        [MessagePackObject]
         public class CharacteristicDetails
         {
+            [Key(0)]
             public string _beatmapCharacteristicName;
+
+            [Key(1)]
             public string? _characteristicLabel;
+
+            [Key(2)]
             public string? _characteristicIconFilePath = null;
         }
 
-
-        [Serializable]
+        [MessagePackObject]
         public class Contributor
         {
+            [Key(0)]
             public string _role;
+
+            [Key(1)]
             public string _name;
+
+            [Key(2)]
             public string _iconPath;
 
-            [NonSerialized]
+            [IgnoreMember]
             public Sprite? icon = null;
         }
 
-        [Serializable]
+        [MessagePackObject]
         public class DifficultyData
         {
+            [Key(0)]
             public string _beatmapCharacteristicName;
+
+            [Key(1)]
             public BeatmapDifficulty _difficulty;
+
+            [Key(2)]
             public string _difficultyLabel;
+
+            [Key(3)]
             public RequirementData additionalDifficultyData;
+
+            [Key(4)]
             public MapColor? _colorLeft;
+
+            [Key(5)]
             public MapColor? _colorRight;
+
+            [Key(6)]
             public MapColor? _envColorLeft;
+
+            [Key(7)]
             public MapColor? _envColorRight;
+
+            [Key(8)]
             public MapColor? _envColorWhite;
+
+            [Key(9)]
             public MapColor? _envColorLeftBoost;
+
+            [Key(10)]
             public MapColor? _envColorRightBoost;
+
+            [Key(11)]
             public MapColor? _envColorWhiteBoost;
+
+            [Key(12)]
             public MapColor? _obstacleColor;
+
+            [Key(13)]
             public int? _beatmapColorSchemeIdx;
+
+            [Key(14)]
             public int? _environmentNameIdx;
 
-            //PinkCore Port
+            [Key(15)]
             public bool? _oneSaber;
+
+            [Key(16)]
             public bool? _showRotationNoteSpawnLines;
-            //Tags
+
+            [Key(17)]
             public string[] _styleTags;
         }
 
-        [Serializable]
+        [MessagePackObject]
         public class ColorScheme //stuck to the same naming convention as the json itself
         {
+            [Key(0)]
             public bool useOverride;
+
+            [Key(1)]
             public string colorSchemeId;
+
+            [Key(2)]
             public MapColor? saberAColor;
+
+            [Key(3)]
             public MapColor? saberBColor;
+
+            [Key(4)]
             public MapColor? environmentColor0;
+
+            [Key(5)]
             public MapColor? environmentColor1;
+
+            [Key(6)]
             public MapColor? obstaclesColor;
+
+            [Key(7)]
             public MapColor? environmentColor0Boost;
+
+            [Key(8)]
             public MapColor? environmentColor1Boost;
-            //Not officially within the default scheme, added for consistency
+
+            [Key(9)]
             public MapColor? environmentColorW;
+
+            [Key(10)]
             public MapColor? environmentColorWBoost;
         }
 
 
-        [Serializable]
+        [MessagePackObject]
         public class RequirementData
         {
+            [Key(0)]
             public string[] _requirements;
+
+            [Key(1)]
             public string[] _suggestions;
+
+            [Key(2)]
             public string[] _warnings;
+
+            [Key(3)]
             public string[] _information;
         }
 
-        [Serializable]
+        [MessagePackObject]
         public class MapColor
         {
+            [Key(0)]
             public float r;
+
+            [Key(1)]
             public float g;
+
+            [Key(2)]
             public float b;
 
-            [DefaultValue(1)]
-            [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+            [Key(3)]
             public float a = 1f;
 
             public MapColor(float r, float g, float b, float a = 1f)
@@ -120,15 +207,6 @@ namespace SongCore.Data
 
         public ExtraSongData()
         {
-        }
-
-        [JsonConstructor]
-        public ExtraSongData(string levelID, Contributor[] contributors, string customEnvironmentName, string customEnvironmentHash, DifficultyData[] difficulties)
-        {
-            this.contributors = contributors;
-            _customEnvironmentName = customEnvironmentName;
-            _customEnvironmentHash = customEnvironmentHash;
-            _difficulties = difficulties;
         }
 
         internal ExtraSongData(string rawSongData, string songPath)

@@ -8,13 +8,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using MessagePack;
 using UnityEngine;
 
 namespace SongCore
 {
     public static class Collections
     {
+        private static readonly MessagePackSerializerOptions serializerOptions = MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray);
         private static readonly List<string> _capabilities = new List<string>();
         private static readonly List<BeatmapCharacteristicSO> _customCharacteristics = new List<BeatmapCharacteristicSO>();
 
@@ -90,28 +93,32 @@ namespace SongCore
             return diffData;
         }
 
-        internal static void LoadExtraSongData()
+        internal static async Task LoadExtraSongDataAsync(CancellationToken cancellationToken)
         {
-            Task.Run(() =>
+            try
             {
-                try
-                {
-                    using var reader = new JsonTextReader(new StreamReader(DataPath));
-                    var serializer = JsonSerializer.CreateDefault();
-                    CustomSongsData = serializer.Deserialize<ConcurrentDictionary<string, ExtraSongData>?>(reader) ?? new ConcurrentDictionary<string, ExtraSongData>();
-                }
-                catch (Exception ex)
-                {
-                    Logging.Logger.Error($"Error loading extra song data: {ex.Message}");
-                    Logging.Logger.Error(ex);
-                }
-            });
+                using var fileStream = File.Open(DataPath, FileMode.Open);
+                CustomSongsData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, ExtraSongData>>(fileStream, serializerOptions, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logging.Logger.Error($"Error loading extra song data: {ex.Message}");
+                Logging.Logger.Error(ex);
+            }
         }
 
-        internal static async Task SaveExtraSongDataAsync()
+        internal static async Task SaveExtraSongDataAsync(CancellationToken cancellationToken)
         {
-            using var writer = new StreamWriter(DataPath);
-            await writer.WriteAsync(JsonConvert.SerializeObject(CustomSongsData, Formatting.None));
+            try
+            {
+                using var fileStream = File.Open(DataPath, FileMode.Create);
+                await MessagePackSerializer.SerializeAsync(fileStream, CustomSongsData, serializerOptions, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logging.Logger.Error($"Error saving extra song data: {ex.Message}");
+                Logging.Logger.Error(ex);
+            }
         }
 
         public static void RegisterCapability(string capability)

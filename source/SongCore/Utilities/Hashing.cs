@@ -6,24 +6,39 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using MessagePack;
 
 namespace SongCore.Utilities
 {
     public class Hashing
     {
+        private static readonly MessagePackSerializerOptions serializerOptions = MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray);
         internal static ConcurrentDictionary<string, SongHashData> cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
         internal static ConcurrentDictionary<string, AudioCacheData> cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
         public static readonly string cachedHashDataPath = Path.Combine(IPA.Utilities.UnityGame.UserDataPath, nameof(SongCore), "SongHashData.dat");
         public static readonly string cachedAudioDataPath = Path.Combine(IPA.Utilities.UnityGame.UserDataPath, nameof(SongCore), "SongDurationCache.dat");
 
+        [Obsolete("Use the async overload.", true)]
         public static void ReadCachedSongHashes()
+        {
+            ReadCachedSongHashesAsync(CancellationToken.None).GetAwaiter().GetResult();
+        }
+
+        public static async Task ReadCachedSongHashesAsync(CancellationToken cancellationToken)
         {
             if (File.Exists(cachedHashDataPath))
             {
-                cachedSongHashData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
-                if (cachedSongHashData == null)
+                try
                 {
-                    cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
+                    using var fileStream = File.Open(cachedHashDataPath, FileMode.Open);
+                    cachedSongHashData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, SongHashData>>(fileStream, serializerOptions, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Logging.Logger.Error($"Error loading cached song hashes: {ex.Message}");
+                    Logging.Logger.Error(ex);
                 }
 
                 Logging.Logger.Info($"Finished reading cached hashes for {cachedSongHashData.Count} songs!");
@@ -32,14 +47,15 @@ namespace SongCore.Utilities
 
         public static void UpdateCachedHashes(HashSet<string> currentSongPaths)
         {
-            UpdateCachedHashesInternal(currentSongPaths);
+            UpdateCachedHashesInternalAsync(currentSongPaths, CancellationToken.None).GetAwaiter().GetResult();
         }
 
         /// <summary>
         /// Intended for use in the Loader
         /// </summary>
         /// <param name="currentSongPaths"></param>
-        internal static void UpdateCachedHashesInternal(ICollection<string> currentSongPaths)
+        /// <param name="cancellationToken"></param>
+        internal static async Task UpdateCachedHashesInternalAsync(ICollection<string> currentSongPaths, CancellationToken cancellationToken)
         {
             foreach (var hashData in cachedSongHashData.ToArray())
             {
@@ -50,33 +66,55 @@ namespace SongCore.Utilities
             }
 
             Logging.Logger.Info($"Updating cached hashes for {cachedSongHashData.Count} songs!");
-            File.WriteAllText(cachedHashDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedSongHashData));
+
+            try
+            {
+                using var fileStream = File.Open(cachedHashDataPath, FileMode.Create);
+                await MessagePackSerializer.SerializeAsync(fileStream, cachedSongHashData, serializerOptions, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logging.Logger.Error($"Error saving cached song hashes: {ex.Message}");
+                Logging.Logger.Error(ex);
+            }
         }
 
+        [Obsolete("Use the async overload.", true)]
         public static void ReadCachedAudioData()
+        {
+            ReadCachedAudioDataAsync(CancellationToken.None).GetAwaiter().GetResult();
+        }
+
+        public static async Task ReadCachedAudioDataAsync(CancellationToken cancellationToken)
         {
             if (File.Exists(cachedAudioDataPath))
             {
-                cachedAudioData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
-                if (cachedAudioData == null)
+                try
                 {
-                    cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
+                    using var fileStream = File.Open(cachedAudioDataPath, FileMode.Open);
+                    cachedAudioData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, AudioCacheData>>(fileStream, serializerOptions, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Logging.Logger.Error($"Error loading cached audio data: {ex.Message}");
+                    Logging.Logger.Error(ex);
                 }
 
-                Logging.Logger.Info($"Finished reading cached Durations for {cachedAudioData.Count} songs!");
+                Logging.Logger.Info($"Finished reading cached durations for {cachedAudioData.Count} songs!");
             }
         }
 
         public static void UpdateCachedAudioData(HashSet<string> currentSongPaths)
         {
-            UpdateCachedAudioDataInternal(currentSongPaths);
+            UpdateCachedAudioDataInternalAsync(currentSongPaths, CancellationToken.None).GetAwaiter().GetResult();
         }
 
         /// <summary>
         /// Intended for use in the Loader
         /// </summary>
         /// <param name="currentSongPaths"></param>
-        internal static void UpdateCachedAudioDataInternal(ICollection<string> currentSongPaths)
+        /// <param name="cancellationToken"></param>
+        internal static async Task UpdateCachedAudioDataInternalAsync(ICollection<string> currentSongPaths, CancellationToken cancellationToken)
         {
             foreach (var hashData in cachedAudioData.ToArray())
             {
@@ -86,8 +124,18 @@ namespace SongCore.Utilities
                 }
             }
 
-            Logging.Logger.Info($"Updating cached Map Lengths for {cachedAudioData.Count} songs!");
-            File.WriteAllText(cachedAudioDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedAudioData));
+            Logging.Logger.Info($"Updating cached map lengths for {cachedAudioData.Count} songs!");
+
+            try
+            {
+                using var fileStream = File.Open(cachedAudioDataPath, FileMode.Create);
+                await MessagePackSerializer.SerializeAsync(fileStream, cachedAudioData, serializerOptions, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logging.Logger.Error($"Error saving cached audio data: {ex.Message}");
+                Logging.Logger.Error(ex);
+            }
         }
 
         private static long GetDirectoryHash(string directory)

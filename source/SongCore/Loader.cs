@@ -88,7 +88,7 @@ namespace SongCore
             _gameScenesManager.transitionDidFinishEvent += MenuLoaded;
         }
 
-        private void MenuLoaded(ScenesTransitionSetupDataSO scenesTransitionSetupData, DiContainer container)
+        private async void MenuLoaded(ScenesTransitionSetupDataSO scenesTransitionSetupData, DiContainer container)
         {
             _gameScenesManager.transitionDidFinishEvent -= MenuLoaded;
 
@@ -102,8 +102,9 @@ namespace SongCore
 
             if (Hashing.cachedSongHashData.Count == 0)
             {
-                Hashing.ReadCachedSongHashes();
-                Hashing.ReadCachedAudioData();
+                var cancellationToken = _loadingTaskCancellationTokenSource.Token;
+                await Hashing.ReadCachedSongHashesAsync(cancellationToken);
+                await Hashing.ReadCachedAudioDataAsync(cancellationToken);
                 RefreshSongs();
             }
             else
@@ -678,9 +679,10 @@ namespace SongCore
                 await UnityMainThreadTaskScheduler.Factory.StartNew(() => SongsLoadedEvent?.Invoke(this, CustomLevels));
 
                 // Write our cached hash info and
-                Hashing.UpdateCachedHashesInternal(foundSongPaths.Keys);
-                Hashing.UpdateCachedAudioDataInternal(foundSongPaths.Keys);
-                await Collections.SaveExtraSongDataAsync();
+                var cancellationToken = _loadingTaskCancellationTokenSource.Token;
+                await Hashing.UpdateCachedHashesInternalAsync(foundSongPaths.Keys, cancellationToken);
+                await Hashing.UpdateCachedAudioDataInternalAsync(foundSongPaths.Keys, cancellationToken);
+                await Collections.SaveExtraSongDataAsync(cancellationToken);
             };
 
             try

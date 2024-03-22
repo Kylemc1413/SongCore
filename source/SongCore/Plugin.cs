@@ -5,6 +5,8 @@ using SongCore.Utilities;
 using IPA.Utilities;
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
@@ -47,7 +49,7 @@ namespace SongCore
         }
 
         [OnStart]
-        public void OnApplicationStart()
+        public async Task OnApplicationStartAsync()
         {
             if (typeof(Harmony).Assembly.GetName().Version.Minor < 12)
             {
@@ -63,7 +65,7 @@ namespace SongCore
             }
             else
             {
-                Collections.LoadExtraSongData();
+                await Collections.LoadExtraSongDataAsync(CancellationToken.None);
             }
 
             Collections.RegisterCustomCharacteristic(BasicUI.MissingCharIcon!, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic", false, false, 1000);

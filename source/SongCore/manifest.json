@@ -7,9 +7,10 @@
     "name": "SongCore",
     "version": "3.13.0",
     "dependsOn": {
-        "BSIPA": "^4.3.0",
+        "BSIPA": "^4.3.3",
         "BeatSaberMarkupLanguage": "^1.7.6",
-        "SiraUtil": "^3.0.0"
+        "SiraUtil": "^3.0.0",
+        "MessagePack": "^2.5.140"
     },
     "links": {
         "project-source": "https://github.com/Kylemc1413/SongCore"
