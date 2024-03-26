@@ -32,7 +32,7 @@ namespace SongCore.HarmonyPatches
                 return;
             }
 
-            var extraSongData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(beatmapLevel)!);
+            var extraSongData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(beatmapLevel));
             if (extraSongData?._characteristicDetails == null || extraSongData._characteristicDetails.Length == 0)
             {
                 return;

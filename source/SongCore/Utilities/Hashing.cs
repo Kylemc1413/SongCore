@@ -119,18 +119,18 @@ namespace SongCore.Utilities
             return false;
         }
 
-        public static string? GetCustomLevelHash(BeatmapLevel level)
+        public static string GetCustomLevelHash(BeatmapLevel level)
         {
             var standardLevelInfoSaveData = Collections.GetStandardLevelInfoSaveData(level.levelID);
             if (standardLevelInfoSaveData == null)
             {
-                return null;
+                return string.Empty;
             }
 
             var customLevelPath = Collections.GetCustomLevelPath(level.levelID);
             if (string.IsNullOrEmpty(customLevelPath))
             {
-                return null;
+                return string.Empty;
             }
 
             return GetCustomLevelHash(customLevelPath, standardLevelInfoSaveData.difficultyBeatmapSets);
