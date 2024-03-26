@@ -80,6 +80,7 @@ namespace SongCore
 
             if (!beatmapLevel.hasPrecalculatedData)
             {
+                // TODO: Will be null in the editor due to levelID being "custom_level_CustomLevel".
                 songData = RetrieveExtraSongData(Hashing.GetCustomLevelHash(beatmapLevel));
             }
 
