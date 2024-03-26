@@ -466,8 +466,6 @@ namespace SongCore
                           LoadingProgress = (float) Interlocked.Increment(ref processedSongsCount) / songFolders.Length;
                       });
 
-                    RefreshLoadedBeatmapLevelsData();
-
                     #endregion
 
                     #region LoadSeparateFolders
@@ -479,7 +477,7 @@ namespace SongCore
                         try
                         {
                             SeparateSongFolder entry = SeparateSongFolders[k];
-                            UnityMainThreadTaskScheduler.Factory.StartNew(() => Instance._progressBar.ShowMessage($"Loading {SeparateSongFolders.Count - k} Additional Song folders"));
+                            UnityMainThreadTaskScheduler.Factory.StartNew(() => Instance._progressBar.ShowMessage($"Loading {SeparateSongFolders.Count} Additional Song folders"));
                             if (!Directory.Exists(entry.SongFolderEntry.Path))
                             {
                                 continue;
@@ -587,6 +585,8 @@ namespace SongCore
                 }
 
                 #endregion
+
+                RefreshLoadedBeatmapLevelsData();
             };
 
             Action finish = async () =>
