@@ -16,6 +16,7 @@ using SongCore.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
+using static BeatmapLevelSaveDataVersion4.BeatmapLevelSaveData;
 
 namespace SongCore
 {
@@ -26,7 +27,6 @@ namespace SongCore
         private readonly LevelCollectionViewController _levelCollectionViewController;
         private readonly BeatmapLevelsModel _beatmapLevelsModel;
         private readonly CustomLevelLoader _customLevelLoader;
-        private readonly CachedMediaAsyncLoader _cachedMediaAsyncLoader;
         private readonly BeatmapCharacteristicCollection _beatmapCharacteristicCollection;
         private readonly ProgressBar _progressBar;
         private readonly BSMLSettings _bsmlSettings;
@@ -37,7 +37,7 @@ namespace SongCore
         private Task? _loadingTask;
         private CancellationTokenSource _loadingTaskCancellationTokenSource = new CancellationTokenSource();
 
-        private Loader(GameScenesManager gameScenesManager, LevelFilteringNavigationController levelFilteringNavigationController, LevelCollectionViewController levelCollectionViewController, BeatmapLevelsModel beatmapLevelsModel, CustomLevelLoader customLevelLoader, CachedMediaAsyncLoader cachedMediaAsyncLoader,  BeatmapCharacteristicCollection beatmapCharacteristicCollection, ProgressBar progressBar, BSMLSettings bsmlSettings)
+        private Loader(GameScenesManager gameScenesManager, LevelFilteringNavigationController levelFilteringNavigationController, LevelCollectionViewController levelCollectionViewController, BeatmapLevelsModel beatmapLevelsModel, CustomLevelLoader customLevelLoader, BeatmapCharacteristicCollection beatmapCharacteristicCollection, ProgressBar progressBar, BSMLSettings bsmlSettings)
 
         {
             _gameScenesManager = gameScenesManager;
@@ -45,7 +45,6 @@ namespace SongCore
             _levelCollectionViewController = levelCollectionViewController;
             _beatmapLevelsModel = beatmapLevelsModel;
             _customLevelLoader = customLevelLoader;
-            _cachedMediaAsyncLoader = cachedMediaAsyncLoader;
             _beatmapCharacteristicCollection = beatmapCharacteristicCollection;
             _progressBar = progressBar;
             _bsmlSettings = bsmlSettings;
@@ -80,7 +79,6 @@ namespace SongCore
         public static float LoadingProgress { get; private set; }
         public static BeatmapLevelsModel BeatmapLevelsModelSO { get; private set; }
         public static CustomLevelLoader CustomLevelLoader { get; private set; }
-        public static CachedMediaAsyncLoader cachedMediaAsyncLoaderSO { get; private set; }
         public static BeatmapCharacteristicCollection beatmapCharacteristicCollection { get; private set; }
 
         public void Initialize()
@@ -96,7 +94,6 @@ namespace SongCore
             // They'll be destroyed on internal restart.
             BeatmapLevelsModelSO = _beatmapLevelsModel;
             CustomLevelLoader = _customLevelLoader;
-            cachedMediaAsyncLoaderSO = _cachedMediaAsyncLoader;
             defaultCoverImage = Resources.FindObjectsOfTypeAll<Sprite>().First(s => s.name.Contains("CustomLevelsPack"));
             beatmapCharacteristicCollection = _beatmapCharacteristicCollection;
 
@@ -802,19 +799,23 @@ namespace SongCore
         /// Load a beatmap, gather all beatmap information and create beatmap preview
         /// </summary>
         /// <param name="saveData">Save data of beatmap</param>
-        /// <param name="songPath">Directory of beatmap</param>
+        /// <param name="levelFolderInfo">Level folder info of the Beat Map</param>
         /// <param name="hash">Resulting hash for the beatmap, may contain beatmap folder name or 'WIP' at the end</param>
         /// <param name="folderEntry">Folder entry for beatmap folder</param>
         /// <returns></returns>
-        public static BeatmapLevel? LoadSong(StandardLevelInfoSaveData saveData, string songPath, out string hash, SongFolderEntry? folderEntry = null)
+        public static BeatmapLevel? LoadSong(StandardLevelInfoSaveData saveData, CustomLevelFolderInfo levelFolderInfo, out string hash, SongFolderEntry? folderEntry = null)
         {
+            var songPath = levelFolderInfo.folderPath;
             var wip = songPath.Contains("CustomWIPLevels") || folderEntry != null && (folderEntry.Pack == FolderLevelPack.CustomWIPLevels || folderEntry.Pack == FolderLevelPack.CachedWIPLevels || folderEntry.WIP);
             BeatmapLevel? beatmapLevel;
             try
             {
                 hash = Hashing.GetCustomLevelHash(saveData, songPath);
-                beatmapLevel = CustomLevelLoader.CreateBeatmapLevelFromV3(songPath, saveData);
-                IBeatmapLevelData beatmapLevelData = CustomLevelLoader.CreateBeatmapLevelDataFromV3(saveData, songPath);
+
+               
+
+                beatmapLevel = CustomLevelLoader.CreateBeatmapLevelFromV3(levelFolderInfo, saveData);
+                IBeatmapLevelData beatmapLevelData = CustomLevelLoader.CreateBeatmapLevelDataFromV3(levelFolderInfo, saveData);
                 string levelID = CustomLevelLoader.kCustomLevelPrefixId + hash;
                 string folderName = new DirectoryInfo(songPath).Name;
                 while (!Collections.LevelHashDictionary.TryAdd(levelID + (wip ? " WIP" : ""), hash))
@@ -853,10 +854,10 @@ namespace SongCore
             return beatmapLevel;
         }
 
-        public static BeatmapLevel? LoadSong(CancellationToken token, StandardLevelInfoSaveData saveData, string songPath, out string hash, SongFolderEntry? folderEntry = null)
+        public static BeatmapLevel? LoadSong(CancellationToken token, StandardLevelInfoSaveData saveData, CustomLevelFolderInfo levelFolderInfo, out string hash, SongFolderEntry? folderEntry = null)
         {
             token.ThrowIfCancellationRequested();
-            return LoadSong(saveData, songPath, out hash, folderEntry);
+            return LoadSong(saveData, levelFolderInfo, out hash, folderEntry);
         }
 
         #region HelperFunctionsZIP
@@ -1009,6 +1010,7 @@ namespace SongCore
             }
 
             var json = File.ReadAllText(infoFilePath);
+            Logging.Logger.Info(BeatmapSaveDataHelpers.GetVersion(json).ToString());
             if (BeatmapSaveDataHelpers.GetVersion(json) < BeatmapSaveDataHelpers.version4)
             {
                 var standardLevelInfoSaveData = StandardLevelInfoSaveData.DeserializeFromJSONString(json);
@@ -1016,8 +1018,9 @@ namespace SongCore
                 {
                     return null;
                 }
-
-                var beatmapLevel = LoadSong(standardLevelInfoSaveData, customLevelPath, out var hash, entry);
+                
+                var levelFolderInfo = new CustomLevelFolderInfo(customLevelPath, standardLevelInfoSaveData.songName, json);
+                var beatmapLevel = LoadSong(standardLevelInfoSaveData, levelFolderInfo, out var hash, entry);
                 if (beatmapLevel == null)
                 {
                     return null;
