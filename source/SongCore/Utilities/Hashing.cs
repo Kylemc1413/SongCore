@@ -137,7 +137,7 @@ namespace SongCore.Utilities
             return hash;
         }
 
-        [Obsolete("Use the overload that takes a struct.", true)]
+        [Obsolete("Use the other overloads.", true)]
         public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
         {
             var infoFilePath = Path.Combine(customLevelPath, CustomLevelPathHelper.kStandardLevelInfoFilename);
@@ -150,7 +150,7 @@ namespace SongCore.Utilities
             return GetCustomLevelHash(customLevelInfo, level);
         }
 
-        [Obsolete("Use the overload that takes a struct.", true)]
+        [Obsolete("Use the other overloads.", true)]
         public static string GetCustomLevelHash(BeatmapLevelSaveData level, string customLevelPath)
         {
             var infoFilePath = Path.Combine(customLevelPath, CustomLevelPathHelper.kStandardLevelInfoFilename);
@@ -165,24 +165,14 @@ namespace SongCore.Utilities
 
         public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, StandardLevelInfoSaveData standardLevelInfoSaveData)
         {
-            return GetCustomLevelHash(customLevelFolderInfo, standardLevelInfoSaveData.difficultyBeatmapSets);
-        }
-
-        public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, BeatmapLevelSaveData beatmapLevelSaveData)
-        {
-            return GetCustomLevelHash(customLevelFolderInfo, beatmapLevelSaveData.difficultyBeatmaps);
-        }
-
-        private static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, StandardLevelInfoSaveData.DifficultyBeatmapSet[] beatmapSets)
-        {
             if (GetCachedSongData(customLevelFolderInfo.folderPath, out var directoryHash, out var songHash))
             {
                 return songHash;
             }
 
-            IEnumerable<byte> prependBytes = BeatmapLevelDataUtils.kUtf8Encoding.GetBytes(customLevelFolderInfo.levelInfoJsonString);
-            var files = beatmapSets
-                .SelectMany(beatmapSet => beatmapSet.difficultyBeatmaps)
+            var prependBytes = BeatmapLevelDataUtils.kUtf8Encoding.GetBytes(customLevelFolderInfo.levelInfoJsonString);
+            var files = standardLevelInfoSaveData.difficultyBeatmapSets
+                .SelectMany(difficultyBeatmapSet => difficultyBeatmapSet.difficultyBeatmaps)
                 .Select(difficultyBeatmap => Path.Combine(customLevelFolderInfo.folderPath, difficultyBeatmap.beatmapFilename))
                 .Where(File.Exists);
 
@@ -191,19 +181,20 @@ namespace SongCore.Utilities
             return hash;
         }
 
-        private static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, BeatmapLevelSaveData.DifficultyBeatmap[] difficultyBeatmaps)
+        public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, BeatmapLevelSaveData beatmapLevelSaveData)
         {
             if (GetCachedSongData(customLevelFolderInfo.folderPath, out var directoryHash, out var songHash))
             {
                 return songHash;
             }
 
-            IEnumerable<byte> prependBytes = BeatmapLevelDataUtils.kUtf8Encoding.GetBytes(customLevelFolderInfo.levelInfoJsonString);
-            var files = difficultyBeatmaps.SelectMany(difficultyBeatmap => new[]
+            var prependBytes = BeatmapLevelDataUtils.kUtf8Encoding.GetBytes(customLevelFolderInfo.levelInfoJsonString);
+            var audioDataPath = Path.Combine(customLevelFolderInfo.folderPath, beatmapLevelSaveData.audio.audioDataFilename);
+            var files = beatmapLevelSaveData.difficultyBeatmaps.SelectMany(difficultyBeatmap => new[]
             {
                 Path.Combine(customLevelFolderInfo.folderPath, difficultyBeatmap.beatmapDataFilename),
                 Path.Combine(customLevelFolderInfo.folderPath, difficultyBeatmap.lightshowDataFilename)
-            }).Where(File.Exists);
+            }).Prepend(audioDataPath).Where(File.Exists);
 
             string hash = CreateSha1HashFromFilesWithPrependBytes(prependBytes, files);
             cachedSongHashData[GetRelativePath(customLevelFolderInfo.folderPath)] = new SongHashData(directoryHash, hash);
