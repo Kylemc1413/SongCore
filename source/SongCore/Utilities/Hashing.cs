@@ -14,7 +14,6 @@ namespace SongCore.Utilities
 {
     public class Hashing
     {
-        private static readonly MessagePackSerializerOptions serializerOptions = MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray);
         internal static ConcurrentDictionary<string, SongHashData> cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
         internal static ConcurrentDictionary<string, AudioCacheData> cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
         public static readonly string cachedHashDataPath = Path.Combine(IPA.Utilities.UnityGame.UserDataPath, nameof(SongCore), "SongHashData.dat");
@@ -23,7 +22,7 @@ namespace SongCore.Utilities
         [Obsolete("Use the async overload.", true)]
         public static void ReadCachedSongHashes()
         {
-            ReadCachedSongHashesAsync(CancellationToken.None).GetAwaiter().GetResult();
+            Task.Run(() => ReadCachedSongHashesAsync(CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         public static async Task ReadCachedSongHashesAsync(CancellationToken cancellationToken)
@@ -32,8 +31,9 @@ namespace SongCore.Utilities
             {
                 try
                 {
-                    using var fileStream = File.Open(cachedHashDataPath, FileMode.Open);
-                    cachedSongHashData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, SongHashData>>(fileStream, serializerOptions, cancellationToken);
+                    var fileStream = File.Open(cachedHashDataPath, FileMode.Open);
+                    await using var asyncDisposable = fileStream.ConfigureAwait(false);
+                    cachedSongHashData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, SongHashData>>(fileStream, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -45,9 +45,15 @@ namespace SongCore.Utilities
             }
         }
 
+        [Obsolete("Use the async overload.", true)]
         public static void UpdateCachedHashes(HashSet<string> currentSongPaths)
         {
-            UpdateCachedHashesInternalAsync(currentSongPaths, CancellationToken.None).GetAwaiter().GetResult();
+            Task.Run(() => UpdateCachedHashesInternalAsync(currentSongPaths, CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        public static Task UpdateCachedHashesAsync(HashSet<string> currentSongPaths, CancellationToken cancellationToken)
+        {
+            return UpdateCachedHashesInternalAsync(currentSongPaths, cancellationToken);
         }
 
         /// <summary>
@@ -69,8 +75,9 @@ namespace SongCore.Utilities
 
             try
             {
-                using var fileStream = File.Open(cachedHashDataPath, FileMode.Create);
-                await MessagePackSerializer.SerializeAsync(fileStream, cachedSongHashData, serializerOptions, cancellationToken);
+                var fileStream = File.Open(cachedHashDataPath, FileMode.Create);
+                await using var asyncDisposable = fileStream.ConfigureAwait(false);
+                await MessagePackSerializer.SerializeAsync(fileStream, cachedSongHashData, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -82,7 +89,7 @@ namespace SongCore.Utilities
         [Obsolete("Use the async overload.", true)]
         public static void ReadCachedAudioData()
         {
-            ReadCachedAudioDataAsync(CancellationToken.None).GetAwaiter().GetResult();
+            Task.Run(() => ReadCachedAudioDataAsync(CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         public static async Task ReadCachedAudioDataAsync(CancellationToken cancellationToken)
@@ -91,8 +98,9 @@ namespace SongCore.Utilities
             {
                 try
                 {
-                    using var fileStream = File.Open(cachedAudioDataPath, FileMode.Open);
-                    cachedAudioData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, AudioCacheData>>(fileStream, serializerOptions, cancellationToken);
+                    var fileStream = File.Open(cachedAudioDataPath, FileMode.Open);
+                    await using var asyncDisposable = fileStream.ConfigureAwait(false);
+                    cachedAudioData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, AudioCacheData>>(fileStream, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -104,9 +112,15 @@ namespace SongCore.Utilities
             }
         }
 
+        [Obsolete("Use the async overload.", true)]
         public static void UpdateCachedAudioData(HashSet<string> currentSongPaths)
         {
-            UpdateCachedAudioDataInternalAsync(currentSongPaths, CancellationToken.None).GetAwaiter().GetResult();
+            Task.Run(() => UpdateCachedAudioDataInternalAsync(currentSongPaths, CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        public static Task UpdateCachedAudioDataAsync(HashSet<string> currentSongPaths)
+        {
+            return UpdateCachedAudioDataInternalAsync(currentSongPaths, CancellationToken.None);
         }
 
         /// <summary>
@@ -128,8 +142,9 @@ namespace SongCore.Utilities
 
             try
             {
-                using var fileStream = File.Open(cachedAudioDataPath, FileMode.Create);
-                await MessagePackSerializer.SerializeAsync(fileStream, cachedAudioData, serializerOptions, cancellationToken);
+                var fileStream = File.Open(cachedAudioDataPath, FileMode.Create);
+                await using var asyncDisposable = fileStream.ConfigureAwait(false);
+                await MessagePackSerializer.SerializeAsync(fileStream, cachedAudioData, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

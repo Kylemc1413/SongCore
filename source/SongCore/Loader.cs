@@ -103,8 +103,8 @@ namespace SongCore
             if (Hashing.cachedSongHashData.Count == 0)
             {
                 var cancellationToken = _loadingTaskCancellationTokenSource.Token;
-                await Hashing.ReadCachedSongHashesAsync(cancellationToken);
-                await Hashing.ReadCachedAudioDataAsync(cancellationToken);
+                await Hashing.ReadCachedSongHashesAsync(cancellationToken).ConfigureAwait(false);
+                await Hashing.ReadCachedAudioDataAsync(cancellationToken).ConfigureAwait(false);
                 RefreshSongs();
             }
             else
@@ -680,9 +680,9 @@ namespace SongCore
 
                 // Write our cached hash info and
                 var cancellationToken = _loadingTaskCancellationTokenSource.Token;
-                await Hashing.UpdateCachedHashesInternalAsync(foundSongPaths.Keys, cancellationToken);
-                await Hashing.UpdateCachedAudioDataInternalAsync(foundSongPaths.Keys, cancellationToken);
-                await Collections.SaveExtraSongDataAsync(cancellationToken);
+                await Hashing.UpdateCachedHashesInternalAsync(foundSongPaths.Keys, cancellationToken).ConfigureAwait(false);
+                await Hashing.UpdateCachedAudioDataInternalAsync(foundSongPaths.Keys, cancellationToken).ConfigureAwait(false);
+                await Collections.SaveExtraSongDataAsync(cancellationToken).ConfigureAwait(false);
             };
 
             try
@@ -728,8 +728,7 @@ namespace SongCore
         {
             DeletingSong?.Invoke();
             DeleteSingleSong(folderPath, deleteFolder);
-            Hashing.UpdateCachedHashes(new HashSet<string>((CustomLevels.Keys.Concat(CustomWIPLevels.Keys))));
-            RefreshLevelPacks();
+            Hashing.UpdateCachedHashesAsync(new HashSet<string>((CustomLevels.Keys.Concat(CustomWIPLevels.Keys))), CancellationToken.None).ContinueWith(_ => RefreshLevelPacks());
         }
 
         /// <summary>
@@ -747,9 +746,11 @@ namespace SongCore
 
             await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
             {
-                Hashing.UpdateCachedHashes(new HashSet<string>(CustomLevels.Keys.Concat(CustomWIPLevels.Keys)));
-                RefreshLevelPacks();
-            });
+                return Hashing.UpdateCachedHashesAsync(
+                        new HashSet<string>(CustomLevels.Keys.Concat(CustomWIPLevels.Keys)),
+                        CancellationToken.None)
+                    .ContinueWith(t => RefreshLevelPacks(), CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+            }).ConfigureAwait(false);
         }
 
         private void DeleteSingleSong(string folderPath, bool deleteFolder)

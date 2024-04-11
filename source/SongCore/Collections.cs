@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using SongCore.Data;
 using SongCore.Utilities;
 using IPA.Utilities;
@@ -17,7 +16,6 @@ namespace SongCore
 {
     public static class Collections
     {
-        private static readonly MessagePackSerializerOptions serializerOptions = MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray);
         private static readonly List<string> _capabilities = new List<string>();
         private static readonly List<BeatmapCharacteristicSO> _customCharacteristics = new List<BeatmapCharacteristicSO>();
 
@@ -97,8 +95,9 @@ namespace SongCore
         {
             try
             {
-                using var fileStream = File.Open(DataPath, FileMode.Open);
-                CustomSongsData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, ExtraSongData>>(fileStream, serializerOptions, cancellationToken);
+                var fileStream = File.Open(DataPath, FileMode.Open);
+                await using var asyncDisposable = fileStream.ConfigureAwait(false);
+                CustomSongsData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, ExtraSongData>>(fileStream, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -111,8 +110,9 @@ namespace SongCore
         {
             try
             {
-                using var fileStream = File.Open(DataPath, FileMode.Create);
-                await MessagePackSerializer.SerializeAsync(fileStream, CustomSongsData, serializerOptions, cancellationToken);
+                var fileStream = File.Open(DataPath, FileMode.Create);
+                await using var asyncDisposable = fileStream.ConfigureAwait(false);
+                await MessagePackSerializer.SerializeAsync(fileStream, CustomSongsData, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
