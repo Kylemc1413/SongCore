@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using IPA.Utilities;
 
 namespace SongCore.OverrideClasses
@@ -18,7 +17,6 @@ namespace SongCore.OverrideClasses
 
         public static SongCoreBeatmapLevelsRepository CreateNew()
         {
-            
             return new SongCoreBeatmapLevelsRepository(Array.Empty<BeatmapLevelPack>());
         }
 
