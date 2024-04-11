@@ -47,7 +47,7 @@ namespace SongCore.Utilities
         [Obsolete("Use the async overload.", true)]
         public static void UpdateCachedHashes(HashSet<string> currentSongPaths)
         {
-            Task.Run(() => UpdateCachedHashesInternalAsync(currentSongPaths, CancellationToken.None)).GetAwaiter().GetResult();
+            Task.Run(() => UpdateCachedHashesAsync(currentSongPaths, CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         public static Task UpdateCachedHashesAsync(HashSet<string> currentSongPaths, CancellationToken cancellationToken)
@@ -101,7 +101,7 @@ namespace SongCore.Utilities
                 }
                 catch (Exception ex)
                 {
-                    Logging.Logger.Error($"Error loading cached audio data: {ex.Message}");
+                    Logging.Logger.Error($"Error loading cached song durations: {ex.Message}");
                     Logging.Logger.Error(ex);
                 }
 
@@ -112,12 +112,12 @@ namespace SongCore.Utilities
         [Obsolete("Use the async overload.", true)]
         public static void UpdateCachedAudioData(HashSet<string> currentSongPaths)
         {
-            Task.Run(() => UpdateCachedAudioDataInternalAsync(currentSongPaths, CancellationToken.None)).GetAwaiter().GetResult();
+            Task.Run(() => UpdateCachedAudioDataAsync(currentSongPaths, CancellationToken.None)).GetAwaiter().GetResult();
         }
 
-        public static Task UpdateCachedAudioDataAsync(HashSet<string> currentSongPaths)
+        public static Task UpdateCachedAudioDataAsync(HashSet<string> currentSongPaths, CancellationToken cancellationToken)
         {
-            return UpdateCachedAudioDataInternalAsync(currentSongPaths, CancellationToken.None);
+            return UpdateCachedAudioDataInternalAsync(currentSongPaths, cancellationToken);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace SongCore.Utilities
                 }
             }
 
-            Logging.Logger.Info($"Updating cached map lengths for {cachedAudioData.Count} songs!");
+            Logging.Logger.Info($"Updating cached song durations for {cachedAudioData.Count} songs!");
 
             try
             {
@@ -144,7 +144,7 @@ namespace SongCore.Utilities
             }
             catch (Exception ex)
             {
-                Logging.Logger.Error($"Error saving cached audio data: {ex.Message}");
+                Logging.Logger.Error($"Error saving cached song durations: {ex.Message}");
                 Logging.Logger.Error(ex);
             }
         }
