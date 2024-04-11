@@ -728,7 +728,8 @@ namespace SongCore
         {
             DeletingSong?.Invoke();
             DeleteSingleSong(folderPath, deleteFolder);
-            Hashing.UpdateCachedHashesAsync(new HashSet<string>((CustomLevels.Keys.Concat(CustomWIPLevels.Keys))), CancellationToken.None).ContinueWith(_ => RefreshLevelPacks());
+            Task.Run(() => Hashing.UpdateCachedHashesAsync(new HashSet<string>((CustomLevels.Keys.Concat(CustomWIPLevels.Keys))), CancellationToken.None)).GetAwaiter().GetResult();
+            RefreshLevelPacks();
         }
 
         /// <summary>
@@ -744,13 +745,8 @@ namespace SongCore
                 await Task.Run(() => DeleteSingleSong(folderPath, deleteFolder));
             }
 
-            await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
-            {
-                return Hashing.UpdateCachedHashesAsync(
-                        new HashSet<string>(CustomLevels.Keys.Concat(CustomWIPLevels.Keys)),
-                        CancellationToken.None)
-                    .ContinueWith(t => RefreshLevelPacks(), CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
-            });
+            await Hashing.UpdateCachedHashesAsync(new HashSet<string>(CustomLevels.Keys.Concat(CustomWIPLevels.Keys)), CancellationToken.None);
+            RefreshLevelPacks();
         }
 
         private void DeleteSingleSong(string folderPath, bool deleteFolder)
