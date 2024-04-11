@@ -7,8 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatmapLevelSaveDataVersion4;
 using BeatSaberMarkupLanguage.Settings;
+using BGLib.JsonExtension;
 using IPA.Utilities.Async;
+using Newtonsoft.Json;
 using SongCore.Data;
 using SongCore.OverrideClasses;
 using SongCore.UI;
@@ -450,13 +453,14 @@ namespace SongCore
                                   }
 
                                   var wip = songPath.Contains("CustomWIPLevels");
-                                  var level = LoadCustomLevel(songPath);
-                                  if (level == null)
+                                  var customLevel = LoadCustomLevel(songPath);
+                                  if (!customLevel.HasValue)
                                   {
                                       Logging.Logger.Error($"Failed to load custom level: {folder}");
                                       continue;
                                   }
 
+                                  var (_, level) = customLevel.Value;
                                   if (!wip)
                                   {
                                       CustomLevelsById[level.levelID] = level;
@@ -557,13 +561,14 @@ namespace SongCore
                                             }
                                         }
 
-                                        var level = LoadCustomLevel(songPath, entry.SongFolderEntry);
-                                        if (level == null)
+                                        var customLevel = LoadCustomLevel(songPath, entry.SongFolderEntry);
+                                        if (!customLevel.HasValue)
                                         {
                                             Logging.Logger.Error($"Failed to load custom level: {folder}");
                                         }
                                         else
                                         {
+                                            var (_, level) = customLevel.Value;
                                             entry.Levels[songPath] = level;
                                             CustomLevelsById[level.levelID] = level;
                                             foundSongPaths.TryAdd(songPath, false);
@@ -818,20 +823,23 @@ namespace SongCore
         /// <param name="hash">Resulting hash for the beatmap, may contain beatmap folder name or 'WIP' at the end</param>
         /// <param name="folderEntry">Folder entry for beatmap folder</param>
         /// <returns></returns>
-        public static BeatmapLevel? LoadSong(CustomLevelLoader.LoadedSaveData loadedSaveData, string hash, SongFolderEntry? folderEntry = null)
+        private static (string hash, BeatmapLevel)? LoadSong(CustomLevelLoader.LoadedSaveData loadedSaveData, SongFolderEntry? folderEntry = null)
         {
             var wip = loadedSaveData.customLevelFolderInfo.folderPath.Contains("CustomWIPLevels") || folderEntry != null && (folderEntry.Pack == FolderLevelPack.CustomWIPLevels || folderEntry.Pack == FolderLevelPack.CachedWIPLevels || folderEntry.WIP);
+            string hash;
             BeatmapLevel? beatmapLevel;
             try
             {
                 IBeatmapLevelData beatmapLevelData;
                 if (loadedSaveData.standardLevelInfoSaveData != null)
                 {
+                    hash = Hashing.GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
                     beatmapLevel = CustomLevelLoader.CreateBeatmapLevelFromV3(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
                     beatmapLevelData = CustomLevelLoader.CreateBeatmapLevelDataFromV3(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
                 }
                 else if (loadedSaveData.beatmapLevelSaveData != null)
                 {
+                    hash = Hashing.GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
                     beatmapLevel = CustomLevelLoader.CreateBeatmapLevelFromV4(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
                     beatmapLevelData = CustomLevelLoader.CreateBeatmapLevelDataFromV4(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
                 }
@@ -860,6 +868,7 @@ namespace SongCore
                     }
                     return levels;
                 });
+                Collections.AddExtraSongData(hash, loadedSaveData);
                 LoadedBeatmapSaveData.TryAdd(levelID, loadedSaveData);
                 LoadedBeatmapLevelsData.TryAdd(levelID, beatmapLevelData);
 
@@ -870,11 +879,10 @@ namespace SongCore
             {
                 Logging.Logger.Error($"Failed to load song: {loadedSaveData.customLevelFolderInfo.folderPath}");
                 Logging.Logger.Error(e);
-                beatmapLevel = null;
-                hash = null;
+                return null;
             }
 
-            return beatmapLevel;
+            return (hash, beatmapLevel);
         }
 
         public static BeatmapLevel? LoadSong(CancellationToken token, StandardLevelInfoSaveData saveData, string songPath, out string hash, SongFolderEntry? folderEntry = null)
@@ -969,13 +977,14 @@ namespace SongCore
                         {
                             try
                             {
-                                var level = LoadCustomLevel(songPath, folderEntry);
-                                if (level == null)
+                                var customLevel = LoadCustomLevel(songPath, folderEntry);
+                                if (!customLevel.HasValue)
                                 {
                                     Logging.Logger.Error($"Failed to load custom level: {folderEntry}");
                                     return;
                                 }
 
+                                var (_, level) = customLevel.Value;
                                 beatmapDictionary[songPath] = level;
                             }
                             catch (Exception ex)
@@ -1022,8 +1031,7 @@ namespace SongCore
             return false;
         }
 
-        // TODO: Return beatmap level data?
-        public BeatmapLevel? LoadCustomLevel(string customLevelPath, SongFolderEntry? entry = null)
+        public static (string, BeatmapLevel)? LoadCustomLevel(string customLevelPath, SongFolderEntry? entry = null)
         {
             var infoFilePath = Path.Combine(customLevelPath, CustomLevelPathHelper.kStandardLevelInfoFilename);
             if (!File.Exists(infoFilePath))
@@ -1031,15 +1039,34 @@ namespace SongCore
                 return null;
             }
 
-            // WIP
-            var data = Hashing.GetCustomLevelData(customLevelPath);
-            if (data.HasValue)
+            CustomLevelLoader.LoadedSaveData loadedSaveData;
+            var directoryInfo = new DirectoryInfo(customLevelPath);
+            var json = File.ReadAllText(infoFilePath);
+            var version = BeatmapSaveDataHelpers.GetVersion(json);
+            if (version < BeatmapSaveDataHelpers.version4)
             {
-                var (hash, loadedSaveData) = data.Value;
-                return LoadSong(loadedSaveData, hash, entry);
+                var standardLevelInfoSaveData = StandardLevelInfoSaveData.DeserializeFromJSONString(json);
+                if (standardLevelInfoSaveData == null)
+                {
+                    return null;
+                }
+
+                var customLevelFolderInfo = new CustomLevelFolderInfo(directoryInfo.FullName, directoryInfo.Name, json);
+                loadedSaveData = new CustomLevelLoader.LoadedSaveData { customLevelFolderInfo = customLevelFolderInfo, standardLevelInfoSaveData = standardLevelInfoSaveData };
+            }
+            else
+            {
+                var beatmapLevelSaveData = JsonConvert.DeserializeObject<BeatmapLevelSaveData>(json, JsonSettings.readableWithDefault);
+                if (beatmapLevelSaveData == null)
+                {
+                    return null;
+                }
+
+                var customLevelFolderInfo = new CustomLevelFolderInfo(directoryInfo.FullName, directoryInfo.Name, json);
+                loadedSaveData = new CustomLevelLoader.LoadedSaveData { customLevelFolderInfo = customLevelFolderInfo, beatmapLevelSaveData = beatmapLevelSaveData };
             }
 
-            return null;
+            return LoadSong(loadedSaveData, entry);
         }
 
         #endregion
