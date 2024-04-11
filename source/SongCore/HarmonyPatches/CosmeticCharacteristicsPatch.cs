@@ -12,10 +12,12 @@ namespace SongCore.HarmonyPatches
     internal class CosmeticCharacteristicsPatch : IAffinity
     {
         private readonly StandardLevelDetailViewController _standardLevelDetailViewController;
+        private readonly CustomLevelLoader _customLevelLoader;
 
-        private CosmeticCharacteristicsPatch(StandardLevelDetailViewController standardLevelDetailViewController)
+        private CosmeticCharacteristicsPatch(StandardLevelDetailViewController standardLevelDetailViewController, CustomLevelLoader customLevelLoader)
         {
             _standardLevelDetailViewController = standardLevelDetailViewController;
+            _customLevelLoader = customLevelLoader;
         }
 
         [AffinityPatch(typeof(BeatmapCharacteristicSegmentedControlController), nameof(BeatmapCharacteristicSegmentedControlController.SetData))]
@@ -53,10 +55,9 @@ namespace SongCore.HarmonyPatches
                 {
                     Sprite? icon = null;
 
-                    var customLevelPath = Collections.GetCustomLevelPath(beatmapLevel.levelID);
-                    if (characteristicDetails._characteristicIconFilePath != null && !string.IsNullOrEmpty(customLevelPath))
+                    if (characteristicDetails._characteristicIconFilePath != null)
                     {
-                        icon = Utils.LoadSpriteFromFile(Path.Combine(customLevelPath, characteristicDetails._characteristicIconFilePath));
+                        icon = Utils.LoadSpriteFromFile(Path.Combine(_customLevelLoader._loadedBeatmapSaveData[beatmapLevel.levelID].customLevelFolderInfo.folderPath, characteristicDetails._characteristicIconFilePath));
                     }
 
                     if (icon == null)

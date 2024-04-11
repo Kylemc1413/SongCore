@@ -21,8 +21,6 @@ namespace SongCore
         internal static readonly string DataPath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "SongCoreExtraData.dat");
         internal static readonly ConcurrentDictionary<string, string> LevelHashDictionary = new ConcurrentDictionary<string, string>();
         internal static readonly ConcurrentDictionary<string, List<string>> HashLevelDictionary = new ConcurrentDictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-        internal static readonly ConcurrentDictionary<string, string> LevelPathDictionary = new ConcurrentDictionary<string, string>();
-        internal static readonly ConcurrentDictionary<string, StandardLevelInfoSaveData> LevelSaveDataDictionary = new ConcurrentDictionary<string, StandardLevelInfoSaveData>();
 
         internal static BeatmapLevelPack? WipLevelPack;
         internal static ConcurrentDictionary<string, ExtraSongData> CustomSongsData = new ConcurrentDictionary<string, ExtraSongData>();
@@ -45,33 +43,30 @@ namespace SongCore
             return HashLevelDictionary.TryGetValue(hash, out var songs) ? songs : new List<string>();
         }
 
+        [Obsolete("Get the path from the loaded save data instead.", true)]
         public static string GetCustomLevelPath(string levelID)
         {
-            return LevelPathDictionary.TryGetValue(levelID, out var path) ? path : string.Empty;
+            return Loader.CustomLevelLoader._loadedBeatmapSaveData.TryGetValue(levelID, out var loadedSaveData) ? loadedSaveData.customLevelFolderInfo.folderPath : string.Empty;
         }
 
+        [Obsolete("Get the save data from the loaded save data instead.", true)]
         public static StandardLevelInfoSaveData? GetStandardLevelInfoSaveData(string levelID)
         {
-            LevelSaveDataDictionary.TryGetValue(levelID, out var standardLevelInfoSaveData);
-            return standardLevelInfoSaveData;
+            Loader.CustomLevelLoader._loadedBeatmapSaveData.TryGetValue(levelID, out var loadedSaveData);
+            return loadedSaveData.standardLevelInfoSaveData;
         }
 
-        internal static void AddExtraSongData(string hash, string path, string rawSongData)
+        internal static void AddExtraSongData(string hash, CustomLevelLoader.LoadedSaveData loadedSaveData)
         {
             if (!CustomSongsData.ContainsKey(hash))
             {
-                CustomSongsData.TryAdd(hash, new ExtraSongData(rawSongData, path));
+                CustomSongsData.TryAdd(hash, new ExtraSongData(loadedSaveData));
             }
         }
 
         public static ExtraSongData? RetrieveExtraSongData(string hash)
         {
-            if (CustomSongsData.TryGetValue(hash, out var songData))
-            {
-                return songData;
-            }
-
-            return null;
+            return CustomSongsData.GetValueOrDefault(hash);
         }
 
         public static ExtraSongData.DifficultyData? RetrieveDifficultyData(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey)
@@ -113,14 +108,6 @@ namespace SongCore
         {
             using var writer = new StreamWriter(DataPath);
             await writer.WriteAsync(JsonConvert.SerializeObject(CustomSongsData, Formatting.None));
-        }
-
-        public static void RegisterCapability(string capability)
-        {
-            if (!_capabilities.Contains(capability))
-            {
-                _capabilities.Add(capability);
-            }
         }
 
         public static BeatmapCharacteristicSO? RegisterCustomCharacteristic(Sprite icon, string characteristicName, string hintText, string serializedName, string compoundIdPartName,
@@ -169,6 +156,14 @@ namespace SongCore
 
             Loader.SeparateSongFolders.Add(separateSongFolder);
             return separateSongFolder;
+        }
+
+        public static void RegisterCapability(string capability)
+        {
+            if (!_capabilities.Contains(capability))
+            {
+                _capabilities.Add(capability);
+            }
         }
 
         public static void DeregisterCapability(string capability)

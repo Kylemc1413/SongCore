@@ -12,7 +12,7 @@ namespace SongCore.OverrideClasses
 
         private readonly List<BeatmapLevelPack> _customBeatmapLevelPacks = new List<BeatmapLevelPack>();
 
-        private SongCoreBeatmapLevelsRepository(IReadOnlyList<BeatmapLevelPack> beatmapLevelPacks) : base(beatmapLevelPacks)
+        private SongCoreBeatmapLevelsRepository(IEnumerable<BeatmapLevelPack> beatmapLevelPacks) : base(beatmapLevelPacks)
         {
         }
 
@@ -47,21 +47,19 @@ namespace SongCore.OverrideClasses
 
         private void RefreshCollections()
         {
+            _idToBeatmapLevelPack.Clear();
+            _idToBeatmapLevel.Clear();
+            _beatmapLevelIdToBeatmapLevelPackId.Clear();
+
             var that = (BeatmapLevelsRepository)this;
             BeatmapLevelPacksAccessor(ref that) = _customBeatmapLevelPacks.ToArray();
-
-            _idToBeatmapLevelPack.Clear();
-            _beatmapLevelIdToBeatmapLevelPackId.Clear();
-            _idToBeatmapLevel.Clear();
-
-            foreach (BeatmapLevelPack beatmapLevelPack in beatmapLevelPacks)
+            foreach (BeatmapLevelPack beatmapLevelPack in _beatmapLevelPacks)
             {
                 _idToBeatmapLevelPack.Add(beatmapLevelPack.packID, beatmapLevelPack);
-                BeatmapLevel[] beatmapLevels = beatmapLevelPack.beatmapLevels;
-                foreach (BeatmapLevel beatmapLevel in beatmapLevels)
+                foreach (BeatmapLevel beatmapLevel in beatmapLevelPack.beatmapLevels)
                 {
-                    _beatmapLevelIdToBeatmapLevelPackId.Add(beatmapLevel.levelID, beatmapLevelPack.packID);
-                    _idToBeatmapLevel.Add(beatmapLevel.levelID, beatmapLevel);
+                    _beatmapLevelIdToBeatmapLevelPackId.TryAdd(beatmapLevel.levelID, beatmapLevelPack.packID);
+                    _idToBeatmapLevel.TryAdd(beatmapLevel.levelID, beatmapLevel);
                 }
             }
         }

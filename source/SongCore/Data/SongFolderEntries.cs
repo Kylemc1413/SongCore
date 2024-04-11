@@ -132,8 +132,8 @@ namespace SongCore.Data
                         cachedSeparate = new SeparateSongFolder(cachedSongFolderEntry);
                     }
 
-                    var seperate = new SeparateSongFolder(entry, cachedSeparate);
-                    result.Add(seperate);
+                    var separate = new SeparateSongFolder(entry, cachedSeparate);
+                    result.Add(separate);
                     if (cachedSeparate != null)
                     {
                         result.Add(cachedSeparate);

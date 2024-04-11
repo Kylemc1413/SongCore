@@ -2,8 +2,8 @@ using System;
 using HarmonyLib;
 using System.Linq;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
+using System.IO;
+using BeatmapEditor3D.DataModels;
 using SongCore.Utilities;
 
 namespace SongCore.HarmonyPatches
@@ -51,15 +51,23 @@ namespace SongCore.HarmonyPatches
         }
     }
 
-    // TODO: Fixes a bug in game v1.35.0 where it unloads cached custom levels forever. Remove when fixed.
-    [HarmonyPatch(typeof(BeatmapLevelLoader), nameof(BeatmapLevelLoader.HandleItemWillBeRemovedFromCache))]
-    internal class BeatmapLevelLoaderHandleItemWillBeRemovedFromCachePatch
+    // WIP
+    [HarmonyPatch(typeof(BeatmapsCollectionDataModel.BeatmapInfoData), MethodType.Constructor, typeof(StandardLevelInfoSaveData), typeof(string), typeof(string), typeof(DateTime))]
+    internal class BeatmapsCollectionDataModelBeatmapInfoDataCtorPatch
     {
-        private static bool Prefix(BeatmapLevelLoader __instance, string beatmapLevelId)
+        private static bool Prefix(StandardLevelInfoSaveData info, string infoFilePath)
         {
-            __instance._beatmapLevelDataLoader.TryUnload(beatmapLevelId);
+            try
+            {
+                _ = Path.Join(infoFilePath, info.songName);
+            }
+            catch (ArgumentException)
+            {
+                Logging.Logger.Error("Could not load " + infoFilePath + Path.DirectorySeparatorChar + info.songName);
+                return false;
+            }
 
-            return false;
+            return true;
         }
     }
 }

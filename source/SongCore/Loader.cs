@@ -16,7 +16,6 @@ using SongCore.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
-using static BeatmapLevelSaveDataVersion4.BeatmapLevelSaveData;
 
 namespace SongCore
 {
@@ -25,8 +24,10 @@ namespace SongCore
         private readonly GameScenesManager _gameScenesManager;
         private readonly LevelFilteringNavigationController _levelFilteringNavigationController;
         private readonly LevelCollectionViewController _levelCollectionViewController;
+        private readonly LevelPackDetailViewController _levelPackDetailViewController;
         private readonly BeatmapLevelsModel _beatmapLevelsModel;
         private readonly CustomLevelLoader _customLevelLoader;
+        private readonly SpriteAsyncLoader _spriteAsyncLoader;
         private readonly BeatmapCharacteristicCollection _beatmapCharacteristicCollection;
         private readonly ProgressBar _progressBar;
         private readonly BSMLSettings _bsmlSettings;
@@ -37,14 +38,16 @@ namespace SongCore
         private Task? _loadingTask;
         private CancellationTokenSource _loadingTaskCancellationTokenSource = new CancellationTokenSource();
 
-        private Loader(GameScenesManager gameScenesManager, LevelFilteringNavigationController levelFilteringNavigationController, LevelCollectionViewController levelCollectionViewController, BeatmapLevelsModel beatmapLevelsModel, CustomLevelLoader customLevelLoader, BeatmapCharacteristicCollection beatmapCharacteristicCollection, ProgressBar progressBar, BSMLSettings bsmlSettings)
+        private Loader(GameScenesManager gameScenesManager, LevelFilteringNavigationController levelFilteringNavigationController, LevelCollectionViewController levelCollectionViewController, LevelPackDetailViewController levelPackDetailViewController, BeatmapLevelsModel beatmapLevelsModel, CustomLevelLoader customLevelLoader, SpriteAsyncLoader spriteAsyncLoader,  BeatmapCharacteristicCollection beatmapCharacteristicCollection, ProgressBar progressBar, BSMLSettings bsmlSettings)
 
         {
             _gameScenesManager = gameScenesManager;
             _levelFilteringNavigationController = levelFilteringNavigationController;
             _levelCollectionViewController = levelCollectionViewController;
+            _levelPackDetailViewController = levelPackDetailViewController;
             _beatmapLevelsModel = beatmapLevelsModel;
             _customLevelLoader = customLevelLoader;
+            _spriteAsyncLoader = spriteAsyncLoader;
             _beatmapCharacteristicCollection = beatmapCharacteristicCollection;
             _progressBar = progressBar;
             _bsmlSettings = bsmlSettings;
@@ -62,6 +65,7 @@ namespace SongCore
 
         private static readonly ConcurrentDictionary<string, OfficialSongEntry> OfficialSongs = new ConcurrentDictionary<string, OfficialSongEntry>();
         private static readonly ConcurrentDictionary<string, BeatmapLevel> CustomLevelsById = new ConcurrentDictionary<string, BeatmapLevel>();
+        private static readonly ConcurrentDictionary<string, CustomLevelLoader.LoadedSaveData> LoadedBeatmapSaveData = new ConcurrentDictionary<string, CustomLevelLoader.LoadedSaveData>();
         private static readonly ConcurrentDictionary<string, IBeatmapLevelData> LoadedBeatmapLevelsData = new ConcurrentDictionary<string, IBeatmapLevelData>();
         public static ConcurrentDictionary<string, BeatmapLevel> CustomLevels = new ConcurrentDictionary<string, BeatmapLevel>();
         public static ConcurrentDictionary<string, BeatmapLevel> CustomWIPLevels = new ConcurrentDictionary<string, BeatmapLevel>();
@@ -79,6 +83,7 @@ namespace SongCore
         public static float LoadingProgress { get; private set; }
         public static BeatmapLevelsModel BeatmapLevelsModelSO { get; private set; }
         public static CustomLevelLoader CustomLevelLoader { get; private set; }
+        public static SpriteAsyncLoader cachedMediaAsyncLoaderSO { get; private set; }
         public static BeatmapCharacteristicCollection beatmapCharacteristicCollection { get; private set; }
 
         public void Initialize()
@@ -94,7 +99,8 @@ namespace SongCore
             // They'll be destroyed on internal restart.
             BeatmapLevelsModelSO = _beatmapLevelsModel;
             CustomLevelLoader = _customLevelLoader;
-            defaultCoverImage = Resources.FindObjectsOfTypeAll<Sprite>().First(s => s.name.Contains("CustomLevelsPack"));
+            cachedMediaAsyncLoaderSO = _spriteAsyncLoader;
+            defaultCoverImage = _levelPackDetailViewController._defaultCoverSprite;
             beatmapCharacteristicCollection = _beatmapCharacteristicCollection;
 
             if (Hashing.cachedSongHashData.Count == 0)
@@ -106,7 +112,7 @@ namespace SongCore
             else
             {
                 RefreshLevelPacks();
-                RefreshLoadedBeatmapLevelsData();
+                RefreshLoadedBeatmapData();
             }
 
             SceneManager.activeSceneChanged += HandleActiveSceneChanged;
@@ -168,8 +174,13 @@ namespace SongCore
 
         private static void HandleDidSelectLevel(LevelCollectionViewController levelCollectionViewController, BeatmapLevel beatmapLevel)
         {
-            Logging.Logger.Debug($"Selected level: {beatmapLevel.levelID} | {beatmapLevel.songName}");
-
+            var message = $"Selected level: {beatmapLevel.levelID} | {beatmapLevel.songName}";
+            if (!beatmapLevel.hasPrecalculatedData)
+            {
+                message += " | v" + BeatmapSaveDataHelpers.GetVersion(CustomLevelLoader._loadedBeatmapSaveData[beatmapLevel.levelID].customLevelFolderInfo.levelInfoJsonString);
+            }
+            Logging.Logger.Debug(message);
+;
             if (!beatmapLevel.hasPrecalculatedData && Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(beatmapLevel)) is { } songData)
             {
                 if (Plugin.Configuration.CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
@@ -272,6 +283,7 @@ namespace SongCore
                 CustomLevels.Clear();
                 CustomWIPLevels.Clear();
                 CachedWIPLevels.Clear();
+                LoadedBeatmapSaveData.Clear();
                 LoadedBeatmapLevelsData.Clear();
                 _beatmapLevelsModel.ClearLoadedBeatmapLevelsCaches();
                 Collections.LevelHashDictionary.Clear();
@@ -387,7 +399,11 @@ namespace SongCore
                     #region LoadCustomLevels
 
                     // Get Levels from CustomLevels and CustomWIPLevels folders
-                    var songFolders = Directory.GetDirectories(_customLevelsPath).Concat(Directory.GetDirectories(_customWIPPath)).ToArray();
+                    var songFolders = new DirectoryInfo(_customLevelsPath).GetDirectories()
+                        .Where(d => !d.Attributes.HasFlag(FileAttributes.Hidden))
+                        .Select(d => d.FullName)
+                        .Concat(Directory.GetDirectories(_customWIPPath))
+                        .ToArray();
                     var loadedData = new ConcurrentBag<string>();
 
                     var processedSongsCount = 0;
@@ -469,11 +485,10 @@ namespace SongCore
 
                     // Load beatmaps in separate song folders (created in folders.xml or by other mods)
                     // Assign beatmaps to their respective pack (custom levels, wip levels, or separate)
-                    for (var k = 0; k < SeparateSongFolders.Count; k++)
+                    foreach (var entry in SeparateSongFolders)
                     {
                         try
                         {
-                            SeparateSongFolder entry = SeparateSongFolders[k];
                             UnityMainThreadTaskScheduler.Factory.StartNew(() => Instance._progressBar.ShowMessage($"Loading {SeparateSongFolders.Count} Additional Song folders"));
                             if (!Directory.Exists(entry.SongFolderEntry.Path))
                             {
@@ -566,7 +581,7 @@ namespace SongCore
                         }
                         catch (Exception ex)
                         {
-                            Logging.Logger.Error($"Failed to load separate folder {SeparateSongFolders[k].SongFolderEntry.Name}");
+                            Logging.Logger.Error($"Failed to load separate folder {entry.SongFolderEntry.Name}");
                             Logging.Logger.Error(ex);
                         }
                     }
@@ -583,7 +598,7 @@ namespace SongCore
 
                 #endregion
 
-                RefreshLoadedBeatmapLevelsData();
+                RefreshLoadedBeatmapData();
             };
 
             Action finish = async () =>
@@ -703,14 +718,15 @@ namespace SongCore
             }
         }
 
-        private void RefreshLoadedBeatmapLevelsData()
+        private void RefreshLoadedBeatmapData()
         {
+            foreach (var beatmapSaveData in LoadedBeatmapSaveData)
+            {
+                _customLevelLoader._loadedBeatmapSaveData.TryAdd(beatmapSaveData.Key, beatmapSaveData.Value);
+            }
             foreach (var beatmapLevelData in LoadedBeatmapLevelsData)
             {
-                if (!_customLevelLoader._loadedBeatmapLevelsData.ContainsKey(beatmapLevelData.Key))
-                {
-                    _customLevelLoader._loadedBeatmapLevelsData.Add(beatmapLevelData.Key, beatmapLevelData.Value);
-                }
+                _customLevelLoader._loadedBeatmapLevelsData.TryAdd(beatmapLevelData.Key, beatmapLevelData.Value);
             }
         }
 
@@ -798,26 +814,34 @@ namespace SongCore
         /// <summary>
         /// Load a beatmap, gather all beatmap information and create beatmap preview
         /// </summary>
-        /// <param name="saveData">Save data of beatmap</param>
-        /// <param name="levelFolderInfo">Level folder info of the Beat Map</param>
+        /// <param name="loadedSaveData">Loaded save data of beatmap</param>
         /// <param name="hash">Resulting hash for the beatmap, may contain beatmap folder name or 'WIP' at the end</param>
         /// <param name="folderEntry">Folder entry for beatmap folder</param>
         /// <returns></returns>
-        public static BeatmapLevel? LoadSong(StandardLevelInfoSaveData saveData, CustomLevelFolderInfo levelFolderInfo, out string hash, SongFolderEntry? folderEntry = null)
+        public static BeatmapLevel? LoadSong(CustomLevelLoader.LoadedSaveData loadedSaveData, string hash, SongFolderEntry? folderEntry = null)
         {
-            var songPath = levelFolderInfo.folderPath;
-            var wip = songPath.Contains("CustomWIPLevels") || folderEntry != null && (folderEntry.Pack == FolderLevelPack.CustomWIPLevels || folderEntry.Pack == FolderLevelPack.CachedWIPLevels || folderEntry.WIP);
+            var wip = loadedSaveData.customLevelFolderInfo.folderPath.Contains("CustomWIPLevels") || folderEntry != null && (folderEntry.Pack == FolderLevelPack.CustomWIPLevels || folderEntry.Pack == FolderLevelPack.CachedWIPLevels || folderEntry.WIP);
             BeatmapLevel? beatmapLevel;
             try
             {
-                hash = Hashing.GetCustomLevelHash(saveData, songPath);
+                IBeatmapLevelData beatmapLevelData;
+                if (loadedSaveData.standardLevelInfoSaveData != null)
+                {
+                    beatmapLevel = CustomLevelLoader.CreateBeatmapLevelFromV3(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
+                    beatmapLevelData = CustomLevelLoader.CreateBeatmapLevelDataFromV3(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
+                }
+                else if (loadedSaveData.beatmapLevelSaveData != null)
+                {
+                    beatmapLevel = CustomLevelLoader.CreateBeatmapLevelFromV4(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
+                    beatmapLevelData = CustomLevelLoader.CreateBeatmapLevelDataFromV4(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Level save data is missing.");
+                }
 
-               
-
-                beatmapLevel = CustomLevelLoader.CreateBeatmapLevelFromV3(levelFolderInfo, saveData);
-                IBeatmapLevelData beatmapLevelData = CustomLevelLoader.CreateBeatmapLevelDataFromV3(levelFolderInfo, saveData);
                 string levelID = CustomLevelLoader.kCustomLevelPrefixId + hash;
-                string folderName = new DirectoryInfo(songPath).Name;
+                string folderName = new DirectoryInfo(loadedSaveData.customLevelFolderInfo.folderPath).Name;
                 while (!Collections.LevelHashDictionary.TryAdd(levelID + (wip ? " WIP" : ""), hash))
                 {
                     levelID += $"_{folderName}";
@@ -836,16 +860,15 @@ namespace SongCore
                     }
                     return levels;
                 });
-                Collections.LevelSaveDataDictionary.TryAdd(levelID, saveData);
-                Collections.LevelPathDictionary.TryAdd(levelID, songPath);
+                LoadedBeatmapSaveData.TryAdd(levelID, loadedSaveData);
                 LoadedBeatmapLevelsData.TryAdd(levelID, beatmapLevelData);
 
                 Accessors.LevelIDAccessor(ref beatmapLevel) = levelID;
-                GetSongDuration(saveData, beatmapLevel, songPath, Path.Combine(songPath, saveData.songFilename));
+                GetSongDuration(loadedSaveData, beatmapLevelData, beatmapLevel);
             }
             catch (Exception e)
             {
-                Logging.Logger.Error($"Failed to load song: {songPath}");
+                Logging.Logger.Error($"Failed to load song: {loadedSaveData.customLevelFolderInfo.folderPath}");
                 Logging.Logger.Error(e);
                 beatmapLevel = null;
                 hash = null;
@@ -854,10 +877,9 @@ namespace SongCore
             return beatmapLevel;
         }
 
-        public static BeatmapLevel? LoadSong(CancellationToken token, StandardLevelInfoSaveData saveData, CustomLevelFolderInfo levelFolderInfo, out string hash, SongFolderEntry? folderEntry = null)
+        public static BeatmapLevel? LoadSong(CancellationToken token, StandardLevelInfoSaveData saveData, string songPath, out string hash, SongFolderEntry? folderEntry = null)
         {
-            token.ThrowIfCancellationRequested();
-            return LoadSong(saveData, levelFolderInfo, out hash, folderEntry);
+            throw new NotImplementedException();
         }
 
         #region HelperFunctionsZIP
@@ -1009,29 +1031,14 @@ namespace SongCore
                 return null;
             }
 
-            var json = File.ReadAllText(infoFilePath);
-            Logging.Logger.Info(BeatmapSaveDataHelpers.GetVersion(json).ToString());
-            if (BeatmapSaveDataHelpers.GetVersion(json) < BeatmapSaveDataHelpers.version4)
+            // WIP
+            var data = Hashing.GetCustomLevelData(customLevelPath);
+            if (data.HasValue)
             {
-                var standardLevelInfoSaveData = StandardLevelInfoSaveData.DeserializeFromJSONString(json);
-                if (standardLevelInfoSaveData == null)
-                {
-                    return null;
-                }
-                
-                var levelFolderInfo = new CustomLevelFolderInfo(customLevelPath, standardLevelInfoSaveData.songName, json);
-                var beatmapLevel = LoadSong(standardLevelInfoSaveData, levelFolderInfo, out var hash, entry);
-                if (beatmapLevel == null)
-                {
-                    return null;
-                }
-
-                Collections.AddExtraSongData(hash, customLevelPath, json);
-
-                return beatmapLevel;
+                var (hash, loadedSaveData) = data.Value;
+                return LoadSong(loadedSaveData, hash, entry);
             }
 
-            // TODO: V4
             return null;
         }
 
@@ -1083,13 +1090,13 @@ namespace SongCore
             return level;
         }
 
-        private static void GetSongDuration(StandardLevelInfoSaveData saveData, BeatmapLevel level, string songPath, string oggFile)
+        private static void GetSongDuration(CustomLevelLoader.LoadedSaveData loadedSaveData, IBeatmapLevelData beatmapLevelData, BeatmapLevel level)
         {
             try
             {
                 string levelID = level.levelID;
                 float length = 0;
-                if (Hashing.cachedAudioData.TryGetValue(Hashing.GetRelativePath(songPath), out var data))
+                if (Hashing.cachedAudioData.TryGetValue(Hashing.GetRelativePath(loadedSaveData.customLevelFolderInfo.folderPath), out var data))
                 {
                     if (data.id == levelID)
                     {
@@ -1101,7 +1108,14 @@ namespace SongCore
                 {
                     try
                     {
-                        length = GetLengthFromOgg(oggFile);
+                        if (loadedSaveData.standardLevelInfoSaveData != null)
+                        {
+                            length = GetLengthFromOgg(Path.Combine(loadedSaveData.customLevelFolderInfo.folderPath, loadedSaveData.standardLevelInfoSaveData.songFilename));
+                        }
+                        else if (loadedSaveData.beatmapLevelSaveData != null)
+                        {
+                            length = GetLengthFromOgg(Path.Combine(loadedSaveData.customLevelFolderInfo.folderPath, loadedSaveData.beatmapLevelSaveData.songPreviewFilename));
+                        }
                     }
                     catch (Exception)
                     {
@@ -1111,9 +1125,8 @@ namespace SongCore
                     if (length <= 1)
                     {
                         // janky, but whatever
-                        Collections.LevelPathDictionary.TryGetValue(level.levelID, out var customLevelPath);
-                        Logging.Logger.Warn($"Failed to parse song length from audio file, approximating using map length. Song: {customLevelPath}");
-                        length = GetLengthFromMap(saveData, level, songPath);
+                        Logging.Logger.Warn($"Failed to parse song length from audio file, approximating using map length. Song: {loadedSaveData.customLevelFolderInfo.folderPath}");
+                        length = GetLengthFromMap(loadedSaveData, beatmapLevelData, level);
                     }
                 }
 
@@ -1124,7 +1137,7 @@ namespace SongCore
                 }
                 else
                 {
-                    Hashing.cachedAudioData[Hashing.GetRelativePath(songPath)] = new AudioCacheData(levelID, length);
+                    Hashing.cachedAudioData[Hashing.GetRelativePath(loadedSaveData.customLevelFolderInfo.folderPath)] = new AudioCacheData(levelID, length);
                 }
 
                 if (Plugin.Configuration.ForceLongPreviews)
@@ -1141,24 +1154,62 @@ namespace SongCore
             }
         }
 
+        [Obsolete("Use the overload that uses the loaded save data.", true)]
         public static float GetLengthFromMap(StandardLevelInfoSaveData saveData, BeatmapLevel level, string songPath)
         {
-            var diff = saveData.difficultyBeatmapSets.First().difficultyBeatmaps.Last().beatmapFilename;
-            var saveDataString = File.ReadAllText(Path.Combine(songPath, diff));
-            var beatmapSaveData = JsonUtility.FromJson<BeatmapSaveDataVersion3.BeatmapSaveData>(saveDataString);
+            var customLevelFolderInfo = new CustomLevelFolderInfo(songPath, string.Empty, string.Empty);
+            var loadedSaveData = new CustomLevelLoader.LoadedSaveData { customLevelFolderInfo = customLevelFolderInfo, standardLevelInfoSaveData = saveData };
+            return GetLengthFromMap(loadedSaveData, CustomLevelLoader._loadedBeatmapLevelsData[level.levelID], level);
+        }
 
-            float highestTime = 0;
-            if (beatmapSaveData.colorNotes.Count > 0)
+        public static float GetLengthFromMap(CustomLevelLoader.LoadedSaveData loadedSaveData, IBeatmapLevelData beatmapLevelData, BeatmapLevel level)
+        {
+            float length = 0;
+
+            if (loadedSaveData.standardLevelInfoSaveData != null)
             {
-                highestTime = beatmapSaveData.colorNotes.Max(x => x.beat);
+                var beatmapSaveData = JsonUtility.FromJson<BeatmapSaveDataVersion3.BeatmapSaveData>(beatmapLevelData.GetBeatmapString(level.GetBeatmapKeys().Last()));
+
+                float highestTime = 0;
+                if (beatmapSaveData.colorNotes.Count > 0)
+                {
+                    highestTime = beatmapSaveData.colorNotes.Max(x => x.beat);
+                }
+                else if (beatmapSaveData.basicBeatmapEvents.Count > 0)
+                {
+                    highestTime = beatmapSaveData.basicBeatmapEvents.Max(x => x.beat);
+                }
+
+                var bpmTimeProcessor = new BpmTimeProcessor(level.beatsPerMinute, beatmapSaveData.bpmEvents);
+                length = bpmTimeProcessor.ConvertBeatToTime(highestTime);
             }
-            else if (beatmapSaveData.basicBeatmapEvents.Count > 0)
+            else if (loadedSaveData.beatmapLevelSaveData != null)
             {
-                highestTime = beatmapSaveData.basicBeatmapEvents.Max(x => x.beat);
+                var beatmapKey = level.GetBeatmapKeys().Last();
+                var beatmapSaveData = JsonUtility.FromJson<BeatmapSaveDataVersion4.BeatmapSaveData>(beatmapLevelData.GetBeatmapString(beatmapKey));
+                var lightshowSaveData = JsonUtility.FromJson<BeatmapSaveDataVersion4.LightshowSaveData>(beatmapLevelData.GetLightshowString(beatmapKey));
+                var audioSaveData = JsonUtility.FromJson<BeatmapLevelSaveDataVersion4.AudioSaveData>(beatmapLevelData.GetAudioDataString());
+
+                float highestTime = 0;
+                if (beatmapSaveData.colorNotes.Length > 0)
+                {
+                    highestTime = beatmapSaveData.colorNotes.Max(x => x.beat);
+                }
+                else if (lightshowSaveData.basicEvents.Length > 0)
+                {
+                    highestTime = lightshowSaveData.basicEvents.Max(x => x.beat);
+                }
+
+                var bpmTimeProcessor = new BpmTimeProcessor(audioSaveData);
+                length = bpmTimeProcessor.ConvertBeatToTime(highestTime);
             }
 
-            var bpmTimeProcessor = new BpmTimeProcessor(level.beatsPerMinute, beatmapSaveData.bpmEvents);
-            return bpmTimeProcessor.ConvertBeatToTime(highestTime);
+            if (length == 0)
+            {
+                Logging.Logger.Warn($"Failed to parse song length from audio file. Song: {loadedSaveData.customLevelFolderInfo.folderPath}");;
+            }
+
+            return length;
         }
 
         private static readonly byte[] oggBytes =

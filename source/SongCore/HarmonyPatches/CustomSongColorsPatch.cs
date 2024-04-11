@@ -17,9 +17,9 @@ namespace SongCore.HarmonyPatches
                 {
                     return;
                 }
-                var colorScheme = __instance.colorScheme;
+
                 var songData = Collections.RetrieveDifficultyData(__instance.beatmapLevel, __instance.beatmapKey);
-                var overrideColorScheme = GetOverrideColorScheme(songData, colorScheme);
+                var overrideColorScheme = GetOverrideColorScheme(songData, __instance.colorScheme);
                 if (overrideColorScheme is null)
                 {
                     return;
@@ -39,9 +39,9 @@ namespace SongCore.HarmonyPatches
                 {
                     return;
                 }
-                var colorScheme = __instance.colorScheme;
+
                 var songData = Collections.RetrieveDifficultyData(__instance.beatmapLevel, __instance.beatmapKey);
-                var overrideColorScheme = GetOverrideColorScheme(songData, colorScheme);
+                var overrideColorScheme = GetOverrideColorScheme(songData, __instance.colorScheme);
                 if (overrideColorScheme is null)
                 {
                     return;

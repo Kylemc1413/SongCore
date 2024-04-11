@@ -131,38 +131,40 @@ namespace SongCore.Data
             _difficulties = difficulties;
         }
 
-        internal ExtraSongData(string rawSongData, string songPath)
+        // TODO: Characteristic details for V4.
+        // TODO: Confirm new V4 format.
+        internal ExtraSongData(CustomLevelLoader.LoadedSaveData loadedSaveData)
         {
             try
             {
-                JObject info = JObject.Parse(rawSongData);
+                JObject info = JObject.Parse(loadedSaveData.customLevelFolderInfo.levelInfoJsonString);
                 List<Contributor> levelContributors = new List<Contributor>();
                 //Check if song uses legacy value for full song One Saber mode
-                if (info.TryGetValue("_customData", out var data))
+                if (info.TryGetValueWithOrWithoutLeadingUnderscore("_customData", out var data))
                 {
                     JObject infoData = (JObject) data;
-                    if (infoData.TryGetValue("_contributors", out var contributors))
+                    if (infoData.TryGetValueWithOrWithoutLeadingUnderscore("_contributors", out var contributors))
                     {
                         levelContributors.AddRange(contributors.ToObject<Contributor[]>());
                     }
 
-                    if (infoData.TryGetValue("_customEnvironment", out var customEnvironment))
+                    if (infoData.TryGetValueWithOrWithoutLeadingUnderscore("_customEnvironment", out var customEnvironment))
                     {
                         _customEnvironmentName = (string) customEnvironment;
                     }
 
-                    if (infoData.TryGetValue("_customEnvironmentHash", out var envHash))
+                    if (infoData.TryGetValueWithOrWithoutLeadingUnderscore("_customEnvironmentHash", out var envHash))
                     {
                         _customEnvironmentHash = (string) envHash;
                     }
 
-                    if (infoData.TryGetValue("_defaultCharacteristic", out var defaultChar))
+                    if (infoData.TryGetValueWithOrWithoutLeadingUnderscore("_defaultCharacteristic", out var defaultChar))
                     {
                         _defaultCharacteristic = (string) defaultChar;
                     }
 
                     var genreTags = new List<string>();
-                    if (infoData.TryGetValue("_genreTags", out var genreTagsObj))
+                    if (infoData.TryGetValueWithOrWithoutLeadingUnderscore("_genreTags", out var genreTagsObj))
                     {
                         genreTags.AddRange(((JArray) genreTagsObj).Select(c => (string) c));
                     }
@@ -172,7 +174,7 @@ namespace SongCore.Data
                 contributors = levelContributors.ToArray();
 
                 var envNames = new List<string>();
-                if (info.TryGetValue("_environmentNames", out var environmentNames))
+                if (info.TryGetValueWithOrWithoutLeadingUnderscore("_environmentNames", out var environmentNames))
                 {
                     envNames.AddRange(((JArray) environmentNames).Select(c => (string) c));
                 }
@@ -180,7 +182,7 @@ namespace SongCore.Data
 
 
                 List<ColorScheme> colorSchemeList = new List<ColorScheme>();
-                if (info.TryGetValue("_colorSchemes", out var colorSchemes)) //I DO NOT TRUST THAT PEOPLE DO THIS PROPERLY
+                if (info.TryGetValueWithOrWithoutLeadingUnderscore("_colorSchemes", out var colorSchemes)) //I DO NOT TRUST THAT PEOPLE DO THIS PROPERLY
                 {
                     JArray colorSchemeListData = (JArray) colorSchemes;
                     foreach (var colorSchemeItem in colorSchemeListData)
@@ -244,45 +246,227 @@ namespace SongCore.Data
 
 
                 var diffData = new List<DifficultyData>();
-                var diffSets = (JArray) info["_difficultyBeatmapSets"];
-
-
                 List<CharacteristicDetails> characteristicsDetails = new List<CharacteristicDetails>();
 
-                foreach (var diffSet in diffSets)
+                if (loadedSaveData.standardLevelInfoSaveData != null)
                 {
-                    var setCharacteristic = (string) diffSet["_beatmapCharacteristicName"];
-                    JArray diffBeatmaps = (JArray) diffSet["_difficultyBeatmaps"];
-                    JObject diffBeatmapSetObj = (JObject) diffSet;
-
-
-                    if (diffBeatmapSetObj.TryGetValue("_customData", out var characteristicCustom))
+                    var diffSets = (JArray) info["_difficultyBeatmapSets"];
+                    foreach (var diffSet in diffSets)
                     {
-                        JObject characteristicCustomObj = (JObject) characteristicCustom;
+                        var setCharacteristic = (string) diffSet["_beatmapCharacteristicName"];
+                        JArray diffBeatmaps = (JArray) diffSet["_difficultyBeatmaps"];
+                        JObject diffBeatmapSetObj = (JObject) diffSet;
 
-                        string? characteristicLabel = null;
-                        string? characteristicIconFilePath = null;
 
-                        if (characteristicCustomObj.TryGetValue("_characteristicLabel", out var characteristicLabelObj))
+                        if (diffBeatmapSetObj.TryGetValue("_customData", out var characteristicCustom))
                         {
-                            characteristicLabel = (string) characteristicLabelObj;
+                            JObject characteristicCustomObj = (JObject) characteristicCustom;
+
+                            string? characteristicLabel = null;
+                            string? characteristicIconFilePath = null;
+
+                            if (characteristicCustomObj.TryGetValue("_characteristicLabel", out var characteristicLabelObj))
+                            {
+                                characteristicLabel = (string) characteristicLabelObj;
+                            }
+
+                            if (characteristicCustomObj.TryGetValue("_characteristicIconImageFilename", out var characteristicIconImageFilenameObj))
+                            {
+                                characteristicIconFilePath = (string) characteristicIconImageFilenameObj;
+                            }
+
+                            characteristicsDetails.Add(new CharacteristicDetails
+                            {
+                                _characteristicLabel = characteristicLabel,
+                                _beatmapCharacteristicName = setCharacteristic,
+                                _characteristicIconFilePath = characteristicIconFilePath
+                            });
+
                         }
 
-                        if (characteristicCustomObj.TryGetValue("_characteristicIconImageFilename", out var characteristicIconImageFilenameObj))
+                        foreach (JObject diffBeatmap in diffBeatmaps)
                         {
-                            characteristicIconFilePath = (string) characteristicIconImageFilenameObj;
+                            var diffRequirements = new List<string>();
+                            var diffSuggestions = new List<string>();
+                            var diffWarnings = new List<string>();
+                            var diffInfo = new List<string>();
+                            var diffLabel = "";
+                            MapColor? diffLeft = null;
+                            MapColor? diffRight = null;
+                            MapColor? diffEnvLeft = null;
+                            MapColor? diffEnvRight = null;
+                            MapColor? diffEnvWhite = null;
+                            MapColor? diffEnvLeftBoost = null;
+                            MapColor? diffEnvRightBoost = null;
+                            MapColor? diffEnvWhiteBoost = null;
+                            MapColor? diffObstacle = null;
+                            int? beatmapColorSchemeIdx = null;
+                            int? environmentNameIdx = null;
+                            bool? oneSaber = null;
+                            bool? showRotationNoteSpawnLines = null;
+                            var styleTags = new List<string>();
+
+                            var diffDifficulty = Utils.ToEnum((string) diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
+
+                            if (diffBeatmap.TryGetValue("_beatmapColorSchemeIdx", out var beatmapColorSchemeIdxVal))
+                            {
+                                beatmapColorSchemeIdx = (int) beatmapColorSchemeIdxVal;
+                            }
+
+                            if (diffBeatmap.TryGetValue("_environmentNameIdx", out var environmentNameIdxVal))
+                            {
+                                environmentNameIdx = (int) environmentNameIdxVal;
+                            }
+
+
+                            bool useSongCoreColours = true;
+
+                            if (beatmapColorSchemeIdx != null)
+                            {
+                                var colorScheme = _colorSchemes.ElementAtOrDefault(beatmapColorSchemeIdx.Value);
+                                if (colorScheme != null)
+                                {
+                                    if (colorScheme.useOverride)
+                                    {
+                                        useSongCoreColours = false;
+                                        diffLeft = colorScheme.saberAColor;
+                                        diffRight = colorScheme.saberBColor;
+                                        diffEnvLeft = colorScheme.environmentColor0;
+                                        diffEnvRight = colorScheme.environmentColor1;
+                                        diffEnvWhite = colorScheme.environmentColorW;
+                                        diffEnvLeftBoost = colorScheme.environmentColor0Boost;
+                                        diffEnvRightBoost = colorScheme.environmentColor1Boost;
+                                        diffEnvWhiteBoost = colorScheme.environmentColorWBoost;
+                                        diffObstacle = colorScheme.obstaclesColor;
+                                    }
+                                }
+                            }
+
+                            if (diffBeatmap.TryGetValue("_customData", out var customData))
+                            {
+                                JObject beatmapData = (JObject) customData;
+                                if (info.TryGetValue("_styleTags", out var tagObj))
+                                {
+                                    styleTags.AddRange(((JArray) tagObj).Select(c => (string) c));
+                                }
+
+                                if (beatmapData.TryGetValue("_difficultyLabel", out var difficultyLabel))
+                                {
+                                    diffLabel = (string) difficultyLabel;
+                                }
+
+                                if (useSongCoreColours)
+                                {
+                                    //Get difficulty json fields
+
+                                    diffLeft = GetMapColorFromJObject(beatmapData, "_colorLeft");
+                                    diffRight = GetMapColorFromJObject(beatmapData, "_colorRight");
+                                    diffEnvLeft = GetMapColorFromJObject(beatmapData, "_envColorLeft");
+                                    diffEnvRight = GetMapColorFromJObject(beatmapData, "_envColorRight");
+                                    diffEnvWhite = GetMapColorFromJObject(beatmapData, "_envColorWhite");
+                                    diffEnvLeftBoost = GetMapColorFromJObject(beatmapData, "_envColorLeftBoost");
+                                    diffEnvRightBoost = GetMapColorFromJObject(beatmapData, "_envColorRightBoost");
+                                    diffEnvWhiteBoost = GetMapColorFromJObject(beatmapData, "_envColorWhiteBoost");
+                                    diffObstacle = GetMapColorFromJObject(beatmapData, "_obstacleColor");
+
+                                }
+
+                                if (beatmapData.TryGetValue("_warnings", out var warnings))
+                                {
+                                    diffWarnings.AddRange(((JArray) warnings).Select(c => (string) c));
+                                }
+
+                                if (beatmapData.TryGetValue("_information", out var information))
+                                {
+                                    diffInfo.AddRange(((JArray) information).Select(c => (string) c));
+                                }
+
+                                if (beatmapData.TryGetValue("_suggestions", out var suggestions))
+                                {
+                                    diffSuggestions.AddRange(((JArray) suggestions).Select(c => (string) c));
+                                }
+
+                                if (beatmapData.TryGetValue("_requirements", out var requirements))
+                                {
+                                    diffRequirements.AddRange(((JArray) requirements).Select(c => (string) c));
+                                }
+
+                                if (beatmapData.TryGetValue("_oneSaber", out var oneSaberObj))
+                                {
+                                    oneSaber = (bool) oneSaberObj;
+                                }
+
+                                if (beatmapData.TryGetValue("_showRotationNoteSpawnLines", out var showRotationNoteSpawnLinesObj))
+                                {
+                                    showRotationNoteSpawnLines = (bool) showRotationNoteSpawnLinesObj;
+                                }
+
+                            }
+
+                            RequirementData diffReqData = new RequirementData
+                            {
+                                _requirements = diffRequirements.ToArray(),
+                                _suggestions = diffSuggestions.ToArray(),
+                                _information = diffInfo.ToArray(),
+                                _warnings = diffWarnings.ToArray()
+                            };
+
+                            diffData.Add(new DifficultyData
+                            {
+                                _beatmapCharacteristicName = setCharacteristic,
+                                _difficulty = diffDifficulty,
+                                _difficultyLabel = diffLabel,
+                                additionalDifficultyData = diffReqData,
+                                _colorLeft = diffLeft,
+                                _colorRight = diffRight,
+                                _envColorLeft = diffEnvLeft,
+                                _envColorRight = diffEnvRight,
+                                _envColorWhite = diffEnvWhite,
+                                _envColorLeftBoost = diffEnvLeftBoost,
+                                _envColorRightBoost = diffEnvRightBoost,
+                                _envColorWhiteBoost = diffEnvWhiteBoost,
+                                _obstacleColor = diffObstacle,
+                                _beatmapColorSchemeIdx = beatmapColorSchemeIdx,
+                                _environmentNameIdx = environmentNameIdx,
+                                _oneSaber = oneSaber,
+                                _showRotationNoteSpawnLines = showRotationNoteSpawnLines,
+                                _styleTags = styleTags.ToArray()
+                            });
                         }
-
-                        characteristicsDetails.Add(new CharacteristicDetails
-                        {
-                            _characteristicLabel = characteristicLabel,
-                            _beatmapCharacteristicName = setCharacteristic,
-                            _characteristicIconFilePath = characteristicIconFilePath
-                        });
-
                     }
+                }
+                else if (loadedSaveData.beatmapLevelSaveData != null)
+                {
+                    // var setCharacteristic = (string) diffSet["_beatmapCharacteristicName"];
+                    JArray diffBeatmaps = (JArray) info["difficultyBeatmaps"];
+                    // JObject diffBeatmapSetObj = (JObject) diffSet;
 
 
+                    // if (diffBeatmapSetObj.TryGetValueWithOrWithoutLeadingUnderscore("_customData", out var characteristicCustom))
+                    // {
+                    //     JObject characteristicCustomObj = (JObject) characteristicCustom;
+                    //
+                    //     string? characteristicLabel = null;
+                    //     string? characteristicIconFilePath = null;
+                    //
+                    //     if (characteristicCustomObj.TryGetValueWithOrWithoutLeadingUnderscore("_characteristicLabel", out var characteristicLabelObj))
+                    //     {
+                    //         characteristicLabel = (string) characteristicLabelObj;
+                    //     }
+                    //
+                    //     if (characteristicCustomObj.TryGetValueWithOrWithoutLeadingUnderscore("_characteristicIconImageFilename", out var characteristicIconImageFilenameObj))
+                    //     {
+                    //         characteristicIconFilePath = (string) characteristicIconImageFilenameObj;
+                    //     }
+                    //
+                    //     characteristicsDetails.Add(new CharacteristicDetails
+                    //     {
+                    //         _characteristicLabel = characteristicLabel,
+                    //         _beatmapCharacteristicName = setCharacteristic,
+                    //         _characteristicIconFilePath = characteristicIconFilePath
+                    //     });
+                    //
+                    // }
 
                     foreach (JObject diffBeatmap in diffBeatmaps)
                     {
@@ -306,14 +490,15 @@ namespace SongCore.Data
                         bool? showRotationNoteSpawnLines = null;
                         var styleTags = new List<string>();
 
-                        var diffDifficulty = Utils.ToEnum((string) diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
+                        var diffDifficulty = Utils.ToEnum((string) diffBeatmap["difficulty"], BeatmapDifficulty.Normal);
+                        var diffCharacteristic = (string)diffBeatmap["characteristic"];
 
-                        if (diffBeatmap.TryGetValue("_beatmapColorSchemeIdx", out var beatmapColorSchemeIdxVal))
+                        if (diffBeatmap.TryGetValue("beatmapColorSchemeIdx", out var beatmapColorSchemeIdxVal))
                         {
                             beatmapColorSchemeIdx = (int) beatmapColorSchemeIdxVal;
                         }
 
-                        if (diffBeatmap.TryGetValue("_environmentNameIdx", out var environmentNameIdxVal))
+                        if (diffBeatmap.TryGetValue("environmentNameIdx", out var environmentNameIdxVal))
                         {
                             environmentNameIdx = (int) environmentNameIdxVal;
                         }
@@ -342,15 +527,15 @@ namespace SongCore.Data
                             }
                         }
 
-                        if (diffBeatmap.TryGetValue("_customData", out var customData))
+                        if (diffBeatmap.TryGetValue("customData", out var customData))
                         {
                             JObject beatmapData = (JObject) customData;
-                            if (info.TryGetValue("_styleTags", out var tagObj))
+                            if (info.TryGetValue("styleTags", out var tagObj))
                             {
                                 styleTags.AddRange(((JArray) tagObj).Select(c => (string) c));
                             }
 
-                            if (beatmapData.TryGetValue("_difficultyLabel", out var difficultyLabel))
+                            if (beatmapData.TryGetValue("difficultyLabel", out var difficultyLabel))
                             {
                                 diffLabel = (string) difficultyLabel;
                             }
@@ -359,44 +544,44 @@ namespace SongCore.Data
                             {
                                 //Get difficulty json fields
 
-                                diffLeft = GetMapColorFromJObject(beatmapData, "_colorLeft");
-                                diffRight = GetMapColorFromJObject(beatmapData, "_colorRight");
-                                diffEnvLeft = GetMapColorFromJObject(beatmapData, "_envColorLeft");
-                                diffEnvRight = GetMapColorFromJObject(beatmapData, "_envColorRight");
-                                diffEnvWhite = GetMapColorFromJObject(beatmapData, "_envColorWhite");
-                                diffEnvLeftBoost = GetMapColorFromJObject(beatmapData, "_envColorLeftBoost");
-                                diffEnvRightBoost = GetMapColorFromJObject(beatmapData, "_envColorRightBoost");
-                                diffEnvWhiteBoost = GetMapColorFromJObject(beatmapData, "_envColorWhiteBoost");
-                                diffObstacle = GetMapColorFromJObject(beatmapData, "_obstacleColor");
+                                diffLeft = GetMapColorFromJObject(beatmapData, "colorLeft");
+                                diffRight = GetMapColorFromJObject(beatmapData, "colorRight");
+                                diffEnvLeft = GetMapColorFromJObject(beatmapData, "envColorLeft");
+                                diffEnvRight = GetMapColorFromJObject(beatmapData, "envColorRight");
+                                diffEnvWhite = GetMapColorFromJObject(beatmapData, "envColorWhite");
+                                diffEnvLeftBoost = GetMapColorFromJObject(beatmapData, "envColorLeftBoost");
+                                diffEnvRightBoost = GetMapColorFromJObject(beatmapData, "envColorRightBoost");
+                                diffEnvWhiteBoost = GetMapColorFromJObject(beatmapData, "envColorWhiteBoost");
+                                diffObstacle = GetMapColorFromJObject(beatmapData, "obstacleColor");
 
                             }
 
-                            if (beatmapData.TryGetValue("_warnings", out var warnings))
+                            if (beatmapData.TryGetValue("warnings", out var warnings))
                             {
                                 diffWarnings.AddRange(((JArray) warnings).Select(c => (string) c));
                             }
 
-                            if (beatmapData.TryGetValue("_information", out var information))
+                            if (beatmapData.TryGetValue("information", out var information))
                             {
                                 diffInfo.AddRange(((JArray) information).Select(c => (string) c));
                             }
 
-                            if (beatmapData.TryGetValue("_suggestions", out var suggestions))
+                            if (beatmapData.TryGetValue("suggestions", out var suggestions))
                             {
                                 diffSuggestions.AddRange(((JArray) suggestions).Select(c => (string) c));
                             }
 
-                            if (beatmapData.TryGetValue("_requirements", out var requirements))
+                            if (beatmapData.TryGetValue("requirements", out var requirements))
                             {
                                 diffRequirements.AddRange(((JArray) requirements).Select(c => (string) c));
                             }
 
-                            if (beatmapData.TryGetValue("_oneSaber", out var oneSaberObj))
+                            if (beatmapData.TryGetValue("oneSaber", out var oneSaberObj))
                             {
                                 oneSaber = (bool) oneSaberObj;
                             }
 
-                            if (beatmapData.TryGetValue("_showRotationNoteSpawnLines", out var showRotationNoteSpawnLinesObj))
+                            if (beatmapData.TryGetValue("showRotationNoteSpawnLines", out var showRotationNoteSpawnLinesObj))
                             {
                                 showRotationNoteSpawnLines = (bool) showRotationNoteSpawnLinesObj;
                             }
@@ -413,7 +598,7 @@ namespace SongCore.Data
 
                         diffData.Add(new DifficultyData
                         {
-                            _beatmapCharacteristicName = setCharacteristic,
+                            _beatmapCharacteristicName = diffCharacteristic,
                             _difficulty = diffDifficulty,
                             _difficultyLabel = diffLabel,
                             additionalDifficultyData = diffReqData,
@@ -440,14 +625,14 @@ namespace SongCore.Data
             }
             catch (Exception ex)
             {
-                Logging.Logger.Error($"Error in Level {songPath}:");
+                Logging.Logger.Error($"Error in Level {loadedSaveData.customLevelFolderInfo.folderPath}:");
                 Logging.Logger.Error(ex);
             }
         }
 
         public static MapColor? GetMapColorFromJObject(JObject jObject, string key)
         {
-            if (jObject.TryGetValue(key, out var envColorWhiteBoost))
+            if (jObject.TryGetValueWithOrWithoutLeadingUnderscore(key, out var envColorWhiteBoost))
             {
                 if (envColorWhiteBoost.Children().Count() >= 3)
                 {
@@ -459,6 +644,14 @@ namespace SongCore.Data
                 }
             }
             return null;
+        }
+    }
+
+    internal static class JObjectExtensions
+    {
+        public static bool TryGetValueWithOrWithoutLeadingUnderscore(this JObject jObject, string propertyName, out JToken? value)
+        {
+            return jObject.TryGetValue(propertyName, out value) || jObject.TryGetValue(propertyName.TrimStart('_'), out value);
         }
     }
 }

@@ -6,6 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using BeatmapLevelSaveDataVersion4;
+using BGLib.JsonExtension;
+using Newtonsoft.Json;
 
 namespace SongCore.Utilities
 {
@@ -121,24 +124,30 @@ namespace SongCore.Utilities
 
         public static string GetCustomLevelHash(BeatmapLevel level)
         {
-            var standardLevelInfoSaveData = Collections.GetStandardLevelInfoSaveData(level.levelID);
-            if (standardLevelInfoSaveData == null)
+            var hash = string.Empty;
+
+            var loadedSaveData = Loader.CustomLevelLoader._loadedBeatmapSaveData[level.levelID];
+            if (loadedSaveData.standardLevelInfoSaveData != null)
             {
-                return string.Empty;
+                hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo.folderPath, loadedSaveData.standardLevelInfoSaveData.difficultyBeatmapSets);
+            }
+            else if (loadedSaveData.beatmapLevelSaveData != null)
+            {
+                hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo.folderPath, loadedSaveData.beatmapLevelSaveData!.difficultyBeatmaps);
             }
 
-            var customLevelPath = Collections.GetCustomLevelPath(level.levelID);
-            if (string.IsNullOrEmpty(customLevelPath))
-            {
-                return string.Empty;
-            }
-
-            return GetCustomLevelHash(customLevelPath, standardLevelInfoSaveData.difficultyBeatmapSets);
+            return hash;
         }
 
         public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
         {
             return GetCustomLevelHash(customLevelPath, level.difficultyBeatmapSets);
+        }
+
+        // WIP
+        public static string GetCustomLevelHash(BeatmapLevelSaveData level, string customLevelPath)
+        {
+            return GetCustomLevelHash(customLevelPath, level.difficultyBeatmaps);
         }
 
         private static string GetCustomLevelHash(string levelPath, StandardLevelInfoSaveData.DifficultyBeatmapSet[] beatmapSets)
@@ -166,6 +175,135 @@ namespace SongCore.Utilities
             string hash = CreateSha1FromBytes(combinedBytes.ToArray());
             cachedSongHashData[GetRelativePath(levelPath)] = new SongHashData(directoryHash, hash);
             return hash;
+        }
+
+        // WIP
+        private static string GetCustomLevelHash(string levelPath, BeatmapLevelSaveData.DifficultyBeatmap[] difficultyBeatmaps)
+        {
+            if (GetCachedSongData(levelPath, out _, out var songHash))
+            {
+                return songHash;
+            }
+
+            throw new NotImplementedException();
+        }
+
+        // WIP
+        internal static (string, CustomLevelLoader.LoadedSaveData)? GetCustomLevelData(string levelPath)
+        {
+            CustomLevelLoader.LoadedSaveData loadedSaveData;
+
+            var levelFolder = levelPath + Path.DirectorySeparatorChar;
+            var infoFilePath = levelFolder + CustomLevelPathHelper.kStandardLevelInfoFilename;
+            var directoryInfo = new DirectoryInfo(levelPath);
+
+            if (GetCachedSongData(levelPath, out var directoryHash, out var hash))
+            {
+                var json = File.ReadAllText(infoFilePath);
+                var version = BeatmapSaveDataHelpers.GetVersion(json);
+                var customLevelFolderInfo = new CustomLevelFolderInfo(directoryInfo.FullName, directoryInfo.Name, json);
+
+                if (version < BeatmapSaveDataHelpers.version4)
+                {
+                    var standardLevelInfoSaveData = StandardLevelInfoSaveData.DeserializeFromJSONString(json);
+                    loadedSaveData = new CustomLevelLoader.LoadedSaveData { customLevelFolderInfo = customLevelFolderInfo, standardLevelInfoSaveData = standardLevelInfoSaveData };
+                }
+                else
+                {
+                    var beatmapLevelSaveData = JsonConvert.DeserializeObject<BeatmapLevelSaveData>(json, JsonSettings.readableWithDefault);
+                    loadedSaveData = new CustomLevelLoader.LoadedSaveData { customLevelFolderInfo = customLevelFolderInfo, beatmapLevelSaveData = beatmapLevelSaveData };
+                }
+
+                return (hash, loadedSaveData);
+            }
+
+            const int bufferSize = 1024 * 1024; // 1MB
+            var buffer = new byte[bufferSize];
+            var stringBuilder = new StringBuilder();
+
+            using (var sha1 = SHA1.Create())
+            {
+                int bytesRead;
+                using (var levelFile = File.OpenRead(infoFilePath))
+                {
+                    while ((bytesRead = levelFile.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        sha1.TransformBlock(buffer, 0, bytesRead, null, 0);
+                        stringBuilder.Append(BeatmapLevelDataUtils.kUtf8Encoding.GetString(buffer, 0, bytesRead));
+                    }
+                }
+
+                var json = stringBuilder.ToString();
+                var version = BeatmapSaveDataHelpers.GetVersion(json);
+                if (version < BeatmapSaveDataHelpers.version4)
+                {
+                    var standardLevelInfoSaveData = StandardLevelInfoSaveData.DeserializeFromJSONString(json);
+                    if (standardLevelInfoSaveData == null)
+                    {
+                        return null;
+                    }
+
+                    var customLevelFolderInfo = new CustomLevelFolderInfo(directoryInfo.FullName, directoryInfo.Name, json);
+                    loadedSaveData = new CustomLevelLoader.LoadedSaveData { customLevelFolderInfo = customLevelFolderInfo, standardLevelInfoSaveData = standardLevelInfoSaveData };
+
+                    foreach (var beatmapSet in standardLevelInfoSaveData.difficultyBeatmapSets)
+                    {
+                        foreach (var difficultyBeatmap in beatmapSet.difficultyBeatmaps)
+                        {
+                            var beatmapPath = levelFolder + difficultyBeatmap.beatmapFilename;
+                            if (File.Exists(beatmapPath))
+                            {
+                                using var beatmapFile = File.OpenRead(beatmapPath);
+                                while ((bytesRead = beatmapFile.Read(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    sha1.TransformBlock(buffer, 0, bytesRead, null, 0);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var beatmapLevelSaveData = JsonConvert.DeserializeObject<BeatmapLevelSaveData>(json, JsonSettings.readableWithDefault);
+                    if (beatmapLevelSaveData == null)
+                    {
+                        return null;
+                    }
+
+                    var customLevelFolderInfo = new CustomLevelFolderInfo(directoryInfo.FullName, directoryInfo.Name, json);
+                    loadedSaveData = new CustomLevelLoader.LoadedSaveData { customLevelFolderInfo = customLevelFolderInfo, beatmapLevelSaveData = beatmapLevelSaveData };
+
+                    foreach (var difficultyBeatmap in beatmapLevelSaveData.difficultyBeatmaps)
+                    {
+                        var beatmapDataPath = levelFolder + difficultyBeatmap.beatmapDataFilename;
+                        var lightshowDataPath = levelFolder + difficultyBeatmap.lightshowDataFilename;
+                        if (File.Exists(beatmapDataPath))
+                        {
+                            using var beatmapFile = File.OpenRead(beatmapDataPath);
+                            while ((bytesRead = beatmapFile.Read(buffer, 0, buffer.Length)) > 0)
+                            {
+                                sha1.TransformBlock(buffer, 0, bytesRead, null, 0);
+                            }
+                        }
+                        if (File.Exists(lightshowDataPath))
+                        {
+                            using var beatmapFile = File.OpenRead(lightshowDataPath);
+                            while ((bytesRead = beatmapFile.Read(buffer, 0, buffer.Length)) > 0)
+                            {
+                                sha1.TransformBlock(buffer, 0, bytesRead, null, 0);
+                            }
+                        }
+                    }
+                }
+
+                sha1.TransformFinalBlock(buffer, 0, 0);
+
+                hash = ByteToHexBitFiddle(sha1.Hash);
+                Collections.AddExtraSongData(hash, loadedSaveData);
+            }
+
+            cachedSongHashData[GetRelativePath(levelPath)] = new SongHashData(directoryHash, hash);
+            return (hash, loadedSaveData);
         }
 
         public static string GetAbsolutePath(string path)
