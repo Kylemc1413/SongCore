@@ -95,9 +95,8 @@ namespace SongCore
         {
             try
             {
-                var fileStream = File.Open(DataPath, FileMode.Open);
-                await using var asyncDisposable = fileStream.ConfigureAwait(false);
-                CustomSongsData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, ExtraSongData>>(fileStream, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
+                await using var fileStream = File.Open(DataPath, FileMode.Open);
+                CustomSongsData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, ExtraSongData>>(fileStream, MessagePackSettings.StandardWithCompression, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -110,9 +109,8 @@ namespace SongCore
         {
             try
             {
-                var fileStream = File.Open(DataPath, FileMode.Create);
-                await using var asyncDisposable = fileStream.ConfigureAwait(false);
-                await MessagePackSerializer.SerializeAsync(fileStream, CustomSongsData, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
+                await using var fileStream = File.Open(DataPath, FileMode.Create);
+                await MessagePackSerializer.SerializeAsync(fileStream, CustomSongsData, MessagePackSettings.StandardWithCompression, cancellationToken);
             }
             catch (Exception ex)
             {

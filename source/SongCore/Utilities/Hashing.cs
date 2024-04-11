@@ -31,9 +31,8 @@ namespace SongCore.Utilities
             {
                 try
                 {
-                    var fileStream = File.Open(cachedHashDataPath, FileMode.Open);
-                    await using var asyncDisposable = fileStream.ConfigureAwait(false);
-                    cachedSongHashData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, SongHashData>>(fileStream, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
+                    await using var fileStream = File.Open(cachedHashDataPath, FileMode.Open);
+                    cachedSongHashData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, SongHashData>>(fileStream, MessagePackSettings.StandardWithCompression, cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -75,9 +74,8 @@ namespace SongCore.Utilities
 
             try
             {
-                var fileStream = File.Open(cachedHashDataPath, FileMode.Create);
-                await using var asyncDisposable = fileStream.ConfigureAwait(false);
-                await MessagePackSerializer.SerializeAsync(fileStream, cachedSongHashData, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
+                await using var fileStream = File.Open(cachedHashDataPath, FileMode.Create);
+                await MessagePackSerializer.SerializeAsync(fileStream, cachedSongHashData, MessagePackSettings.StandardWithCompression, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -98,9 +96,8 @@ namespace SongCore.Utilities
             {
                 try
                 {
-                    var fileStream = File.Open(cachedAudioDataPath, FileMode.Open);
-                    await using var asyncDisposable = fileStream.ConfigureAwait(false);
-                    cachedAudioData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, AudioCacheData>>(fileStream, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
+                    await using var fileStream = File.Open(cachedAudioDataPath, FileMode.Open);
+                    cachedAudioData = await MessagePackSerializer.DeserializeAsync<ConcurrentDictionary<string, AudioCacheData>>(fileStream, MessagePackSettings.StandardWithCompression, cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -142,9 +139,8 @@ namespace SongCore.Utilities
 
             try
             {
-                var fileStream = File.Open(cachedAudioDataPath, FileMode.Create);
-                await using var asyncDisposable = fileStream.ConfigureAwait(false);
-                await MessagePackSerializer.SerializeAsync(fileStream, cachedAudioData, MessagePackSettings.StandardWithCompression, cancellationToken).ConfigureAwait(false);
+                await using var fileStream = File.Open(cachedAudioDataPath, FileMode.Create);
+                await MessagePackSerializer.SerializeAsync(fileStream, cachedAudioData, MessagePackSettings.StandardWithCompression, cancellationToken);
             }
             catch (Exception ex)
             {

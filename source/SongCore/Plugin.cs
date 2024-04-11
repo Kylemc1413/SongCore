@@ -65,7 +65,7 @@ namespace SongCore
             }
             else
             {
-                await Collections.LoadExtraSongDataAsync(CancellationToken.None).ConfigureAwait(false);
+                await Collections.LoadExtraSongDataAsync(CancellationToken.None);
             }
 
             Collections.RegisterCustomCharacteristic(BasicUI.MissingCharIcon!, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic", false, false, 1000);

@@ -103,8 +103,8 @@ namespace SongCore
             if (Hashing.cachedSongHashData.Count == 0)
             {
                 var cancellationToken = _loadingTaskCancellationTokenSource.Token;
-                await Hashing.ReadCachedSongHashesAsync(cancellationToken).ConfigureAwait(false);
-                await Hashing.ReadCachedAudioDataAsync(cancellationToken).ConfigureAwait(false);
+                await Hashing.ReadCachedSongHashesAsync(cancellationToken);
+                await Hashing.ReadCachedAudioDataAsync(cancellationToken);
                 RefreshSongs();
             }
             else
@@ -680,9 +680,9 @@ namespace SongCore
 
                 // Write our cached hash info and
                 var cancellationToken = _loadingTaskCancellationTokenSource.Token;
-                await Hashing.UpdateCachedHashesInternalAsync(foundSongPaths.Keys, cancellationToken).ConfigureAwait(false);
-                await Hashing.UpdateCachedAudioDataInternalAsync(foundSongPaths.Keys, cancellationToken).ConfigureAwait(false);
-                await Collections.SaveExtraSongDataAsync(cancellationToken).ConfigureAwait(false);
+                await Hashing.UpdateCachedHashesInternalAsync(foundSongPaths.Keys, cancellationToken);
+                await Hashing.UpdateCachedAudioDataInternalAsync(foundSongPaths.Keys, cancellationToken);
+                await Collections.SaveExtraSongDataAsync(cancellationToken);
             };
 
             try
@@ -750,7 +750,7 @@ namespace SongCore
                         new HashSet<string>(CustomLevels.Keys.Concat(CustomWIPLevels.Keys)),
                         CancellationToken.None)
                     .ContinueWith(t => RefreshLevelPacks(), CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
-            }).ConfigureAwait(false);
+            });
         }
 
         private void DeleteSingleSong(string folderPath, bool deleteFolder)
