@@ -92,6 +92,8 @@ namespace SongCore
         public void Initialize()
         {
             _gameScenesManager.transitionDidFinishEvent += MenuLoaded;
+            // BSML might fail to find the resource if done in a patched method.
+            _bsmlSettings.AddSettingsMenu(nameof(SongCore), "SongCore.UI.settings.bsml", _settingsController);
         }
 
         private void MenuLoaded(ScenesTransitionSetupDataSO scenesTransitionSetupData, DiContainer container)
@@ -122,16 +124,16 @@ namespace SongCore
 
             _gameScenesManager.transitionDidStartEvent += CancelSongLoading;
             _levelCollectionViewController.didSelectLevelEvent += HandleDidSelectLevel;
-            _bsmlSettings.AddSettingsMenu(nameof(SongCore), "SongCore.UI.settings.bsml", _settingsController);
         }
 
         public void Dispose()
         {
+            _bsmlSettings.RemoveSettingsMenu(_settingsController);
+
             SceneManager.activeSceneChanged -= HandleActiveSceneChanged;
 
             _gameScenesManager.transitionDidStartEvent -= CancelSongLoading;
             _levelCollectionViewController.didSelectLevelEvent -= HandleDidSelectLevel;
-            _bsmlSettings.RemoveSettingsMenu(_settingsController);
         }
 
         /// <summary>
@@ -183,7 +185,7 @@ namespace SongCore
                 message += " | v" + BeatmapSaveDataHelpers.GetVersion(CustomLevelLoader._loadedBeatmapSaveData[beatmapLevel.levelID].customLevelFolderInfo.levelInfoJsonString);
             }
             Logging.Logger.Debug(message);
-;
+
             if (!beatmapLevel.hasPrecalculatedData && Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(beatmapLevel)) is { } songData)
             {
                 if (Plugin.Configuration.CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
@@ -493,7 +495,7 @@ namespace SongCore
                     {
                         try
                         {
-                            UnityMainThreadTaskScheduler.Factory.StartNew(() => Instance._progressBar.ShowMessage($"Loading {SeparateSongFolders.Count} Additional Song folders"));
+                            UnityMainThreadTaskScheduler.Factory.StartNew(() => _progressBar.ShowMessage($"Loading {SeparateSongFolders.Count} Additional Song folders"));
                             if (!Directory.Exists(entry.SongFolderEntry.Path))
                             {
                                 continue;
@@ -1230,7 +1232,7 @@ namespace SongCore
 
             if (length == 0)
             {
-                Logging.Logger.Warn($"Failed to parse song length from audio file. Song: {loadedSaveData.customLevelFolderInfo.folderPath}");;
+                Logging.Logger.Warn($"Failed to parse song length from audio file. Song: {loadedSaveData.customLevelFolderInfo.folderPath}");
             }
 
             return length;
