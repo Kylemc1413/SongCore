@@ -648,7 +648,7 @@ namespace SongCore
                     {
                         if (CustomLevelsRepository == null)
                         {
-                            CustomLevelsRepository = await UnityMainThreadTaskScheduler.Factory.StartNew(SongCoreBeatmapLevelsRepository.CreateNew);
+                            CustomLevelsRepository = SongCoreBeatmapLevelsRepository.CreateNew();
                         }
                         else
                         {
@@ -761,11 +761,8 @@ namespace SongCore
                 await Task.Run(() => DeleteSingleSong(folderPath, deleteFolder));
             }
 
-            await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
-            {
-                Hashing.UpdateCachedHashes(new HashSet<string>(CustomLevels.Keys.Concat(CustomWIPLevels.Keys)));
-                RefreshLevelPacks();
-            });
+            Hashing.UpdateCachedHashes(new HashSet<string>(CustomLevels.Keys.Concat(CustomWIPLevels.Keys)));
+            RefreshLevelPacks();
         }
 
         private void DeleteSingleSong(string folderPath, bool deleteFolder)

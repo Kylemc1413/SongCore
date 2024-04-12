@@ -176,7 +176,7 @@ namespace SongCore.Utilities
                 .Select(difficultyBeatmap => Path.Combine(customLevelFolderInfo.folderPath, difficultyBeatmap.beatmapFilename))
                 .Where(File.Exists);
 
-            string hash = CreateSha1HashFromFilesWithPrependBytes(prependBytes, files);
+            string hash = CreateSha1FromFilesWithPrependBytes(prependBytes, files);
             cachedSongHashData[GetRelativePath(customLevelFolderInfo.folderPath)] = new SongHashData(directoryHash, hash);
             return hash;
         }
@@ -196,7 +196,7 @@ namespace SongCore.Utilities
                 Path.Combine(customLevelFolderInfo.folderPath, difficultyBeatmap.lightshowDataFilename)
             }).Prepend(audioDataPath).Where(File.Exists);
 
-            string hash = CreateSha1HashFromFilesWithPrependBytes(prependBytes, files);
+            string hash = CreateSha1FromFilesWithPrependBytes(prependBytes, files);
             cachedSongHashData[GetRelativePath(customLevelFolderInfo.folderPath)] = new SongHashData(directoryHash, hash);
             return hash;
         }
@@ -297,7 +297,7 @@ namespace SongCore.Utilities
             return true;
         }
 
-        public static string CreateSha1HashFromFilesWithPrependBytes(IEnumerable<byte> prependBytes, IEnumerable<string> files)
+        public static string CreateSha1FromFilesWithPrependBytes(IEnumerable<byte> prependBytes, IEnumerable<string> files)
         {
             using var sha1 = SHA1.Create();
             var buffer = new byte[4096];
@@ -315,9 +315,9 @@ namespace SongCore.Utilities
 
             foreach (var file in files)
             {
-                using var stream = File.Open(file, FileMode.Open);
+                using var fileStream = File.Open(file, FileMode.Open);
                 int bytesRead;
-                while ((bytesRead = stream.Read(buffer, bufferIndex, buffer.Length - bufferIndex)) > 0)
+                while ((bytesRead = fileStream.Read(buffer, bufferIndex, buffer.Length - bufferIndex)) > 0)
                 {
                     bufferIndex += bytesRead;
                     if (bufferIndex == buffer.Length)
