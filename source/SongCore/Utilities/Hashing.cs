@@ -42,7 +42,7 @@ namespace SongCore.Utilities
         /// <param name="currentSongPaths"></param>
         internal static void UpdateCachedHashesInternal(ICollection<string> currentSongPaths)
         {
-            foreach (var hashData in cachedSongHashData.ToArray())
+            foreach (var hashData in cachedSongHashData)
             {
                 if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || (GetAbsolutePath(hashData.Key) == hashData.Key && IsInInstallPath(hashData.Key)))
                 {
@@ -79,7 +79,7 @@ namespace SongCore.Utilities
         /// <param name="currentSongPaths"></param>
         internal static void UpdateCachedAudioDataInternal(ICollection<string> currentSongPaths)
         {
-            foreach (var hashData in cachedAudioData.ToArray())
+            foreach (var hashData in cachedAudioData)
             {
                 if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || (GetAbsolutePath(hashData.Key) == hashData.Key && IsInInstallPath(hashData.Key)))
                 {
