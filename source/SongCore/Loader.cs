@@ -31,6 +31,7 @@ namespace SongCore
         private readonly BeatmapLevelsModel _beatmapLevelsModel;
         private readonly CustomLevelLoader _customLevelLoader;
         private readonly SpriteAsyncLoader _spriteAsyncLoader;
+        private readonly SongPreviewPlayer _songPreviewPlayer;
         private readonly BeatmapCharacteristicCollection _beatmapCharacteristicCollection;
         private readonly ProgressBar _progressBar;
         private readonly BSMLSettings _bsmlSettings;
@@ -41,7 +42,7 @@ namespace SongCore
         private Task? _loadingTask;
         private CancellationTokenSource _loadingTaskCancellationTokenSource = new CancellationTokenSource();
 
-        private Loader(GameScenesManager gameScenesManager, LevelFilteringNavigationController levelFilteringNavigationController, LevelCollectionViewController levelCollectionViewController, LevelPackDetailViewController levelPackDetailViewController, BeatmapLevelsModel beatmapLevelsModel, CustomLevelLoader customLevelLoader, SpriteAsyncLoader spriteAsyncLoader,  BeatmapCharacteristicCollection beatmapCharacteristicCollection, ProgressBar progressBar, BSMLSettings bsmlSettings)
+        private Loader(GameScenesManager gameScenesManager, LevelFilteringNavigationController levelFilteringNavigationController, LevelCollectionViewController levelCollectionViewController, LevelPackDetailViewController levelPackDetailViewController, BeatmapLevelsModel beatmapLevelsModel, CustomLevelLoader customLevelLoader, SpriteAsyncLoader spriteAsyncLoader, SongPreviewPlayer songPreviewPlayer, BeatmapCharacteristicCollection beatmapCharacteristicCollection, ProgressBar progressBar, BSMLSettings bsmlSettings)
 
         {
             _gameScenesManager = gameScenesManager;
@@ -51,6 +52,7 @@ namespace SongCore
             _beatmapLevelsModel = beatmapLevelsModel;
             _customLevelLoader = customLevelLoader;
             _spriteAsyncLoader = spriteAsyncLoader;
+            _songPreviewPlayer = songPreviewPlayer;
             _beatmapCharacteristicCollection = beatmapCharacteristicCollection;
             _progressBar = progressBar;
             _bsmlSettings = bsmlSettings;
@@ -288,9 +290,6 @@ namespace SongCore
                 CustomLevels.Clear();
                 CustomWIPLevels.Clear();
                 CachedWIPLevels.Clear();
-                LoadedBeatmapSaveData.Clear();
-                LoadedBeatmapLevelsData.Clear();
-                _beatmapLevelsModel.ClearLoadedBeatmapLevelsCaches();
                 Collections.LevelHashDictionary.Clear();
                 Collections.HashLevelDictionary.Clear();
                 foreach (var folder in SeparateSongFolders)
@@ -727,14 +726,31 @@ namespace SongCore
 
         private void RefreshLoadedBeatmapData()
         {
-            foreach (var beatmapSaveData in LoadedBeatmapSaveData)
+            // BUG: This is to prevent Unity from crashing when it destroys an audio clip that is playing.
+            // See https://issuetracker.unity3d.com/issues/crash-on-purecall-when-repeatedly-creating-playing-stopping-and-deleting-audio for details.
+            var audioSourceVolumeController = _songPreviewPlayer._audioSourceControllers[_songPreviewPlayer._activeChannel];
+            if (audioSourceVolumeController.audioSource.clip != _songPreviewPlayer._defaultAudioClip)
             {
-                _customLevelLoader._loadedBeatmapSaveData.TryAdd(beatmapSaveData.Key, beatmapSaveData.Value);
+                audioSourceVolumeController.volume = 0f;
+                audioSourceVolumeController.audioSource.Stop();
+                audioSourceVolumeController.audioSource.clip = null;
+                _songPreviewPlayer.CrossfadeToDefault();
             }
-            foreach (var beatmapLevelData in LoadedBeatmapLevelsData)
+
+            _beatmapLevelsModel.ClearLoadedBeatmapLevelsCaches();
+
+            foreach (var (levelID, loadedSaveData) in LoadedBeatmapSaveData)
             {
-                _customLevelLoader._loadedBeatmapLevelsData.TryAdd(beatmapLevelData.Key, beatmapLevelData.Value);
+                _customLevelLoader._loadedBeatmapSaveData.TryAdd(levelID, loadedSaveData);
             }
+
+            foreach (var (levelID, beatmapLevelData) in LoadedBeatmapLevelsData)
+            {
+                _customLevelLoader._loadedBeatmapLevelsData.TryAdd(levelID, beatmapLevelData);
+            }
+
+            LoadedBeatmapSaveData.Clear();
+            LoadedBeatmapLevelsData.Clear();
         }
 
         /// <summary>
