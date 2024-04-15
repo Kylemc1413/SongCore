@@ -94,7 +94,11 @@ namespace SongCore
                 {
                     using var reader = new JsonTextReader(new StreamReader(DataPath));
                     var serializer = JsonSerializer.CreateDefault();
-                    CustomSongsData = serializer.Deserialize<ConcurrentDictionary<string, ExtraSongData>?>(reader) ?? new ConcurrentDictionary<string, ExtraSongData>();
+                    var songData = serializer.Deserialize<ConcurrentDictionary<string, ExtraSongData>?>(reader);
+                    if (songData != null)
+                    {
+                        CustomSongsData = songData;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -106,7 +110,7 @@ namespace SongCore
 
         internal static async Task SaveExtraSongDataAsync()
         {
-            using var writer = new StreamWriter(DataPath);
+            await using var writer = new StreamWriter(DataPath);
             await writer.WriteAsync(JsonConvert.SerializeObject(CustomSongsData, Formatting.None));
         }
 

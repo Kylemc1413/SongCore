@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using BeatmapLevelSaveDataVersion4;
+using Newtonsoft.Json;
 
 namespace SongCore.Utilities
 {
@@ -21,10 +22,10 @@ namespace SongCore.Utilities
         {
             if (File.Exists(cachedHashDataPath))
             {
-                cachedSongHashData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
-                if (cachedSongHashData == null)
+                var songHashData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
+                if (songHashData != null)
                 {
-                    cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
+                    cachedSongHashData = songHashData;
                 }
 
                 Logging.Logger.Info($"Finished reading cached hashes for {cachedSongHashData.Count} songs!");
@@ -42,26 +43,27 @@ namespace SongCore.Utilities
         /// <param name="currentSongPaths"></param>
         internal static void UpdateCachedHashesInternal(ICollection<string> currentSongPaths)
         {
-            foreach (var hashData in cachedSongHashData)
+            foreach (var levelPath in cachedSongHashData.Keys)
             {
-                if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || (GetAbsolutePath(hashData.Key) == hashData.Key && IsInInstallPath(hashData.Key)))
+                var absolutePath = GetAbsolutePath(levelPath);
+                if (!currentSongPaths.Contains(absolutePath) || (absolutePath == levelPath && IsInInstallPath(levelPath)))
                 {
-                    cachedSongHashData.TryRemove(hashData.Key, out _);
+                    cachedSongHashData.TryRemove(levelPath, out _);
                 }
             }
 
             Logging.Logger.Info($"Updating cached hashes for {cachedSongHashData.Count} songs!");
-            File.WriteAllText(cachedHashDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedSongHashData));
+            File.WriteAllText(cachedHashDataPath, JsonConvert.SerializeObject(cachedSongHashData));
         }
 
         public static void ReadCachedAudioData()
         {
             if (File.Exists(cachedAudioDataPath))
             {
-                cachedAudioData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
-                if (cachedAudioData == null)
+                var audioData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
+                if (audioData != null)
                 {
-                    cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
+                    cachedAudioData = audioData;
                 }
 
                 Logging.Logger.Info($"Finished reading cached Durations for {cachedAudioData.Count} songs!");
@@ -79,16 +81,17 @@ namespace SongCore.Utilities
         /// <param name="currentSongPaths"></param>
         internal static void UpdateCachedAudioDataInternal(ICollection<string> currentSongPaths)
         {
-            foreach (var hashData in cachedAudioData)
+            foreach (var levelPath in cachedAudioData.Keys)
             {
-                if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || (GetAbsolutePath(hashData.Key) == hashData.Key && IsInInstallPath(hashData.Key)))
+                var absolutePath = GetAbsolutePath(levelPath);
+                if (!currentSongPaths.Contains(absolutePath) || (absolutePath == levelPath && IsInInstallPath(levelPath)))
                 {
-                    cachedAudioData.TryRemove(hashData.Key, out _);
+                    cachedAudioData.TryRemove(levelPath, out _);
                 }
             }
 
             Logging.Logger.Info($"Updating cached Map Lengths for {cachedAudioData.Count} songs!");
-            File.WriteAllText(cachedAudioDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedAudioData));
+            File.WriteAllText(cachedAudioDataPath, JsonConvert.SerializeObject(cachedAudioData));
         }
 
         private static long GetDirectoryHash(string directory)
@@ -110,7 +113,8 @@ namespace SongCore.Utilities
         {
             directoryHash = GetDirectoryHash(customLevelPath);
 
-            if (cachedSongHashData.TryGetValue(GetRelativePath(customLevelPath), out var cachedSong) && cachedSong.directoryHash == directoryHash)
+            TryGetRelativePath(customLevelPath, out var relativePath);
+            if (cachedSongHashData.TryGetValue(relativePath, out var cachedSong) && cachedSong.directoryHash == directoryHash)
             {
                 cachedSongHash = cachedSong.songHash;
                 return true;
@@ -177,7 +181,8 @@ namespace SongCore.Utilities
                 .Where(File.Exists);
 
             string hash = CreateSha1FromFilesWithPrependBytes(prependBytes, files);
-            cachedSongHashData[GetRelativePath(customLevelFolderInfo.folderPath)] = new SongHashData(directoryHash, hash);
+            TryGetRelativePath(customLevelFolderInfo.folderPath, out var relativePath);
+            cachedSongHashData[relativePath] = new SongHashData(directoryHash, hash);
             return hash;
         }
 
@@ -197,7 +202,8 @@ namespace SongCore.Utilities
             }).Prepend(audioDataPath).Where(File.Exists);
 
             string hash = CreateSha1FromFilesWithPrependBytes(prependBytes, files);
-            cachedSongHashData[GetRelativePath(customLevelFolderInfo.folderPath)] = new SongHashData(directoryHash, hash);
+            TryGetRelativePath(customLevelFolderInfo.folderPath, out var relativePath);
+            cachedSongHashData[relativePath] = new SongHashData(directoryHash, hash);
             return hash;
         }
 
@@ -212,35 +218,49 @@ namespace SongCore.Utilities
             return path;
         }
 
+        [Obsolete("Moved to TryGetRelativePath.", true)]
         public static string GetRelativePath(string path)
         {
-            string fromPath = IPA.Utilities.UnityGame.InstallPath;
+            TryGetRelativePath(path, out var relativePath);
+            return relativePath;
+        }
 
-            if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
+        public static bool TryGetRelativePath(string path, out string relativePath)
+        {
+            var fromPath = IPA.Utilities.UnityGame.InstallPath;
+
+            if (!fromPath.EndsWith(Path.DirectorySeparatorChar))
             {
                 fromPath += Path.DirectorySeparatorChar;
             }
 
-            if(!path.StartsWith(fromPath, StringComparison.Ordinal)) return path;
+            if (!path.StartsWith(fromPath, StringComparison.Ordinal))
+            {
+                relativePath = path;
+                return false;
+            }
 
-            Uri fromUri = new Uri(fromPath);
-            Uri toUri = new Uri(path);
+            var fromUri = new Uri(fromPath);
+            var toUri = new Uri(path);
 
-            string relativePath = Uri.UnescapeDataString(fromUri.MakeRelativeUri(toUri).ToString());
+            relativePath = Uri.UnescapeDataString(fromUri.MakeRelativeUri(toUri).ToString());
 
             if (!relativePath.StartsWith(".", StringComparison.Ordinal))
             {
                 relativePath = Path.Combine(".", relativePath);
             }
 
-            return relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
+            return true;
         }
+
 
         public static bool IsInInstallPath(string path)
         {
             string fromPath = IPA.Utilities.UnityGame.InstallPath;
 
-            if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
+            if (!fromPath.EndsWith(Path.DirectorySeparatorChar))
             {
                 fromPath += Path.DirectorySeparatorChar;
             }
