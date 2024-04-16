@@ -290,6 +290,8 @@ namespace SongCore
                 CustomLevels.Clear();
                 CustomWIPLevels.Clear();
                 CachedWIPLevels.Clear();
+                LoadedBeatmapSaveData.Clear();
+                LoadedBeatmapLevelsData.Clear();
                 Collections.LevelHashDictionary.Clear();
                 Collections.HashLevelDictionary.Clear();
                 foreach (var folder in SeparateSongFolders)
@@ -739,9 +741,6 @@ namespace SongCore
             {
                 _customLevelLoader._loadedBeatmapLevelsData.TryAdd(levelID, beatmapLevelData);
             }
-
-            LoadedBeatmapSaveData.Clear();
-            LoadedBeatmapLevelsData.Clear();
         }
 
         /// <summary>
