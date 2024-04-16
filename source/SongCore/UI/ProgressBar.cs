@@ -1,17 +1,30 @@
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
+using BeatSaberMarkupLanguage;
 using SongCore.Utilities;
 using TMPro;
+using Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Zenject;
 
 namespace SongCore.UI
 {
     public class ProgressBar : MonoBehaviour
     {
+        private TimeTweeningManager _tweeningManager;
+
+        [Inject]
+        private void Construct(TimeTweeningManager tweeningManager)
+        {
+            _tweeningManager = tweeningManager;
+        }
+
         private Canvas? _canvas;
+        private CanvasGroup? _canvasGroup;
+        private FloatTween? _floatTween;
         private TMP_Text? _pluginNameText;
         private TMP_Text? _headerText;
         private Image? _loadingBackg;
@@ -68,7 +81,41 @@ namespace SongCore.UI
             _headerText.text = message;
             _loadingBar.enabled = showLoadingBar;
             _loadingBackg.enabled = showLoadingBar;
-            _canvas.enabled = true;
+            FadeInOutCanvas(1f);
+        }
+
+        private void FadeInOutCanvas(float endAlpha)
+        {
+            if (_floatTween != null)
+            {
+                FloatTween.Pool.Despawn(_floatTween);
+                _floatTween = null;
+            }
+
+            var startAlpha = _canvasGroup.alpha;
+            _floatTween = FloatTween.Pool.Spawn(startAlpha, endAlpha, alpha =>
+            {
+                _canvasGroup.alpha = alpha;
+            }, 0.25f, EaseType.OutQuad, 0f);
+            _floatTween.onStart = () =>
+            {
+                if (endAlpha == 1f)
+                {
+                    _canvas.enabled = true;
+                }
+            };
+            _floatTween.onCompleted = () =>
+            {
+                if (endAlpha == 0f)
+                {
+                    _canvas.enabled = false;
+                }
+
+                FloatTween.Pool.Despawn(_floatTween);
+                _floatTween = null;
+            };
+
+            _tweeningManager.RestartTween(_floatTween, this);
         }
 
         private void OnEnable()
@@ -91,12 +138,13 @@ namespace SongCore.UI
             {
                 if (_showingMessage)
                 {
-                    _canvas.enabled = true;
+                    // TODO: Doesn't seem to work?
+                    FadeInOutCanvas(1f);
                 }
             }
             else
             {
-                _canvas.enabled = false;
+                FadeInOutCanvas(0f);
             }
         }
 
@@ -107,7 +155,7 @@ namespace SongCore.UI
             _headerText.text = _jokeTime ? "Deleting songs..." : HeaderText;
             _loadingBar.enabled = true;
             _loadingBackg.enabled = true;
-            _canvas.enabled = true;
+            FadeInOutCanvas(1f);
         }
 
         private void SongLoaderOnSongsLoadedEvent(Loader loader, ConcurrentDictionary<string, BeatmapLevel> customLevels)
@@ -123,8 +171,8 @@ namespace SongCore.UI
         private IEnumerator DisableCanvasCoroutine(float time)
         {
             yield return new WaitForSecondsRealtime(time);
-            _canvas.enabled = false;
             _showingMessage = false;
+            FadeInOutCanvas(0f);
         }
 
         private void Awake()
@@ -140,11 +188,13 @@ namespace SongCore.UI
             _canvas = gameObject.AddComponent<Canvas>();
             _canvas.renderMode = RenderMode.WorldSpace;
             _canvas.enabled = false;
+            _canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            _canvasGroup.alpha = 0f;
             var rectTransform = _canvas.transform as RectTransform;
             rectTransform.sizeDelta = CanvasSize;
 
             var pluginText = _jokeTime ? "SongCore Cleaner" : PluginNameText;
-            _pluginNameText = BeatSaberMarkupLanguage.BeatSaberUI.CreateText(_canvas.transform as RectTransform, pluginText, PluginNamePosition);
+            _pluginNameText = BeatSaberUI.CreateText(_canvas.transform as RectTransform, pluginText, PluginNamePosition);
             rectTransform = _pluginNameText.transform as RectTransform;
             rectTransform.SetParent(_canvas.transform, false);
             rectTransform.sizeDelta = HeaderSize;
@@ -152,7 +202,7 @@ namespace SongCore.UI
             _pluginNameText.text = pluginText;
             _pluginNameText.fontSize = PluginNameFontSize;
 
-            _headerText = BeatSaberMarkupLanguage.BeatSaberUI.CreateText(_canvas.transform as RectTransform, HeaderText, HeaderPosition);
+            _headerText = BeatSaberUI.CreateText(_canvas.transform as RectTransform, HeaderText, HeaderPosition);
             rectTransform = _headerText.transform as RectTransform;
             rectTransform.SetParent(_canvas.transform, false);
             rectTransform.anchoredPosition = HeaderPosition;
