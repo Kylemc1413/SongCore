@@ -141,7 +141,7 @@ namespace SongCore.Utilities
             return hash;
         }
 
-        [Obsolete("Use the other overloads.", true)]
+        [Obsolete("This overload is deprecated.", true)]
         public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
         {
             var infoFilePath = Path.Combine(customLevelPath, CustomLevelPathHelper.kStandardLevelInfoFilename);
@@ -154,7 +154,7 @@ namespace SongCore.Utilities
             return GetCustomLevelHash(customLevelInfo, level);
         }
 
-        [Obsolete("Use the other overloads.", true)]
+        [Obsolete("This overload is deprecated.", true)]
         public static string GetCustomLevelHash(BeatmapLevelSaveData level, string customLevelPath)
         {
             var infoFilePath = Path.Combine(customLevelPath, CustomLevelPathHelper.kStandardLevelInfoFilename);

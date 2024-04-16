@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -166,7 +166,7 @@ namespace SongCore
                 _loadingTaskCancellationTokenSource.Cancel();
                 AreSongsLoading = false;
                 LoadingProgress = 0;
-                _progressBar.ShowMessage("Loading cancelled\n<size=80%>Press Ctrl+R to refresh</size>");
+                _progressBar.ShowMessage("Loading cancelled\n<size=80%>Press Ctrl+R to refresh</size>", false);
             }
         }
 
@@ -491,11 +491,11 @@ namespace SongCore
 
                     // Load beatmaps in separate song folders (created in folders.xml or by other mods)
                     // Assign beatmaps to their respective pack (custom levels, wip levels, or separate)
+                    UnityMainThreadTaskScheduler.Factory.StartNew(() => _progressBar.ShowMessage($"Loading {SeparateSongFolders.Count} Additional Song folders", true));
                     foreach (var entry in SeparateSongFolders)
                     {
                         try
                         {
-                            UnityMainThreadTaskScheduler.Factory.StartNew(() => _progressBar.ShowMessage($"Loading {SeparateSongFolders.Count} Additional Song folders"));
                             if (!Directory.Exists(entry.SongFolderEntry.Path))
                             {
                                 continue;

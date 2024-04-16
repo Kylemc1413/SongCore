@@ -43,19 +43,31 @@ namespace SongCore.UI
             return new GameObject("Progress Bar").AddComponent<ProgressBar>();
         }
 
+        [Obsolete("This overload is deprecated.", true)]
         public void ShowMessage(string message, float time)
         {
-            ShowMessage(message);
-            StartCoroutine(DisableCanvasRoutine(time));
+            ShowMessage(message, time, false);
         }
 
+        public void ShowMessage(string message, float time, bool showLoadingBar = false)
+        {
+            ShowMessage(message, false);
+            StartCoroutine(DisableCanvasCoroutine(time));
+        }
+
+        [Obsolete("This overload is deprecated.", true)]
         public void ShowMessage(string message)
+        {
+            ShowMessage(message, false);
+        }
+
+        public void ShowMessage(string message, bool showLoadingBar = false)
         {
             StopAllCoroutines();
             _showingMessage = true;
             _headerText.text = message;
-            _loadingBar.enabled = false;
-            _loadingBackg.enabled = false;
+            _loadingBar.enabled = showLoadingBar;
+            _loadingBackg.enabled = showLoadingBar;
             _canvas.enabled = true;
         }
 
@@ -88,7 +100,7 @@ namespace SongCore.UI
             }
         }
 
-        private void SongLoaderOnLoadingStartedEvent(Loader obj)
+        private void SongLoaderOnLoadingStartedEvent(Loader loader)
         {
             StopAllCoroutines();
             _showingMessage = false;
@@ -105,10 +117,10 @@ namespace SongCore.UI
             _headerText.text = $"{customLevels.Count} {(_jokeTime ? $"{songOrSongs} deleted" : $"{songOrSongs} loaded")}";
             _loadingBar.enabled = false;
             _loadingBackg.enabled = false;
-            StartCoroutine(DisableCanvasRoutine(5f));
+            StartCoroutine(DisableCanvasCoroutine(5f));
         }
 
-        private IEnumerator DisableCanvasRoutine(float time)
+        private IEnumerator DisableCanvasCoroutine(float time)
         {
             yield return new WaitForSecondsRealtime(time);
             _canvas.enabled = false;
