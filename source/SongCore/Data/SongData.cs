@@ -131,497 +131,407 @@ namespace SongCore.Data
             _difficulties = difficulties;
         }
 
-        // TODO: Characteristic details for V4.
-        // TODO: Confirm new V4 format.
         internal ExtraSongData(CustomLevelLoader.LoadedSaveData loadedSaveData)
         {
             try
             {
-                JObject info = JObject.Parse(loadedSaveData.customLevelFolderInfo.levelInfoJsonString);
-                List<Contributor> levelContributors = new List<Contributor>();
-                //Check if song uses legacy value for full song One Saber mode
-                if (info.TryGetValueWithOrWithoutLeadingUnderscore("_customData", out var data))
-                {
-                    JObject infoData = (JObject) data;
-                    if (infoData.TryGetValueWithOrWithoutLeadingUnderscore("_contributors", out var contributors))
-                    {
-                        levelContributors.AddRange(contributors.ToObject<Contributor[]>());
-                    }
-
-                    if (infoData.TryGetValueWithOrWithoutLeadingUnderscore("_customEnvironment", out var customEnvironment))
-                    {
-                        _customEnvironmentName = (string) customEnvironment;
-                    }
-
-                    if (infoData.TryGetValueWithOrWithoutLeadingUnderscore("_customEnvironmentHash", out var envHash))
-                    {
-                        _customEnvironmentHash = (string) envHash;
-                    }
-
-                    if (infoData.TryGetValueWithOrWithoutLeadingUnderscore("_defaultCharacteristic", out var defaultChar))
-                    {
-                        _defaultCharacteristic = (string) defaultChar;
-                    }
-
-                    var genreTags = new List<string>();
-                    if (infoData.TryGetValueWithOrWithoutLeadingUnderscore("_genreTags", out var genreTagsObj))
-                    {
-                        genreTags.AddRange(((JArray) genreTagsObj).Select(c => (string) c));
-                    }
-                    _genreTags = genreTags.ToArray();
-                }
-
-                contributors = levelContributors.ToArray();
-
-                var envNames = new List<string>();
-                if (info.TryGetValueWithOrWithoutLeadingUnderscore("_environmentNames", out var environmentNames))
-                {
-                    envNames.AddRange(((JArray) environmentNames).Select(c => (string) c));
-                }
-                _environmentNames = envNames.ToArray();
-
-
-                List<ColorScheme> colorSchemeList = new List<ColorScheme>();
-                if (info.TryGetValueWithOrWithoutLeadingUnderscore("_colorSchemes", out var colorSchemes)) //I DO NOT TRUST THAT PEOPLE DO THIS PROPERLY
-                {
-                    JArray colorSchemeListData = (JArray) colorSchemes;
-                    foreach (var colorSchemeItem in colorSchemeListData)
-                    {
-                        JObject colorSchemeItemData = (JObject) colorSchemeItem;
-                        bool _useOverride = false;
-                        string _colorSchemeId = "SongCoreDefaultID";
-                        MapColor? _saberAColor = null;
-                        MapColor? _saberBColor = null;
-                        MapColor? _environmentColor0 = null;
-                        MapColor? _environmentColor1 = null;
-                        MapColor? _obstaclesColor = null;
-                        MapColor? _environmentColor0Boost = null;
-                        MapColor? _environmentColor1Boost = null;
-                        MapColor? _environmentColorW = null;
-                        MapColor? _environmentColorWBoost = null;
-                        if (colorSchemeItemData.TryGetValue("useOverride", out var useOverrideVal))
-                        {
-                            _useOverride = (bool) useOverrideVal;
-                        }
-
-                        if (colorSchemeItemData.TryGetValue("colorScheme", out var colorScheme))
-                        {
-                            JObject colorSchemeData = (JObject) colorScheme;
-
-                            if (colorSchemeData.TryGetValue("colorSchemeId", out var colorSchemeIdVal))
-                            {
-                                _colorSchemeId = (string) colorSchemeIdVal;
-                            }
-
-                            _saberAColor = GetMapColorFromJObject(colorSchemeData, "saberAColor");
-                            _saberBColor = GetMapColorFromJObject(colorSchemeData, "saberBColor");
-                            _environmentColor0 = GetMapColorFromJObject(colorSchemeData, "environmentColor0");
-                            _environmentColor1 = GetMapColorFromJObject(colorSchemeData, "environmentColor1");
-                            _obstaclesColor = GetMapColorFromJObject(colorSchemeData, "obstaclesColor");
-                            _environmentColor0Boost = GetMapColorFromJObject(colorSchemeData, "environmentColor0Boost");
-                            _environmentColor1Boost = GetMapColorFromJObject(colorSchemeData, "environmentColor1Boost");
-                            _environmentColorW = GetMapColorFromJObject(colorSchemeData, "environmentColorW");
-                            _environmentColorWBoost = GetMapColorFromJObject(colorSchemeData, "environmentColorWBoost");
-
-                        }
-
-                        colorSchemeList.Add(new ColorScheme
-                        {
-                            useOverride = _useOverride,
-                            saberAColor = _saberAColor,
-                            saberBColor = _saberBColor,
-                            environmentColor0 = _environmentColor0,
-                            environmentColor1 = _environmentColor1,
-                            obstaclesColor = _obstaclesColor,
-                            environmentColor0Boost = _environmentColor0Boost,
-                            environmentColor1Boost = _environmentColor1Boost,
-                            environmentColorW = _environmentColorW,
-                            environmentColorWBoost = _environmentColorWBoost
-                        });
-
-                    }
-                }
-
-                _colorSchemes = colorSchemeList.ToArray();
-
-
-                var diffData = new List<DifficultyData>();
-                List<CharacteristicDetails> characteristicsDetails = new List<CharacteristicDetails>();
-
+                var levelInfo = JObject.Parse(loadedSaveData.customLevelFolderInfo.levelInfoJsonString);
                 if (loadedSaveData.standardLevelInfoSaveData != null)
                 {
-                    var diffSets = (JArray) info["_difficultyBeatmapSets"];
-                    foreach (var diffSet in diffSets)
+                    var difficultyData = new List<DifficultyData>();
+                    var characteristicsDetails = new List<CharacteristicDetails>();
+
+                    if (levelInfo.TryGetValue("_customData", out var customDataToken))
                     {
-                        var setCharacteristic = (string) diffSet["_beatmapCharacteristicName"];
-                        JArray diffBeatmaps = (JArray) diffSet["_difficultyBeatmaps"];
-                        JObject diffBeatmapSetObj = (JObject) diffSet;
+                        var customData = (JObject)customDataToken;
+                        contributors = customData.TryGetValue("_contributors", out var contributorsToken)
+                            ? contributorsToken.ToObject<Contributor[]>()
+                            : Array.Empty<Contributor>();
+                        _genreTags = customData.TryGetValue("_genreTags", out var genreTagsToken)
+                            ? genreTagsToken.ToObject<string[]>()
+                            : Array.Empty<string>();
+                        _customEnvironmentName = customData.Value<string>("_customEnvironment");
+                        _customEnvironmentHash = customData.Value<string>("_customEnvironmentHash");
+                        _defaultCharacteristic = customData.Value<string>("_defaultCharacteristic");
+                    }
+                    else
+                    {
+                        contributors = Array.Empty<Contributor>();
+                    }
 
+                    _environmentNames = levelInfo.TryGetValue("_environmentNames", out var environmentNamesToken)
+                        ? environmentNamesToken.ToObject<string[]>()
+                        : Array.Empty<string>();
 
-                        if (diffBeatmapSetObj.TryGetValue("_customData", out var characteristicCustom))
+                    if (levelInfo.TryGetValue("_colorSchemes", out var colorSchemesToken))
+                    {
+                        _colorSchemes = colorSchemesToken.Select(c =>
                         {
-                            JObject characteristicCustomObj = (JObject) characteristicCustom;
-
-                            string? characteristicLabel = null;
-                            string? characteristicIconFilePath = null;
-
-                            if (characteristicCustomObj.TryGetValue("_characteristicLabel", out var characteristicLabelObj))
+                            var colorSchemeSaveData = (JObject)c;
+                            if (!colorSchemeSaveData.TryGetValue("colorScheme", out var colorSchemeToken))
                             {
-                                characteristicLabel = (string) characteristicLabelObj;
+                                return null;
                             }
 
-                            if (characteristicCustomObj.TryGetValue("_characteristicIconImageFilename", out var characteristicIconImageFilenameObj))
+                            var colorScheme = (JObject)colorSchemeToken;
+                            var useOverride = colorSchemeSaveData.Value<bool>("useOverride");
+                            return new ColorScheme
                             {
-                                characteristicIconFilePath = (string) characteristicIconImageFilenameObj;
-                            }
+                                useOverride = useOverride,
+                                // colorSchemeId = colorScheme.Value<string>("colorSchemeId") ?? "SongCoreDefaultID",
+                                saberAColor = GetMapColorFromJObject(colorScheme, "saberAColor"),
+                                saberBColor = GetMapColorFromJObject(colorScheme, "saberBColor"),
+                                environmentColor0 = GetMapColorFromJObject(colorScheme, "environmentColor0"),
+                                environmentColor1 = GetMapColorFromJObject(colorScheme, "environmentColor1"),
+                                obstaclesColor = GetMapColorFromJObject(colorScheme, "obstaclesColor"),
+                                environmentColor0Boost = GetMapColorFromJObject(colorScheme, "environmentColor0Boost"),
+                                environmentColor1Boost = GetMapColorFromJObject(colorScheme, "environmentColor1Boost"),
+                                environmentColorW = GetMapColorFromJObject(colorScheme, "environmentColorW"),
+                                environmentColorWBoost = GetMapColorFromJObject(colorScheme, "environmentColorWBoost")
+                            };
+                        }).Where(c => c is not null).ToArray()!;
+                    }
+                    else
+                    {
+                        _colorSchemes = Array.Empty<ColorScheme>();
+                    }
 
+                    var difficultyBeatmapSets = (JArray)levelInfo["_difficultyBeatmapSets"];
+                    foreach (var difficultyBeatmapSetToken in difficultyBeatmapSets)
+                    {
+                        var beatmapCharacteristicName = (string)difficultyBeatmapSetToken["_beatmapCharacteristicName"];
+                        var difficultyBeatmapSet = (JObject)difficultyBeatmapSetToken;
+                        var difficultyBeatmaps = (JArray)difficultyBeatmapSetToken["_difficultyBeatmaps"];
+
+                        if (difficultyBeatmapSet.TryGetValue("_customData", out var customCharacteristicDataToken))
+                        {
+                            var customData = (JObject)customCharacteristicDataToken;
                             characteristicsDetails.Add(new CharacteristicDetails
                             {
-                                _characteristicLabel = characteristicLabel,
-                                _beatmapCharacteristicName = setCharacteristic,
-                                _characteristicIconFilePath = characteristicIconFilePath
+                                _beatmapCharacteristicName = beatmapCharacteristicName,
+                                _characteristicLabel = customData.Value<string>("_characteristicLabel"),
+                                _characteristicIconFilePath = customData.Value<string>("_characteristicIconImageFilename")
                             });
-
                         }
 
-                        foreach (JObject diffBeatmap in diffBeatmaps)
+                        foreach (var difficultyBeatmapToken in difficultyBeatmaps)
                         {
-                            var diffRequirements = new List<string>();
-                            var diffSuggestions = new List<string>();
-                            var diffWarnings = new List<string>();
-                            var diffInfo = new List<string>();
-                            var diffLabel = "";
-                            MapColor? diffLeft = null;
-                            MapColor? diffRight = null;
-                            MapColor? diffEnvLeft = null;
-                            MapColor? diffEnvRight = null;
-                            MapColor? diffEnvWhite = null;
-                            MapColor? diffEnvLeftBoost = null;
-                            MapColor? diffEnvRightBoost = null;
-                            MapColor? diffEnvWhiteBoost = null;
-                            MapColor? diffObstacle = null;
-                            int? beatmapColorSchemeIdx = null;
-                            int? environmentNameIdx = null;
+                            var difficultyBeatmap = (JObject)difficultyBeatmapToken;
+
+                            string[]? requirements = null;
+                            string[]? suggestions = null;
+                            string[]? warnings = null;
+                            string[]? information = null;
+                            string? difficultyLabel = null;
+                            MapColor? colorLeft = null;
+                            MapColor? colorRight = null;
+                            MapColor? envColorLeft = null;
+                            MapColor? envColorRight = null;
+                            MapColor? envColorWhite = null;
+                            MapColor? envColorLeftBoost = null;
+                            MapColor? envColorRightBoost = null;
+                            MapColor? envColorWhiteBoost = null;
+                            MapColor? obstacleColor = null;
                             bool? oneSaber = null;
                             bool? showRotationNoteSpawnLines = null;
-                            var styleTags = new List<string>();
+                            string[]? styleTags = null;
 
-                            var diffDifficulty = Utils.ToEnum((string) diffBeatmap["_difficulty"], BeatmapDifficulty.Normal);
-
-                            if (diffBeatmap.TryGetValue("_beatmapColorSchemeIdx", out var beatmapColorSchemeIdxVal))
-                            {
-                                beatmapColorSchemeIdx = (int) beatmapColorSchemeIdxVal;
-                            }
-
-                            if (diffBeatmap.TryGetValue("_environmentNameIdx", out var environmentNameIdxVal))
-                            {
-                                environmentNameIdx = (int) environmentNameIdxVal;
-                            }
-
-
-                            bool useSongCoreColours = true;
+                            var difficulty = Utils.ToEnum((string)difficultyBeatmap["_difficulty"], BeatmapDifficulty.Normal);
+                            var beatmapColorSchemeIdx = difficultyBeatmap.Value<int?>("_beatmapColorSchemeIdx");
+                            var environmentNameIdx = difficultyBeatmap.Value<int?>("_environmentNameIdx");
+                            bool useSongCoreColors = true;
 
                             if (beatmapColorSchemeIdx != null)
                             {
                                 var colorScheme = _colorSchemes.ElementAtOrDefault(beatmapColorSchemeIdx.Value);
-                                if (colorScheme != null)
+                                if (colorScheme is { useOverride: true })
                                 {
-                                    if (colorScheme.useOverride)
-                                    {
-                                        useSongCoreColours = false;
-                                        diffLeft = colorScheme.saberAColor;
-                                        diffRight = colorScheme.saberBColor;
-                                        diffEnvLeft = colorScheme.environmentColor0;
-                                        diffEnvRight = colorScheme.environmentColor1;
-                                        diffEnvWhite = colorScheme.environmentColorW;
-                                        diffEnvLeftBoost = colorScheme.environmentColor0Boost;
-                                        diffEnvRightBoost = colorScheme.environmentColor1Boost;
-                                        diffEnvWhiteBoost = colorScheme.environmentColorWBoost;
-                                        diffObstacle = colorScheme.obstaclesColor;
-                                    }
+                                    useSongCoreColors = false;
+                                    colorLeft = colorScheme.saberAColor;
+                                    colorRight = colorScheme.saberBColor;
+                                    envColorLeft = colorScheme.environmentColor0;
+                                    envColorRight = colorScheme.environmentColor1;
+                                    envColorWhite = colorScheme.environmentColorW;
+                                    envColorLeftBoost = colorScheme.environmentColor0Boost;
+                                    envColorRightBoost = colorScheme.environmentColor1Boost;
+                                    envColorWhiteBoost = colorScheme.environmentColorWBoost;
+                                    obstacleColor = colorScheme.obstaclesColor;
                                 }
                             }
 
-                            if (diffBeatmap.TryGetValue("_customData", out var customData))
+                            if (difficultyBeatmap.TryGetValue("_customData", out var customDifficultyDataToken))
                             {
-                                JObject beatmapData = (JObject) customData;
-                                if (info.TryGetValue("_styleTags", out var tagObj))
+                                var customData = (JObject)customDifficultyDataToken;
+
+                                styleTags = levelInfo.TryGetValue("_styleTags", out var styleTagsToken)
+                                    ? styleTagsToken.ToObject<string[]>()
+                                    : Array.Empty<string>();
+                                requirements = levelInfo.TryGetValue("_requirements", out var requirementsToken)
+                                    ? requirementsToken.ToObject<string[]>()
+                                    : Array.Empty<string>();
+                                suggestions = levelInfo.TryGetValue("_suggestions", out var suggestionsToken)
+                                    ? suggestionsToken.ToObject<string[]>()
+                                    : Array.Empty<string>();
+                                warnings = levelInfo.TryGetValue("_warnings", out var warningsToken)
+                                    ? warningsToken.ToObject<string[]>()
+                                    : Array.Empty<string>();
+                                information = levelInfo.TryGetValue("_information", out var informationToken)
+                                    ? informationToken.ToObject<string[]>()
+                                    : Array.Empty<string>();
+                                difficultyLabel = customData.Value<string>("_difficultyLabel");
+                                oneSaber = customData.Value<bool?>("_oneSaber");
+                                showRotationNoteSpawnLines = customData.Value<bool?>("_showRotationNoteSpawnLines");
+
+                                if (useSongCoreColors)
                                 {
-                                    styleTags.AddRange(((JArray) tagObj).Select(c => (string) c));
+                                    colorLeft = GetMapColorFromJObject(customData, "_colorLeft");
+                                    colorRight = GetMapColorFromJObject(customData, "_colorRight");
+                                    envColorLeft = GetMapColorFromJObject(customData, "_envColorLeft");
+                                    envColorRight = GetMapColorFromJObject(customData, "_envColorRight");
+                                    envColorWhite = GetMapColorFromJObject(customData, "_envColorWhite");
+                                    envColorLeftBoost = GetMapColorFromJObject(customData, "_envColorLeftBoost");
+                                    envColorRightBoost = GetMapColorFromJObject(customData, "_envColorRightBoost");
+                                    envColorWhiteBoost = GetMapColorFromJObject(customData, "_envColorWhiteBoost");
+                                    obstacleColor = GetMapColorFromJObject(customData, "_obstacleColor");
                                 }
-
-                                if (beatmapData.TryGetValue("_difficultyLabel", out var difficultyLabel))
-                                {
-                                    diffLabel = (string) difficultyLabel;
-                                }
-
-                                if (useSongCoreColours)
-                                {
-                                    //Get difficulty json fields
-
-                                    diffLeft = GetMapColorFromJObject(beatmapData, "_colorLeft");
-                                    diffRight = GetMapColorFromJObject(beatmapData, "_colorRight");
-                                    diffEnvLeft = GetMapColorFromJObject(beatmapData, "_envColorLeft");
-                                    diffEnvRight = GetMapColorFromJObject(beatmapData, "_envColorRight");
-                                    diffEnvWhite = GetMapColorFromJObject(beatmapData, "_envColorWhite");
-                                    diffEnvLeftBoost = GetMapColorFromJObject(beatmapData, "_envColorLeftBoost");
-                                    diffEnvRightBoost = GetMapColorFromJObject(beatmapData, "_envColorRightBoost");
-                                    diffEnvWhiteBoost = GetMapColorFromJObject(beatmapData, "_envColorWhiteBoost");
-                                    diffObstacle = GetMapColorFromJObject(beatmapData, "_obstacleColor");
-
-                                }
-
-                                if (beatmapData.TryGetValue("_warnings", out var warnings))
-                                {
-                                    diffWarnings.AddRange(((JArray) warnings).Select(c => (string) c));
-                                }
-
-                                if (beatmapData.TryGetValue("_information", out var information))
-                                {
-                                    diffInfo.AddRange(((JArray) information).Select(c => (string) c));
-                                }
-
-                                if (beatmapData.TryGetValue("_suggestions", out var suggestions))
-                                {
-                                    diffSuggestions.AddRange(((JArray) suggestions).Select(c => (string) c));
-                                }
-
-                                if (beatmapData.TryGetValue("_requirements", out var requirements))
-                                {
-                                    diffRequirements.AddRange(((JArray) requirements).Select(c => (string) c));
-                                }
-
-                                if (beatmapData.TryGetValue("_oneSaber", out var oneSaberObj))
-                                {
-                                    oneSaber = (bool) oneSaberObj;
-                                }
-
-                                if (beatmapData.TryGetValue("_showRotationNoteSpawnLines", out var showRotationNoteSpawnLinesObj))
-                                {
-                                    showRotationNoteSpawnLines = (bool) showRotationNoteSpawnLinesObj;
-                                }
-
                             }
 
-                            RequirementData diffReqData = new RequirementData
+                            var requirementData = new RequirementData
                             {
-                                _requirements = diffRequirements.ToArray(),
-                                _suggestions = diffSuggestions.ToArray(),
-                                _information = diffInfo.ToArray(),
-                                _warnings = diffWarnings.ToArray()
+                                _requirements = requirements ?? Array.Empty<string>(),
+                                _suggestions = suggestions ?? Array.Empty<string>(),
+                                _information = information ?? Array.Empty<string>(),
+                                _warnings = warnings ?? Array.Empty<string>()
                             };
 
-                            diffData.Add(new DifficultyData
+                            difficultyData.Add(new DifficultyData
                             {
-                                _beatmapCharacteristicName = setCharacteristic,
-                                _difficulty = diffDifficulty,
-                                _difficultyLabel = diffLabel,
-                                additionalDifficultyData = diffReqData,
-                                _colorLeft = diffLeft,
-                                _colorRight = diffRight,
-                                _envColorLeft = diffEnvLeft,
-                                _envColorRight = diffEnvRight,
-                                _envColorWhite = diffEnvWhite,
-                                _envColorLeftBoost = diffEnvLeftBoost,
-                                _envColorRightBoost = diffEnvRightBoost,
-                                _envColorWhiteBoost = diffEnvWhiteBoost,
-                                _obstacleColor = diffObstacle,
+                                _beatmapCharacteristicName = beatmapCharacteristicName,
+                                _difficulty = difficulty,
+                                _difficultyLabel = difficultyLabel ?? string.Empty,
+                                additionalDifficultyData = requirementData,
+                                _colorLeft = colorLeft,
+                                _colorRight = colorRight,
+                                _envColorLeft = envColorLeft,
+                                _envColorRight = envColorRight,
+                                _envColorWhite = envColorWhite,
+                                _envColorLeftBoost = envColorLeftBoost,
+                                _envColorRightBoost = envColorRightBoost,
+                                _envColorWhiteBoost = envColorWhiteBoost,
+                                _obstacleColor = obstacleColor,
                                 _beatmapColorSchemeIdx = beatmapColorSchemeIdx,
                                 _environmentNameIdx = environmentNameIdx,
                                 _oneSaber = oneSaber,
                                 _showRotationNoteSpawnLines = showRotationNoteSpawnLines,
-                                _styleTags = styleTags.ToArray()
+                                _styleTags = styleTags ?? Array.Empty<string>()
                             });
                         }
                     }
+
+                    _difficulties = difficultyData.ToArray();
+                    _characteristicDetails = characteristicsDetails.ToArray();
                 }
                 else if (loadedSaveData.beatmapLevelSaveData != null)
                 {
-                    // var setCharacteristic = (string) diffSet["_beatmapCharacteristicName"];
-                    JArray diffBeatmaps = (JArray) info["difficultyBeatmaps"];
-                    // JObject diffBeatmapSetObj = (JObject) diffSet;
+                    var difficultyData = new List<DifficultyData>();
 
-
-                    // if (diffBeatmapSetObj.TryGetValueWithOrWithoutLeadingUnderscore("_customData", out var characteristicCustom))
-                    // {
-                    //     JObject characteristicCustomObj = (JObject) characteristicCustom;
-                    //
-                    //     string? characteristicLabel = null;
-                    //     string? characteristicIconFilePath = null;
-                    //
-                    //     if (characteristicCustomObj.TryGetValueWithOrWithoutLeadingUnderscore("_characteristicLabel", out var characteristicLabelObj))
-                    //     {
-                    //         characteristicLabel = (string) characteristicLabelObj;
-                    //     }
-                    //
-                    //     if (characteristicCustomObj.TryGetValueWithOrWithoutLeadingUnderscore("_characteristicIconImageFilename", out var characteristicIconImageFilenameObj))
-                    //     {
-                    //         characteristicIconFilePath = (string) characteristicIconImageFilenameObj;
-                    //     }
-                    //
-                    //     characteristicsDetails.Add(new CharacteristicDetails
-                    //     {
-                    //         _characteristicLabel = characteristicLabel,
-                    //         _beatmapCharacteristicName = setCharacteristic,
-                    //         _characteristicIconFilePath = characteristicIconFilePath
-                    //     });
-                    //
-                    // }
-
-                    foreach (JObject diffBeatmap in diffBeatmaps)
+                    if (levelInfo.TryGetValue("customData", out var customDataToken))
                     {
-                        var diffRequirements = new List<string>();
-                        var diffSuggestions = new List<string>();
-                        var diffWarnings = new List<string>();
-                        var diffInfo = new List<string>();
-                        var diffLabel = "";
-                        MapColor? diffLeft = null;
-                        MapColor? diffRight = null;
-                        MapColor? diffEnvLeft = null;
-                        MapColor? diffEnvRight = null;
-                        MapColor? diffEnvWhite = null;
-                        MapColor? diffEnvLeftBoost = null;
-                        MapColor? diffEnvRightBoost = null;
-                        MapColor? diffEnvWhiteBoost = null;
-                        MapColor? diffObstacle = null;
-                        int? beatmapColorSchemeIdx = null;
-                        int? environmentNameIdx = null;
+                        var customData = (JObject)customDataToken;
+                        contributors = customData.TryGetValue("contributors", out var contributorsToken)
+                            ? contributorsToken
+                                .Select(contributor => new Contributor
+                                {
+                                    _role = contributor.Value<string>("role"),
+                                    _name = contributor.Value<string>("name"),
+                                    _iconPath = contributor.Value<string>("iconPath")
+                                })
+                                .ToArray()
+                            : Array.Empty<Contributor>();
+                        _genreTags = customData.TryGetValue("genreTags", out var genreTagsToken)
+                            ? genreTagsToken.ToObject<string[]>()
+                            : Array.Empty<string>();
+                        _customEnvironmentName = customData.Value<string>("customEnvironment");
+                        _customEnvironmentHash = customData.Value<string>("customEnvironmentHash");
+                        _defaultCharacteristic = customData.Value<string>("defaultCharacteristic");
+
+                        if (customData.TryGetValue("characteristicData", out var characteristicDataToken))
+                        {
+                            var characteristicData = (JArray)characteristicDataToken;
+                            _characteristicDetails = characteristicData
+                                    .Select(characteristic => new CharacteristicDetails
+                                    {
+                                        _beatmapCharacteristicName = characteristic.Value<string>("characteristic"),
+                                        _characteristicLabel = characteristic.Value<string>("label"),
+                                        _characteristicIconFilePath = characteristic.Value<string>("iconPath")
+                                    })
+                                .ToArray();
+                        }
+                    }
+                    else
+                    {
+                        contributors = Array.Empty<Contributor>();
+                        _characteristicDetails = Array.Empty<CharacteristicDetails>();
+                    }
+
+                    _environmentNames = levelInfo.TryGetValue("environmentNames", out var environmentNamesToken)
+                        ? environmentNamesToken.ToObject<string[]>()
+                        : Array.Empty<string>();
+
+                    if (levelInfo.TryGetValue("colorSchemes", out var colorSchemesToken))
+                    {
+                        _colorSchemes = colorSchemesToken.Select(c =>
+                        {
+                            var colorSchemeSaveData = (JObject)c;
+                            if (!colorSchemeSaveData.TryGetValue("colorScheme", out var colorSchemeToken))
+                            {
+                                return null;
+                            }
+
+                            var colorScheme = (JObject)colorSchemeToken;
+                            var useOverride = colorSchemeSaveData.Value<bool>("useOverride");
+                            return new ColorScheme
+                            {
+                                useOverride = useOverride,
+                                // colorSchemeId = colorScheme.Value<string>("colorSchemeId") ?? "SongCoreDefaultID",
+                                saberAColor = GetMapColorFromJObject(colorScheme, "saberAColor"),
+                                saberBColor = GetMapColorFromJObject(colorScheme, "saberBColor"),
+                                environmentColor0 = GetMapColorFromJObject(colorScheme, "environmentColor0"),
+                                environmentColor1 = GetMapColorFromJObject(colorScheme, "environmentColor1"),
+                                obstaclesColor = GetMapColorFromJObject(colorScheme, "obstaclesColor"),
+                                environmentColor0Boost = GetMapColorFromJObject(colorScheme, "environmentColor0Boost"),
+                                environmentColor1Boost = GetMapColorFromJObject(colorScheme, "environmentColor1Boost"),
+                                environmentColorW = GetMapColorFromJObject(colorScheme, "environmentColorW"),
+                                environmentColorWBoost = GetMapColorFromJObject(colorScheme, "environmentColorWBoost")
+                            };
+                        }).Where(c => c is not null).ToArray()!;
+                    }
+                    else
+                    {
+                        _colorSchemes = Array.Empty<ColorScheme>();
+                    }
+
+                    var difficultyBeatmaps = (JArray)levelInfo["difficultyBeatmaps"];
+                    foreach (var difficultyBeatmapToken in difficultyBeatmaps)
+                    {
+                        var difficultyBeatmap = (JObject)difficultyBeatmapToken;
+                        var beatmapCharacteristicName = (string)difficultyBeatmap["characteristic"];
+
+                        string[]? requirements = null;
+                        string[]? suggestions = null;
+                        string[]? warnings = null;
+                        string[]? information = null;
+                        string? difficultyLabel = null;
+                        MapColor? colorLeft = null;
+                        MapColor? colorRight = null;
+                        MapColor? envColorLeft = null;
+                        MapColor? envColorRight = null;
+                        MapColor? envColorWhite = null;
+                        MapColor? envColorLeftBoost = null;
+                        MapColor? envColorRightBoost = null;
+                        MapColor? envColorWhiteBoost = null;
+                        MapColor? obstacleColor = null;
                         bool? oneSaber = null;
                         bool? showRotationNoteSpawnLines = null;
-                        var styleTags = new List<string>();
+                        string[]? styleTags = null;
 
-                        var diffDifficulty = Utils.ToEnum((string) diffBeatmap["difficulty"], BeatmapDifficulty.Normal);
-                        var diffCharacteristic = (string)diffBeatmap["characteristic"];
-
-                        if (diffBeatmap.TryGetValue("beatmapColorSchemeIdx", out var beatmapColorSchemeIdxVal))
-                        {
-                            beatmapColorSchemeIdx = (int) beatmapColorSchemeIdxVal;
-                        }
-
-                        if (diffBeatmap.TryGetValue("environmentNameIdx", out var environmentNameIdxVal))
-                        {
-                            environmentNameIdx = (int) environmentNameIdxVal;
-                        }
-
-
-                        bool useSongCoreColours = true;
+                        var difficulty = Utils.ToEnum((string)difficultyBeatmap["difficulty"], BeatmapDifficulty.Normal);
+                        var beatmapColorSchemeIdx = difficultyBeatmap.Value<int?>("beatmapColorSchemeIdx");
+                        var environmentNameIdx = difficultyBeatmap.Value<int?>("environmentNameIdx");
+                        bool useSongCoreColors = true;
 
                         if (beatmapColorSchemeIdx != null)
                         {
                             var colorScheme = _colorSchemes.ElementAtOrDefault(beatmapColorSchemeIdx.Value);
-                            if (colorScheme != null)
+                            if (colorScheme is { useOverride: true })
                             {
-                                if (colorScheme.useOverride)
-                                {
-                                    useSongCoreColours = false;
-                                    diffLeft = colorScheme.saberAColor;
-                                    diffRight = colorScheme.saberBColor;
-                                    diffEnvLeft = colorScheme.environmentColor0;
-                                    diffEnvRight = colorScheme.environmentColor1;
-                                    diffEnvWhite = colorScheme.environmentColorW;
-                                    diffEnvLeftBoost = colorScheme.environmentColor0Boost;
-                                    diffEnvRightBoost = colorScheme.environmentColor1Boost;
-                                    diffEnvWhiteBoost = colorScheme.environmentColorWBoost;
-                                    diffObstacle = colorScheme.obstaclesColor;
-                                }
+                                useSongCoreColors = false;
+                                colorLeft = colorScheme.saberAColor;
+                                colorRight = colorScheme.saberBColor;
+                                envColorLeft = colorScheme.environmentColor0;
+                                envColorRight = colorScheme.environmentColor1;
+                                envColorWhite = colorScheme.environmentColorW;
+                                envColorLeftBoost = colorScheme.environmentColor0Boost;
+                                envColorRightBoost = colorScheme.environmentColor1Boost;
+                                envColorWhiteBoost = colorScheme.environmentColorWBoost;
+                                obstacleColor = colorScheme.obstaclesColor;
                             }
                         }
 
-                        if (diffBeatmap.TryGetValue("customData", out var customData))
+                        if (difficultyBeatmap.TryGetValue("customData", out var customDifficultyDataToken))
                         {
-                            JObject beatmapData = (JObject) customData;
-                            if (info.TryGetValue("styleTags", out var tagObj))
+                            var customData = (JObject)customDifficultyDataToken;
+
+                            styleTags = levelInfo.TryGetValue("styleTags", out var styleTagsToken)
+                                ? styleTagsToken.ToObject<string[]>()
+                                : Array.Empty<string>();
+                            requirements = levelInfo.TryGetValue("requirements", out var requirementsToken)
+                                ? requirementsToken.ToObject<string[]>()
+                                : Array.Empty<string>();
+                            suggestions = levelInfo.TryGetValue("suggestions", out var suggestionsToken)
+                                ? suggestionsToken.ToObject<string[]>()
+                                : Array.Empty<string>();
+                            warnings = levelInfo.TryGetValue("warnings", out var warningsToken)
+                                ? warningsToken.ToObject<string[]>()
+                                : Array.Empty<string>();
+                            information = levelInfo.TryGetValue("information", out var informationToken)
+                                ? informationToken.ToObject<string[]>()
+                                : Array.Empty<string>();
+                            difficultyLabel = customData.Value<string>("difficultyLabel");
+                            oneSaber = customData.Value<bool?>("oneSaber");
+                            showRotationNoteSpawnLines = customData.Value<bool?>("showRotationNoteSpawnLines");
+
+                            if (useSongCoreColors)
                             {
-                                styleTags.AddRange(((JArray) tagObj).Select(c => (string) c));
+                                colorLeft = GetMapColorFromJObject(customData, "colorLeft");
+                                colorRight = GetMapColorFromJObject(customData, "colorRight");
+                                envColorLeft = GetMapColorFromJObject(customData, "envColorLeft");
+                                envColorRight = GetMapColorFromJObject(customData, "envColorRight");
+                                envColorWhite = GetMapColorFromJObject(customData, "envColorWhite");
+                                envColorLeftBoost = GetMapColorFromJObject(customData, "envColorLeftBoost");
+                                envColorRightBoost = GetMapColorFromJObject(customData, "envColorRightBoost");
+                                envColorWhiteBoost = GetMapColorFromJObject(customData, "envColorWhiteBoost");
+                                obstacleColor = GetMapColorFromJObject(customData, "obstacleColor");
                             }
-
-                            if (beatmapData.TryGetValue("difficultyLabel", out var difficultyLabel))
-                            {
-                                diffLabel = (string) difficultyLabel;
-                            }
-
-                            if (useSongCoreColours)
-                            {
-                                //Get difficulty json fields
-
-                                diffLeft = GetMapColorFromJObject(beatmapData, "colorLeft");
-                                diffRight = GetMapColorFromJObject(beatmapData, "colorRight");
-                                diffEnvLeft = GetMapColorFromJObject(beatmapData, "envColorLeft");
-                                diffEnvRight = GetMapColorFromJObject(beatmapData, "envColorRight");
-                                diffEnvWhite = GetMapColorFromJObject(beatmapData, "envColorWhite");
-                                diffEnvLeftBoost = GetMapColorFromJObject(beatmapData, "envColorLeftBoost");
-                                diffEnvRightBoost = GetMapColorFromJObject(beatmapData, "envColorRightBoost");
-                                diffEnvWhiteBoost = GetMapColorFromJObject(beatmapData, "envColorWhiteBoost");
-                                diffObstacle = GetMapColorFromJObject(beatmapData, "obstacleColor");
-
-                            }
-
-                            if (beatmapData.TryGetValue("warnings", out var warnings))
-                            {
-                                diffWarnings.AddRange(((JArray) warnings).Select(c => (string) c));
-                            }
-
-                            if (beatmapData.TryGetValue("information", out var information))
-                            {
-                                diffInfo.AddRange(((JArray) information).Select(c => (string) c));
-                            }
-
-                            if (beatmapData.TryGetValue("suggestions", out var suggestions))
-                            {
-                                diffSuggestions.AddRange(((JArray) suggestions).Select(c => (string) c));
-                            }
-
-                            if (beatmapData.TryGetValue("requirements", out var requirements))
-                            {
-                                diffRequirements.AddRange(((JArray) requirements).Select(c => (string) c));
-                            }
-
-                            if (beatmapData.TryGetValue("oneSaber", out var oneSaberObj))
-                            {
-                                oneSaber = (bool) oneSaberObj;
-                            }
-
-                            if (beatmapData.TryGetValue("showRotationNoteSpawnLines", out var showRotationNoteSpawnLinesObj))
-                            {
-                                showRotationNoteSpawnLines = (bool) showRotationNoteSpawnLinesObj;
-                            }
-
                         }
 
-                        RequirementData diffReqData = new RequirementData
+                        var requirementData = new RequirementData
                         {
-                            _requirements = diffRequirements.ToArray(),
-                            _suggestions = diffSuggestions.ToArray(),
-                            _information = diffInfo.ToArray(),
-                            _warnings = diffWarnings.ToArray()
+                            _requirements = requirements ?? Array.Empty<string>(),
+                            _suggestions = suggestions ?? Array.Empty<string>(),
+                            _information = information ?? Array.Empty<string>(),
+                            _warnings = warnings ?? Array.Empty<string>()
                         };
 
-                        diffData.Add(new DifficultyData
+                        difficultyData.Add(new DifficultyData
                         {
-                            _beatmapCharacteristicName = diffCharacteristic,
-                            _difficulty = diffDifficulty,
-                            _difficultyLabel = diffLabel,
-                            additionalDifficultyData = diffReqData,
-                            _colorLeft = diffLeft,
-                            _colorRight = diffRight,
-                            _envColorLeft = diffEnvLeft,
-                            _envColorRight = diffEnvRight,
-                            _envColorWhite = diffEnvWhite,
-                            _envColorLeftBoost = diffEnvLeftBoost,
-                            _envColorRightBoost = diffEnvRightBoost,
-                            _envColorWhiteBoost = diffEnvWhiteBoost,
-                            _obstacleColor = diffObstacle,
+                            _beatmapCharacteristicName = beatmapCharacteristicName,
+                            _difficulty = difficulty,
+                            _difficultyLabel = difficultyLabel ?? string.Empty,
+                            additionalDifficultyData = requirementData,
+                            _colorLeft = colorLeft,
+                            _colorRight = colorRight,
+                            _envColorLeft = envColorLeft,
+                            _envColorRight = envColorRight,
+                            _envColorWhite = envColorWhite,
+                            _envColorLeftBoost = envColorLeftBoost,
+                            _envColorRightBoost = envColorRightBoost,
+                            _envColorWhiteBoost = envColorWhiteBoost,
+                            _obstacleColor = obstacleColor,
                             _beatmapColorSchemeIdx = beatmapColorSchemeIdx,
                             _environmentNameIdx = environmentNameIdx,
                             _oneSaber = oneSaber,
                             _showRotationNoteSpawnLines = showRotationNoteSpawnLines,
-                            _styleTags = styleTags.ToArray()
+                            _styleTags = styleTags ?? Array.Empty<string>()
                         });
                     }
-                }
 
-                _difficulties = diffData.ToArray();
-                _characteristicDetails = characteristicsDetails.ToArray();
+                    _difficulties = difficultyData.ToArray();
+                }
+                else
+                {
+                    throw new InvalidOperationException("Level save data is missing.");
+                }
             }
             catch (Exception ex)
             {
@@ -632,7 +542,7 @@ namespace SongCore.Data
 
         public static MapColor? GetMapColorFromJObject(JObject jObject, string key)
         {
-            if (jObject.TryGetValueWithOrWithoutLeadingUnderscore(key, out var envColorWhiteBoost))
+            if (jObject.TryGetValue(key, out var envColorWhiteBoost))
             {
                 if (envColorWhiteBoost.Children().Count() >= 3)
                 {
@@ -644,14 +554,6 @@ namespace SongCore.Data
                 }
             }
             return null;
-        }
-    }
-
-    internal static class JObjectExtensions
-    {
-        public static bool TryGetValueWithOrWithoutLeadingUnderscore(this JObject jObject, string propertyName, out JToken? value)
-        {
-            return jObject.TryGetValue(propertyName, out value) || jObject.TryGetValue(propertyName.TrimStart('_'), out value);
         }
     }
 }
