@@ -174,7 +174,7 @@ namespace SongCore.Utilities
                 return songHash;
             }
 
-            var prependBytes = BeatmapLevelDataUtils.kUtf8Encoding.GetBytes(customLevelFolderInfo.levelInfoJsonString);
+            var prependBytes = Encoding.UTF8.GetBytes(customLevelFolderInfo.levelInfoJsonString);
             var files = standardLevelInfoSaveData.difficultyBeatmapSets
                 .SelectMany(difficultyBeatmapSet => difficultyBeatmapSet.difficultyBeatmaps)
                 .Select(difficultyBeatmap => Path.Combine(customLevelFolderInfo.folderPath, difficultyBeatmap.beatmapFilename))
