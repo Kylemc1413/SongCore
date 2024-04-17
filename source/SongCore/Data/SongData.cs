@@ -266,16 +266,16 @@ namespace SongCore.Data
                                 styleTags = levelInfo.TryGetValue("_styleTags", out var styleTagsToken)
                                     ? styleTagsToken.ToObject<string[]>()
                                     : Array.Empty<string>();
-                                requirements = levelInfo.TryGetValue("_requirements", out var requirementsToken)
+                                requirements = customData.TryGetValue("_requirements", out var requirementsToken)
                                     ? requirementsToken.ToObject<string[]>()
                                     : Array.Empty<string>();
-                                suggestions = levelInfo.TryGetValue("_suggestions", out var suggestionsToken)
+                                suggestions = customData.TryGetValue("_suggestions", out var suggestionsToken)
                                     ? suggestionsToken.ToObject<string[]>()
                                     : Array.Empty<string>();
-                                warnings = levelInfo.TryGetValue("_warnings", out var warningsToken)
+                                warnings = customData.TryGetValue("_warnings", out var warningsToken)
                                     ? warningsToken.ToObject<string[]>()
                                     : Array.Empty<string>();
-                                information = levelInfo.TryGetValue("_information", out var informationToken)
+                                information = customData.TryGetValue("_information", out var informationToken)
                                     ? informationToken.ToObject<string[]>()
                                     : Array.Empty<string>();
                                 difficultyLabel = customData.Value<string>("_difficultyLabel");
@@ -465,16 +465,16 @@ namespace SongCore.Data
                             styleTags = levelInfo.TryGetValue("styleTags", out var styleTagsToken)
                                 ? styleTagsToken.ToObject<string[]>()
                                 : Array.Empty<string>();
-                            requirements = levelInfo.TryGetValue("requirements", out var requirementsToken)
+                            requirements = customData.TryGetValue("requirements", out var requirementsToken)
                                 ? requirementsToken.ToObject<string[]>()
                                 : Array.Empty<string>();
-                            suggestions = levelInfo.TryGetValue("suggestions", out var suggestionsToken)
+                            suggestions = customData.TryGetValue("suggestions", out var suggestionsToken)
                                 ? suggestionsToken.ToObject<string[]>()
                                 : Array.Empty<string>();
-                            warnings = levelInfo.TryGetValue("warnings", out var warningsToken)
+                            warnings = customData.TryGetValue("warnings", out var warningsToken)
                                 ? warningsToken.ToObject<string[]>()
                                 : Array.Empty<string>();
-                            information = levelInfo.TryGetValue("information", out var informationToken)
+                            information = customData.TryGetValue("information", out var informationToken)
                                 ? informationToken.ToObject<string[]>()
                                 : Array.Empty<string>();
                             difficultyLabel = customData.Value<string>("difficultyLabel");
