@@ -31,7 +31,6 @@ namespace SongCore
         private readonly BeatmapLevelsModel _beatmapLevelsModel;
         private readonly CustomLevelLoader _customLevelLoader;
         private readonly SpriteAsyncLoader _spriteAsyncLoader;
-        private readonly SongPreviewPlayer _songPreviewPlayer;
         private readonly BeatmapCharacteristicCollection _beatmapCharacteristicCollection;
         private readonly ProgressBar _progressBar;
         private readonly BSMLSettings _bsmlSettings;
@@ -42,7 +41,7 @@ namespace SongCore
         private Task? _loadingTask;
         private CancellationTokenSource _loadingTaskCancellationTokenSource = new CancellationTokenSource();
 
-        private Loader(GameScenesManager gameScenesManager, LevelFilteringNavigationController levelFilteringNavigationController, LevelCollectionViewController levelCollectionViewController, LevelPackDetailViewController levelPackDetailViewController, BeatmapLevelsModel beatmapLevelsModel, CustomLevelLoader customLevelLoader, SpriteAsyncLoader spriteAsyncLoader, SongPreviewPlayer songPreviewPlayer, BeatmapCharacteristicCollection beatmapCharacteristicCollection, ProgressBar progressBar, BSMLSettings bsmlSettings)
+        private Loader(GameScenesManager gameScenesManager, LevelFilteringNavigationController levelFilteringNavigationController, LevelCollectionViewController levelCollectionViewController, LevelPackDetailViewController levelPackDetailViewController, BeatmapLevelsModel beatmapLevelsModel, CustomLevelLoader customLevelLoader, SpriteAsyncLoader spriteAsyncLoader, BeatmapCharacteristicCollection beatmapCharacteristicCollection, ProgressBar progressBar, BSMLSettings bsmlSettings)
 
         {
             _gameScenesManager = gameScenesManager;
@@ -52,7 +51,6 @@ namespace SongCore
             _beatmapLevelsModel = beatmapLevelsModel;
             _customLevelLoader = customLevelLoader;
             _spriteAsyncLoader = spriteAsyncLoader;
-            _songPreviewPlayer = songPreviewPlayer;
             _beatmapCharacteristicCollection = beatmapCharacteristicCollection;
             _progressBar = progressBar;
             _bsmlSettings = bsmlSettings;
