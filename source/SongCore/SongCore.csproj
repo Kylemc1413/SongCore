@@ -125,6 +125,10 @@
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="UnityEngine.AudioModule">
+            <HintPath>H:\SteamLibrary\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="UnityEngine.CoreModule">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
             <Private>False</Private>

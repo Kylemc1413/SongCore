@@ -719,17 +719,6 @@ namespace SongCore
 
         private void RefreshLoadedBeatmapData()
         {
-            // BUG: This is to prevent Unity from crashing when it destroys an audio clip that is playing.
-            // See https://issuetracker.unity3d.com/issues/crash-on-purecall-when-repeatedly-creating-playing-stopping-and-deleting-audio for details.
-            var audioSourceVolumeController = _songPreviewPlayer._audioSourceControllers[_songPreviewPlayer._activeChannel];
-            if (audioSourceVolumeController.audioSource.clip != _songPreviewPlayer._defaultAudioClip)
-            {
-                audioSourceVolumeController.volume = 0f;
-                audioSourceVolumeController.audioSource.Stop();
-                audioSourceVolumeController.audioSource.clip = null;
-                _songPreviewPlayer.CrossfadeToDefault();
-            }
-
             _beatmapLevelsModel.ClearLoadedBeatmapLevelsCaches();
 
             foreach (var (levelID, loadedSaveData) in LoadedBeatmapSaveData)
