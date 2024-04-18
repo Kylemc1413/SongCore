@@ -2,10 +2,10 @@
     "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
     "author": "Kyle1413",
     "description": "A plugin for handling custom song additions in Beat Saber.",
-    "gameVersion": "1.35.0",
+    "gameVersion": "1.36.0",
     "id": "SongCore",
     "name": "SongCore",
-    "version": "3.13.0",
+    "version": "3.14.0",
     "dependsOn": {
         "BSIPA": "^4.3.0",
         "BeatSaberMarkupLanguage": "^1.7.6",
