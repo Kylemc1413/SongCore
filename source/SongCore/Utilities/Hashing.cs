@@ -128,14 +128,16 @@ namespace SongCore.Utilities
         {
             var hash = string.Empty;
 
-            var loadedSaveData = Loader.CustomLevelLoader._loadedBeatmapSaveData[level.levelID];
-            if (loadedSaveData.standardLevelInfoSaveData != null)
+            if (Loader.CustomLevelLoader._loadedBeatmapSaveData.TryGetValue(level.levelID, out var loadedSaveData))
             {
-                hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
-            }
-            else if (loadedSaveData.beatmapLevelSaveData != null)
-            {
-                hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
+                if (loadedSaveData.standardLevelInfoSaveData != null)
+                {
+                    hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
+                }
+                else if (loadedSaveData.beatmapLevelSaveData != null)
+                {
+                    hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
+                }
             }
 
             return hash;
