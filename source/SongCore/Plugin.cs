@@ -25,8 +25,11 @@ namespace SongCore
 
         public static Action<bool, string, string, BeatmapLevel>? CustomSongPlatformSelectionDidChange;
 
+        [Obsolete]
         public static string standardCharacteristicName = "Standard";
+        [Obsolete]
         public static string oneSaberCharacteristicName = "OneSaber";
+        [Obsolete]
         public static string noArrowsCharacteristicName = "NoArrows";
 
         [Init]

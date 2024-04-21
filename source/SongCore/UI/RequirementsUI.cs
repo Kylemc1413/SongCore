@@ -18,13 +18,15 @@ namespace SongCore.UI
     public class RequirementsUI : NotifiableBase, IInitializable, IAffinity
     {
         private readonly StandardLevelDetailViewController _standardLevelDetailViewController;
+        private readonly CustomLevelLoader _customLevelLoader;
         private readonly TimeTweeningManager _tweeningManager;
         private readonly BSMLParser _bsmlParser;
         private readonly ColorsUI _colorsUI;
 
-        private RequirementsUI(StandardLevelDetailViewController standardLevelDetailViewController, TimeTweeningManager tweeningManager, BSMLParser bsmlParser, ColorsUI colorsUI)
+        private RequirementsUI(StandardLevelDetailViewController standardLevelDetailViewController, CustomLevelLoader customLevelLoader, TimeTweeningManager tweeningManager, BSMLParser bsmlParser, ColorsUI colorsUI)
         {
             _standardLevelDetailViewController = standardLevelDetailViewController;
+            _customLevelLoader = customLevelLoader;
             _tweeningManager = tweeningManager;
             _bsmlParser = bsmlParser;
             _colorsUI = colorsUI;
@@ -196,10 +198,7 @@ namespace SongCore.UI
                     {
                         if (!string.IsNullOrWhiteSpace(author._iconPath))
                         {
-                            if (Collections.LevelPathDictionary.TryGetValue(beatmapLevel.levelID, out var customLevelPath))
-                            {
-                                author.icon = Utils.LoadSpriteFromFile(Path.Combine(customLevelPath, author._iconPath));
-                            }
+                            author.icon = Utils.LoadSpriteFromFile(Path.Combine(_customLevelLoader._loadedBeatmapSaveData[beatmapLevel.levelID].customLevelFolderInfo.folderPath, author._iconPath));
                             customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon != null ? author.icon : InfoIcon));
                         }
                         else

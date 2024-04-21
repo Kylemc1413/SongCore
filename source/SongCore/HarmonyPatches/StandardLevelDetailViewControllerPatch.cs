@@ -15,6 +15,7 @@ namespace SongCore.HarmonyPatches
     /// in the <see cref="StandardLevelDetailView"/> when the game is loading beatmap levels.
     /// </summary>
     // TODO: Make this use MethodType.Async once supported.
+    // TODO: Do the same for difficulties?
     [HarmonyPatch]
     internal class StandardLevelDetailViewControllerPatch
     {

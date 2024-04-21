@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using BeatmapLevelSaveDataVersion4;
+using Newtonsoft.Json;
 
 namespace SongCore.Utilities
 {
@@ -20,10 +22,10 @@ namespace SongCore.Utilities
         {
             if (File.Exists(cachedHashDataPath))
             {
-                cachedSongHashData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
-                if (cachedSongHashData == null)
+                var songHashData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
+                if (songHashData != null)
                 {
-                    cachedSongHashData = new ConcurrentDictionary<string, SongHashData>();
+                    cachedSongHashData = songHashData;
                 }
 
                 Logging.Logger.Info($"Finished reading cached hashes for {cachedSongHashData.Count} songs!");
@@ -41,26 +43,27 @@ namespace SongCore.Utilities
         /// <param name="currentSongPaths"></param>
         internal static void UpdateCachedHashesInternal(ICollection<string> currentSongPaths)
         {
-            foreach (var hashData in cachedSongHashData.ToArray())
+            foreach (var levelPath in cachedSongHashData.Keys)
             {
-                if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || (GetAbsolutePath(hashData.Key) == hashData.Key && IsInInstallPath(hashData.Key)))
+                var absolutePath = GetAbsolutePath(levelPath);
+                if (!currentSongPaths.Contains(absolutePath) || (absolutePath == levelPath && IsInInstallPath(levelPath)))
                 {
-                    cachedSongHashData.TryRemove(hashData.Key, out _);
+                    cachedSongHashData.TryRemove(levelPath, out _);
                 }
             }
 
             Logging.Logger.Info($"Updating cached hashes for {cachedSongHashData.Count} songs!");
-            File.WriteAllText(cachedHashDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedSongHashData));
+            File.WriteAllText(cachedHashDataPath, JsonConvert.SerializeObject(cachedSongHashData));
         }
 
         public static void ReadCachedAudioData()
         {
             if (File.Exists(cachedAudioDataPath))
             {
-                cachedAudioData = Newtonsoft.Json.JsonConvert.DeserializeObject<ConcurrentDictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
-                if (cachedAudioData == null)
+                var audioData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
+                if (audioData != null)
                 {
-                    cachedAudioData = new ConcurrentDictionary<string, AudioCacheData>();
+                    cachedAudioData = audioData;
                 }
 
                 Logging.Logger.Info($"Finished reading cached Durations for {cachedAudioData.Count} songs!");
@@ -78,16 +81,17 @@ namespace SongCore.Utilities
         /// <param name="currentSongPaths"></param>
         internal static void UpdateCachedAudioDataInternal(ICollection<string> currentSongPaths)
         {
-            foreach (var hashData in cachedAudioData.ToArray())
+            foreach (var levelPath in cachedAudioData.Keys)
             {
-                if (!currentSongPaths.Contains(GetAbsolutePath(hashData.Key)) || (GetAbsolutePath(hashData.Key) == hashData.Key && IsInInstallPath(hashData.Key)))
+                var absolutePath = GetAbsolutePath(levelPath);
+                if (!currentSongPaths.Contains(absolutePath) || (absolutePath == levelPath && IsInInstallPath(levelPath)))
                 {
-                    cachedAudioData.TryRemove(hashData.Key, out _);
+                    cachedAudioData.TryRemove(levelPath, out _);
                 }
             }
 
             Logging.Logger.Info($"Updating cached Map Lengths for {cachedAudioData.Count} songs!");
-            File.WriteAllText(cachedAudioDataPath, Newtonsoft.Json.JsonConvert.SerializeObject(cachedAudioData));
+            File.WriteAllText(cachedAudioDataPath, JsonConvert.SerializeObject(cachedAudioData));
         }
 
         private static long GetDirectoryHash(string directory)
@@ -109,7 +113,8 @@ namespace SongCore.Utilities
         {
             directoryHash = GetDirectoryHash(customLevelPath);
 
-            if (cachedSongHashData.TryGetValue(GetRelativePath(customLevelPath), out var cachedSong) && cachedSong.directoryHash == directoryHash)
+            TryGetRelativePath(customLevelPath, out var relativePath);
+            if (cachedSongHashData.TryGetValue(relativePath, out var cachedSong) && cachedSong.directoryHash == directoryHash)
             {
                 cachedSongHash = cachedSong.songHash;
                 return true;
@@ -121,50 +126,86 @@ namespace SongCore.Utilities
 
         public static string GetCustomLevelHash(BeatmapLevel level)
         {
-            var standardLevelInfoSaveData = Collections.GetStandardLevelInfoSaveData(level.levelID);
-            if (standardLevelInfoSaveData == null)
+            var hash = string.Empty;
+
+            if (Loader.CustomLevelLoader._loadedBeatmapSaveData.TryGetValue(level.levelID, out var loadedSaveData))
             {
-                return string.Empty;
+                if (loadedSaveData.standardLevelInfoSaveData != null)
+                {
+                    hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
+                }
+                else if (loadedSaveData.beatmapLevelSaveData != null)
+                {
+                    hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
+                }
             }
 
-            var customLevelPath = Collections.GetCustomLevelPath(level.levelID);
-            if (string.IsNullOrEmpty(customLevelPath))
-            {
-                return string.Empty;
-            }
-
-            return GetCustomLevelHash(customLevelPath, standardLevelInfoSaveData.difficultyBeatmapSets);
+            return hash;
         }
 
+        [Obsolete("This overload is deprecated.", true)]
         public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
         {
-            return GetCustomLevelHash(customLevelPath, level.difficultyBeatmapSets);
+            var infoFilePath = Path.Combine(customLevelPath, CustomLevelPathHelper.kStandardLevelInfoFilename);
+            if (!File.Exists(infoFilePath))
+            {
+                return string.Empty;
+            }
+
+            var customLevelInfo = new CustomLevelFolderInfo(customLevelPath, string.Empty, File.ReadAllText(infoFilePath));
+            return GetCustomLevelHash(customLevelInfo, level);
         }
 
-        private static string GetCustomLevelHash(string levelPath, StandardLevelInfoSaveData.DifficultyBeatmapSet[] beatmapSets)
+        [Obsolete("This overload is deprecated.", true)]
+        public static string GetCustomLevelHash(BeatmapLevelSaveData level, string customLevelPath)
         {
-            if (GetCachedSongData(levelPath, out var directoryHash, out var songHash))
+            var infoFilePath = Path.Combine(customLevelPath, CustomLevelPathHelper.kStandardLevelInfoFilename);
+            if (!File.Exists(infoFilePath))
+            {
+                return string.Empty;
+            }
+
+            var customLevelInfo = new CustomLevelFolderInfo(customLevelPath, string.Empty, File.ReadAllText(infoFilePath));
+            return GetCustomLevelHash(customLevelInfo, level);
+        }
+
+        public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, StandardLevelInfoSaveData standardLevelInfoSaveData)
+        {
+            if (GetCachedSongData(customLevelFolderInfo.folderPath, out var directoryHash, out var songHash))
             {
                 return songHash;
             }
 
-            var levelFolder = levelPath + Path.DirectorySeparatorChar;
-            IEnumerable<byte> combinedBytes = File.ReadAllBytes(levelFolder + CustomLevelPathHelper.kStandardLevelInfoFilename);
+            var prependBytes = Encoding.UTF8.GetBytes(customLevelFolderInfo.levelInfoJsonString);
+            var files = standardLevelInfoSaveData.difficultyBeatmapSets
+                .SelectMany(difficultyBeatmapSet => difficultyBeatmapSet.difficultyBeatmaps)
+                .Select(difficultyBeatmap => Path.Combine(customLevelFolderInfo.folderPath, difficultyBeatmap.beatmapFilename))
+                .Where(File.Exists);
 
-            foreach(var beatmapSet in beatmapSets)
+            string hash = CreateSha1FromFilesWithPrependBytes(prependBytes, files);
+            TryGetRelativePath(customLevelFolderInfo.folderPath, out var relativePath);
+            cachedSongHashData[relativePath] = new SongHashData(directoryHash, hash);
+            return hash;
+        }
+
+        public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, BeatmapLevelSaveData beatmapLevelSaveData)
+        {
+            if (GetCachedSongData(customLevelFolderInfo.folderPath, out var directoryHash, out var songHash))
             {
-                foreach(var difficultyBeatmap in beatmapSet.difficultyBeatmaps)
-                {
-                    var beatmapPath = levelFolder + difficultyBeatmap.beatmapFilename;
-                    if (File.Exists(beatmapPath))
-                    {
-                        combinedBytes = combinedBytes.Concat(File.ReadAllBytes(beatmapPath));
-                    }
-                }
+                return songHash;
             }
 
-            string hash = CreateSha1FromBytes(combinedBytes.ToArray());
-            cachedSongHashData[GetRelativePath(levelPath)] = new SongHashData(directoryHash, hash);
+            var prependBytes = BeatmapLevelDataUtils.kUtf8Encoding.GetBytes(customLevelFolderInfo.levelInfoJsonString);
+            var audioDataPath = Path.Combine(customLevelFolderInfo.folderPath, beatmapLevelSaveData.audio.audioDataFilename);
+            var files = beatmapLevelSaveData.difficultyBeatmaps.SelectMany(difficultyBeatmap => new[]
+            {
+                Path.Combine(customLevelFolderInfo.folderPath, difficultyBeatmap.beatmapDataFilename),
+                Path.Combine(customLevelFolderInfo.folderPath, difficultyBeatmap.lightshowDataFilename)
+            }).Prepend(audioDataPath).Where(File.Exists);
+
+            string hash = CreateSha1FromFilesWithPrependBytes(prependBytes, files);
+            TryGetRelativePath(customLevelFolderInfo.folderPath, out var relativePath);
+            cachedSongHashData[relativePath] = new SongHashData(directoryHash, hash);
             return hash;
         }
 
@@ -179,35 +220,49 @@ namespace SongCore.Utilities
             return path;
         }
 
+        [Obsolete("Moved to TryGetRelativePath.", true)]
         public static string GetRelativePath(string path)
         {
-            string fromPath = IPA.Utilities.UnityGame.InstallPath;
+            TryGetRelativePath(path, out var relativePath);
+            return relativePath;
+        }
 
-            if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
+        public static bool TryGetRelativePath(string path, out string relativePath)
+        {
+            var fromPath = IPA.Utilities.UnityGame.InstallPath;
+
+            if (!fromPath.EndsWith(Path.DirectorySeparatorChar))
             {
                 fromPath += Path.DirectorySeparatorChar;
             }
 
-            if(!path.StartsWith(fromPath, StringComparison.Ordinal)) return path;
+            if (!path.StartsWith(fromPath, StringComparison.Ordinal))
+            {
+                relativePath = path;
+                return false;
+            }
 
-            Uri fromUri = new Uri(fromPath);
-            Uri toUri = new Uri(path);
+            var fromUri = new Uri(fromPath);
+            var toUri = new Uri(path);
 
-            string relativePath = Uri.UnescapeDataString(fromUri.MakeRelativeUri(toUri).ToString());
+            relativePath = Uri.UnescapeDataString(fromUri.MakeRelativeUri(toUri).ToString());
 
             if (!relativePath.StartsWith(".", StringComparison.Ordinal))
             {
                 relativePath = Path.Combine(".", relativePath);
             }
 
-            return relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
+            return true;
         }
+
 
         public static bool IsInInstallPath(string path)
         {
             string fromPath = IPA.Utilities.UnityGame.InstallPath;
 
-            if (!fromPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
+            if (!fromPath.EndsWith(Path.DirectorySeparatorChar))
             {
                 fromPath += Path.DirectorySeparatorChar;
             }
@@ -262,6 +317,42 @@ namespace SongCore.Utilities
             var hashBytes = sha1.ComputeHash(stream);
             hash = ByteToHexBitFiddle(hashBytes);
             return true;
+        }
+
+        public static string CreateSha1FromFilesWithPrependBytes(IEnumerable<byte> prependBytes, IEnumerable<string> files)
+        {
+            using var sha1 = SHA1.Create();
+            var buffer = new byte[4096];
+            var bufferIndex = 0;
+
+            foreach (var prependByte in prependBytes)
+            {
+                buffer[bufferIndex++] = prependByte;
+                if (bufferIndex == buffer.Length)
+                {
+                    sha1.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                    bufferIndex = 0;
+                }
+            }
+
+            foreach (var file in files)
+            {
+                using var fileStream = File.Open(file, FileMode.Open);
+                int bytesRead;
+                while ((bytesRead = fileStream.Read(buffer, bufferIndex, buffer.Length - bufferIndex)) > 0)
+                {
+                    bufferIndex += bytesRead;
+                    if (bufferIndex == buffer.Length)
+                    {
+                        sha1.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                        bufferIndex = 0;
+                    }
+                }
+            }
+
+            sha1.TransformFinalBlock(buffer, 0, bufferIndex);
+
+            return ByteToHexBitFiddle(sha1.Hash);
         }
     }
 }

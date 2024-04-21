@@ -13,28 +13,13 @@ namespace SongCore.HarmonyPatches
         {
             private static void Postfix(StandardLevelScenesTransitionSetupDataSO __instance)
             {
-                // TODO: Remove this when it gets fixed.
-                var colorScheme = __instance.colorScheme;
-                if (colorScheme._environmentColor0Boost == default)
-                {
-                    colorScheme._environmentColor0Boost = colorScheme._environmentColor0;
-                }
-                if (colorScheme._environmentColor1Boost == default)
-                {
-                    colorScheme._environmentColor1Boost = colorScheme._environmentColor1;
-                }
-                if (colorScheme._environmentColorWBoost == default)
-                {
-                    colorScheme._environmentColorWBoost = colorScheme._environmentColorW;
-                }
-
                 if (!Plugin.Configuration.CustomSongNoteColors && !Plugin.Configuration.CustomSongEnvironmentColors && !Plugin.Configuration.CustomSongObstacleColors)
                 {
                     return;
                 }
 
                 var songData = Collections.RetrieveDifficultyData(__instance.beatmapLevel, __instance.beatmapKey);
-                var overrideColorScheme = GetOverrideColorScheme(songData, colorScheme);
+                var overrideColorScheme = GetOverrideColorScheme(songData, __instance.colorScheme);
                 if (overrideColorScheme is null)
                 {
                     return;
@@ -50,28 +35,13 @@ namespace SongCore.HarmonyPatches
         {
             private static void Postfix(MultiplayerLevelScenesTransitionSetupDataSO __instance)
             {
-                // TODO: Remove this when it gets fixed.
-                var colorScheme = __instance.colorScheme;
-                if (colorScheme._environmentColor0Boost == default)
-                {
-                    colorScheme._environmentColor0Boost = colorScheme._environmentColor0;
-                }
-                if (colorScheme._environmentColor1Boost == default)
-                {
-                    colorScheme._environmentColor1Boost = colorScheme._environmentColor1;
-                }
-                if (colorScheme._environmentColorWBoost == default)
-                {
-                    colorScheme._environmentColorWBoost = colorScheme._environmentColorW;
-                }
-
                 if (!Plugin.Configuration.CustomSongNoteColors && !Plugin.Configuration.CustomSongEnvironmentColors && !Plugin.Configuration.CustomSongObstacleColors)
                 {
                     return;
                 }
 
                 var songData = Collections.RetrieveDifficultyData(__instance.beatmapLevel, __instance.beatmapKey);
-                var overrideColorScheme = GetOverrideColorScheme(songData, colorScheme);
+                var overrideColorScheme = GetOverrideColorScheme(songData, __instance.colorScheme);
                 if (overrideColorScheme is null)
                 {
                     return;
