@@ -13,7 +13,7 @@ namespace SongCore.HarmonyPatches
             // Rounding BPM display for all maps, including official ones
             __instance._songBpmText.text = System.Math.Round(level.beatsPerMinute).ToString(CultureInfo.InvariantCulture);
 
-            var authors = level.allMappers.Concat(level.allLighters).Join();
+            var authors = level.allMappers.Concat(level.allLighters).Distinct().Join();
             if (!string.IsNullOrWhiteSpace(authors))
             {
                 __instance._songAuthorText.richText = true;
