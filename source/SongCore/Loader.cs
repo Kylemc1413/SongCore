@@ -1129,7 +1129,7 @@ namespace SongCore
                         }
                         else if (loadedSaveData.beatmapLevelSaveData != null)
                         {
-                            length = GetLengthFromOgg(Path.Combine(loadedSaveData.customLevelFolderInfo.folderPath, loadedSaveData.beatmapLevelSaveData.songPreviewFilename));
+                            length = GetLengthFromOgg(Path.Combine(loadedSaveData.customLevelFolderInfo.folderPath, loadedSaveData.beatmapLevelSaveData.audio.songFilename));
                         }
                     }
                     catch (Exception)
