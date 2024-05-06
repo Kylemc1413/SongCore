@@ -2,22 +2,19 @@
 <!-- This file contains project properties used by the build. -->
 <Project>
     <PropertyGroup>
-        <ImportBSMTTargets>True</ImportBSMTTargets>
         <BSMTProjectType>BSIPA</BSMTProjectType>
-        <GenerateManifest>True</GenerateManifest>
+        <GenerateManifest>true</GenerateManifest>
         <BaseManifestPath>manifest.json</BaseManifestPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' != 'Release'">
+        <DisableZipRelease>true</DisableZipRelease>
     </PropertyGroup>
 
     <!-- Overriding default csproj property values which would otherwise interfere with the manifest regeneration. -->
     <PropertyGroup>
         <Authors>Kyle1413</Authors>
+        <Version>3.14.1</Version>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DisableZipRelease>True</DisableZipRelease>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DisableZipRelease>False</DisableZipRelease>
-    </PropertyGroup>
 </Project>
