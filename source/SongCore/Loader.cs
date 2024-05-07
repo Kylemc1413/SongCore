@@ -234,8 +234,7 @@ namespace SongCore
             }
 
             _beatmapLevelsModel._customLevelsRepository = CustomLevelsRepository;
-            _beatmapLevelsModel._allLoadedBeatmapLevelsRepository = _beatmapLevelsModel.CreateAllLoadedBeatmapLevelPacks();
-            _beatmapLevelsModel.UpdateLoadedPreviewLevels();
+            _beatmapLevelsModel.LoadAllBeatmapLevelPacks();
 
             await UnityMainThreadTaskScheduler.Factory.StartNew(() =>
             {
