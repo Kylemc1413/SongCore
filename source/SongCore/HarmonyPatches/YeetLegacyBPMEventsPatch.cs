@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using BeatmapSaveDataCommon;
 using HarmonyLib;
@@ -18,27 +19,20 @@ namespace SongCore.HarmonyPatches
         //    eventData = new EventData(eventData.time, BeatmapEventType.BpmChange, eventData.value, eventData.floatValue);
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var codes = new List<CodeInstruction>(instructions);
-            bool skip = false;
-
-            for (int i = 0; i < codes.Count; i++)
+            var codes = instructions.ToArray();
+            for (int i = 0; i < codes.Length; i++)
             {
+                int targetIndex = i + 3;
                 // Checks for the loading onto the stack, which precedes the condition check.
-                if (codes[i].opcode == OpCodes.Ldc_I4_S && i < codes.Count - 1 && codes[i + 1].opcode == OpCodes.Bne_Un)
+                // Skip it and `type` fetching (2 instructions as well) by branching to the condition end.
+                if (targetIndex < codes.Length &&
+                    codes[targetIndex - 1].opcode == OpCodes.Ldc_I4_S &&
+                    (sbyte)codes[targetIndex - 1].operand == (sbyte)BeatmapEventType.LegacyBpmEventType &&
+                    codes[targetIndex].opcode == OpCodes.Bne_Un)
                 {
-                    // Skip everything from loading Event10...
-                    if ((sbyte)codes[i].operand == (sbyte)BeatmapEventType.Event10) {
-                        skip = true;
-                    // ...to loading proper BPM event
-                    } else if (skip && (sbyte)codes[i].operand == (sbyte)BeatmapEventType.BpmChange) {
-                        skip = false;
-                    }
+                    yield return new CodeInstruction(OpCodes.Br_S, codes[targetIndex].operand);
                 }
-
-                if (!skip)
-                {
-                    yield return codes[i];
-                }
+                yield return codes[i];
             }
         }
     }
