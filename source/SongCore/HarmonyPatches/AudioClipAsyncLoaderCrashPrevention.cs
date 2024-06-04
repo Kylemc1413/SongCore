@@ -5,7 +5,6 @@ using HarmonyLib;
 using SiraUtil.Affinity;
 using SongCore.Utilities;
 using UnityEngine;
-using Zenject;
 using Object = UnityEngine.Object;
 
 namespace SongCore.HarmonyPatches
@@ -14,13 +13,10 @@ namespace SongCore.HarmonyPatches
     /// This patch prevents Unity from crashing when it destroys an audio clip that is playing.
     /// For more details, refer to the Unity issue tracker: https://issuetracker.unity3d.com/issues/crash-on-purecall-when-repeatedly-creating-playing-stopping-and-deleting-audio
     /// </summary>
-    internal class AudioClipAsyncLoaderCrashPreventionPatch : IInitializable, IAffinity
+    internal class AudioClipAsyncLoaderCrashPreventionPatch : IAffinity
     {
-        private readonly SongPreviewPlayer _songPreviewPlayer;
-        private readonly ICoroutineStarter _coroutineStarter;
-
-        private static SongPreviewPlayer songPreviewPlayer;
-        private static ICoroutineStarter coroutineStarter;
+        private static SongPreviewPlayer _songPreviewPlayer;
+        private static ICoroutineStarter _coroutineStarter;
 
         private AudioClipAsyncLoaderCrashPreventionPatch(SongPreviewPlayer songPreviewPlayer, ICoroutineStarter coroutineStarter)
         {
@@ -28,13 +24,7 @@ namespace SongCore.HarmonyPatches
             _coroutineStarter = coroutineStarter;
         }
 
-        public void Initialize()
-        {
-            songPreviewPlayer = _songPreviewPlayer;
-            coroutineStarter = _coroutineStarter;
-        }
-
-        [AffinityPatch(typeof(AudioClipAsyncLoader), nameof(AudioClipAsyncLoader.Unload), AffinityMethodType.Normal, null, new[] { typeof(string) })]
+        [AffinityPatch(typeof(AudioClipAsyncLoader), nameof(AudioClipAsyncLoader.Unload), AffinityMethodType.Normal, null, typeof(string))]
         [AffinityTranspiler]
         private IEnumerable<CodeInstruction> PreventUnityCrashWhenDestroyingAudioClip(IEnumerable<CodeInstruction> instructions)
         {
@@ -47,7 +37,7 @@ namespace SongCore.HarmonyPatches
 
         private static void SafeDestroyAudioClip(AudioClip audioClip)
         {
-            var audioSource = songPreviewPlayer._activeChannel >= 0 ? songPreviewPlayer._audioSourceControllers[songPreviewPlayer._activeChannel].audioSource : null;
+            var audioSource = _songPreviewPlayer._activeChannel >= 0 ? _songPreviewPlayer._audioSourceControllers[_songPreviewPlayer._activeChannel].audioSource : null;
 
             if (audioSource == null)
             {
@@ -57,7 +47,7 @@ namespace SongCore.HarmonyPatches
             if (audioClip == audioSource.clip && audioSource.isPlaying)
             {
                 Logging.Logger.Debug(nameof(SafeDestroyAudioClip) + " will launch coroutine to destroy audio clip.");
-                coroutineStarter.StartCoroutine(DestroyAudioClipCoroutine(audioClip, audioSource));
+                _coroutineStarter.StartCoroutine(DestroyAudioClipCoroutine(audioClip, audioSource));
             }
             else
             {
