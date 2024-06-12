@@ -51,11 +51,6 @@ namespace SongCore.UI
 
         private bool _showingMessage;
 
-        public static ProgressBar Create()
-        {
-            return new GameObject("Progress Bar").AddComponent<ProgressBar>();
-        }
-
         [Obsolete("This overload is deprecated.", true)]
         public void ShowMessage(string message, float time)
         {
@@ -82,6 +77,11 @@ namespace SongCore.UI
             _loadingBar.enabled = showLoadingBar;
             _loadingBackg.enabled = showLoadingBar;
             FadeInOutCanvas(1f);
+        }
+
+        public void AppendText(string text)
+        {
+            _headerText.text += text;
         }
 
         private void FadeInOutCanvas(float endAlpha)
