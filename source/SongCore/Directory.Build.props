@@ -15,7 +15,7 @@
   <!-- Overriding default csproj property values which would otherwise interfere with the manifest regeneration. -->
   <PropertyGroup>
     <Authors>Kyle1413</Authors>
-    <Version>3.14.5</Version>
+    <Version>3.14.6</Version>
   </PropertyGroup>
 
 </Project>
