@@ -40,11 +40,8 @@ namespace SongCore.HarmonyPatches
             var audioSources = Object.FindObjectsOfType<AudioSource>().Where(s => s.clip == audioClip && s.isPlaying).ToArray();
             if (audioSources.Length > 0)
             {
-                foreach (var audioSource in audioSources)
-                {
-                    Logging.Logger.Debug("Destroying audio clip with a coroutine.");
-                    _coroutineStarter.StartCoroutine(DestroyAudioClipCoroutine(audioClip, audioSource));
-                }
+                Logging.Logger.Debug("Destroying audio clip with a coroutine.");
+                _coroutineStarter.StartCoroutine(DestroyAudioClipCoroutine(audioClip, audioSources));
             }
             else
             {
@@ -54,9 +51,9 @@ namespace SongCore.HarmonyPatches
             }
         }
 
-        private static IEnumerator DestroyAudioClipCoroutine(AudioClip audioClip, AudioSource audioSource)
+        private static IEnumerator DestroyAudioClipCoroutine(AudioClip audioClip, AudioSource[] audioSources)
         {
-            yield return new WaitUntil(() => !audioSource.isPlaying);
+            yield return new WaitUntil(() => audioSources.All(s => !s.isPlaying));
             Object.Destroy(audioClip);
             Logging.Logger.Debug("Audio clip destroyed by the coroutine.");
         }
