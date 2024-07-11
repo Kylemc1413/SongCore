@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
 using SiraUtil.Affinity;
@@ -13,14 +14,12 @@ namespace SongCore.HarmonyPatches
     /// This patch prevents Unity from crashing when it destroys an audio clip that is playing.
     /// For more details, refer to the Unity issue tracker: https://issuetracker.unity3d.com/issues/crash-on-purecall-when-repeatedly-creating-playing-stopping-and-deleting-audio
     /// </summary>
-    internal class AudioClipAsyncLoaderCrashPreventionPatch : IAffinity
+    internal class FixAudioClipAsyncLoaderCrashPatch : IAffinity
     {
-        private static SongPreviewPlayer _songPreviewPlayer;
         private static ICoroutineStarter _coroutineStarter;
 
-        private AudioClipAsyncLoaderCrashPreventionPatch(SongPreviewPlayer songPreviewPlayer, ICoroutineStarter coroutineStarter)
+        private FixAudioClipAsyncLoaderCrashPatch(ICoroutineStarter coroutineStarter)
         {
-            _songPreviewPlayer = songPreviewPlayer;
             _coroutineStarter = coroutineStarter;
         }
 
@@ -31,29 +30,27 @@ namespace SongCore.HarmonyPatches
             return new CodeMatcher(instructions)
                 .MatchStartForward(new CodeMatch(OpCodes.Ldftn))
                 .ThrowIfInvalid()
-                .SetOperandAndAdvance(AccessTools.Method(typeof(AudioClipAsyncLoaderCrashPreventionPatch), nameof(SafeDestroyAudioClip)))
+                .SetOperandAndAdvance(AccessTools.Method(typeof(FixAudioClipAsyncLoaderCrashPatch), nameof(SafeDestroyAudioClip)))
                 .InstructionEnumeration();
         }
 
         private static void SafeDestroyAudioClip(AudioClip audioClip)
         {
-            var audioSource = _songPreviewPlayer._activeChannel >= 0 ? _songPreviewPlayer._audioSourceControllers[_songPreviewPlayer._activeChannel].audioSource : null;
-
-            if (audioSource == null)
+            // For extra safety, look for all audio sources that might be playing it.
+            var audioSources = Object.FindObjectsOfType<AudioSource>().Where(s => s.clip == audioClip && s.isPlaying).ToArray();
+            if (audioSources.Length > 0)
             {
-                return;
-            }
-
-            if (audioClip == audioSource.clip && audioSource.isPlaying)
-            {
-                Logging.Logger.Debug(nameof(SafeDestroyAudioClip) + " will launch coroutine to destroy audio clip.");
-                _coroutineStarter.StartCoroutine(DestroyAudioClipCoroutine(audioClip, audioSource));
+                foreach (var audioSource in audioSources)
+                {
+                    Logging.Logger.Debug("Destroying audio clip with a coroutine.");
+                    _coroutineStarter.StartCoroutine(DestroyAudioClipCoroutine(audioClip, audioSource));
+                }
             }
             else
             {
-                Logging.Logger.Debug(nameof(SafeDestroyAudioClip) + " will destroy audio clip.");
+                Logging.Logger.Debug("Destroying audio clip.");
                 Object.Destroy(audioClip);
-                Logging.Logger.Debug(nameof(SafeDestroyAudioClip) + " has destroyed audio clip.");
+                Logging.Logger.Debug("Audio clip destroyed.");
             }
         }
 
@@ -61,7 +58,7 @@ namespace SongCore.HarmonyPatches
         {
             yield return new WaitUntil(() => !audioSource.isPlaying);
             Object.Destroy(audioClip);
-            Logging.Logger.Debug(nameof(DestroyAudioClipCoroutine) + " has destroyed audio clip.");
+            Logging.Logger.Debug("Audio clip destroyed by the coroutine.");
         }
     }
 }
