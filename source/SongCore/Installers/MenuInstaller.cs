@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using SongCore.HarmonyPatches;
 using SongCore.UI;
+using UnityEngine;
 using Zenject;
 
 namespace SongCore.Installers
@@ -14,6 +16,9 @@ namespace SongCore.Installers
             Container.BindInterfacesAndSelfTo<RequirementsUI>().AsSingle();
             Container.BindInterfacesTo<CosmeticCharacteristicsPatch>().AsSingle();
             Container.BindInterfacesTo<AudioClipAsyncLoaderCrashPreventionPatch>().AsSingle();
+            Container.Bind<IReferenceCountingCache<int, Task<Sprite>>>().To<SpriteReferenceCountingCache>().AsSingle();
+            Container.Bind<SpriteAsyncLoaderFixed>().AsSingle();
+            Container.BindInterfacesTo<FixSpriteAsyncLoaderLeakPatch>().AsSingle();
         }
     }
 }
