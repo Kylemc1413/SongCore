@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
@@ -9,13 +8,12 @@ using System.Reflection;
 using UnityEngine;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 using HMUI;
-using SiraUtil.Affinity;
 using Tweening;
 using Zenject;
 
 namespace SongCore.UI
 {
-    public class RequirementsUI : NotifiableBase, IInitializable, IAffinity
+    public class RequirementsUI : NotifiableBase, IInitializable
     {
         private readonly StandardLevelDetailViewController _standardLevelDetailViewController;
         private readonly CustomLevelLoader _customLevelLoader;
@@ -326,95 +324,6 @@ namespace SongCore.UI
                 buttonBG.color0 = originalColor0;
                 buttonBG.color1 = originalColor1;
             }
-        }
-
-        [AffinityPatch(typeof(StandardLevelDetailView), nameof(StandardLevelDetailView.CheckIfBeatmapLevelDataExists))]
-        private void EnableOrDisableSongButtons()
-        {
-            ButtonGlowColor = false;
-            ButtonInteractable = false;
-            if (_standardLevelDetailViewController._beatmapLevel.hasPrecalculatedData)
-            {
-                return;
-            }
-
-            var extraSongData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(_standardLevelDetailViewController._beatmapLevel));
-            if (extraSongData == null)
-            {
-                ButtonGlowColor = false;
-                ButtonInteractable = false;
-                return;
-            }
-
-            var wipFolderSong = false;
-            var actionButton = _standardLevelDetailViewController._standardLevelDetailView.actionButton;
-            var practiceButton = _standardLevelDetailViewController._standardLevelDetailView.practiceButton;
-            var difficultyData = Collections.RetrieveDifficultyData(_standardLevelDetailViewController._beatmapLevel, _standardLevelDetailViewController.beatmapKey);
-            if (difficultyData != null)
-            {
-                //If no additional information is present
-                if (!difficultyData.additionalDifficultyData._requirements.Any() &&
-                    !difficultyData.additionalDifficultyData._suggestions.Any() &&
-                    !difficultyData.additionalDifficultyData._warnings.Any() &&
-                    !difficultyData.additionalDifficultyData._information.Any() &&
-                    !extraSongData.contributors.Any() && !Utils.DiffHasColors(difficultyData))
-                {
-                    ButtonGlowColor = false;
-                    ButtonInteractable = false;
-                }
-                else if (!difficultyData.additionalDifficultyData._warnings.Any())
-                {
-                    ButtonGlowColor = true;
-                    ButtonInteractable = true;
-                    SetRainbowColors(Utils.DiffHasColors(difficultyData));
-                }
-                else if (difficultyData.additionalDifficultyData._warnings.Any())
-                {
-                    ButtonGlowColor = true;
-                    ButtonInteractable = true;
-                    if (difficultyData.additionalDifficultyData._warnings.Contains("WIP"))
-                    {
-                        actionButton.interactable = false;
-                    }
-                    SetRainbowColors(Utils.DiffHasColors(difficultyData));
-                }
-            }
-
-            if (_standardLevelDetailViewController._beatmapLevel.levelID.EndsWith(" WIP", StringComparison.Ordinal))
-            {
-                ButtonGlowColor = true;
-                ButtonInteractable = true;
-                actionButton.interactable = false;
-                wipFolderSong = true;
-            }
-
-            if (difficultyData != null)
-            {
-                foreach (var requirement in difficultyData.additionalDifficultyData._requirements)
-                {
-                    if (!Collections.capabilities.Contains(requirement))
-                    {
-                        actionButton.interactable = false;
-                        practiceButton.interactable = false;
-                        ButtonGlowColor = true;
-                        ButtonInteractable = true;
-                    }
-                }
-            }
-
-            if (_standardLevelDetailViewController.beatmapKey.beatmapCharacteristic.serializedName == "MissingCharacteristic")
-            {
-                actionButton.interactable = false;
-                practiceButton.interactable = false;
-                ButtonGlowColor = true;
-                ButtonInteractable = true;
-            }
-
-            beatmapLevel = _standardLevelDetailViewController._beatmapLevel;
-            beatmapKey = _standardLevelDetailViewController.beatmapKey;
-            songData = extraSongData;
-            diffData = difficultyData;
-            wipFolder = wipFolderSong;
         }
     }
 }
