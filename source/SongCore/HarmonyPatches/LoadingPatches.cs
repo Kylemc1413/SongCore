@@ -1,22 +1,16 @@
-using System;
 using HarmonyLib;
 using System.Linq;
 using System.Collections.Generic;
-using System.IO;
-using BeatmapEditor3D.DataModels;
-using SongCore.Utilities;
 
 namespace SongCore.HarmonyPatches
 {
-    [HarmonyPatch(typeof(BeatmapLevelsModel))]
-    [HarmonyPatch(nameof(BeatmapLevelsModel.ReloadCustomLevelPackCollectionAsync), MethodType.Normal)]
+    [HarmonyPatch(typeof(BeatmapLevelsModel), nameof(BeatmapLevelsModel.ReloadCustomLevelPackCollectionAsync))]
     internal class StopVanillaLoadingPatch
     {
         private static bool Prefix() => false;
     }
 
-    [HarmonyPatch(typeof(LevelFilteringNavigationController))]
-    [HarmonyPatch(nameof(LevelFilteringNavigationController.UpdateCustomSongs), MethodType.Normal)]
+    [HarmonyPatch(typeof(LevelFilteringNavigationController), nameof(LevelFilteringNavigationController.UpdateCustomSongs))]
     internal class StopVanillaLoadingPatch2
     {
         private static bool Prefix(LevelFilteringNavigationController __instance)
@@ -48,26 +42,6 @@ namespace SongCore.HarmonyPatches
             __instance.UpdateSecondChildControllerContent(__instance._selectLevelCategoryViewController.selectedLevelCategory);
 
             return false;
-        }
-    }
-
-    // WIP
-    [HarmonyPatch(typeof(BeatmapsCollectionDataModel.BeatmapInfoData), MethodType.Constructor, typeof(StandardLevelInfoSaveData), typeof(string), typeof(string), typeof(DateTime))]
-    internal class BeatmapsCollectionDataModelBeatmapInfoDataCtorPatch
-    {
-        private static bool Prefix(StandardLevelInfoSaveData info, string infoFilePath)
-        {
-            try
-            {
-                _ = Path.Join(infoFilePath, info.songName);
-            }
-            catch (ArgumentException)
-            {
-                Logging.Logger.Error("Could not load " + infoFilePath + Path.DirectorySeparatorChar + info.songName);
-                return false;
-            }
-
-            return true;
         }
     }
 }
