@@ -9,6 +9,7 @@ namespace SongCore.Installers
         {
             Container.BindInterfacesTo<BeatmapLevelDifficultyDataPatches>().AsSingle();
             Container.BindInterfacesTo<AllowNegativeNjsValuesPatch>().AsSingle();
+            Container.BindInterfacesTo<AutoplayDisableSubmissionPatch>().AsSingle();
         }
     }
 }
