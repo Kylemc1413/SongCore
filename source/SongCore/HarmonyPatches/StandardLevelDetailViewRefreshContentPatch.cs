@@ -1,6 +1,7 @@
 using System;
 using HarmonyLib;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using SongCore.UI;
 using SongCore.Utilities;
@@ -68,6 +69,22 @@ namespace SongCore.HarmonyPatches
             {
                 return;
             }
+
+            // This fixes base game trying to load non-existing difficulties.
+            // TODO: Remove when fixed.
+            if (Loader.LoadedBeatmapLevelsData.TryGetValue(beatmapLevel.levelID, out var beatmapLevelData) && !File.Exists(((FileSystemBeatmapLevelData)beatmapLevelData).GetDifficultyBeatmap(__instance.beatmapKey)!._beatmapPath))
+            {
+                requirementsUI.ButtonGlowColor = false;
+                requirementsUI.ButtonInteractable = false;
+                actionButton.interactable = false;
+                practiceButton.interactable = false;
+
+                __instance.ShowContent(StandardLevelDetailViewController.ContentType.Error, 0f);
+
+                return;
+            }
+
+            __instance.ShowContent(StandardLevelDetailViewController.ContentType.OwnedAndReady, 0f);
 
             var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(beatmapLevel));
             if (songData == null)
@@ -242,6 +259,13 @@ namespace SongCore.HarmonyPatches
         {
             __instance._actionButton.interactable = __state.Item1;
             __instance._practiceButton.interactable = __state.Item2;
+
+            // This fixes base game trying to load non-existing difficulties.
+            // TODO: Remove when fixed.
+            if (Loader.LoadedBeatmapLevelsData.TryGetValue(__instance._beatmapLevel.levelID, out var beatmapLevelData) && !File.Exists(((FileSystemBeatmapLevelData)beatmapLevelData).GetDifficultyBeatmap(__instance.beatmapKey)!._beatmapPath))
+            {
+                __instance.ShowContent(StandardLevelDetailViewController.ContentType.Error, 0f);
+            }
         }
     }
 }
