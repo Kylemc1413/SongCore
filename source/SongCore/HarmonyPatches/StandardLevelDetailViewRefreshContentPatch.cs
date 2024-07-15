@@ -134,6 +134,11 @@ namespace SongCore.HarmonyPatches
                 requirementsUI.ButtonInteractable = true;
                 actionButton.interactable = false;
                 wipFolderSong = true;
+
+                if (difficultyData != null)
+                {
+                    requirementsUI.SetRainbowColors(Utils.DiffHasColors(difficultyData));
+                }
             }
 
             if (difficultyData != null)
