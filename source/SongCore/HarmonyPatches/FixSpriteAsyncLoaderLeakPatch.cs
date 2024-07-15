@@ -92,9 +92,6 @@ namespace SongCore.HarmonyPatches
             }
 
             var loadTask = loadMethodDelegate();
-            // This partially fixes a bug that was introduced in v1.36.0, which saves null covers when the loading operation is canceled.
-            // It still shows the default cover at times, but at least it reloads it now.
-            // TODO: Remove when fixed.
             _ = loadTask.ContinueWith(t =>
             {
                 if (t.Result != null)

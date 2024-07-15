@@ -15,11 +15,11 @@ namespace SongCore.HarmonyPatches
 
             __result = (difficulty switch
                 {
-                    BeatmapDifficulty.Easy when StandardLevelDetailViewRefreshContent.currentLabels.EasyOverride != null => StandardLevelDetailViewRefreshContent.currentLabels.EasyOverride,
-                    BeatmapDifficulty.Normal when StandardLevelDetailViewRefreshContent.currentLabels.NormalOverride != null => StandardLevelDetailViewRefreshContent.currentLabels.NormalOverride,
-                    BeatmapDifficulty.Hard when StandardLevelDetailViewRefreshContent.currentLabels.HardOverride != null => StandardLevelDetailViewRefreshContent.currentLabels.HardOverride,
-                    BeatmapDifficulty.Expert when StandardLevelDetailViewRefreshContent.currentLabels.ExpertOverride != null => StandardLevelDetailViewRefreshContent.currentLabels.ExpertOverride,
-                    BeatmapDifficulty.ExpertPlus when StandardLevelDetailViewRefreshContent.currentLabels.ExpertPlusOverride != null => StandardLevelDetailViewRefreshContent.currentLabels
+                    BeatmapDifficulty.Easy when StandardLevelDetailViewRefreshContentPatch.currentLabels.EasyOverride != null => StandardLevelDetailViewRefreshContentPatch.currentLabels.EasyOverride,
+                    BeatmapDifficulty.Normal when StandardLevelDetailViewRefreshContentPatch.currentLabels.NormalOverride != null => StandardLevelDetailViewRefreshContentPatch.currentLabels.NormalOverride,
+                    BeatmapDifficulty.Hard when StandardLevelDetailViewRefreshContentPatch.currentLabels.HardOverride != null => StandardLevelDetailViewRefreshContentPatch.currentLabels.HardOverride,
+                    BeatmapDifficulty.Expert when StandardLevelDetailViewRefreshContentPatch.currentLabels.ExpertOverride != null => StandardLevelDetailViewRefreshContentPatch.currentLabels.ExpertOverride,
+                    BeatmapDifficulty.ExpertPlus when StandardLevelDetailViewRefreshContentPatch.currentLabels.ExpertPlusOverride != null => StandardLevelDetailViewRefreshContentPatch.currentLabels
                         .ExpertPlusOverride,
                     _ => __result
                 })

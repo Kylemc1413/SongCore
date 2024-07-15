@@ -68,7 +68,7 @@ namespace SongCore
 
         private static readonly ConcurrentDictionary<string, OfficialSongEntry> OfficialSongs = new ConcurrentDictionary<string, OfficialSongEntry>();
         private static readonly ConcurrentDictionary<string, BeatmapLevel> CustomLevelsById = new ConcurrentDictionary<string, BeatmapLevel>();
-        private static readonly ConcurrentDictionary<string, IBeatmapLevelData> LoadedBeatmapLevelsData = new ConcurrentDictionary<string, IBeatmapLevelData>();
+        internal static readonly ConcurrentDictionary<string, IBeatmapLevelData> LoadedBeatmapLevelsData = new ConcurrentDictionary<string, IBeatmapLevelData>();
         internal static readonly ConcurrentDictionary<string, CustomLevelLoader.LoadedSaveData> LoadedBeatmapSaveData = new ConcurrentDictionary<string, CustomLevelLoader.LoadedSaveData>();
         public static ConcurrentDictionary<string, BeatmapLevel> CustomLevels = new ConcurrentDictionary<string, BeatmapLevel>();
         public static ConcurrentDictionary<string, BeatmapLevel> CustomWIPLevels = new ConcurrentDictionary<string, BeatmapLevel>();
