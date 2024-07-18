@@ -18,6 +18,7 @@ namespace SongCore.HarmonyPatches
         private readonly SpriteAsyncLoaderFixed _spriteAsyncLoader;
         // This shouldn't need to be a ConcurrentQueue but mscorlib conflicts.
         private readonly ConcurrentQueue<string> _spriteQueue = new();
+        private readonly SemaphoreSlim _semaphore = new(1);
 
         private string? _currentCoverSpritePath;
 
@@ -30,23 +31,37 @@ namespace SongCore.HarmonyPatches
         [AffinityPrefix]
         private bool FixSpriteLoading(ref Task<Sprite> __result, string path, CancellationToken cancellationToken)
         {
+            __result = LoadSpriteAsync(path, cancellationToken);
+
+            return false;
+        }
+
+        private async Task<Sprite> LoadSpriteAsync(string path, CancellationToken cancellationToken)
+        {
             while (_spriteQueue.Count > 100 && _spriteQueue.TryDequeue(out var spriteFilePath))
             {
-                if (spriteFilePath != _currentCoverSpritePath || _spriteAsyncLoader.GetReferenceCount(spriteFilePath) > 1)
+                await _semaphore.WaitAsync(cancellationToken);
+
+                try
                 {
-                    _spriteAsyncLoader.Unload(spriteFilePath);
+                    if (spriteFilePath != _currentCoverSpritePath || _spriteAsyncLoader.GetReferenceCount(spriteFilePath) > 1)
+                    {
+                        await _spriteAsyncLoader.Unload(spriteFilePath);
+                    }
+                    else
+                    {
+                        _spriteQueue.Enqueue(spriteFilePath);
+                    }
                 }
-                else
+                finally
                 {
-                    _spriteQueue.Enqueue(spriteFilePath);
+                    _semaphore.Release();
                 }
             }
 
             _spriteQueue.Enqueue(path);
 
-            __result = _spriteAsyncLoader.Load(path, cancellationToken);
-
-            return false;
+            return await _spriteAsyncLoader.Load(path, cancellationToken);
         }
 
         [AffinityPatch(typeof(SpriteAsyncLoader), nameof(SpriteAsyncLoader.ClearCache))]
@@ -103,16 +118,16 @@ namespace SongCore.HarmonyPatches
             return loadTask;
         }
 
-        public void Unload(string spriteFilePath)
+        public Task Unload(string spriteFilePath)
         {
-            Unload(GetCacheKey(spriteFilePath), sprite =>
+            return Unload(GetCacheKey(spriteFilePath), sprite =>
             {
                 Object.Destroy(sprite.texture);
                 Object.Destroy(sprite);
             });
         }
 
-        private async void Unload(int cacheKey, Action<Sprite> onDelete)
+        private async Task Unload(int cacheKey, Action<Sprite> onDelete)
         {
             if (_cache.TryGet(cacheKey, out var task) && _cache.RemoveReference(cacheKey) == 0)
             {
@@ -126,7 +141,8 @@ namespace SongCore.HarmonyPatches
             {
                 while (_cache.RemoveReference(GetCacheKey(spriteFilePath)) != 0)
                 {
-                    Unload(spriteFilePath);
+                    // TODO: Is there a saner way to do this?
+                    Unload(spriteFilePath).GetAwaiter().GetResult();
                 }
             }
 
