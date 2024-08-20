@@ -732,17 +732,15 @@ namespace SongCore
         private void RefreshLoadedBeatmapData()
         {
             _beatmapLevelsModel.ClearLoadedBeatmapLevelsCaches();
-            _customLevelLoader._loadedBeatmapSaveData.Clear();
-            _customLevelLoader._loadedBeatmapLevelsData.Clear();
 
             foreach (var (levelID, loadedSaveData) in LoadedBeatmapSaveData)
             {
-                _customLevelLoader._loadedBeatmapSaveData.Add(levelID, loadedSaveData);
+                _customLevelLoader._loadedBeatmapSaveData[levelID] = loadedSaveData;
             }
 
             foreach (var (levelID, beatmapLevelData) in LoadedBeatmapLevelsData)
             {
-                _customLevelLoader._loadedBeatmapLevelsData.Add(levelID, beatmapLevelData);
+                _customLevelLoader._loadedBeatmapLevelsData[levelID] = beatmapLevelData;
             }
         }
 
