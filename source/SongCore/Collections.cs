@@ -62,9 +62,10 @@ namespace SongCore
 
         internal static void AddExtraSongData(string hash, CustomLevelLoader.LoadedSaveData loadedSaveData)
         {
-            if (!CustomSongsData.ContainsKey(hash))
+            var extraSongData = new ExtraSongData();
+            if (CustomSongsData.TryAdd(hash, extraSongData))
             {
-                CustomSongsData.TryAdd(hash, new ExtraSongData(loadedSaveData));
+                extraSongData.PopulateFromLoadedSaveData(loadedSaveData);
             }
         }
 

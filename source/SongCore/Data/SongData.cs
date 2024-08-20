@@ -131,7 +131,7 @@ namespace SongCore.Data
             _difficulties = difficulties;
         }
 
-        internal ExtraSongData(CustomLevelLoader.LoadedSaveData loadedSaveData)
+        internal void PopulateFromLoadedSaveData(CustomLevelLoader.LoadedSaveData loadedSaveData)
         {
             try
             {

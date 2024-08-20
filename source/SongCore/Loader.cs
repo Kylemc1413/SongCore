@@ -791,15 +791,13 @@ namespace SongCore
 
                 if (level != null)
                 {
-                    if (Collections.LevelHashDictionary.ContainsKey(level.levelID))
+                    if (Collections.LevelHashDictionary.TryRemove(level.levelID, out var hash))
                     {
-                        string hash = Collections.hashForLevelID(level.levelID);
-                        Collections.LevelHashDictionary.TryRemove(level.levelID, out _);
                         Collections.CustomSongsData.TryRemove(hash, out _);
-                        if (Collections.HashLevelDictionary.ContainsKey(hash))
+                        if (Collections.HashLevelDictionary.TryGetValue(hash, out var levels))
                         {
-                            Collections.HashLevelDictionary[hash].Remove(level.levelID);
-                            if (Collections.HashLevelDictionary[hash].Count == 0)
+                            levels.Remove(level.levelID);
+                            if (levels.Count == 0)
                             {
                                 Collections.HashLevelDictionary.TryRemove(hash, out _);
                             }
