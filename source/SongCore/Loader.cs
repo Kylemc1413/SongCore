@@ -55,7 +55,8 @@ namespace SongCore
             _progressBar = progressBar;
             _bsmlSettings = bsmlSettings;
             _settingsController = new SCSettingsController();
-            _customWIPPath = Path.Combine(Application.dataPath, "CustomWIPLevels");
+            // Path.GetFullPath is needed to normalize directory separators.
+            _customWIPPath = Path.GetFullPath(Path.Combine(Application.dataPath, "CustomWIPLevels"));
             _customLevelsPath = Path.GetFullPath(CustomLevelPathHelper.customLevelsDirectoryPath);
             Instance = this;
         }
@@ -403,9 +404,10 @@ namespace SongCore
 
                     // Get Levels from CustomLevels and CustomWIPLevels folders
                     var songFolders = new DirectoryInfo(_customLevelsPath).GetDirectories()
-                        .Where(d => !d.Attributes.HasFlag(FileAttributes.Hidden))
+                        .Where(d => d.Exists && !d.Attributes.HasFlag(FileAttributes.Hidden))
                         .Select(d => d.FullName)
-                        .Concat(Directory.GetDirectories(_customWIPPath))
+                        .Concat(Directory.GetDirectories(_customWIPPath)
+                            .Where(Directory.Exists))
                         .ToArray();
                     var songFoldersCount = songFolders.Length;
                     var parallelOptions = new ParallelOptions
@@ -414,6 +416,19 @@ namespace SongCore
                         CancellationToken = _loadingTaskCancellationTokenSource.Token
                     };
                     var processedSongsCount = 0;
+
+                    // Clear removed songs from loaded data, in case they were removed manually.
+                    if (_customLevelLoader._loadedBeatmapSaveData.Count > 0)
+                    {
+                        var folders = songFolders.Concat(SeparateSongFolders.SelectMany(f => f.Levels.Keys)).ToHashSet();
+                        foreach (var loadedSaveData in _customLevelLoader._loadedBeatmapSaveData.Values)
+                        {
+                            if (!folders.Contains(loadedSaveData.customLevelFolderInfo.folderPath))
+                            {
+                                DeleteSingleSong(loadedSaveData.customLevelFolderInfo.folderPath, true);
+                            }
+                        }
+                    }
 
                     Parallel.ForEach(songFolders, parallelOptions, folder =>
                     {
@@ -720,12 +735,12 @@ namespace SongCore
 
             foreach (var (levelID, loadedSaveData) in LoadedBeatmapSaveData)
             {
-                _customLevelLoader._loadedBeatmapSaveData.TryAdd(levelID, loadedSaveData);
+                _customLevelLoader._loadedBeatmapSaveData[levelID] = loadedSaveData;
             }
 
             foreach (var (levelID, beatmapLevelData) in LoadedBeatmapLevelsData)
             {
-                _customLevelLoader._loadedBeatmapLevelsData.TryAdd(levelID, beatmapLevelData);
+                _customLevelLoader._loadedBeatmapLevelsData[levelID] = beatmapLevelData;
             }
         }
 
@@ -774,14 +789,13 @@ namespace SongCore
 
                 if (level != null)
                 {
-                    if (Collections.LevelHashDictionary.ContainsKey(level.levelID))
+                    if (Collections.LevelHashDictionary.TryRemove(level.levelID, out var hash))
                     {
-                        string hash = Collections.hashForLevelID(level.levelID);
-                        Collections.LevelHashDictionary.TryRemove(level.levelID, out _);
-                        if (Collections.HashLevelDictionary.ContainsKey(hash))
+                        Collections.CustomSongsData.TryRemove(hash, out _);
+                        if (Collections.HashLevelDictionary.TryGetValue(hash, out var levels))
                         {
-                            Collections.HashLevelDictionary[hash].Remove(level.levelID);
-                            if (Collections.HashLevelDictionary[hash].Count == 0)
+                            levels.Remove(level.levelID);
+                            if (levels.Count == 0)
                             {
                                 Collections.HashLevelDictionary.TryRemove(hash, out _);
                             }
@@ -789,6 +803,8 @@ namespace SongCore
                     }
 
                     CustomLevelsById.TryRemove(level.levelID, out _);
+                    LoadedBeatmapSaveData.TryRemove(level.levelID, out _);
+                    LoadedBeatmapLevelsData.TryRemove(level.levelID, out _);
                 }
 
                 //Delete the directory

@@ -18,7 +18,6 @@ namespace SongCore.Installers
             Container.Bind<IReferenceCountingCache<int, Task<Sprite>>>().To<SpriteReferenceCountingCache>().AsSingle();
             Container.Bind<SpriteAsyncLoaderFixed>().AsSingle();
             Container.BindInterfacesTo<FixSpriteAsyncLoaderLeakPatch>().AsSingle();
-            Container.BindInterfacesTo<FixAudioClipAsyncLoaderCrashPatch>().AsSingle();
         }
     }
 }

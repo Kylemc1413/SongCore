@@ -22,13 +22,20 @@ namespace SongCore.Utilities
         {
             if (File.Exists(cachedHashDataPath))
             {
-                var songHashData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
-                if (songHashData != null)
+                try
                 {
-                    cachedSongHashData = songHashData;
+                    var songHashData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, SongHashData>>(File.ReadAllText(cachedHashDataPath));
+                    if (songHashData != null)
+                    {
+                        cachedSongHashData = songHashData;
+                        Logging.Logger.Info($"Finished loading cached hashes for {cachedSongHashData.Count} songs.");
+                    }
                 }
-
-                Logging.Logger.Info($"Finished reading cached hashes for {cachedSongHashData.Count} songs!");
+                catch (Exception ex)
+                {
+                    Logging.Logger.Error($"Error loading cached song hashes: {ex.Message}");
+                    Logging.Logger.Error(ex);
+                }
             }
         }
 
@@ -52,21 +59,36 @@ namespace SongCore.Utilities
                 }
             }
 
-            Logging.Logger.Info($"Updating cached hashes for {cachedSongHashData.Count} songs!");
-            File.WriteAllText(cachedHashDataPath, JsonConvert.SerializeObject(cachedSongHashData));
+            try
+            {
+                Logging.Logger.Info($"Saving cached hashes for {cachedSongHashData.Count} songs.");
+                File.WriteAllText(cachedHashDataPath, JsonConvert.SerializeObject(cachedSongHashData));
+            }
+            catch (Exception ex)
+            {
+                Logging.Logger.Error($"Error saving cached song hashes: {ex.Message}");
+                Logging.Logger.Error(ex);
+            }
         }
 
         public static void ReadCachedAudioData()
         {
             if (File.Exists(cachedAudioDataPath))
             {
-                var audioData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
-                if (audioData != null)
+                try
                 {
-                    cachedAudioData = audioData;
+                    var audioData = JsonConvert.DeserializeObject<ConcurrentDictionary<string, AudioCacheData>>(File.ReadAllText(cachedAudioDataPath));
+                    if (audioData != null)
+                    {
+                        cachedAudioData = audioData;
+                        Logging.Logger.Info($"Finished loading cached durations for {cachedAudioData.Count} songs.");
+                    }
                 }
-
-                Logging.Logger.Info($"Finished reading cached Durations for {cachedAudioData.Count} songs!");
+                catch (Exception ex)
+                {
+                    Logging.Logger.Error($"Error loading cached song durations: {ex.Message}");
+                    Logging.Logger.Error(ex);
+                }
             }
         }
 
@@ -90,8 +112,16 @@ namespace SongCore.Utilities
                 }
             }
 
-            Logging.Logger.Info($"Updating cached Map Lengths for {cachedAudioData.Count} songs!");
-            File.WriteAllText(cachedAudioDataPath, JsonConvert.SerializeObject(cachedAudioData));
+            try
+            {
+                Logging.Logger.Info($"Saving cached durations for {cachedAudioData.Count} songs.");
+                File.WriteAllText(cachedAudioDataPath, JsonConvert.SerializeObject(cachedAudioData));
+            }
+            catch (Exception ex)
+            {
+                Logging.Logger.Error($"Error saving cached song durations: {ex.Message}");
+                Logging.Logger.Error(ex);
+            }
         }
 
         private static long GetDirectoryHash(string directory)

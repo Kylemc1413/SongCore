@@ -62,9 +62,10 @@ namespace SongCore
 
         internal static void AddExtraSongData(string hash, CustomLevelLoader.LoadedSaveData loadedSaveData)
         {
-            if (!CustomSongsData.ContainsKey(hash))
+            var extraSongData = new ExtraSongData();
+            if (CustomSongsData.TryAdd(hash, extraSongData))
             {
-                CustomSongsData.TryAdd(hash, new ExtraSongData(loadedSaveData));
+                extraSongData.PopulateFromLoadedSaveData(loadedSaveData);
             }
         }
 
@@ -102,11 +103,12 @@ namespace SongCore
                     if (songData != null)
                     {
                         CustomSongsData = songData;
+                        Logging.Logger.Info($"Finished loading cached extra data for {CustomSongsData.Count} songs.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logging.Logger.Error($"Error loading extra song data: {ex.Message}");
+                    Logging.Logger.Error($"Error loading cached extra song data: {ex.Message}");
                     Logging.Logger.Error(ex);
                 }
             });
@@ -114,8 +116,17 @@ namespace SongCore
 
         internal static async Task SaveExtraSongDataAsync()
         {
-            await using var writer = new StreamWriter(DataPath);
-            await writer.WriteAsync(JsonConvert.SerializeObject(CustomSongsData, Formatting.None));
+            try
+            {
+                Logging.Logger.Info($"Saving cached extra data for {CustomSongsData.Count} songs.");
+                await using var writer = new StreamWriter(DataPath);
+                await writer.WriteAsync(JsonConvert.SerializeObject(CustomSongsData, Formatting.None));
+            }
+            catch (Exception ex)
+            {
+                Logging.Logger.Error($"Error saving cached extra song data: {ex.Message}");
+                Logging.Logger.Error(ex);
+            }
         }
 
         public static BeatmapCharacteristicSO? RegisterCustomCharacteristic(Sprite icon, string characteristicName, string hintText, string serializedName, string compoundIdPartName,
