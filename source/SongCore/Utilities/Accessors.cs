@@ -14,7 +14,7 @@ namespace SongCore.Utilities
             FieldAccessor<BeatmapLevel, float>.GetAccessor(nameof(BeatmapLevel.previewDuration));
 
         public static readonly FieldAccessor<BeatmapLevelPack, BeatmapLevel[]>.Accessor BeatmapLevelsAccessor =
-            FieldAccessor<BeatmapLevelPack, BeatmapLevel[]>.GetAccessor(nameof(BeatmapLevelPack.beatmapLevels));
+            FieldAccessor<BeatmapLevelPack, BeatmapLevel[]>.GetAccessor(nameof(BeatmapLevelPack._beatmapLevels));
 
         public static readonly FieldAccessor<SaberManager.InitData, bool>.Accessor OneSaberModeAccessor =
             FieldAccessor<SaberManager.InitData, bool>.GetAccessor(nameof(SaberManager.InitData.oneSaberMode));

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BGLib.Polyglot;
@@ -47,7 +47,7 @@ namespace SongCore.HarmonyPatches
             var cellIndex = 0;
             foreach (var dataItem in dataItems)
             {
-                var beatmapCharacteristic = __instance._beatmapCharacteristics[i];
+                var beatmapCharacteristic = __instance._currentlyAvailableBeatmapCharacteristics[i];
                 var serializedName = beatmapCharacteristic.serializedName;
                 var characteristicDetails = extraSongData._characteristicDetails.FirstOrDefault(c => c._beatmapCharacteristicName == serializedName);
 

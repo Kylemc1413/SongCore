@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,6 +19,7 @@ using SongCore.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
+using static GameScenesManager;
 
 namespace SongCore
 {
@@ -97,7 +98,7 @@ namespace SongCore
             _bsmlSettings.AddSettingsMenu(nameof(SongCore), "SongCore.UI.settings.bsml", _settingsController);
         }
 
-        private void MenuLoaded(ScenesTransitionSetupDataSO scenesTransitionSetupData, DiContainer container)
+        private void MenuLoaded(SceneTransitionType type, ScenesTransitionSetupDataSO scenesTransitionSetupData, DiContainer container)
         {
             _gameScenesManager.transitionDidFinishEvent -= MenuLoaded;
 
@@ -153,7 +154,7 @@ namespace SongCore
             }
         }
 
-        private void CancelSongLoading(float minDuration)
+        private void CancelSongLoading(SceneTransitionType type, float minDuration)
         {
             CancelSongLoading();
         }
@@ -314,7 +315,7 @@ namespace SongCore
                     {
                         foreach (var pack in levelsRepository.beatmapLevelPacks)
                         {
-                            foreach (var level in pack.beatmapLevels)
+                            foreach (var level in pack._beatmapLevels)
                             {
                                 OfficialSongs[level.levelID] = new OfficialSongEntry { LevelsRepository = levelsRepository, LevelPack = pack, BeatmapLevel = level };
                             }
