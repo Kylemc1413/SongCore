@@ -98,7 +98,7 @@ namespace SongCore
             _bsmlSettings.AddSettingsMenu(nameof(SongCore), "SongCore.UI.settings.bsml", _settingsController);
         }
 
-        private void MenuLoaded(SceneTransitionType type, ScenesTransitionSetupDataSO scenesTransitionSetupData, DiContainer container)
+        private void MenuLoaded(SceneTransitionType sceneTransitionType, ScenesTransitionSetupDataSO scenesTransitionSetupData, DiContainer container)
         {
             _gameScenesManager.transitionDidFinishEvent -= MenuLoaded;
 
@@ -154,7 +154,7 @@ namespace SongCore
             }
         }
 
-        private void CancelSongLoading(SceneTransitionType type, float minDuration)
+        private void CancelSongLoading(SceneTransitionType sceneTransitionType, float duration)
         {
             CancelSongLoading();
         }
@@ -315,7 +315,7 @@ namespace SongCore
                     {
                         foreach (var pack in levelsRepository.beatmapLevelPacks)
                         {
-                            foreach (var level in pack._beatmapLevels)
+                            foreach (var level in pack.AllBeatmapLevels())
                             {
                                 OfficialSongs[level.levelID] = new OfficialSongEntry { LevelsRepository = levelsRepository, LevelPack = pack, BeatmapLevel = level };
                             }
