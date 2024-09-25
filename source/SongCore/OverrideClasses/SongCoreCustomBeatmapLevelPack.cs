@@ -1,3 +1,4 @@
+using System.Linq;
 using SongCore.Utilities;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace SongCore.OverrideClasses
         public void UpdateBeatmapLevels(BeatmapLevel[] beatmapLevels)
         {
             var that = (BeatmapLevelPack)this;
-            Accessors.BeatmapLevelsAccessor(ref that) = beatmapLevels;
+            Accessors.AllBeatmapLevelsAccessor(ref that) = beatmapLevels.Concat(_additionalBeatmapLevels).ToList();
         }
     }
 }

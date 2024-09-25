@@ -171,7 +171,7 @@ namespace SongCore.UI
             }
             modal.transform.localPosition = modalPosition;
             modal.Show(true);
-            customListTableData.data.Clear();
+            customListTableData.Data.Clear();
 
             //Requirements
             if (diffData != null)
@@ -180,7 +180,7 @@ namespace SongCore.UI
                 {
                     foreach (string req in diffData.additionalDifficultyData._requirements)
                     {
-                        customListTableData.data.Add(!Collections.capabilities.Contains(req)
+                        customListTableData.Data.Add(!Collections.capabilities.Contains(req)
                             ? new CustomCellInfo($"<size=75%>{req}", "Missing Requirement", MissingReqIcon)
                             : new CustomCellInfo($"<size=75%>{req}", "Requirement", HaveReqIcon));
                     }
@@ -197,16 +197,16 @@ namespace SongCore.UI
                         if (!string.IsNullOrWhiteSpace(author._iconPath))
                         {
                             author.icon = Utils.LoadSpriteFromFile(Path.Combine(_customLevelLoader._loadedBeatmapSaveData[beatmapLevel.levelID].customLevelFolderInfo.folderPath, author._iconPath));
-                            customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon != null ? author.icon : InfoIcon));
+                            customListTableData.Data.Add(new CustomCellInfo(author._name, author._role, author.icon != null ? author.icon : InfoIcon));
                         }
                         else
                         {
-                            customListTableData.data.Add(new CustomCellInfo(author._name, author._role, InfoIcon));
+                            customListTableData.Data.Add(new CustomCellInfo(author._name, author._role, InfoIcon));
                         }
                     }
                     else
                     {
-                        customListTableData.data.Add(new CustomCellInfo(author._name, author._role, author.icon));
+                        customListTableData.Data.Add(new CustomCellInfo(author._name, author._role, author.icon));
                     }
                 }
             }
@@ -214,7 +214,7 @@ namespace SongCore.UI
             //WIP Check
             if (wipFolder)
             {
-                customListTableData.data.Add(new CustomCellInfo("<size=70%>WIP Song. Please Play in Practice Mode", "Warning", WarningIcon));
+                customListTableData.Data.Add(new CustomCellInfo("<size=70%>WIP Song. Please Play in Practice Mode", "Warning", WarningIcon));
             }
 
             //Additional Diff Info
@@ -222,7 +222,7 @@ namespace SongCore.UI
             {
                 if (Utils.DiffHasColors(diffData))
                 {
-                    customListTableData.data.Add(new CustomCellInfo($"<size=75%>Custom Colors Available", $"Click here to preview & enable or disable it.", ColorsIcon));
+                    customListTableData.Data.Add(new CustomCellInfo($"<size=75%>Custom Colors Available", $"Click here to preview & enable or disable it.", ColorsIcon));
                 }
                 string? environmentName = null;
 
@@ -242,7 +242,7 @@ namespace SongCore.UI
                 {
                     foreach (string req in diffData.additionalDifficultyData._warnings)
                     {
-                        customListTableData.data.Add(new CustomCellInfo($"<size=75%>{req}", "Warning", WarningIcon));
+                        customListTableData.Data.Add(new CustomCellInfo($"<size=75%>{req}", "Warning", WarningIcon));
                     }
                 }
 
@@ -250,7 +250,7 @@ namespace SongCore.UI
                 {
                     foreach (string req in diffData.additionalDifficultyData._information)
                     {
-                        customListTableData.data.Add(new CustomCellInfo($"<size=75%>{req}", "Info", InfoIcon));
+                        customListTableData.Data.Add(new CustomCellInfo($"<size=75%>{req}", "Info", InfoIcon));
                     }
                 }
 
@@ -258,7 +258,7 @@ namespace SongCore.UI
                 {
                     foreach (string req in diffData.additionalDifficultyData._suggestions)
                     {
-                        customListTableData.data.Add(!Collections.capabilities.Contains(req)
+                        customListTableData.Data.Add(!Collections.capabilities.Contains(req)
                             ? new CustomCellInfo($"<size=75%>{req}", "Missing Suggestion", MissingSuggestionIcon)
                             : new CustomCellInfo($"<size=75%>{req}", "Suggestion", HaveSuggestionIcon));
                     }
@@ -269,29 +269,29 @@ namespace SongCore.UI
                     string enabledText = Plugin.Configuration.DisableOneSaberOverride ? "[<color=#ff5072>Disabled</color>]" : "[<color=#89ff89>Enabled</color>]";
                     string enabledSubtext = Plugin.Configuration.DisableOneSaberOverride ? "enable" : "disable";
                     string saberCountText = diffData._oneSaber.Value ? "Forced One Saber" : "Forced Standard";
-                    customListTableData.data.Add(new CustomCellInfo($"<size=75%>{saberCountText} {enabledText}", $"Map changes saber count, click here to {enabledSubtext}.", diffData._oneSaber.Value ? OneSaberIcon : StandardIcon));
+                    customListTableData.Data.Add(new CustomCellInfo($"<size=75%>{saberCountText} {enabledText}", $"Map changes saber count, click here to {enabledSubtext}.", diffData._oneSaber.Value ? OneSaberIcon : StandardIcon));
                 }
 
-                if (customListTableData.data.Count > 0)
+                if (customListTableData.Data.Count > 0)
                 {
                     if (environmentName == null && beatmapLevel != null)
                         environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.Value.beatmapCharacteristic, beatmapKey.Value.difficulty);
-                    customListTableData.data.Add(new CustomCellInfo("<size=75%>Environment Info", $"This Map uses the Environment: {environmentName}", EnvironmentIcon));
+                    customListTableData.Data.Add(new CustomCellInfo("<size=75%>Environment Info", $"This Map uses the Environment: {environmentName}", EnvironmentIcon));
 
                 }
             }
 
-            customListTableData.tableView.ReloadData();
-            customListTableData.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
+            customListTableData.TableView.ReloadData();
+            customListTableData.TableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
         }
 
         [UIAction("list-select")]
         private void Select(TableView _, int index)
         {
-            customListTableData.tableView.ClearSelection();
+            customListTableData.TableView.ClearSelection();
             if (diffData != null)
             {
-                var iconSelected = customListTableData.data[index].icon;
+                var iconSelected = customListTableData.Data[index].Icon;
                 if (iconSelected == ColorsIcon)
                 {
                     modal.Hide(false, () => _colorsUI.ShowColors(diffData));

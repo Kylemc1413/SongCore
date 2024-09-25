@@ -228,7 +228,7 @@ namespace SongCore.HarmonyPatches
             {
                 if (__instance._beatmapCharacteristicSegmentedControlController.selectedBeatmapCharacteristic.serializedName != songData._defaultCharacteristic)
                 {
-                    var chars = __instance._beatmapCharacteristicSegmentedControlController._beatmapCharacteristics;
+                    var chars = __instance._beatmapCharacteristicSegmentedControlController._currentlyAvailableBeatmapCharacteristics;
                     var index = 0;
                     foreach (var characteristic in chars)
                     {

@@ -54,7 +54,7 @@ namespace SongCore.OverrideClasses
             foreach (BeatmapLevelPack beatmapLevelPack in _beatmapLevelPacks)
             {
                 _idToBeatmapLevelPack.Add(beatmapLevelPack.packID, beatmapLevelPack);
-                foreach (BeatmapLevel beatmapLevel in beatmapLevelPack.beatmapLevels)
+                foreach (BeatmapLevel beatmapLevel in beatmapLevelPack.AllBeatmapLevels())
                 {
                     _beatmapLevelIdToBeatmapLevelPackId.TryAdd(beatmapLevel.levelID, beatmapLevelPack.packID);
                     _idToBeatmapLevel.TryAdd(beatmapLevel.levelID, beatmapLevel);
