@@ -119,6 +119,7 @@
     </Reference>
     <Reference Include="SegmentedControl">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\SegmentedControl.dll</HintPath>
+      <Private>false</Private>
       <Publicize>true</Publicize>
     </Reference>
     <Reference Include="SiraUtil">

@@ -731,7 +731,7 @@ namespace SongCore
             }
             else
             {
-                Logging.Logger.Warn($"Song loading task cancelled.");
+                Logging.Logger.Warn("Song loading task cancelled.");
             }
         }
 
