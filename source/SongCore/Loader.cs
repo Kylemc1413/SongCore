@@ -405,15 +405,14 @@ namespace SongCore
 
                     // Get Levels from CustomLevels and CustomWIPLevels folders
                     var songFolders = new DirectoryInfo(_customLevelsPath).GetDirectories()
+                        .Concat(new DirectoryInfo(_customWIPPath).GetDirectories())
                         .Where(d => d.Exists && !d.Attributes.HasFlag(FileAttributes.Hidden))
                         .Select(d => d.FullName)
-                        .Concat(Directory.GetDirectories(_customWIPPath)
-                            .Where(Directory.Exists))
                         .ToArray();
                     var songFoldersCount = songFolders.Length;
                     var parallelOptions = new ParallelOptions
                     {
-                        MaxDegreeOfParallelism = Math.Max(1, (Environment.ProcessorCount / 2) - 1),
+                        MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount / 2 - 1),
                         CancellationToken = _loadingTaskCancellationTokenSource.Token
                     };
                     var processedSongsCount = 0;
@@ -421,12 +420,18 @@ namespace SongCore
                     // Clear removed songs from loaded data, in case they were removed manually.
                     if (_customLevelLoader._loadedBeatmapSaveData.Count > 0)
                     {
-                        var folders = songFolders.Concat(SeparateSongFolders.SelectMany(f => f.Levels.Keys)).ToHashSet();
+                        var folders = songFolders
+                            .Concat(SeparateSongFolders
+                                .Select(f => Path.GetFullPath(f.SongFolderEntry.Path))
+                                .SelectMany(p => new DirectoryInfo(p).GetDirectories()
+                                    .Where(d => d.Exists && !d.Attributes.HasFlag(FileAttributes.Hidden))
+                                    .Select(d => d.FullName)))
+                            .ToHashSet();
                         foreach (var loadedSaveData in _customLevelLoader._loadedBeatmapSaveData.Values)
                         {
                             if (!folders.Contains(loadedSaveData.customLevelFolderInfo.folderPath))
                             {
-                                DeleteSingleSong(loadedSaveData.customLevelFolderInfo.folderPath, true);
+                                DeleteSingleSong(loadedSaveData.customLevelFolderInfo.folderPath, false);
                             }
                         }
                     }
