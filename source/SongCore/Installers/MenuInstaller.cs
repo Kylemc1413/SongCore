@@ -15,9 +15,6 @@ namespace SongCore.Installers
             Container.Bind<ProgressBar>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesAndSelfTo<RequirementsUI>().AsSingle();
             Container.BindInterfacesTo<CosmeticCharacteristicsPatch>().AsSingle();
-            Container.Bind<IReferenceCountingCache<int, Task<Sprite>>>().To<SpriteReferenceCountingCache>().AsSingle();
-            Container.Bind<SpriteAsyncLoaderFixed>().AsSingle();
-            Container.BindInterfacesTo<FixSpriteAsyncLoaderLeakPatch>().AsSingle();
         }
     }
 }
