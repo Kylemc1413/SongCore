@@ -70,20 +70,6 @@ namespace SongCore.HarmonyPatches
                 return;
             }
 
-            // This fixes base game trying to load non-existing difficulties.
-            // TODO: Remove when fixed.
-            if (Loader.LoadedBeatmapLevelsData.TryGetValue(beatmapLevel.levelID, out var beatmapLevelData) && !File.Exists(((FileSystemBeatmapLevelData)beatmapLevelData).GetDifficultyBeatmap(__instance.beatmapKey)!._beatmapPath))
-            {
-                requirementsUI.ButtonGlowColor = false;
-                requirementsUI.ButtonInteractable = false;
-                actionButton.interactable = false;
-                practiceButton.interactable = false;
-
-                __instance.ShowContent(StandardLevelDetailViewController.ContentType.Error, 0f);
-
-                return;
-            }
-
             __instance.ShowContent(StandardLevelDetailViewController.ContentType.OwnedAndReady, 0f);
 
             var songData = Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(beatmapLevel));

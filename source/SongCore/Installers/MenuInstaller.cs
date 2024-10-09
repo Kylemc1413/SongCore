@@ -1,7 +1,5 @@
-using System.Threading.Tasks;
 using SongCore.HarmonyPatches;
 using SongCore.UI;
-using UnityEngine;
 using Zenject;
 
 namespace SongCore.Installers
