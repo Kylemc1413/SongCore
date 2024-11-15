@@ -55,6 +55,11 @@ namespace SongCore
             return GetLoadedSaveData(levelID)?.standardLevelInfoSaveData;
         }
 
+        public static IBeatmapLevelData? GetBeatmapLevelData(string levelID)
+        {
+            return Loader.LoadedBeatmapLevelsData.GetValueOrDefault(levelID);
+        }
+
         public static CustomLevelLoader.LoadedSaveData? GetLoadedSaveData(string levelID)
         {
             return Loader.LoadedBeatmapSaveData.TryGetValue(levelID, out var loadedSaveData) ? loadedSaveData : null;
