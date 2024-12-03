@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection.Emit;
 using BeatmapSaveDataCommon;
 using HarmonyLib;
-using JetBrains.Annotations;
 
 namespace SongCore.Patches
 {
@@ -11,13 +10,12 @@ namespace SongCore.Patches
     // but it was never supported by custom mapping tools and later reused as a light event.
     // The code to convert these events broke a lot of maps, so we are removing it here.
     [HarmonyPatch(typeof(BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData), nameof(BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.ConvertBeatmapSaveDataPreV2_5_0Inline))]
-    [UsedImplicitly]
-    public static class YeetLegacyBPMEventsPatch
+    internal static class YeetLegacyBPMEventsPatch
     {
         // Skipping the:
         // if (eventData.type == BeatmapEventType.Event10)
         //    eventData = new EventData(eventData.time, BeatmapEventType.BpmChange, eventData.value, eventData.floatValue);
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = instructions.ToArray();
             for (int i = 0; i < codes.Length; i++)

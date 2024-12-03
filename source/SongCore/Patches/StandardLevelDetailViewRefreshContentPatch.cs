@@ -9,7 +9,7 @@ using SongCore.Utilities;
 namespace SongCore.Patches
 {
     [HarmonyPatch(typeof(StandardLevelDetailView), nameof(StandardLevelDetailView.RefreshContent))]
-    internal class StandardLevelDetailViewRefreshContentPatch
+    internal static class StandardLevelDetailViewRefreshContentPatch
     {
         private static readonly Dictionary<string, OverrideLabels> LevelLabels = new Dictionary<string, OverrideLabels>();
 
@@ -26,7 +26,7 @@ namespace SongCore.Patches
             internal string? ExpertPlusOverride;
         }
 
-        internal static void SetCurrentLabels(OverrideLabels labels)
+        private static void SetCurrentLabels(OverrideLabels labels)
         {
             currentLabels.EasyOverride = labels.EasyOverride;
             currentLabels.NormalOverride = labels.NormalOverride;
@@ -35,7 +35,7 @@ namespace SongCore.Patches
             currentLabels.ExpertPlusOverride = labels.ExpertPlusOverride;
         }
 
-        internal static void ClearOverrideLabels()
+        private static void ClearOverrideLabels()
         {
             currentLabels.EasyOverride = null;
             currentLabels.NormalOverride = null;
@@ -239,7 +239,7 @@ namespace SongCore.Patches
     }
 
     [HarmonyPatch(typeof(StandardLevelDetailView), nameof(StandardLevelDetailView.CheckIfBeatmapLevelDataExists))]
-    internal class StandardLevelDetailViewCheckIfBeatmapLevelDataExistsPatch
+    internal static class StandardLevelDetailViewCheckIfBeatmapLevelDataExistsPatch
     {
         private static void Prefix(StandardLevelDetailView __instance, out (bool, bool) __state)
         {

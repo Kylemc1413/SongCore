@@ -16,7 +16,7 @@ namespace SongCore.Patches
     /// </summary>
     // TODO: Make this use MethodType.Async once supported.
     [HarmonyPatch]
-    internal class StandardLevelDetailViewControllerPatch
+    internal static class StandardLevelDetailViewControllerPatch
     {
         private static MethodBase TargetMethod() => AccessTools.Method(typeof(StandardLevelDetailViewController), nameof(StandardLevelDetailViewController.ShowLoadingAndDoSomething)).GetStateMachineTarget();
 

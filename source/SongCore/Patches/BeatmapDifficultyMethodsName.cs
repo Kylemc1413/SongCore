@@ -2,10 +2,9 @@
 
 namespace SongCore.Patches
 {
-    [HarmonyPatch(typeof(BeatmapDifficultyMethods))]
-    [HarmonyPatch(nameof(BeatmapDifficultyMethods.Name), MethodType.Normal)]
+    [HarmonyPatch(typeof(BeatmapDifficultyMethods), nameof(BeatmapDifficultyMethods.Name))]
     // TODO: Find a way to add a limitation to the size of the text.
-    internal class BeatmapDifficultyMethodsName
+    internal static class BeatmapDifficultyMethodsName
     {
         private static void Postfix(BeatmapDifficulty difficulty, ref string __result)
         {

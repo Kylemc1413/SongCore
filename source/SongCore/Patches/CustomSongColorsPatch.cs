@@ -6,10 +6,10 @@ using Utils = SongCore.Utilities.Utils;
 namespace SongCore.Patches
 {
     [HarmonyPatch]
-    internal class CustomSongColorsPatch
+    internal static class CustomSongColorsPatch
     {
         [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.InitColorInfo))]
-        internal class StandardLevelScenesTransitionSetupDataPatch
+        internal static class StandardLevelScenesTransitionSetupDataPatch
         {
             private static void Postfix(StandardLevelScenesTransitionSetupDataSO __instance)
             {
@@ -31,7 +31,7 @@ namespace SongCore.Patches
         }
 
         [HarmonyPatch(typeof(MultiplayerLevelScenesTransitionSetupDataSO), nameof(MultiplayerLevelScenesTransitionSetupDataSO.InitColorInfo))]
-        internal class MultiplayerLevelScenesTransitionSetupDataPatch
+        internal static class MultiplayerLevelScenesTransitionSetupDataPatch
         {
             private static void Postfix(MultiplayerLevelScenesTransitionSetupDataSO __instance)
             {

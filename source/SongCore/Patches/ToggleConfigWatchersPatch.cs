@@ -8,7 +8,7 @@ namespace SongCore.Patches
     /// It leaks a lot of memory when there's a ton of files to watch.
     /// </summary>
     [HarmonyPatch(typeof(DisableGCWhileEnabled))]
-    internal class ToggleConfigWatchersPatch
+    internal static class ToggleConfigWatchersPatch
     {
         [HarmonyPatch(nameof(DisableGCWhileEnabled.OnEnable))]
         private static void Prefix()

@@ -3,7 +3,7 @@
 namespace SongCore.Patches
 {
     [HarmonyPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
-    internal class BindBeatmapLevelPatch
+    internal static class BindBeatmapLevelPatch
     {
         private static void Postfix(GameplayCoreInstaller __instance)
         {

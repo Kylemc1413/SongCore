@@ -9,7 +9,7 @@ using HarmonyLib;
 namespace SongCore.Patches
 {
     [HarmonyPatch(typeof(AnnotatedBeatmapLevelCollectionCell), nameof(AnnotatedBeatmapLevelCollectionCell.RefreshAvailabilityAsync))]
-    internal class AnnotatedBeatmapLevelCollectionCell_RefreshAvailabilityAsync
+    internal static class AnnotatedBeatmapLevelCollectionCell_RefreshAvailabilityAsync
     {
         private static void Postfix(AnnotatedBeatmapLevelCollectionCell __instance)
         {

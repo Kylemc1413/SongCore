@@ -6,7 +6,7 @@ using HarmonyLib;
 namespace SongCore.Patches
 {
     [HarmonyPatch(typeof(LevelListTableCell), nameof(LevelListTableCell.SetDataFromLevelAsync))]
-    internal class LevelListTableCellSetDataFromLevelAsyncPatch
+    internal static class LevelListTableCellSetDataFromLevelAsyncPatch
     {
         private static void Postfix(LevelListTableCell __instance, BeatmapLevel beatmapLevel)
         {
