@@ -8,9 +8,9 @@ using System.IO;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
-using SongCore.HarmonyPatches;
 using SiraUtil.Zenject;
 using SongCore.Installers;
+using SongCore.Patches;
 using IPALogger = IPA.Logging.Logger;
 
 namespace SongCore

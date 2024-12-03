@@ -1,8 +1,8 @@
-using HarmonyLib;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using HarmonyLib;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     [HarmonyPatch(typeof(BeatmapLevelsModel), nameof(BeatmapLevelsModel.ReloadCustomLevelPackCollectionAsync))]
     internal class StopVanillaLoadingPatch

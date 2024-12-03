@@ -3,7 +3,7 @@ using SongCore.Data;
 using SongCore.Utilities;
 using Utils = SongCore.Utilities.Utils;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     [HarmonyPatch]
     internal class CustomSongColorsPatch

@@ -1,4 +1,4 @@
-using SongCore.HarmonyPatches;
+using SongCore.Patches;
 using SongCore.UI;
 using Zenject;
 

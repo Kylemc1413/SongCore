@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     [HarmonyPatch(typeof(BeatmapDifficultyMethods))]
     [HarmonyPatch(nameof(BeatmapDifficultyMethods.Name), MethodType.Normal)]

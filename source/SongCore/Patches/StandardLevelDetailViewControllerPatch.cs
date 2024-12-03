@@ -8,7 +8,7 @@ using HarmonyLib;
 using MonoMod.Utils;
 using SongCore.Utilities;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     /// <summary>
     /// This patch catches all exceptions and displays an error message to the user

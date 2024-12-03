@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using SongCore.Utilities;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     /// <summary>
     /// This patch fixes an <a href="https://github.com/BepInEx/HarmonyX/issues/65">issue</a> with HarmonyX that causes it

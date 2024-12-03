@@ -5,7 +5,7 @@ using BeatmapSaveDataCommon;
 using HarmonyLib;
 using JetBrains.Annotations;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     // Event10 was briefly used as an official BPM change between 1.8.0 and 1.18.0,
     // but it was never supported by custom mapping tools and later reused as a light event.

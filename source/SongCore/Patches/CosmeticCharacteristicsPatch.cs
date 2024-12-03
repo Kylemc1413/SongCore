@@ -7,7 +7,7 @@ using SiraUtil.Affinity;
 using SongCore.Utilities;
 using UnityEngine;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     internal class CosmeticCharacteristicsPatch : IAffinity
     {

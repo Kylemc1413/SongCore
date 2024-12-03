@@ -1,7 +1,7 @@
 ﻿using SiraUtil.Affinity;
 using SiraUtil.Submissions;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     internal class DisableSubmissionPatches : IAffinity
     {

@@ -1,7 +1,7 @@
-﻿using HarmonyLib;
-using System.Linq;
+﻿using System.Linq;
+using HarmonyLib;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     // TODO: Remove missing characteristic. Might end up in wiped save data.
     [HarmonyPatch(typeof(BeatmapCharacteristicCollection))]

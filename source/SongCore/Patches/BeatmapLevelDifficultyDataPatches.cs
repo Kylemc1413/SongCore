@@ -1,7 +1,7 @@
 using SiraUtil.Affinity;
 using SongCore.Utilities;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     internal class BeatmapLevelDifficultyDataPatches  : IAffinity
     {

@@ -1,6 +1,6 @@
 using SiraUtil.Affinity;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     internal class AllowNegativeNjsValuesPatch : IAffinity
     {

@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using HarmonyLib;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     [HarmonyPatch(typeof(LevelListTableCell), nameof(LevelListTableCell.SetDataFromLevelAsync))]
     internal class LevelListTableCellSetDataFromLevelAsyncPatch

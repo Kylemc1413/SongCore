@@ -1,12 +1,12 @@
 using System;
-using HarmonyLib;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using HarmonyLib;
 using SongCore.UI;
 using SongCore.Utilities;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     [HarmonyPatch(typeof(StandardLevelDetailView), nameof(StandardLevelDetailView.RefreshContent))]
     internal class StandardLevelDetailViewRefreshContentPatch

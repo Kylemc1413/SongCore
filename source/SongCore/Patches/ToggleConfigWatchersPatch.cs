@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using IPA.Config;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     /// <summary>
     /// This patch disables BSIPA's monitoring of config files in the game scene.
