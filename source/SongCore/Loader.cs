@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -927,10 +928,11 @@ namespace SongCore
 
             foreach (var zip in zips)
             {
-                using var unzip = new Unzip(zip);
                 try
                 {
-                    unzip.ExtractToDirectory(Path.Combine(cachePath, new FileInfo(zip).Name));
+                    using var fileStream = File.OpenRead(zip);
+                    using var archive = new ZipArchive(fileStream);
+                    archive.ExtractToDirectory(Path.Combine(cachePath, Path.GetFileName(zip)));
                 }
                 catch (Exception ex)
                 {
