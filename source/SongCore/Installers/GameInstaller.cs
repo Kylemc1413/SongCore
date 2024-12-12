@@ -8,7 +8,6 @@ namespace SongCore.Installers
         public override void InstallBindings()
         {
             Container.BindInterfacesTo<BeatmapLevelDifficultyDataPatches>().AsSingle();
-            Container.BindInterfacesTo<AllowNegativeNjsValuesPatch>().AsSingle();
             Container.BindInterfacesTo<DisableSubmissionPatches>().AsSingle();
         }
     }

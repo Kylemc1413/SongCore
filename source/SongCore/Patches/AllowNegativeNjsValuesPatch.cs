@@ -1,25 +1,39 @@
-using SiraUtil.Affinity;
+using System;
+using System.Collections.Generic;
+using System.Reflection.Emit;
+using HarmonyLib;
+using UnityEngine;
 
 namespace SongCore.Patches
 {
-    internal class AllowNegativeNjsValuesPatch : IAffinity
+    [HarmonyPatch(typeof(BeatmapDifficultyMethods), nameof(BeatmapDifficultyMethods.NoteJumpMovementSpeed))]
+    internal static class AllowNegativeNjsValuesPatch
     {
-        private readonly BeatmapBasicData _beatmapBasicData;
-
-        private AllowNegativeNjsValuesPatch(BeatmapBasicData beatmapBasicData)
+        private static void Postfix(ref float __result, float noteJumpMovementSpeed)
         {
-            _beatmapBasicData = beatmapBasicData;
-        }
-
-        [AffinityPatch(typeof(BeatmapObjectSpawnMovementData), nameof(BeatmapObjectSpawnMovementData.Init))]
-        [AffinityPrefix]
-        private void ForceNegativeStartNoteJumpMovementSpeed(ref float startNoteJumpMovementSpeed)
-        {
-            var noteJumpMovementSpeed = _beatmapBasicData.noteJumpMovementSpeed;
             if (noteJumpMovementSpeed < 0)
             {
-                startNoteJumpMovementSpeed = noteJumpMovementSpeed;
+                __result = noteJumpMovementSpeed;
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(VariableMovementDataProvider), nameof(VariableMovementDataProvider.ManualUpdate))]
+    internal static class VariableMovementDataProviderPatch
+    {
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            return new CodeMatcher(instructions)
+                .Start()
+                .RemoveInstructions(10)
+                .Insert(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldarg_1),
+                    Transpilers.EmitDelegate<Func<VariableMovementDataProvider, float, float>>((variableMovementDataProvider, songTime) => variableMovementDataProvider._initNoteJumpMovementSpeed > 0
+                        ? Mathf.Max(variableMovementDataProvider._initNoteJumpMovementSpeed + variableMovementDataProvider._relativeNoteJumpSpeedInterpolation.GetValue(songTime), VariableMovementDataProvider.kMinNoteJumpMovementSpeed)
+                        : Mathf.Min(variableMovementDataProvider._initNoteJumpMovementSpeed + variableMovementDataProvider._relativeNoteJumpSpeedInterpolation.GetValue(songTime), -VariableMovementDataProvider.kMinNoteJumpMovementSpeed)))
+                .InstructionEnumeration();
         }
     }
 }
