@@ -13,12 +13,14 @@ namespace SongCore.UI
     {
         private readonly StandardLevelDetailViewController _standardLevelDetailViewController;
         private readonly GameplaySetupViewController _gameplaySetupViewController;
+        private readonly PluginConfig _config;
         private readonly BSMLParser _bsmlParser;
 
-        private ColorsUI(StandardLevelDetailViewController standardLevelDetailViewController, GameplaySetupViewController gameplaySetupViewController, BSMLParser bsmlParser)
+        private ColorsUI(StandardLevelDetailViewController standardLevelDetailViewController, GameplaySetupViewController gameplaySetupViewController, PluginConfig config, BSMLParser bsmlParser)
         {
             _standardLevelDetailViewController = standardLevelDetailViewController;
             _gameplaySetupViewController = gameplaySetupViewController;
+            _config = config;
             _bsmlParser = bsmlParser;
         }
 
@@ -37,22 +39,22 @@ namespace SongCore.UI
         [UIValue("noteColors")]
         public bool NoteColors
         {
-            get => Plugin.Configuration.CustomSongNoteColors;
-            set => Plugin.Configuration.CustomSongNoteColors = value;
+            get => _config.CustomSongNoteColors;
+            set => _config.CustomSongNoteColors = value;
         }
 
         [UIValue("obstacleColors")]
         public bool ObstacleColors
         {
-            get => Plugin.Configuration.CustomSongObstacleColors;
-            set => Plugin.Configuration.CustomSongObstacleColors = value;
+            get => _config.CustomSongObstacleColors;
+            set => _config.CustomSongObstacleColors = value;
         }
 
         [UIValue("environmentColors")]
         public bool EnvironmentColors
         {
-            get => Plugin.Configuration.CustomSongEnvironmentColors;
-            set => Plugin.Configuration.CustomSongEnvironmentColors = value;
+            get => _config.CustomSongEnvironmentColors;
+            set => _config.CustomSongEnvironmentColors = value;
         }
 
         internal void ShowColors(ExtraSongData.DifficultyData songData)

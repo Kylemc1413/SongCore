@@ -1,17 +1,17 @@
-using HarmonyLib;
-using IPA;
-using SongCore.UI;
-using SongCore.Utilities;
-using IPA.Utilities;
 using System;
 using System.IO;
+using HarmonyLib;
+using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
+using IPA.Logging;
+using IPA.Utilities;
 using SiraUtil.Zenject;
 using SongCore.Installers;
 using SongCore.Patches;
-using IPALogger = IPA.Logging.Logger;
+using SongCore.UI;
+using SongCore.Utilities;
 
 namespace SongCore
 {
@@ -20,8 +20,6 @@ namespace SongCore
     {
         private readonly PluginMetadata _metadata;
         private readonly Harmony _harmony;
-
-        internal static SConfiguration Configuration { get; private set; }
 
         public static Action<bool, string, string, BeatmapLevel>? CustomSongPlatformSelectionDidChange;
 
@@ -33,18 +31,17 @@ namespace SongCore
         public static string noArrowsCharacteristicName = "NoArrows";
 
         [Init]
-        public Plugin(IPALogger pluginLogger, PluginMetadata metadata, Zenjector zenjector)
+        public Plugin(Logger logger, PluginMetadata metadata, Zenjector zenjector)
         {
             // Workaround for creating BSIPA config in Userdata subdir
             Directory.CreateDirectory(Path.Combine(UnityGame.UserDataPath, nameof(SongCore)));
-            Configuration = Config.GetConfigFor(nameof(SongCore) + Path.DirectorySeparatorChar + nameof(SongCore)).Generated<SConfiguration>();
 
-            Logging.Logger = pluginLogger;
+            Logging.Logger = logger;
             _metadata = metadata;
             _harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
 
-            zenjector.UseLogger(pluginLogger);
-            zenjector.Install<AppInstaller>(Location.App);
+            zenjector.UseLogger(logger);
+            zenjector.Install<AppInstaller>(Location.App, Config.GetConfigFor(nameof(SongCore) + Path.DirectorySeparatorChar + nameof(SongCore)).Generated<PluginConfig>());
             zenjector.Install<MenuInstaller>(Location.Menu);
             zenjector.Install<GameInstaller>(Location.StandardPlayer);
         }

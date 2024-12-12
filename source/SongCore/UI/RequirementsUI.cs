@@ -19,14 +19,16 @@ namespace SongCore.UI
         private readonly CustomLevelLoader _customLevelLoader;
         private readonly TimeTweeningManager _tweeningManager;
         private readonly BSMLParser _bsmlParser;
+        private readonly PluginConfig _config;
         private readonly ColorsUI _colorsUI;
 
-        private RequirementsUI(StandardLevelDetailViewController standardLevelDetailViewController, CustomLevelLoader customLevelLoader, TimeTweeningManager tweeningManager, BSMLParser bsmlParser, ColorsUI colorsUI)
+        private RequirementsUI(StandardLevelDetailViewController standardLevelDetailViewController, CustomLevelLoader customLevelLoader, TimeTweeningManager tweeningManager, BSMLParser bsmlParser, PluginConfig config, ColorsUI colorsUI)
         {
             _standardLevelDetailViewController = standardLevelDetailViewController;
             _customLevelLoader = customLevelLoader;
             _tweeningManager = tweeningManager;
             _bsmlParser = bsmlParser;
+            _config = config;
             _colorsUI = colorsUI;
             instance = this;
         }
@@ -266,8 +268,8 @@ namespace SongCore.UI
 
                 if (diffData._oneSaber != null)
                 {
-                    string enabledText = Plugin.Configuration.DisableOneSaberOverride ? "[<color=#ff5072>Disabled</color>]" : "[<color=#89ff89>Enabled</color>]";
-                    string enabledSubtext = Plugin.Configuration.DisableOneSaberOverride ? "enable" : "disable";
+                    string enabledText = _config.DisableOneSaberOverride ? "[<color=#ff5072>Disabled</color>]" : "[<color=#89ff89>Enabled</color>]";
+                    string enabledSubtext = _config.DisableOneSaberOverride ? "enable" : "disable";
                     string saberCountText = diffData._oneSaber.Value ? "Forced One Saber" : "Forced Standard";
                     customListTableData.Data.Add(new CustomCellInfo($"<size=75%>{saberCountText} {enabledText}", $"Map changes saber count, click here to {enabledSubtext}.", diffData._oneSaber.Value ? OneSaberIcon : StandardIcon));
                 }
@@ -298,7 +300,7 @@ namespace SongCore.UI
                 }
                 else if (iconSelected == StandardIcon || iconSelected == OneSaberIcon)
                 {
-                    Plugin.Configuration.DisableOneSaberOverride = !Plugin.Configuration.DisableOneSaberOverride;
+                    _config.DisableOneSaberOverride = !_config.DisableOneSaberOverride;
                     modal.Hide(true);
                 }
             }

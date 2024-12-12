@@ -8,11 +8,15 @@ namespace SongCore.Installers
     {
         public override void InstallBindings()
         {
+            Container.Bind<SettingsController>().AsSingle();
             Container.BindInterfacesAndSelfTo<Loader>().AsSingle();
             Container.BindInterfacesAndSelfTo<ColorsUI>().AsSingle();
             Container.Bind<ProgressBar>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesAndSelfTo<RequirementsUI>().AsSingle();
             Container.BindInterfacesTo<CosmeticCharacteristicsPatch>().AsSingle();
+            Container.BindInterfacesTo<CustomSongColorsPatches>().AsSingle();
+            Container.BindInterfacesTo<OverrideBeatmapDifficultyNamePatches>().AsSingle();
+            Container.BindInterfacesTo<LevelListTableCellDataPatch>().AsSingle();
         }
     }
 }

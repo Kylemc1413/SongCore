@@ -4,7 +4,7 @@ using IPA.Config.Stores;
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 namespace SongCore
 {
-    internal class SConfiguration
+    internal class PluginConfig
     {
         public virtual bool CustomSongNoteColors { get; set; } = true;
         public virtual bool CustomSongObstacleColors { get; set; } = true;

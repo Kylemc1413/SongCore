@@ -13,22 +13,24 @@ namespace SongCore.Patches
     {
         private readonly StandardLevelDetailViewController _standardLevelDetailViewController;
         private readonly CustomLevelLoader _customLevelLoader;
+        private readonly PluginConfig _config;
 
-        private CosmeticCharacteristicsPatch(StandardLevelDetailViewController standardLevelDetailViewController, CustomLevelLoader customLevelLoader)
+        private CosmeticCharacteristicsPatch(StandardLevelDetailViewController standardLevelDetailViewController, CustomLevelLoader customLevelLoader, PluginConfig config)
         {
             _standardLevelDetailViewController = standardLevelDetailViewController;
             _customLevelLoader = customLevelLoader;
+            _config = config;
         }
 
         [AffinityPatch(typeof(BeatmapCharacteristicSegmentedControlController), nameof(BeatmapCharacteristicSegmentedControlController.SetData))]
         private void SetCosmeticCharacteristic(BeatmapCharacteristicSegmentedControlController __instance, BeatmapCharacteristicSO selectedBeatmapCharacteristic)
         {
-            if (!Plugin.Configuration.DisplayCustomCharacteristics)
+            if (!_config.DisplayCustomCharacteristics)
             {
                 return;
             }
 
-            var beatmapLevel = _standardLevelDetailViewController._beatmapLevel;
+            var beatmapLevel = _standardLevelDetailViewController.beatmapLevel;
             if (beatmapLevel.hasPrecalculatedData)
             {
                 return;
@@ -40,12 +42,10 @@ namespace SongCore.Patches
                 return;
             }
 
-            var segmentedControl = __instance._segmentedControl;
-            var dataItems = segmentedControl._dataItems;
             var newDataItems = new List<IconSegmentedControl.DataItem>();
             var i = 0;
             var cellIndex = 0;
-            foreach (var dataItem in dataItems)
+            foreach (var dataItem in __instance._segmentedControl._dataItems)
             {
                 var beatmapCharacteristic = __instance._currentlyAvailableBeatmapCharacteristics[i];
                 var serializedName = beatmapCharacteristic.serializedName;
@@ -81,8 +81,8 @@ namespace SongCore.Patches
                 i++;
             }
 
-            segmentedControl.SetData(newDataItems.ToArray());
-            segmentedControl.SelectCellWithNumber(cellIndex);
+            __instance._segmentedControl.SetData(newDataItems.ToArray());
+            __instance._segmentedControl.SelectCellWithNumber(cellIndex);
         }
     }
 }

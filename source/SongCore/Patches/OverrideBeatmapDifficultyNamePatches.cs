@@ -1,14 +1,21 @@
-﻿using HarmonyLib;
+﻿using SiraUtil.Affinity;
 
 namespace SongCore.Patches
 {
-    [HarmonyPatch(typeof(BeatmapDifficultyMethods), nameof(BeatmapDifficultyMethods.Name))]
     // TODO: Find a way to add a limitation to the size of the text.
-    internal static class BeatmapDifficultyMethodsName
+    internal class OverrideBeatmapDifficultyNamePatches : IAffinity
     {
-        private static void Postfix(BeatmapDifficulty difficulty, ref string __result)
+        private readonly PluginConfig _config;
+
+        private OverrideBeatmapDifficultyNamePatches(PluginConfig config)
         {
-            if (!Plugin.Configuration.DisplayDiffLabels)
+            _config = config;
+        }
+
+        [AffinityPatch(typeof(BeatmapDifficultyMethods), nameof(BeatmapDifficultyMethods.Name))]
+        private void OverrideBeatmapDifficultyName(ref string __result, BeatmapDifficulty difficulty)
+        {
+            if (!_config.DisplayDiffLabels)
             {
                 return;
             }
@@ -23,8 +30,8 @@ namespace SongCore.Patches
                         .ExpertPlusOverride,
                     _ => __result
                 })
-                .Replace(@"<", "<\u200B")
-                .Replace(@">", ">\u200B");
+                .Replace("<", "<\u200B")
+                .Replace(">", ">\u200B");
         }
     }
 }
