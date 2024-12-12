@@ -51,7 +51,7 @@ namespace SongCore
         {
             if (typeof(Harmony).Assembly.GetName().Version.Minor < 12)
             {
-                _harmony.Patch(HarmonyTranspilersFixPatch.TargetMethod(), null, null, new HarmonyMethod(AccessTools.Method(typeof(HarmonyTranspilersFixPatch), nameof(HarmonyTranspilersFixPatch.Transpiler))));
+                _harmony.Patch(HarmonyTranspilersFixPatch.TargetMethod(), null, null, new HarmonyMethod(AccessTools.DeclaredMethod(typeof(HarmonyTranspilersFixPatch), nameof(HarmonyTranspilersFixPatch.Transpiler))));
             }
             _harmony.PatchAll(_metadata.Assembly);
 

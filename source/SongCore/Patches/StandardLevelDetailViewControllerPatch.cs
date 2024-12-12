@@ -18,7 +18,7 @@ namespace SongCore.Patches
     [HarmonyPatch]
     internal static class StandardLevelDetailViewControllerPatch
     {
-        private static MethodBase TargetMethod() => AccessTools.Method(typeof(StandardLevelDetailViewController), nameof(StandardLevelDetailViewController.ShowLoadingAndDoSomething)).GetStateMachineTarget();
+        private static MethodBase TargetMethod() => AccessTools.DeclaredMethod(typeof(StandardLevelDetailViewController), nameof(StandardLevelDetailViewController.ShowLoadingAndDoSomething)).GetStateMachineTarget()!;
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {

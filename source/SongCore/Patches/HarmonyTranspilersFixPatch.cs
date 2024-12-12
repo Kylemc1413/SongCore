@@ -15,7 +15,7 @@ namespace SongCore.Patches
     // TODO: Remove this once fixed.
     internal static class HarmonyTranspilersFixPatch
     {
-        public static MethodBase TargetMethod() => AccessTools.Method("HarmonyLib.Internal.Patching.ILManipulator:WriteTo");
+        public static MethodBase TargetMethod() => AccessTools.DeclaredMethod("HarmonyLib.Internal.Patching.ILManipulator:WriteTo");
 
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
