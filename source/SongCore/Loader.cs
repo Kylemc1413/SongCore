@@ -1209,14 +1209,6 @@ namespace SongCore
             }
         }
 
-        [Obsolete("Use the overload that uses the loaded save data.", true)]
-        public static float GetLengthFromMap(StandardLevelInfoSaveData saveData, BeatmapLevel level, string songPath)
-        {
-            var customLevelFolderInfo = new CustomLevelFolderInfo(songPath, string.Empty, string.Empty);
-            var loadedSaveData = new CustomLevelLoader.LoadedSaveData { customLevelFolderInfo = customLevelFolderInfo, standardLevelInfoSaveData = saveData };
-            return GetLengthFromMap(loadedSaveData, CustomLevelLoader._loadedBeatmapLevelsData[level.levelID], level);
-        }
-
         public static float GetLengthFromMap(CustomLevelLoader.LoadedSaveData loadedSaveData, IBeatmapLevelData beatmapLevelData, BeatmapLevel level)
         {
             float length = 0;

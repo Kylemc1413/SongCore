@@ -43,23 +43,6 @@ namespace SongCore
             return HashLevelDictionary.TryGetValue(hash, out var songs) ? songs : new List<string>();
         }
 
-        [Obsolete("Get the level path from the struct returned by GetLoadedSaveData instead.", true)]
-        public static string GetCustomLevelPath(string levelID)
-        {
-            return GetLoadedSaveData(levelID)?.customLevelFolderInfo.folderPath ?? string.Empty;
-        }
-
-        [Obsolete("Get the save data from the struct returned by GetLoadedSaveData instead.", true)]
-        public static StandardLevelInfoSaveData? GetStandardLevelInfoSaveData(string levelID)
-        {
-            return GetLoadedSaveData(levelID)?.standardLevelInfoSaveData;
-        }
-
-        public static IBeatmapLevelData? GetBeatmapLevelData(string levelID)
-        {
-            return Loader.LoadedBeatmapLevelsData.GetValueOrDefault(levelID);
-        }
-
         public static CustomLevelLoader.LoadedSaveData? GetLoadedSaveData(string levelID)
         {
             return Loader.LoadedBeatmapSaveData.TryGetValue(levelID, out var loadedSaveData) ? loadedSaveData : null;

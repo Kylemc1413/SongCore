@@ -173,32 +173,6 @@ namespace SongCore.Utilities
             return hash;
         }
 
-        [Obsolete("This overload is deprecated.", true)]
-        public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
-        {
-            var infoFilePath = Path.Combine(customLevelPath, CustomLevelPathHelper.kStandardLevelInfoFilename);
-            if (!File.Exists(infoFilePath))
-            {
-                return string.Empty;
-            }
-
-            var customLevelInfo = new CustomLevelFolderInfo(customLevelPath, string.Empty, File.ReadAllText(infoFilePath));
-            return GetCustomLevelHash(customLevelInfo, level);
-        }
-
-        [Obsolete("This overload is deprecated.", true)]
-        public static string GetCustomLevelHash(BeatmapLevelSaveData level, string customLevelPath)
-        {
-            var infoFilePath = Path.Combine(customLevelPath, CustomLevelPathHelper.kStandardLevelInfoFilename);
-            if (!File.Exists(infoFilePath))
-            {
-                return string.Empty;
-            }
-
-            var customLevelInfo = new CustomLevelFolderInfo(customLevelPath, string.Empty, File.ReadAllText(infoFilePath));
-            return GetCustomLevelHash(customLevelInfo, level);
-        }
-
         public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, StandardLevelInfoSaveData standardLevelInfoSaveData)
         {
             if (GetCachedSongData(customLevelFolderInfo.folderPath, out var directoryHash, out var songHash))
@@ -248,13 +222,6 @@ namespace SongCore.Utilities
             }
 
             return path;
-        }
-
-        [Obsolete("Moved to TryGetRelativePath.", true)]
-        public static string GetRelativePath(string path)
-        {
-            TryGetRelativePath(path, out var relativePath);
-            return relativePath;
         }
 
         public static bool TryGetRelativePath(string path, out string relativePath)
