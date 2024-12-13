@@ -73,13 +73,6 @@ namespace SongCore.UI
             set => _config.ForceLongPreviews = value;
         }
 
-        [UIValue("mappercolor")]
-        public bool MapperColor
-        {
-            get => _config.GreenMapperColor;
-            set => _config.GreenMapperColor = value;
-        }
-
         [UIValue("spawnlines")]
         public bool SpawnLines
         {

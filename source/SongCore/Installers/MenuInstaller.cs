@@ -16,7 +16,6 @@ namespace SongCore.Installers
             Container.BindInterfacesTo<CosmeticCharacteristicsPatch>().AsSingle();
             Container.BindInterfacesTo<CustomSongColorsPatches>().AsSingle();
             Container.BindInterfacesTo<OverrideBeatmapDifficultyNamePatches>().AsSingle();
-            Container.BindInterfacesTo<LevelListTableCellDataPatch>().AsSingle();
         }
     }
 }
