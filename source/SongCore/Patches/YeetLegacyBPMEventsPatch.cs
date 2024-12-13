@@ -6,9 +6,11 @@ using HarmonyLib;
 
 namespace SongCore.Patches
 {
-    // Event10 was briefly used as an official BPM change between 1.8.0 and 1.18.0,
-    // but it was never supported by custom mapping tools and later reused as a light event.
-    // The code to convert these events broke a lot of maps, so we are removing it here.
+    /// <summary>
+    /// Event10 was briefly used as an official BPM change between 1.8.0 and 1.18.0,
+    /// but it was never supported by custom mapping tools and later reused as a light event.
+    /// The code to convert these events broke a lot of maps, so we are removing it here.
+    /// </summary>
     [HarmonyPatch(typeof(BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData), nameof(BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.ConvertBeatmapSaveDataPreV2_5_0Inline))]
     internal static class YeetLegacyBPMEventsPatch
     {

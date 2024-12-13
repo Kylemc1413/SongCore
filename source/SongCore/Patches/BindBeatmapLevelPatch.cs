@@ -2,6 +2,9 @@
 
 namespace SongCore.Patches
 {
+    /// <summary>
+    /// This patch binds the <see cref="BeatmapLevel"/> to the game scene.
+    /// </summary>
     [HarmonyPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
     internal static class BindBeatmapLevelPatch
     {
