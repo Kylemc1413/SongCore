@@ -41,9 +41,13 @@ namespace SongCore.Patches
                     new CodeInstruction(OpCodes.Ldarg_0),
                     new CodeInstruction(OpCodes.Ldarg_0),
                     new CodeInstruction(OpCodes.Ldarg_1),
-                    Transpilers.EmitDelegate<Func<VariableMovementDataProvider, float, float>>((variableMovementDataProvider, songTime) => variableMovementDataProvider._initNoteJumpMovementSpeed > 0
-                        ? Mathf.Max(variableMovementDataProvider._initNoteJumpMovementSpeed + variableMovementDataProvider._relativeNoteJumpSpeedInterpolation.GetValue(songTime), VariableMovementDataProvider.kMinNoteJumpMovementSpeed)
-                        : Mathf.Min(variableMovementDataProvider._initNoteJumpMovementSpeed + variableMovementDataProvider._relativeNoteJumpSpeedInterpolation.GetValue(songTime), -VariableMovementDataProvider.kMinNoteJumpMovementSpeed)))
+                    Transpilers.EmitDelegate<Func<VariableMovementDataProvider, float, float>>((variableMovementDataProvider, songTime) =>
+                    {
+                        var noteJumpSpeed = variableMovementDataProvider._initNoteJumpMovementSpeed + variableMovementDataProvider._relativeNoteJumpSpeedInterpolation.GetValue(songTime);
+                        return variableMovementDataProvider._initNoteJumpMovementSpeed > 0
+                            ? Mathf.Max(noteJumpSpeed, VariableMovementDataProvider.kMinNoteJumpMovementSpeed)
+                            : Mathf.Min(noteJumpSpeed, -VariableMovementDataProvider.kMinNoteJumpMovementSpeed);
+                    }))
                 .InstructionEnumeration();
         }
     }
