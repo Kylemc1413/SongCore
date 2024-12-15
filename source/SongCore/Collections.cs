@@ -98,13 +98,13 @@ namespace SongCore
                     if (songData != null)
                     {
                         CustomSongsData = songData;
-                        Logging.Logger.Info($"Finished loading cached extra data for {CustomSongsData.Count} songs.");
+                        Plugin.Log.Info($"Finished loading cached song data for {CustomSongsData.Count} songs.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logging.Logger.Error($"Error loading cached extra song data: {ex.Message}");
-                    Logging.Logger.Error(ex);
+                    Plugin.Log.Error($"Error loading cached song data: {ex.Message}");
+                    Plugin.Log.Error(ex);
                 }
             });
         }
@@ -113,14 +113,14 @@ namespace SongCore
         {
             try
             {
-                Logging.Logger.Info($"Saving cached extra data for {CustomSongsData.Count} songs.");
+                Plugin.Log.Info($"Saving cached song data for {CustomSongsData.Count} songs.");
                 await using var writer = new StreamWriter(DataPath);
                 await writer.WriteAsync(JsonConvert.SerializeObject(CustomSongsData, Formatting.None));
             }
             catch (Exception ex)
             {
-                Logging.Logger.Error($"Error saving cached extra song data: {ex.Message}");
-                Logging.Logger.Error(ex);
+                Plugin.Log.Error($"Error saving cached song data: {ex.Message}");
+                Plugin.Log.Error(ex);
             }
         }
 
@@ -160,8 +160,8 @@ namespace SongCore
                 }
                 catch (Exception ex)
                 {
-                    Logging.Logger.Error($"Failed to make folder for: {name}");
-                    Logging.Logger.Error(ex);
+                    Plugin.Log.Error($"Failed to make folder for: {name}");
+                    Plugin.Log.Error(ex);
                 }
             }
 

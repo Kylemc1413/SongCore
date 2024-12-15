@@ -535,8 +535,8 @@ namespace SongCore.Data
             }
             catch (Exception ex)
             {
-                Logging.Logger.Error($"Error in Level {loadedSaveData.customLevelFolderInfo.folderPath}:");
-                Logging.Logger.Error(ex);
+                Plugin.Log.Error($"Error in Level {loadedSaveData.customLevelFolderInfo.folderPath}:");
+                Plugin.Log.Error(ex);
             }
         }
 

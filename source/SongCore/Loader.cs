@@ -178,7 +178,7 @@ namespace SongCore
         {
             if (_loadingTaskCancellationTokenSource.IsCancellationRequested && nextScene.name == "MainMenu")
             {
-                Logging.Logger.Notice("Song loading was cancelled. Resuming...");
+                Plugin.Log.Notice("Song loading was cancelled. Resuming...");
                 RefreshSongs();
             }
         }
@@ -190,13 +190,13 @@ namespace SongCore
             {
                 message += " | v" + BeatmapSaveDataHelpers.GetVersion(_customLevelLoader._loadedBeatmapSaveData[beatmapLevel.levelID].customLevelFolderInfo.levelInfoJsonString);
             }
-            Logging.Logger.Debug(message);
+            Plugin.Log.Debug(message);
 
             if (!beatmapLevel.hasPrecalculatedData && Collections.RetrieveExtraSongData(Collections.GetCustomLevelHash(beatmapLevel.levelID)) is { } songData)
             {
                 if (_config.CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
-                    Logging.Logger.Debug("Custom song with platform selected");
+                    Plugin.Log.Debug("Custom song with platform selected");
                     Plugin.CustomSongPlatformSelectionDidChange?.Invoke(true, songData._customEnvironmentName, songData._customEnvironmentHash, beatmapLevel);
                 }
                 else
@@ -269,7 +269,7 @@ namespace SongCore
                 return;
             }
 
-            Logging.Logger.Info(fullRefresh ? "Starting full song refresh" : "Starting song refresh");
+            Plugin.Log.Info(fullRefresh ? "Starting full song refresh" : "Starting song refresh");
             AreSongsLoaded = false;
             AreSongsLoading = true;
             LoadingProgress = 0;
@@ -282,8 +282,8 @@ namespace SongCore
                 }
                 catch (Exception e)
                 {
-                    Logging.Logger.Error("Some plugin is throwing exception from the LoadingStartedEvent!");
-                    Logging.Logger.Error(e);
+                    Plugin.Log.Error("Some plugin is throwing exception from the LoadingStartedEvent!");
+                    Plugin.Log.Error(e);
                 }
             }
 
@@ -340,8 +340,8 @@ namespace SongCore
                 }
                 catch (Exception ex)
                 {
-                    Logging.Logger.Error($"Error populating official songs: {ex.Message}");
-                    Logging.Logger.Error(ex);
+                    Plugin.Log.Error($"Error populating official songs: {ex.Message}");
+                    Plugin.Log.Error(ex);
                 }
 
                 #endregion
@@ -379,8 +379,8 @@ namespace SongCore
                         }
                         catch (Exception ex)
                         {
-                            Logging.Logger.Error("Failed to load cached WIP levels: ");
-                            Logging.Logger.Error(ex);
+                            Plugin.Log.Error("Failed to load cached WIP levels: ");
+                            Plugin.Log.Error(ex);
                         }
                     }
 
@@ -401,8 +401,8 @@ namespace SongCore
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logging.Logger.Error("Failed to load cached WIP levels:");
-                                    Logging.Logger.Error(ex);
+                                    Plugin.Log.Error("Failed to load cached WIP levels:");
+                                    Plugin.Log.Error(ex);
                                 }
                             }
                         }
@@ -458,14 +458,14 @@ namespace SongCore
                       }
                       catch (Exception ex)
                       {
-                          Logging.Logger.Warn($"Skipping missing or corrupt folder: '{folder}'");
-                          Logging.Logger.Warn(ex);
+                          Plugin.Log.Warn($"Skipping missing or corrupt folder: '{folder}'");
+                          Plugin.Log.Warn(ex);
                           return;
                       }
 
                       if (results.Length == 0)
                       {
-                          Logging.Logger.Notice($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} file!");
+                          Plugin.Log.Notice($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} file!");
                           return;
                       }
 
@@ -491,7 +491,7 @@ namespace SongCore
                               var customLevel = LoadCustomLevel(songPath);
                               if (!customLevel.HasValue)
                               {
-                                  Logging.Logger.Error($"Failed to load custom level: {folder}");
+                                  Plugin.Log.Error($"Failed to load custom level: {folder}");
                                   continue;
                               }
 
@@ -510,8 +510,8 @@ namespace SongCore
                           }
                           catch (Exception e)
                           {
-                              Logging.Logger.Error($"Failed to load song folder: {result}");
-                              Logging.Logger.Error(e);
+                              Plugin.Log.Error($"Failed to load song folder: {result}");
+                              Plugin.Log.Error(e);
                           }
                       }
 
@@ -548,14 +548,14 @@ namespace SongCore
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logging.Logger.Warn($"Skipping missing or corrupt folder: '{folder}'");
-                                    Logging.Logger.Warn(ex);
+                                    Plugin.Log.Warn($"Skipping missing or corrupt folder: '{folder}'");
+                                    Plugin.Log.Warn(ex);
                                     continue;
                                 }
 
                                 if (results.Length == 0)
                                 {
-                                    Logging.Logger.Notice($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} file!");
+                                    Plugin.Log.Notice($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} file!");
                                     continue;
                                 }
 
@@ -599,7 +599,7 @@ namespace SongCore
                                         var customLevel = LoadCustomLevel(songPath, entry.SongFolderEntry);
                                         if (!customLevel.HasValue)
                                         {
-                                            Logging.Logger.Error($"Failed to load custom level: {folder}");
+                                            Plugin.Log.Error($"Failed to load custom level: {folder}");
                                         }
                                         else
                                         {
@@ -613,16 +613,16 @@ namespace SongCore
                                     }
                                     catch (Exception e)
                                     {
-                                        Logging.Logger.Error($"Failed to load song folder: {result}");
-                                        Logging.Logger.Error(e);
+                                        Plugin.Log.Error($"Failed to load song folder: {result}");
+                                        Plugin.Log.Error(e);
                                     }
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            Logging.Logger.Error($"Failed to load separate folder {entry.SongFolderEntry.Name}");
-                            Logging.Logger.Error(ex);
+                            Plugin.Log.Error($"Failed to load separate folder {entry.SongFolderEntry.Name}");
+                            Plugin.Log.Error(ex);
                         }
                     }
 
@@ -632,8 +632,8 @@ namespace SongCore
                 }
                 catch (Exception e) when (e is not OperationCanceledException)
                 {
-                    Logging.Logger.Error("RetrieveAllSongs failed:");
-                    Logging.Logger.Error(e);
+                    Plugin.Log.Error("RetrieveAllSongs failed:");
+                    Plugin.Log.Error(e);
                 }
 
                 #endregion
@@ -650,7 +650,7 @@ namespace SongCore
                 int folderCount = songCount - songCountWSF;
                 string songOrSongs = songCount == 1 ? "song" : "songs";
                 string folderOrFolders = folderCount == 1 ? "folder" : "folders";
-                Logging.Logger.Info($"Loaded {songCount} new {songOrSongs} ({songCountWSF}) in CustomLevels | {folderCount} in separate {folderOrFolders}) in {stopwatch.Elapsed.TotalSeconds} seconds");
+                Plugin.Log.Info($"Loaded {songCount} new {songOrSongs} ({songCountWSF}) in CustomLevels | {folderCount} in separate {folderOrFolders}) in {stopwatch.Elapsed.TotalSeconds} seconds");
                 try
                 {
                     #region AddSeparateFolderBeatmapsToRespectivePacks
@@ -705,8 +705,8 @@ namespace SongCore
                 }
                 catch (Exception ex)
                 {
-                    Logging.Logger.Error("Failed to setup LevelPacks:");
-                    Logging.Logger.Error(ex);
+                    Plugin.Log.Error("Failed to setup LevelPacks:");
+                    Plugin.Log.Error(ex);
                 }
 
                 #endregion
@@ -732,7 +732,7 @@ namespace SongCore
             }
             catch (Exception ex)
             {
-                Logging.Logger.Warn($"Song loading task failed. {ex.Message}");
+                Plugin.Log.Warn($"Song loading task failed. {ex.Message}");
                 return;
             }
 
@@ -742,7 +742,7 @@ namespace SongCore
             }
             else
             {
-                Logging.Logger.Warn("Song loading task cancelled.");
+                Plugin.Log.Warn("Song loading task cancelled.");
             }
         }
 
@@ -823,8 +823,8 @@ namespace SongCore
             }
             catch (Exception ex)
             {
-                Logging.Logger.Error($"Exception trying to delete song: {folderPath}");
-                Logging.Logger.Error(ex);
+                Plugin.Log.Error($"Exception trying to delete song: {folderPath}");
+                Plugin.Log.Error(ex);
             }
         }
 
@@ -885,8 +885,8 @@ namespace SongCore
             }
             catch (Exception e)
             {
-                Logging.Logger.Error($"Failed to load song: {loadedSaveData.customLevelFolderInfo.folderPath}");
-                Logging.Logger.Error(e);
+                Plugin.Log.Error($"Failed to load song: {loadedSaveData.customLevelFolderInfo.folderPath}");
+                Plugin.Log.Error(e);
                 return null;
             }
 
@@ -930,8 +930,8 @@ namespace SongCore
                 }
                 catch (Exception ex)
                 {
-                    Logging.Logger.Warn($"Failed to extract zip: {zip}:");
-                    Logging.Logger.Warn(ex);
+                    Plugin.Log.Warn($"Failed to extract zip: {zip}:");
+                    Plugin.Log.Warn(ex);
                 }
             }
         }
@@ -954,13 +954,13 @@ namespace SongCore
                 }
                 catch (DirectoryNotFoundException)
                 {
-                    Logging.Logger.Warn($"Skipping missing or corrupt folder: '{cachedFolder}'");
+                    Plugin.Log.Warn($"Skipping missing or corrupt folder: '{cachedFolder}'");
                     continue;
                 }
 
                 if (results.Length == 0)
                 {
-                    Logging.Logger.Notice($"Folder: '{cachedFolder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} files!");
+                    Plugin.Log.Notice($"Folder: '{cachedFolder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} files!");
                     continue;
                 }
 
@@ -984,7 +984,7 @@ namespace SongCore
                                 var customLevel = LoadCustomLevel(songPath, folderEntry);
                                 if (!customLevel.HasValue)
                                 {
-                                    Logging.Logger.Error($"Failed to load custom level: {folderEntry}");
+                                    Plugin.Log.Error($"Failed to load custom level: {folderEntry}");
                                     return;
                                 }
 
@@ -993,15 +993,15 @@ namespace SongCore
                             }
                             catch (Exception ex)
                             {
-                                Logging.Logger.Notice($"Failed to load song from {cachedFolder}:");
-                                Logging.Logger.Notice(ex);
+                                Plugin.Log.Notice($"Failed to load song from {cachedFolder}:");
+                                Plugin.Log.Notice(ex);
                             }
                         }, _loadingTaskCancellationTokenSource.Token);
                     }
                     catch (Exception ex)
                     {
-                        Logging.Logger.Notice($"Failed to load song from {cachedFolder}:");
-                        Logging.Logger.Notice(ex);
+                        Plugin.Log.Notice($"Failed to load song from {cachedFolder}:");
+                        Plugin.Log.Notice(ex);
                     }
                 }
             }
@@ -1172,7 +1172,7 @@ namespace SongCore
                     if (length <= 1)
                     {
                         // janky, but whatever
-                        Logging.Logger.Warn($"Failed to parse song length from audio file, approximating using map length. Song: {loadedSaveData.customLevelFolderInfo.folderPath}");
+                        Plugin.Log.Warn($"Failed to parse song length from audio file, approximating using map length. Song: {loadedSaveData.customLevelFolderInfo.folderPath}");
 
                         IBeatmapLevelData beatmapLevelData = null!;
 
@@ -1208,8 +1208,8 @@ namespace SongCore
             }
             catch (Exception ex)
             {
-                Logging.Logger.Warn("Failed to parse song duration");
-                Logging.Logger.Warn(ex);
+                Plugin.Log.Warn("Failed to parse song duration");
+                Plugin.Log.Warn(ex);
             }
         }
 
@@ -1257,7 +1257,7 @@ namespace SongCore
 
             if (length == 0)
             {
-                Logging.Logger.Warn($"Failed to parse song length from audio file. Song: {loadedSaveData.customLevelFolderInfo.folderPath}");
+                Plugin.Log.Warn($"Failed to parse song length from audio file. Song: {loadedSaveData.customLevelFolderInfo.folderPath}");
             }
 
             return length;
@@ -1338,7 +1338,7 @@ namespace SongCore
             }
             else
             {
-                Logging.Logger.Warn($"Could not find rate for {oggFile}");
+                Plugin.Log.Warn($"Could not find rate for {oggFile}");
                 return -1;
             }
 
@@ -1369,7 +1369,7 @@ namespace SongCore
 
             if (lastSample == -1)
             {
-                Logging.Logger.Warn($"Could not find lastSample for {oggFile}");
+                Plugin.Log.Warn($"Could not find lastSample for {oggFile}");
                 return -1;
             }
 

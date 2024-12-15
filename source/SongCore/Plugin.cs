@@ -11,7 +11,6 @@ using SiraUtil.Zenject;
 using SongCore.Installers;
 using SongCore.Patches;
 using SongCore.UI;
-using SongCore.Utilities;
 
 namespace SongCore
 {
@@ -21,6 +20,8 @@ namespace SongCore
         private readonly PluginMetadata _metadata;
         private readonly Harmony _harmony;
 
+        internal static Logger Log { get; private set; } = null!;
+
         public static Action<bool, string, string, BeatmapLevel>? CustomSongPlatformSelectionDidChange;
 
         [Init]
@@ -29,7 +30,7 @@ namespace SongCore
             // Workaround for creating BSIPA config in Userdata subdir
             Directory.CreateDirectory(Path.Combine(UnityGame.UserDataPath, nameof(SongCore)));
 
-            Logging.Logger = logger;
+            Log = logger;
             _metadata = metadata;
             _harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
 

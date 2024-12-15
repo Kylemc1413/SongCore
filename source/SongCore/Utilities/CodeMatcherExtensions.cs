@@ -17,7 +17,7 @@ namespace SongCore.Utilities
             var instructions = codeMatcher.Instructions();
             for (var i = 0; i < instructions.Count; i++)
             {
-                Logging.Logger.Info($"\t {i} {instructions[i]}");
+                Plugin.Log.Info($"\t {i} {instructions[i]}");
             }
 
             return codeMatcher;

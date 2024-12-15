@@ -322,17 +322,17 @@ namespace SongCore.Patches
 
             if (_config.CustomSongNoteColors)
             {
-                Logging.Logger.Debug("Custom song note colors On");
+                Plugin.Log.Debug("Custom song note colors On");
             }
 
             if (_config.CustomSongEnvironmentColors)
             {
-                Logging.Logger.Debug("Custom song environment colors On");
+                Plugin.Log.Debug("Custom song environment colors On");
             }
 
             if (_config.CustomSongObstacleColors)
             {
-                Logging.Logger.Debug("Custom song obstacle colors On");
+                Plugin.Log.Debug("Custom song obstacle colors On");
             }
 
             var saberLeft = songDifficultyData._colorLeft == null || !_config.CustomSongNoteColors

@@ -45,7 +45,7 @@ namespace SongCore.Patches
                                 {
                                     const string errorText = "Error loading beatmap. Missing or unknown characteristic.";
                                     standardLevelDetailViewController.ShowContent(StandardLevelDetailViewController.ContentType.Error, errorText);
-                                    Logging.Logger.Error(errorText);
+                                    Plugin.Log.Error(errorText);
                                     handled = true;
                                 }
 
@@ -57,7 +57,7 @@ namespace SongCore.Patches
                                 {
                                     const string errorText = "Error loading beatmap version.";
                                     standardLevelDetailViewController.ShowContent(StandardLevelDetailViewController.ContentType.Error, errorText);
-                                    Logging.Logger.Error(errorText);
+                                    Plugin.Log.Error(errorText);
                                     handled = true;
                                 }
 
@@ -70,7 +70,7 @@ namespace SongCore.Patches
                             standardLevelDetailViewController.ShowContent(StandardLevelDetailViewController.ContentType.Error, Localization.Get(StandardLevelDetailViewController.kLoadingDataErrorLocalizationKey));
                         }
 
-                        Logging.Logger.Error(ex);
+                        Plugin.Log.Error(ex);
                     }))
                 .InstructionEnumeration();
         }
