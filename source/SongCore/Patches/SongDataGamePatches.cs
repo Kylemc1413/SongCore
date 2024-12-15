@@ -3,12 +3,12 @@ using SongCore.Utilities;
 
 namespace SongCore.Patches
 {
-    internal class BeatmapLevelDifficultyDataPatches  : IAffinity
+    internal class SongDataGamePatches  : IAffinity
     {
         private readonly bool? _showRotationNoteSpawnLines;
         private readonly bool? _oneSaber;
 
-        private BeatmapLevelDifficultyDataPatches(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey)
+        private SongDataGamePatches(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey)
         {
             var difficultyData = Collections.RetrieveDifficultyData(beatmapLevel, beatmapKey);
             if (difficultyData != null)

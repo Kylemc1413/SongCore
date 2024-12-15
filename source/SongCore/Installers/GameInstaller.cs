@@ -7,7 +7,7 @@ namespace SongCore.Installers
     {
         public override void InstallBindings()
         {
-            Container.BindInterfacesTo<BeatmapLevelDifficultyDataPatches>().AsSingle();
+            Container.BindInterfacesTo<SongDataGamePatches>().AsSingle();
             Container.BindInterfacesTo<DisableSubmissionPatches>().AsSingle();
         }
     }

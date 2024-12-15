@@ -13,9 +13,7 @@ namespace SongCore.Installers
             Container.BindInterfacesAndSelfTo<ColorsUI>().AsSingle();
             Container.Bind<ProgressBar>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesAndSelfTo<RequirementsUI>().AsSingle();
-            Container.BindInterfacesTo<CosmeticCharacteristicsPatch>().AsSingle();
-            Container.BindInterfacesTo<CustomSongColorsPatches>().AsSingle();
-            Container.BindInterfacesTo<OverrideBeatmapDifficultyNamePatches>().AsSingle();
+            Container.BindInterfacesTo<SongDataMenuPatches>().AsSingle();
         }
     }
 }
