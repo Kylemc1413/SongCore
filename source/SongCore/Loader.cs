@@ -191,7 +191,7 @@ namespace SongCore
             }
             Logging.Logger.Debug(message);
 
-            if (!beatmapLevel.hasPrecalculatedData && Collections.RetrieveExtraSongData(Hashing.GetCustomLevelHash(beatmapLevel)) is { } songData)
+            if (!beatmapLevel.hasPrecalculatedData && Collections.RetrieveExtraSongData(Collections.GetCustomLevelHash(beatmapLevel.levelID)) is { } songData)
             {
                 if (_config.CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
@@ -849,13 +849,13 @@ namespace SongCore
                 IBeatmapLevelData beatmapLevelData;
                 if (loadedSaveData.standardLevelInfoSaveData != null)
                 {
-                    hash = Hashing.GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
+                    hash = Hashing.ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
                     beatmapLevel = _customLevelLoader.CreateBeatmapLevelFromV3(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
                     beatmapLevelData = _customLevelLoader.CreateBeatmapLevelDataFromV3(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
                 }
                 else if (loadedSaveData.beatmapLevelSaveData != null)
                 {
-                    hash = Hashing.GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
+                    hash = Hashing.ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
                     beatmapLevel = _customLevelLoader.CreateBeatmapLevelFromV4(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
                     beatmapLevelData = _customLevelLoader.CreateBeatmapLevelDataFromV4(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
                 }

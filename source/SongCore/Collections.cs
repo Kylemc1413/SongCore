@@ -33,14 +33,20 @@ namespace SongCore
             return HashLevelDictionary.ContainsKey(hash);
         }
 
+        [Obsolete("Use GetCustomLevelHash instead.", true)]
         public static string hashForLevelID(string levelID)
         {
-            return LevelHashDictionary.TryGetValue(levelID, out var hash) ? hash : string.Empty;
+            return GetCustomLevelHash(levelID);
         }
 
         public static List<string> levelIDsForHash(string hash)
         {
             return HashLevelDictionary.TryGetValue(hash, out var songs) ? songs : new List<string>();
+        }
+
+        public static string GetCustomLevelHash(string levelID)
+        {
+            return LevelHashDictionary.TryGetValue(levelID, out var hash) ? hash : string.Empty;
         }
 
         public static CustomLevelLoader.LoadedSaveData? GetLoadedSaveData(string levelID)
@@ -69,7 +75,7 @@ namespace SongCore
             if (!beatmapLevel.hasPrecalculatedData)
             {
                 // TODO: Will be null in the editor due to levelID being "custom_level_CustomLevel".
-                songData = RetrieveExtraSongData(Hashing.GetCustomLevelHash(beatmapLevel));
+                songData = RetrieveExtraSongData(GetCustomLevelHash(beatmapLevel.levelID));
             }
 
             var diffData = songData?._difficulties.FirstOrDefault(x =>

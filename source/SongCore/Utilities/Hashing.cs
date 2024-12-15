@@ -154,6 +154,7 @@ namespace SongCore.Utilities
             return false;
         }
 
+        [Obsolete("If your intent is to hash the custom level, use ComputeCustomLevelHash. Otherwise, use Collections.GetCustomLevelHash.", true)]
         public static string GetCustomLevelHash(BeatmapLevel level)
         {
             var hash = string.Empty;
@@ -162,18 +163,49 @@ namespace SongCore.Utilities
             {
                 if (loadedSaveData.standardLevelInfoSaveData != null)
                 {
-                    hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
+                    hash = ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
                 }
                 else if (loadedSaveData.beatmapLevelSaveData != null)
                 {
-                    hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
+                    hash = ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
                 }
             }
 
             return hash;
         }
 
+        [Obsolete("If your intent is to hash the custom level, use ComputeCustomLevelHash. Otherwise, use Collections.GetCustomLevelHash.", true)]
         public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, StandardLevelInfoSaveData standardLevelInfoSaveData)
+        {
+            return ComputeCustomLevelHash(customLevelFolderInfo, standardLevelInfoSaveData);
+        }
+
+        [Obsolete("If your intent is to hash the custom level, use ComputeCustomLevelHash. Otherwise, use Collections.GetCustomLevelHash.", true)]
+        public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, BeatmapLevelSaveData beatmapLevelSaveData)
+        {
+            return ComputeCustomLevelHash(customLevelFolderInfo, beatmapLevelSaveData);
+        }
+
+        public static string ComputeCustomLevelHash(BeatmapLevel level)
+        {
+            var hash = string.Empty;
+
+            if (Loader.CustomLevelLoader._loadedBeatmapSaveData.TryGetValue(level.levelID, out var loadedSaveData))
+            {
+                if (loadedSaveData.standardLevelInfoSaveData != null)
+                {
+                    hash = ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
+                }
+                else if (loadedSaveData.beatmapLevelSaveData != null)
+                {
+                    hash = ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
+                }
+            }
+
+            return hash;
+        }
+
+        public static string ComputeCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, StandardLevelInfoSaveData standardLevelInfoSaveData)
         {
             if (GetCachedSongData(customLevelFolderInfo.folderPath, out var directoryHash, out var songHash))
             {
@@ -192,7 +224,7 @@ namespace SongCore.Utilities
             return hash;
         }
 
-        public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, BeatmapLevelSaveData beatmapLevelSaveData)
+        public static string ComputeCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, BeatmapLevelSaveData beatmapLevelSaveData)
         {
             if (GetCachedSongData(customLevelFolderInfo.folderPath, out var directoryHash, out var songHash))
             {

@@ -45,7 +45,7 @@ namespace SongCore.Patches
                 return;
             }
 
-            _songData = Collections.RetrieveExtraSongData(Collections.hashForLevelID(_beatmapLevel.levelID))!;
+            _songData = Collections.RetrieveExtraSongData(Collections.GetCustomLevelHash(_beatmapLevel.levelID))!;
         }
 
         [AffinityPatch(typeof(BeatmapCharacteristicSegmentedControlController), nameof(BeatmapCharacteristicSegmentedControlController.SetData))]
