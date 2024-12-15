@@ -49,9 +49,10 @@ namespace SongCore
             return LevelHashDictionary.TryGetValue(levelID, out var hash) ? hash : string.Empty;
         }
 
+        [Obsolete("Get the loaded save data from CustomLevelLoader._loadedBeatmapSaveData.", true)]
         public static CustomLevelLoader.LoadedSaveData? GetLoadedSaveData(string levelID)
         {
-            return Loader.LoadedBeatmapSaveData.TryGetValue(levelID, out var loadedSaveData) ? loadedSaveData : null;
+            return Loader.CustomLevelLoader._loadedBeatmapSaveData.TryGetValue(levelID, out var loadedSaveData) ? loadedSaveData : null;
         }
 
         internal static void AddExtraSongData(string hash, CustomLevelLoader.LoadedSaveData loadedSaveData)

@@ -14,6 +14,7 @@ namespace SongCore.Installers
             Container.Bind<ProgressBar>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesAndSelfTo<RequirementsUI>().AsSingle();
             Container.BindInterfacesTo<SongDataMenuPatches>().AsSingle();
+            Container.BindInterfacesTo<InternalRestartPatch>().AsSingle();
         }
     }
 }
