@@ -479,12 +479,9 @@ namespace SongCore
                                   continue;
                               }
 
-                              if (!fullRefresh)
+                              if (!fullRefresh && (CustomLevels.ContainsKey(songPath) || CustomWIPLevels.ContainsKey(songPath)))
                               {
-                                  if (CustomLevels.TryGetValue(songPath, out BeatmapLevel c) && c != null)
-                                  {
-                                      continue;
-                                  }
+                                  continue;
                               }
 
                               var wip = songPath.Contains("CustomWIPLevels");
@@ -950,7 +947,7 @@ namespace SongCore
                 string[] results;
                 try
                 {
-                    results = Directory.GetFiles(cachedFolder, CustomLevelPathHelper.kStandardLevelInfoFilename, SearchOption.AllDirectories);
+                    results = Directory.GetFiles(cachedFolder, CustomLevelPathHelper.kStandardLevelInfoFilename, SearchOption.TopDirectoryOnly);
                 }
                 catch (DirectoryNotFoundException)
                 {
