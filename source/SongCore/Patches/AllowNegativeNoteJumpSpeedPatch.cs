@@ -18,7 +18,7 @@ namespace SongCore.Patches
     {
         private static void Postfix(ref float __result, float noteJumpMovementSpeed)
         {
-            if (noteJumpMovementSpeed < 0)
+            if (noteJumpMovementSpeed <= -VariableMovementDataProvider.kMinNoteJumpMovementSpeed)
             {
                 __result = noteJumpMovementSpeed;
             }
