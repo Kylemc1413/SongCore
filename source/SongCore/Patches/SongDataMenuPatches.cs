@@ -10,15 +10,15 @@ using UnityEngine;
 
 namespace SongCore.Patches
 {
-    internal class SongDataMenuPatches : IAffinity
+    internal class SongDataMenuPatches : IAffinity, IDisposable
     {
         private readonly StandardLevelDetailViewController _standardLevelDetailViewController;
         private readonly CustomLevelLoader _customLevelLoader;
-        private readonly RequirementsUI _requirementsUI;
         private readonly BeatmapCharacteristicSegmentedControlController _beatmapCharacteristicSegmentedControlController;
+        private readonly RequirementsUI _requirementsUI;
         private readonly PluginConfig _config;
         private readonly Dictionary<string, Dictionary<BeatmapDifficulty, string>> _characteristicDifficultyLabels = new();
-        private readonly Dictionary<string, Dictionary<string, Sprite>> _characteristicDetailsSprites = new();
+        private readonly Dictionary<string, Sprite> _characteristicDetailsSprites = new();
 
         private BeatmapLevel? _beatmapLevel;
         private ExtraSongData? _songData;
@@ -32,6 +32,14 @@ namespace SongCore.Patches
             _beatmapCharacteristicSegmentedControlController = standardLevelDetailViewController._standardLevelDetailView._beatmapCharacteristicSegmentedControlController;
             _requirementsUI = requirementsUI;
             _config = config;
+        }
+
+        public void Dispose()
+        {
+            foreach (var sprite in _characteristicDetailsSprites.Values)
+            {
+                SpriteAsyncLoader.DestroySprite(sprite);
+            }
         }
 
         [AffinityPatch(typeof(StandardLevelDetailViewController), nameof(StandardLevelDetailViewController.ShowOwnedContent))]
@@ -123,32 +131,26 @@ namespace SongCore.Patches
 
                 var dataItem = _beatmapCharacteristicSegmentedControlController._segmentedControl._dataItems[index];
 
-                if (!string.IsNullOrWhiteSpace(characteristicDetails._characteristicIconFilePath))
-                {
-                    if (!_characteristicDetailsSprites.TryGetValue(_beatmapLevel.levelID, out var sprites))
-                    {
-                        sprites = new Dictionary<string, Sprite>();
-                        _characteristicDetailsSprites.Add(_beatmapLevel.levelID, sprites);
-                    }
-
-                    if (!sprites.TryGetValue(characteristicDetails._beatmapCharacteristicName, out var icon))
-                    {
-                        icon = Utils.LoadSpriteFromFile(Path.Combine(_customLevelLoader._loadedBeatmapSaveData[_beatmapLevel.levelID].customLevelFolderInfo.folderPath, characteristicDetails._characteristicIconFilePath));
-                        if (icon != null)
-                        {
-                            sprites.Add(characteristicDetails._beatmapCharacteristicName, icon);
-                        }
-                    }
-
-                    if (icon != null)
-                    {
-                        dataItem.icon = icon;
-                    }
-                }
-
                 if (!string.IsNullOrWhiteSpace(characteristicDetails._characteristicLabel))
                 {
                     dataItem.hintText = characteristicDetails._characteristicLabel;
+                }
+
+                if (!string.IsNullOrWhiteSpace(characteristicDetails._characteristicIconFilePath))
+                {
+                    var spritePath = Path.Combine(_customLevelLoader._loadedBeatmapSaveData[_beatmapLevel.levelID].customLevelFolderInfo.folderPath, characteristicDetails._characteristicIconFilePath);
+
+                    if (!_characteristicDetailsSprites.TryGetValue(spritePath, out var icon))
+                    {
+                        if ((icon = Utils.LoadSpriteFromFile(spritePath)) == null)
+                        {
+                            continue;
+                        }
+
+                        _characteristicDetailsSprites.Add(spritePath, icon);
+                    }
+
+                    dataItem.icon = icon;
                 }
             }
 
