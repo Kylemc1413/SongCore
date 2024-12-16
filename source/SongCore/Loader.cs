@@ -457,7 +457,10 @@ namespace SongCore
                     // Clear removed songs from loaded data, in case they were removed manually.
                     if (_customLevelLoader._loadedBeatmapSaveData.Count > 0)
                     {
-                        StoreLoadedBeatmapSaveData();
+                        if (!fullRefresh)
+                        {
+                            StoreLoadedBeatmapSaveData();
+                        }
 
                         var folders = songFolders
                             .Concat(SeparateSongFolders
