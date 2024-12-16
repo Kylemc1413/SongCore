@@ -98,14 +98,44 @@ namespace SongCore
 
         public void Initialize()
         {
-            _gameScenesManager.transitionDidFinishEvent += MenuLoaded;
+            _gameScenesManager.transitionDidFinishEvent += HandleSceneTransitionDidFinish;
             // BSML might fail to find the resource if done in a patched method.
             _bsmlSettings.AddSettingsMenu(nameof(SongCore), "SongCore.UI.settings.bsml", _settingsController);
+
+            SongsLoadedEvent += HandleSongsLoaded;
         }
 
-        private void MenuLoaded(SceneTransitionType sceneTransitionType, ScenesTransitionSetupDataSO scenesTransitionSetupData, DiContainer container)
+        public void Dispose()
         {
-            _gameScenesManager.transitionDidFinishEvent -= MenuLoaded;
+            _bsmlSettings.RemoveSettingsMenu(_settingsController);
+
+            SceneManager.activeSceneChanged -= HandleActiveSceneChanged;
+
+            _gameScenesManager.transitionDidStartEvent -= HandleSceneTransitionDidStart;
+            _levelCollectionViewController.didSelectLevelEvent -= HandleDidSelectLevel;
+
+            SongsLoadedEvent -= HandleSongsLoaded;
+        }
+
+        /// <summary>
+        /// Refresh songs on "R" key, full refresh on "Ctrl"+"R"
+        /// </summary>
+        public void Tick()
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                RefreshSongs(Input.GetKey(KeyCode.LeftControl));
+            }
+
+            if (Input.GetKeyDown(KeyCode.X) && Input.GetKey(KeyCode.LeftControl) && _loadingTask != null)
+            {
+                CancelSongLoading();
+            }
+        }
+
+        private void HandleSceneTransitionDidFinish(SceneTransitionType sceneTransitionType, ScenesTransitionSetupDataSO scenesTransitionSetupData, DiContainer container)
+        {
+            _gameScenesManager.transitionDidFinishEvent -= HandleSceneTransitionDidFinish;
 
             // Ensures that the static references are still valid Unity objects.
             // They'll be destroyed on internal restart.
@@ -128,37 +158,31 @@ namespace SongCore
 
             SceneManager.activeSceneChanged += HandleActiveSceneChanged;
 
-            _gameScenesManager.transitionDidStartEvent += CancelSongLoading;
+            _gameScenesManager.transitionDidStartEvent += HandleSceneTransitionDidStart;
             _levelCollectionViewController.didSelectLevelEvent += HandleDidSelectLevel;
         }
 
-        public void Dispose()
+        private void HandleSongsLoaded(Loader loader, ConcurrentDictionary<string, BeatmapLevel> customLevels)
         {
-            _bsmlSettings.RemoveSettingsMenu(_settingsController);
-
-            SceneManager.activeSceneChanged -= HandleActiveSceneChanged;
-
-            _gameScenesManager.transitionDidStartEvent -= CancelSongLoading;
-            _levelCollectionViewController.didSelectLevelEvent -= HandleDidSelectLevel;
-        }
-
-        /// <summary>
-        /// Refresh songs on "R" key, full refresh on "Ctrl"+"R"
-        /// </summary>
-        public void Tick()
-        {
-            if (Input.GetKeyDown(KeyCode.R))
+            foreach (var (hash, levels) in Collections.HashLevelDictionary)
             {
-                RefreshSongs(Input.GetKey(KeyCode.LeftControl));
-            }
+                if (levels.Count <= 1)
+                {
+                    continue;
+                }
 
-            if (Input.GetKeyDown(KeyCode.X) && Input.GetKey(KeyCode.LeftControl) && _loadingTask != null)
-            {
-                CancelSongLoading();
+                Plugin.Log.Notice("Found duplicates:");
+
+                foreach (var levelPath in Hashing.cachedSongHashData
+                             .Where(x => x.Value.songHash == hash)
+                             .Select(x => x.Key))
+                {
+                    Plugin.Log.Notice($"  {levelPath}");
+                }
             }
         }
 
-        private void CancelSongLoading(SceneTransitionType sceneTransitionType, float duration)
+        private void HandleSceneTransitionDidStart(SceneTransitionType sceneTransitionType, float duration)
         {
             CancelSongLoading();
         }
@@ -465,7 +489,7 @@ namespace SongCore
 
                       if (results.Length == 0)
                       {
-                          Plugin.Log.Notice($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} file!");
+                          Plugin.Log.Warn($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} file!");
                           return;
                       }
 
@@ -552,7 +576,7 @@ namespace SongCore
 
                                 if (results.Length == 0)
                                 {
-                                    Plugin.Log.Notice($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} file!");
+                                    Plugin.Log.Warn($"Folder: '{folder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} file!");
                                     continue;
                                 }
 
@@ -957,7 +981,7 @@ namespace SongCore
 
                 if (results.Length == 0)
                 {
-                    Plugin.Log.Notice($"Folder: '{cachedFolder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} files!");
+                    Plugin.Log.Warn($"Folder: '{cachedFolder}' is missing {CustomLevelPathHelper.kStandardLevelInfoFilename} files!");
                     continue;
                 }
 
@@ -990,15 +1014,15 @@ namespace SongCore
                             }
                             catch (Exception ex)
                             {
-                                Plugin.Log.Notice($"Failed to load song from {cachedFolder}:");
-                                Plugin.Log.Notice(ex);
+                                Plugin.Log.Error($"Failed to load song from {cachedFolder}:");
+                                Plugin.Log.Error(ex);
                             }
                         }, _loadingTaskCancellationTokenSource.Token);
                     }
                     catch (Exception ex)
                     {
-                        Plugin.Log.Notice($"Failed to load song from {cachedFolder}:");
-                        Plugin.Log.Notice(ex);
+                        Plugin.Log.Error($"Failed to load song from {cachedFolder}:");
+                        Plugin.Log.Error(ex);
                     }
                 }
             }
