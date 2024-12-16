@@ -465,7 +465,9 @@ namespace SongCore
                         var folders = songFolders
                             .Concat(SeparateSongFolders
                                 .Select(f => Path.GetFullPath(f.SongFolderEntry.Path))
-                                .SelectMany(p => new DirectoryInfo(p).GetDirectories()
+                                .Select(p => new DirectoryInfo(p))
+                                .Where(d => d.Exists)
+                                .SelectMany(d => d.GetDirectories()
                                     .Where(d => d.Exists && !d.Attributes.HasFlag(FileAttributes.Hidden))
                                     .Select(d => d.FullName)))
                             .ToHashSet();
