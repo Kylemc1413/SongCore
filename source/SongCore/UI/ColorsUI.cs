@@ -57,7 +57,7 @@ namespace SongCore.UI
             set => _config.CustomSongEnvironmentColors = value;
         }
 
-        internal void ShowColors(ExtraSongData.DifficultyData songData)
+        internal void ShowColors(SongData.DifficultyData songData)
         {
             Parse();
             modal.Show(true);
@@ -89,7 +89,7 @@ namespace SongCore.UI
             modal.Hide(true);
         }
 
-        private void SetColors(ExtraSongData.DifficultyData songData)
+        private void SetColors(SongData.DifficultyData songData)
         {
             Color saberLeft = songData._colorLeft == null ? voidColor : Utils.ColorFromMapColor(songData._colorLeft);
             Color saberRight = songData._colorRight == null ? voidColor : Utils.ColorFromMapColor(songData._colorRight);

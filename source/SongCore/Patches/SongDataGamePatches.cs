@@ -8,9 +8,9 @@ namespace SongCore.Patches
         private readonly bool? _showRotationNoteSpawnLines;
         private readonly bool? _oneSaber;
 
-        private SongDataGamePatches(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey)
+        private SongDataGamePatches(BeatmapKey beatmapKey)
         {
-            var difficultyData = Collections.RetrieveDifficultyData(beatmapLevel, beatmapKey);
+            var difficultyData = Collections.GetCustomLevelSongDifficultyData(beatmapKey);
             if (difficultyData != null)
             {
                 _showRotationNoteSpawnLines = difficultyData._showRotationNoteSpawnLines;

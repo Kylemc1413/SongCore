@@ -23,7 +23,7 @@ namespace SongCore
         internal static readonly ConcurrentDictionary<string, List<string>> HashLevelDictionary = new ConcurrentDictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
         internal static BeatmapLevelPack? WipLevelPack;
-        internal static ConcurrentDictionary<string, ExtraSongData> CustomSongsData = new ConcurrentDictionary<string, ExtraSongData>();
+        internal static ConcurrentDictionary<string, SongData> CustomSongsData = new ConcurrentDictionary<string, SongData>();
 
         public static ReadOnlyCollection<string> capabilities => _capabilities.AsReadOnly();
         public static ReadOnlyCollection<BeatmapCharacteristicSO> customCharacteristics => _customCharacteristics.AsReadOnly();
@@ -39,6 +39,7 @@ namespace SongCore
             return GetCustomLevelHash(levelID);
         }
 
+        // TODO: Replace by better naming.
         public static List<string> levelIDsForHash(string hash)
         {
             return HashLevelDictionary.TryGetValue(hash, out var songs) ? songs : new List<string>();
@@ -55,27 +56,33 @@ namespace SongCore
             return Loader.CustomLevelLoader._loadedBeatmapSaveData.TryGetValue(levelID, out var loadedSaveData) ? loadedSaveData : null;
         }
 
-        internal static void AddExtraSongData(string hash, CustomLevelLoader.LoadedSaveData loadedSaveData)
+        public static SongData? GetCustomLevelSongData(string levelID)
         {
-            var extraSongData = new ExtraSongData();
-            if (CustomSongsData.TryAdd(hash, extraSongData))
+            return CustomSongsData.GetValueOrDefault(levelID);
+        }
+
+        internal static void CreateCustomLevelSongData(string levelID, CustomLevelLoader.LoadedSaveData loadedSaveData)
+        {
+            var extraSongData = new SongData();
+            if (CustomSongsData.TryAdd(levelID, extraSongData))
             {
                 extraSongData.PopulateFromLoadedSaveData(loadedSaveData);
             }
         }
 
+        [Obsolete("Get the song data with GetCustomLevelSongData instead.", true)]
         public static ExtraSongData? RetrieveExtraSongData(string hash)
         {
-            return CustomSongsData.GetValueOrDefault(hash);
+            return GetCustomLevelSongData(CustomLevelLoader.kCustomLevelPrefixId + hash)?.ToExtraSongData();
         }
 
+        [Obsolete("Get the song difficulty data with GetCustomLevelSongDifficultyData instead.", true)]
         public static ExtraSongData.DifficultyData? RetrieveDifficultyData(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey)
         {
             ExtraSongData? songData = null;
 
             if (!beatmapLevel.hasPrecalculatedData)
             {
-                // TODO: Will be null in the editor due to levelID being "custom_level_CustomLevel".
                 songData = RetrieveExtraSongData(GetCustomLevelHash(beatmapLevel.levelID));
             }
 
@@ -86,7 +93,24 @@ namespace SongCore
             return diffData;
         }
 
-        internal static void LoadExtraSongData()
+        public static SongData.DifficultyData? GetCustomLevelSongDifficultyData(BeatmapKey beatmapKey)
+        {
+            SongData? songData = null;
+
+            if (beatmapKey.levelId.StartsWith(CustomLevelLoader.kCustomLevelPrefixId, StringComparison.Ordinal))
+            {
+                // TODO: Will be null in the editor due to levelID being "custom_level_CustomLevel".
+                songData = GetCustomLevelSongData(beatmapKey.levelId);
+            }
+
+            var diffData = songData?._difficulties.FirstOrDefault(x =>
+                x._difficulty == beatmapKey.difficulty && (x._beatmapCharacteristicName == beatmapKey.beatmapCharacteristic.characteristicNameLocalizationKey ||
+                                                           x._beatmapCharacteristicName == beatmapKey.beatmapCharacteristic.serializedName));
+
+            return diffData;
+        }
+
+        internal static void LoadCustomLevelSongData()
         {
             Task.Run(() =>
             {
@@ -94,7 +118,7 @@ namespace SongCore
                 {
                     using var reader = new JsonTextReader(new StreamReader(DataPath));
                     var serializer = JsonSerializer.CreateDefault();
-                    var songData = serializer.Deserialize<ConcurrentDictionary<string, ExtraSongData>?>(reader);
+                    var songData = serializer.Deserialize<ConcurrentDictionary<string, SongData>?>(reader);
                     if (songData != null)
                     {
                         CustomSongsData = songData;
@@ -109,7 +133,7 @@ namespace SongCore
             });
         }
 
-        internal static async Task SaveExtraSongDataAsync()
+        internal static async Task SaveCustomLevelSongDataAsync()
         {
             try
             {

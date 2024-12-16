@@ -8,6 +8,7 @@ using System.Reflection;
 using UnityEngine;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 using HMUI;
+using SongCore.Data;
 using Tweening;
 using Zenject;
 
@@ -54,8 +55,8 @@ namespace SongCore.UI
         //Currently selected song data
         public BeatmapLevel? beatmapLevel;
         public BeatmapKey? beatmapKey;
-        public Data.ExtraSongData? songData;
-        public Data.ExtraSongData.DifficultyData? diffData;
+        public SongData? songData;
+        public SongData.DifficultyData? diffData;
         public bool wipFolder;
 
         [UIComponent("list")]
@@ -192,7 +193,7 @@ namespace SongCore.UI
             //Contributors
             if (songData.contributors.Length > 0)
             {
-                foreach (Data.ExtraSongData.Contributor author in songData.contributors)
+                foreach (var author in songData.contributors)
                 {
                     if (author.icon == null)
                     {

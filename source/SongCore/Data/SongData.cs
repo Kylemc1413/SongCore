@@ -10,7 +10,7 @@ using UnityEngine;
 namespace SongCore.Data
 {
     [Serializable]
-    public class ExtraSongData
+    public class SongData
     {
         public string[] _genreTags;
         public Contributor[] contributors; //convert legacy mappers/lighters fields into contributors
@@ -118,12 +118,12 @@ namespace SongCore.Data
             }
         }
 
-        public ExtraSongData()
+        public SongData()
         {
         }
 
         [JsonConstructor]
-        public ExtraSongData(string levelID, Contributor[] contributors, string customEnvironmentName, string customEnvironmentHash, DifficultyData[] difficulties)
+        public SongData(string levelID, Contributor[] contributors, string customEnvironmentName, string customEnvironmentHash, DifficultyData[] difficulties)
         {
             this.contributors = contributors;
             _customEnvironmentName = customEnvironmentName;

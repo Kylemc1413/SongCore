@@ -21,7 +21,7 @@ namespace SongCore.Patches
         private readonly Dictionary<string, Sprite> _characteristicDetailsSprites = new();
 
         private BeatmapLevel? _beatmapLevel;
-        private ExtraSongData? _songData;
+        private SongData? _songData;
         private bool _actionButtonInteractable;
         private bool _practiceButtonInteractable;
 
@@ -53,7 +53,7 @@ namespace SongCore.Patches
                 return;
             }
 
-            _songData = Collections.RetrieveExtraSongData(Collections.GetCustomLevelHash(_beatmapLevel.levelID))!;
+            _songData = Collections.GetCustomLevelSongData(_beatmapLevel.levelID)!;
         }
 
         [AffinityPatch(typeof(BeatmapCharacteristicSegmentedControlController), nameof(BeatmapCharacteristicSegmentedControlController.SetData))]
@@ -186,7 +186,7 @@ namespace SongCore.Patches
             }
 
             var wipFolderSong = false;
-            var difficultyData = Collections.RetrieveDifficultyData(_beatmapLevel, beatmapKey);
+            var difficultyData = Collections.GetCustomLevelSongDifficultyData(beatmapKey);
             if (difficultyData != null)
             {
                 //If no additional information is present
@@ -283,7 +283,7 @@ namespace SongCore.Patches
                 return;
             }
 
-            var songData = Collections.RetrieveDifficultyData(__instance.beatmapLevel, __instance.beatmapKey);
+            var songData = Collections.GetCustomLevelSongDifficultyData(__instance.beatmapKey);
             var overrideColorScheme = GetOverrideColorScheme(songData, __instance.colorScheme);
             if (overrideColorScheme is null)
             {
@@ -302,7 +302,7 @@ namespace SongCore.Patches
                 return;
             }
 
-            var songData = Collections.RetrieveDifficultyData(__instance.beatmapLevel, __instance.beatmapKey);
+            var songData = Collections.GetCustomLevelSongDifficultyData(__instance.beatmapKey);
             var overrideColorScheme = GetOverrideColorScheme(songData, __instance.colorScheme);
             if (overrideColorScheme is null)
             {
@@ -313,7 +313,7 @@ namespace SongCore.Patches
             __instance.colorScheme = overrideColorScheme;
         }
 
-        private ColorScheme? GetOverrideColorScheme(ExtraSongData.DifficultyData? songDifficultyData, ColorScheme currentColorScheme)
+        private ColorScheme? GetOverrideColorScheme(SongData.DifficultyData? songDifficultyData, ColorScheme currentColorScheme)
         {
             if (songDifficultyData is null || (songDifficultyData._colorLeft == null && songDifficultyData._colorRight == null && songDifficultyData._envColorLeft == null && songDifficultyData._envColorRight == null &&
                                                songDifficultyData._envColorWhite == null && songDifficultyData._obstacleColor == null && songDifficultyData._envColorLeftBoost == null && songDifficultyData._envColorRightBoost == null &&

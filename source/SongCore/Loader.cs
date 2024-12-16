@@ -216,8 +216,10 @@ namespace SongCore
             }
             Plugin.Log.Debug(message);
 
-            if (!beatmapLevel.hasPrecalculatedData && Collections.RetrieveExtraSongData(Collections.GetCustomLevelHash(beatmapLevel.levelID)) is { } songData)
+            if (!beatmapLevel.hasPrecalculatedData)
             {
+                var songData = Collections.GetCustomLevelSongData(beatmapLevel.levelID)!;
+
                 if (_config.CustomSongPlatforms && !string.IsNullOrWhiteSpace(songData._customEnvironmentName))
                 {
                     Plugin.Log.Debug("Custom song with platform selected");
@@ -742,7 +744,7 @@ namespace SongCore
                 // Write our cached hash info and
                 Hashing.UpdateCachedHashesInternal(foundSongPaths.Keys);
                 Hashing.UpdateCachedAudioDataInternal(foundSongPaths.Keys);
-                await Collections.SaveExtraSongDataAsync();
+                await Collections.SaveCustomLevelSongDataAsync();
             };
 
             try
@@ -898,7 +900,7 @@ namespace SongCore
                     }
                     return levels;
                 });
-                Collections.AddExtraSongData(hash, loadedSaveData);
+                Collections.CreateCustomLevelSongData(levelID, loadedSaveData);
                 LoadedBeatmapSaveData.TryAdd(levelID, loadedSaveData);
 
                 Accessors.LevelIDAccessor(ref beatmapLevel) = levelID;
