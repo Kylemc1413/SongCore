@@ -61,7 +61,7 @@ namespace SongCore.Data
                     }
                     catch
                     {
-                        Logging.Logger.Info($"Failed to load image for separate folder \"{folderEntry.Name}\"");
+                        Plugin.Log.Info($"Failed to load image for separate folder \"{folderEntry.Name}\"");
                     }
                 }
 
@@ -142,7 +142,7 @@ namespace SongCore.Data
             }
             catch
             {
-                Logging.Logger.Warn("Error reading folders.xml! Make sure the file is properly formatted.");
+                Plugin.Log.Warn("Error reading folders.xml! Make sure the file is properly formatted.");
             }
 
             return result;

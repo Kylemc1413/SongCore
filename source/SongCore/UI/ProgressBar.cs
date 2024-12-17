@@ -51,22 +51,10 @@ namespace SongCore.UI
 
         private bool _showingMessage;
 
-        [Obsolete("This overload is deprecated.", true)]
         public void ShowMessage(string message, float time)
         {
-            ShowMessage(message, time, false);
-        }
-
-        public void ShowMessage(string message, float time, bool showLoadingBar = false)
-        {
-            ShowMessage(message, false);
+            ShowMessage(message);
             StartCoroutine(DisableCanvasCoroutine(time));
-        }
-
-        [Obsolete("This overload is deprecated.", true)]
-        public void ShowMessage(string message)
-        {
-            ShowMessage(message, false);
         }
 
         public void ShowMessage(string message, bool showLoadingBar = false)

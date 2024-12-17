@@ -1,16 +1,16 @@
 using SiraUtil.Affinity;
 using SongCore.Utilities;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
-    internal class BeatmapLevelDifficultyDataPatches  : IAffinity
+    internal class SongDataGamePatches  : IAffinity
     {
         private readonly bool? _showRotationNoteSpawnLines;
         private readonly bool? _oneSaber;
 
-        private BeatmapLevelDifficultyDataPatches(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey)
+        private SongDataGamePatches(BeatmapKey beatmapKey)
         {
-            var difficultyData = Collections.RetrieveDifficultyData(beatmapLevel, beatmapKey);
+            var difficultyData = Collections.GetCustomLevelSongDifficultyData(beatmapKey);
             if (difficultyData != null)
             {
                 _showRotationNoteSpawnLines = difficultyData._showRotationNoteSpawnLines;

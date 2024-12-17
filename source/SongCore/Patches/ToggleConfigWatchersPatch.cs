@@ -1,14 +1,13 @@
 ﻿using HarmonyLib;
 using IPA.Config;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     /// <summary>
-    /// This patch disables BSIPA's monitoring of config files in the game scene.
-    /// It leaks a lot of memory when there's a ton of files to watch.
+    /// This patch temporarily disables BSIPA's monitoring of config files while garbage collection is disabled, to avoid excessive memory allocation.
     /// </summary>
     [HarmonyPatch(typeof(DisableGCWhileEnabled))]
-    internal class ToggleConfigWatchersPatch
+    internal static class ToggleConfigWatchersPatch
     {
         [HarmonyPatch(nameof(DisableGCWhileEnabled.OnEnable))]
         private static void Prefix()

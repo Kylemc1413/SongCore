@@ -1,17 +1,17 @@
-using HarmonyLib;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using HarmonyLib;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     [HarmonyPatch(typeof(BeatmapLevelsModel), nameof(BeatmapLevelsModel.ReloadCustomLevelPackCollectionAsync))]
-    internal class StopVanillaLoadingPatch
+    internal static class StopVanillaLoadingPatch
     {
         private static bool Prefix() => false;
     }
 
     [HarmonyPatch(typeof(LevelFilteringNavigationController), nameof(LevelFilteringNavigationController.UpdateCustomSongs))]
-    internal class StopVanillaLoadingPatch2
+    internal static class StopVanillaLoadingPatch2
     {
         private static bool Prefix(LevelFilteringNavigationController __instance)
         {

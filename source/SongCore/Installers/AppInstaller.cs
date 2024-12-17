@@ -9,8 +9,16 @@ namespace SongCore.Installers
         private const string refreshableID = "SongCore.Loader.Refresh";
         private const string didLoadEventID = "SongCore.Loader.Loaded";
 
+        private readonly PluginConfig _config;
+
+        private AppInstaller(PluginConfig config)
+        {
+            _config = config;
+        }
+
         public override void InstallBindings()
         {
+            Container.BindInstance(_config).AsSingle();
             Container.Bind<IRefreshable>().WithId(refreshableID).To<SongCoreRefreshable>().AsSingle();
             Container.Bind(typeof(IInitializable), typeof(IDisposable), typeof(SongCoreLoaderDidLoad)).To<SongCoreLoaderDidLoad>().AsSingle();
             Container.Bind<IObservableChange>().WithId(didLoadEventID).FromMethod(ctx => ctx.Container.Resolve<SongCoreLoaderDidLoad>()).AsSingle();

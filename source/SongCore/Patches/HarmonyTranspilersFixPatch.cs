@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using SongCore.Utilities;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     /// <summary>
     /// This patch fixes an <a href="https://github.com/BepInEx/HarmonyX/issues/65">issue</a> with HarmonyX that causes it
@@ -13,9 +13,9 @@ namespace SongCore.HarmonyPatches
     /// and <c>Endfilter</c> instructions from the patched method when they are followed by an exception block.
     /// </summary>
     // TODO: Remove this once fixed.
-    internal class HarmonyTranspilersFixPatch
+    internal static class HarmonyTranspilersFixPatch
     {
-        public static MethodBase TargetMethod() => AccessTools.Method("HarmonyLib.Internal.Patching.ILManipulator:WriteTo");
+        public static MethodBase TargetMethod() => AccessTools.DeclaredMethod("HarmonyLib.Internal.Patching.ILManipulator:WriteTo");
 
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {

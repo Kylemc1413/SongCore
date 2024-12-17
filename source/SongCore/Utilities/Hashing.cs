@@ -28,13 +28,13 @@ namespace SongCore.Utilities
                     if (songHashData != null)
                     {
                         cachedSongHashData = songHashData;
-                        Logging.Logger.Info($"Finished loading cached hashes for {cachedSongHashData.Count} songs.");
+                        Plugin.Log.Info($"Finished loading cached hashes for {cachedSongHashData.Count} songs.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logging.Logger.Error($"Error loading cached song hashes: {ex.Message}");
-                    Logging.Logger.Error(ex);
+                    Plugin.Log.Error($"Error loading cached song hashes: {ex.Message}");
+                    Plugin.Log.Error(ex);
                 }
             }
         }
@@ -61,13 +61,13 @@ namespace SongCore.Utilities
 
             try
             {
-                Logging.Logger.Info($"Saving cached hashes for {cachedSongHashData.Count} songs.");
+                Plugin.Log.Info($"Saving cached hashes for {cachedSongHashData.Count} songs.");
                 File.WriteAllText(cachedHashDataPath, JsonConvert.SerializeObject(cachedSongHashData));
             }
             catch (Exception ex)
             {
-                Logging.Logger.Error($"Error saving cached song hashes: {ex.Message}");
-                Logging.Logger.Error(ex);
+                Plugin.Log.Error($"Error saving cached song hashes: {ex.Message}");
+                Plugin.Log.Error(ex);
             }
         }
 
@@ -81,13 +81,13 @@ namespace SongCore.Utilities
                     if (audioData != null)
                     {
                         cachedAudioData = audioData;
-                        Logging.Logger.Info($"Finished loading cached durations for {cachedAudioData.Count} songs.");
+                        Plugin.Log.Info($"Finished loading cached durations for {cachedAudioData.Count} songs.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logging.Logger.Error($"Error loading cached song durations: {ex.Message}");
-                    Logging.Logger.Error(ex);
+                    Plugin.Log.Error($"Error loading cached song durations: {ex.Message}");
+                    Plugin.Log.Error(ex);
                 }
             }
         }
@@ -114,13 +114,13 @@ namespace SongCore.Utilities
 
             try
             {
-                Logging.Logger.Info($"Saving cached durations for {cachedAudioData.Count} songs.");
+                Plugin.Log.Info($"Saving cached durations for {cachedAudioData.Count} songs.");
                 File.WriteAllText(cachedAudioDataPath, JsonConvert.SerializeObject(cachedAudioData));
             }
             catch (Exception ex)
             {
-                Logging.Logger.Error($"Error saving cached song durations: {ex.Message}");
-                Logging.Logger.Error(ex);
+                Plugin.Log.Error($"Error saving cached song durations: {ex.Message}");
+                Plugin.Log.Error(ex);
             }
         }
 
@@ -154,6 +154,7 @@ namespace SongCore.Utilities
             return false;
         }
 
+        [Obsolete("If your intent is to hash the custom level, use ComputeCustomLevelHash. Otherwise, use Collections.GetCustomLevelHash.", true)]
         public static string GetCustomLevelHash(BeatmapLevel level)
         {
             var hash = string.Empty;
@@ -162,44 +163,49 @@ namespace SongCore.Utilities
             {
                 if (loadedSaveData.standardLevelInfoSaveData != null)
                 {
-                    hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
+                    hash = ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
                 }
                 else if (loadedSaveData.beatmapLevelSaveData != null)
                 {
-                    hash = GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
+                    hash = ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
                 }
             }
 
             return hash;
         }
 
-        [Obsolete("This overload is deprecated.", true)]
-        public static string GetCustomLevelHash(StandardLevelInfoSaveData level, string customLevelPath)
-        {
-            var infoFilePath = Path.Combine(customLevelPath, CustomLevelPathHelper.kStandardLevelInfoFilename);
-            if (!File.Exists(infoFilePath))
-            {
-                return string.Empty;
-            }
-
-            var customLevelInfo = new CustomLevelFolderInfo(customLevelPath, string.Empty, File.ReadAllText(infoFilePath));
-            return GetCustomLevelHash(customLevelInfo, level);
-        }
-
-        [Obsolete("This overload is deprecated.", true)]
-        public static string GetCustomLevelHash(BeatmapLevelSaveData level, string customLevelPath)
-        {
-            var infoFilePath = Path.Combine(customLevelPath, CustomLevelPathHelper.kStandardLevelInfoFilename);
-            if (!File.Exists(infoFilePath))
-            {
-                return string.Empty;
-            }
-
-            var customLevelInfo = new CustomLevelFolderInfo(customLevelPath, string.Empty, File.ReadAllText(infoFilePath));
-            return GetCustomLevelHash(customLevelInfo, level);
-        }
-
+        [Obsolete("If your intent is to hash the custom level, use ComputeCustomLevelHash. Otherwise, use Collections.GetCustomLevelHash.", true)]
         public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, StandardLevelInfoSaveData standardLevelInfoSaveData)
+        {
+            return ComputeCustomLevelHash(customLevelFolderInfo, standardLevelInfoSaveData);
+        }
+
+        [Obsolete("If your intent is to hash the custom level, use ComputeCustomLevelHash. Otherwise, use Collections.GetCustomLevelHash.", true)]
+        public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, BeatmapLevelSaveData beatmapLevelSaveData)
+        {
+            return ComputeCustomLevelHash(customLevelFolderInfo, beatmapLevelSaveData);
+        }
+
+        public static string ComputeCustomLevelHash(BeatmapLevel level)
+        {
+            var hash = string.Empty;
+
+            if (Loader.CustomLevelLoader._loadedBeatmapSaveData.TryGetValue(level.levelID, out var loadedSaveData))
+            {
+                if (loadedSaveData.standardLevelInfoSaveData != null)
+                {
+                    hash = ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
+                }
+                else if (loadedSaveData.beatmapLevelSaveData != null)
+                {
+                    hash = ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
+                }
+            }
+
+            return hash;
+        }
+
+        public static string ComputeCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, StandardLevelInfoSaveData standardLevelInfoSaveData)
         {
             if (GetCachedSongData(customLevelFolderInfo.folderPath, out var directoryHash, out var songHash))
             {
@@ -218,7 +224,7 @@ namespace SongCore.Utilities
             return hash;
         }
 
-        public static string GetCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, BeatmapLevelSaveData beatmapLevelSaveData)
+        public static string ComputeCustomLevelHash(CustomLevelFolderInfo customLevelFolderInfo, BeatmapLevelSaveData beatmapLevelSaveData)
         {
             if (GetCachedSongData(customLevelFolderInfo.folderPath, out var directoryHash, out var songHash))
             {
@@ -248,13 +254,6 @@ namespace SongCore.Utilities
             }
 
             return path;
-        }
-
-        [Obsolete("Moved to TryGetRelativePath.", true)]
-        public static string GetRelativePath(string path)
-        {
-            TryGetRelativePath(path, out var relativePath);
-            return relativePath;
         }
 
         public static bool TryGetRelativePath(string path, out string relativePath)

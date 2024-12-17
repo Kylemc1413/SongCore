@@ -1,9 +1,12 @@
 ﻿using HarmonyLib;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
+    /// <summary>
+    /// This patch binds the <see cref="BeatmapLevel"/> to the game scene.
+    /// </summary>
     [HarmonyPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
-    internal class BindBeatmapLevelPatch
+    internal static class BindBeatmapLevelPatch
     {
         private static void Postfix(GameplayCoreInstaller __instance)
         {

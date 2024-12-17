@@ -1,12 +1,11 @@
-﻿using HarmonyLib;
-using System.Linq;
+﻿using System.Linq;
+using HarmonyLib;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     // TODO: Remove missing characteristic. Might end up in wiped save data.
-    [HarmonyPatch(typeof(BeatmapCharacteristicCollection))]
-    [HarmonyPatch(nameof(BeatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName), MethodType.Normal)]
-    internal class CustomCharacteristicsPatch
+    [HarmonyPatch(typeof(BeatmapCharacteristicCollection), nameof(BeatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName))]
+    internal static class CustomCharacteristicsPatch
     {
         private static void Postfix(string serializedName, ref BeatmapCharacteristicSO __result)
         {

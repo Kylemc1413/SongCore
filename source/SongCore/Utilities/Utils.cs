@@ -14,13 +14,26 @@ namespace SongCore.Utilities
             return IPA.Loader.PluginManager.Plugins.Any(mod => mod.Name == modName) || IPA.Loader.PluginManager.EnabledPlugins.Any(mod => mod.Id == modName);
         }
 
+        [Obsolete( "Use the overload that takes a SongData.", true)]
         public static bool DiffHasColors(ExtraSongData.DifficultyData songData)
         {
             return songData._colorLeft != null || songData._colorRight != null || songData._envColorLeft != null || songData._envColorRight != null
                 || songData._envColorLeftBoost != null || songData._envColorRightBoost != null || songData._obstacleColor != null;
         }
 
-        public static Color ColorFromMapColor(Data.ExtraSongData.MapColor mapColor)
+        [Obsolete( "Use the overload that takes a SongData.", true)]
+        public static Color ColorFromMapColor(ExtraSongData.MapColor mapColor)
+        {
+            return new Color(mapColor.r, mapColor.g, mapColor.b, mapColor.a);
+        }
+
+        public static bool DiffHasColors(SongData.DifficultyData songData)
+        {
+            return songData._colorLeft != null || songData._colorRight != null || songData._envColorLeft != null || songData._envColorRight != null
+                   || songData._envColorLeftBoost != null || songData._envColorRightBoost != null || songData._obstacleColor != null;
+        }
+
+        public static Color ColorFromMapColor(SongData.MapColor mapColor)
         {
             return new Color(mapColor.r, mapColor.g, mapColor.b, mapColor.a);
         }

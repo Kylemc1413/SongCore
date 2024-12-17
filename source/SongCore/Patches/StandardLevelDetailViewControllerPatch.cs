@@ -8,7 +8,7 @@ using HarmonyLib;
 using MonoMod.Utils;
 using SongCore.Utilities;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     /// <summary>
     /// This patch catches all exceptions and displays an error message to the user
@@ -16,9 +16,9 @@ namespace SongCore.HarmonyPatches
     /// </summary>
     // TODO: Make this use MethodType.Async once supported.
     [HarmonyPatch]
-    internal class StandardLevelDetailViewControllerPatch
+    internal static class StandardLevelDetailViewControllerPatch
     {
-        private static MethodBase TargetMethod() => AccessTools.Method(typeof(StandardLevelDetailViewController), nameof(StandardLevelDetailViewController.ShowLoadingAndDoSomething)).GetStateMachineTarget();
+        private static MethodBase TargetMethod() => AccessTools.DeclaredMethod(typeof(StandardLevelDetailViewController), nameof(StandardLevelDetailViewController.ShowLoadingAndDoSomething)).GetStateMachineTarget()!;
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -45,7 +45,7 @@ namespace SongCore.HarmonyPatches
                                 {
                                     const string errorText = "Error loading beatmap. Missing or unknown characteristic.";
                                     standardLevelDetailViewController.ShowContent(StandardLevelDetailViewController.ContentType.Error, errorText);
-                                    Logging.Logger.Error(errorText);
+                                    Plugin.Log.Error(errorText);
                                     handled = true;
                                 }
 
@@ -57,7 +57,7 @@ namespace SongCore.HarmonyPatches
                                 {
                                     const string errorText = "Error loading beatmap version.";
                                     standardLevelDetailViewController.ShowContent(StandardLevelDetailViewController.ContentType.Error, errorText);
-                                    Logging.Logger.Error(errorText);
+                                    Plugin.Log.Error(errorText);
                                     handled = true;
                                 }
 
@@ -70,7 +70,7 @@ namespace SongCore.HarmonyPatches
                             standardLevelDetailViewController.ShowContent(StandardLevelDetailViewController.ContentType.Error, Localization.Get(StandardLevelDetailViewController.kLoadingDataErrorLocalizationKey));
                         }
 
-                        Logging.Logger.Error(ex);
+                        Plugin.Log.Error(ex);
                     }))
                 .InstructionEnumeration();
         }

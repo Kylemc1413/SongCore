@@ -1,15 +1,13 @@
 using System;
 using HarmonyLib;
 
-/*
- * This patch removes the download icon for empty beatmaplevelcollections
- * Introduced since 1.18.0
- */
-
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
+    /// <summary>
+    /// This patch removes the download icon from empty custom annotated beatmap collections.
+    /// </summary>
     [HarmonyPatch(typeof(AnnotatedBeatmapLevelCollectionCell), nameof(AnnotatedBeatmapLevelCollectionCell.RefreshAvailabilityAsync))]
-    internal class AnnotatedBeatmapLevelCollectionCell_RefreshAvailabilityAsync
+    internal static class RemoveDownloadIconPatch
     {
         private static void Postfix(AnnotatedBeatmapLevelCollectionCell __instance)
         {

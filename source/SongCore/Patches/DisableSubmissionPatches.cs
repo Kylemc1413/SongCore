@@ -1,7 +1,7 @@
 ﻿using SiraUtil.Affinity;
 using SiraUtil.Submissions;
 
-namespace SongCore.HarmonyPatches
+namespace SongCore.Patches
 {
     internal class DisableSubmissionPatches : IAffinity
     {
@@ -14,13 +14,10 @@ namespace SongCore.HarmonyPatches
             _submission = submission;
         }
 
-        [AffinityPatch(typeof(PlaybackRecord), nameof(PlaybackRecord.IsActive), AffinityMethodType.Getter)]
-        private void AutoplayCheck(bool __result)
+        [AffinityPatch(typeof(RecPlayBehaviour), nameof(RecPlayBehaviour.Play))]
+        private void AutoplayCheck()
         {
-            if (_ticket is null && __result)
-            {
-                _ticket = _submission.DisableScoreSubmission(nameof(SongCore), "Autoplay is enabled.");
-            }
+            _ticket ??= _submission.DisableScoreSubmission(nameof(SongCore), "Autoplay is enabled.");
         }
 
         [AffinityPatch(typeof(ObjectsMovementRecorder), nameof(ObjectsMovementRecorder.Init))]

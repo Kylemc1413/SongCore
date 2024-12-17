@@ -1,17 +1,16 @@
-using HarmonyLib;
-using IPA;
-using SongCore.UI;
-using SongCore.Utilities;
-using IPA.Utilities;
 using System;
 using System.IO;
+using HarmonyLib;
+using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
-using SongCore.HarmonyPatches;
+using IPA.Logging;
+using IPA.Utilities;
 using SiraUtil.Zenject;
 using SongCore.Installers;
-using IPALogger = IPA.Logging.Logger;
+using SongCore.Patches;
+using SongCore.UI;
 
 namespace SongCore
 {
@@ -21,30 +20,22 @@ namespace SongCore
         private readonly PluginMetadata _metadata;
         private readonly Harmony _harmony;
 
-        internal static SConfiguration Configuration { get; private set; }
+        internal static Logger Log { get; private set; } = null!;
 
         public static Action<bool, string, string, BeatmapLevel>? CustomSongPlatformSelectionDidChange;
 
-        [Obsolete]
-        public static string standardCharacteristicName = "Standard";
-        [Obsolete]
-        public static string oneSaberCharacteristicName = "OneSaber";
-        [Obsolete]
-        public static string noArrowsCharacteristicName = "NoArrows";
-
         [Init]
-        public Plugin(IPALogger pluginLogger, PluginMetadata metadata, Zenjector zenjector)
+        public Plugin(Logger logger, PluginMetadata metadata, Zenjector zenjector)
         {
             // Workaround for creating BSIPA config in Userdata subdir
             Directory.CreateDirectory(Path.Combine(UnityGame.UserDataPath, nameof(SongCore)));
-            Configuration = Config.GetConfigFor(nameof(SongCore) + Path.DirectorySeparatorChar + nameof(SongCore)).Generated<SConfiguration>();
 
-            Logging.Logger = pluginLogger;
+            Log = logger;
             _metadata = metadata;
             _harmony = new Harmony("com.kyle1413.BeatSaber.SongCore");
 
-            zenjector.UseLogger(pluginLogger);
-            zenjector.Install<AppInstaller>(Location.App);
+            zenjector.UseLogger(logger);
+            zenjector.Install<AppInstaller>(Location.App, Config.GetConfigFor(nameof(SongCore) + Path.DirectorySeparatorChar + nameof(SongCore)).Generated<PluginConfig>());
             zenjector.Install<MenuInstaller>(Location.Menu);
             zenjector.Install<GameInstaller>(Location.StandardPlayer);
         }
@@ -54,7 +45,7 @@ namespace SongCore
         {
             if (typeof(Harmony).Assembly.GetName().Version.Minor < 12)
             {
-                _harmony.Patch(HarmonyTranspilersFixPatch.TargetMethod(), null, null, new HarmonyMethod(AccessTools.Method(typeof(HarmonyTranspilersFixPatch), nameof(HarmonyTranspilersFixPatch.Transpiler))));
+                _harmony.Patch(HarmonyTranspilersFixPatch.TargetMethod(), null, null, new HarmonyMethod(AccessTools.DeclaredMethod(typeof(HarmonyTranspilersFixPatch), nameof(HarmonyTranspilersFixPatch.Transpiler))));
             }
             _harmony.PatchAll(_metadata.Assembly);
 
@@ -66,7 +57,7 @@ namespace SongCore
             }
             else
             {
-                Collections.LoadExtraSongData();
+                Collections.LoadCustomLevelSongData();
             }
 
             Collections.RegisterCustomCharacteristic(BasicUI.MissingCharIcon!, "Missing Characteristic", "Missing Characteristic", "MissingCharacteristic", "MissingCharacteristic", false, false, 1000);

@@ -1,4 +1,4 @@
-using SongCore.HarmonyPatches;
+using SongCore.Patches;
 using Zenject;
 
 namespace SongCore.Installers
@@ -7,8 +7,7 @@ namespace SongCore.Installers
     {
         public override void InstallBindings()
         {
-            Container.BindInterfacesTo<BeatmapLevelDifficultyDataPatches>().AsSingle();
-            Container.BindInterfacesTo<AllowNegativeNjsValuesPatch>().AsSingle();
+            Container.BindInterfacesTo<SongDataGamePatches>().AsSingle();
             Container.BindInterfacesTo<DisableSubmissionPatches>().AsSingle();
         }
     }
