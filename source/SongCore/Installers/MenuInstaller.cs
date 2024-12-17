@@ -15,6 +15,7 @@ namespace SongCore.Installers
             Container.BindInterfacesAndSelfTo<RequirementsUI>().AsSingle();
             Container.BindInterfacesTo<SongDataMenuPatches>().AsSingle();
             Container.BindInterfacesTo<InternalRestartPatch>().AsSingle();
+            Container.BindInterfacesTo<AllowNegativeObstacleSizeAndDurationPatch>().AsSingle();
         }
     }
 }
