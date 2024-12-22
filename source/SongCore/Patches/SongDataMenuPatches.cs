@@ -80,7 +80,7 @@ namespace SongCore.Patches
         [AffinityPatch(typeof(BeatmapDifficultyMethods), nameof(BeatmapDifficultyMethods.Name))]
         private void SetDifficultyName(ref string __result, BeatmapDifficulty difficulty)
         {
-            if (_beatmapLevel!.hasPrecalculatedData || !_config.DisplayDiffLabels)
+            if (_beatmapLevel == null || _beatmapLevel.hasPrecalculatedData || !_config.DisplayDiffLabels)
             {
                 return;
             }
