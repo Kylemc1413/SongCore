@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatmapDataLoaderVersion4;
 using BeatmapLevelSaveDataVersion4;
 using BeatmapSaveDataVersion4;
 using BeatSaberMarkupLanguage.Settings;
@@ -1111,6 +1112,7 @@ namespace SongCore
                     return null;
                 }
 
+                BeatmapLevelSaveDataUtils.MigrateBeatmapLevelSaveData(beatmapLevelSaveData);
                 loadedSaveData = new CustomLevelLoader.LoadedSaveData { customLevelFolderInfo = customLevelFolderInfo, beatmapLevelSaveData = beatmapLevelSaveData };
             }
 
