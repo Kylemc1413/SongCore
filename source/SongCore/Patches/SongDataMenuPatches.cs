@@ -57,14 +57,12 @@ namespace SongCore.Patches
         }
 
         [AffinityPatch(typeof(BeatmapCharacteristicSegmentedControlController), nameof(BeatmapCharacteristicSegmentedControlController.SetData))]
-        private void GetDifficultiesName()
+        private void GetDifficultyLabels()
         {
             if (_beatmapLevel!.hasPrecalculatedData)
             {
                 return;
             }
-
-            _characteristicDifficultyLabels.Clear();
 
             foreach (var difficultyData in _songData!._difficulties)
             {
@@ -78,7 +76,7 @@ namespace SongCore.Patches
 
         // TODO: Find a way to add a limitation to the size of the text.
         [AffinityPatch(typeof(BeatmapDifficultyMethods), nameof(BeatmapDifficultyMethods.Name))]
-        private void SetDifficultyName(ref string __result, BeatmapDifficulty difficulty)
+        private void SetDifficultyLabel(ref string __result, BeatmapDifficulty difficulty)
         {
             if (_beatmapLevel == null || _beatmapLevel.hasPrecalculatedData || !_config.DisplayDiffLabels)
             {
@@ -90,6 +88,12 @@ namespace SongCore.Patches
             {
                 __result = difficultyLabel.Replace("<", "<\u200B").Replace(">", ">\u200B");
             }
+        }
+
+        [AffinityPatch(typeof(StandardLevelDetailView), nameof(StandardLevelDetailView.RefreshContent))]
+        private void ClearDifficultyLabels()
+        {
+            _characteristicDifficultyLabels.Clear();
         }
 
         [AffinityPatch(typeof(BeatmapCharacteristicSegmentedControlController), nameof(BeatmapCharacteristicSegmentedControlController.SetData))]
