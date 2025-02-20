@@ -272,12 +272,9 @@ namespace SongCore
             _beatmapLevelsModel._customLevelsRepository = CustomLevelsRepository;
             _beatmapLevelsModel.LoadAllBeatmapLevelPacks();
 
-            // TODO: This will wipe all existing levels if this method is called manually from outside SongCore.
-            _customLevelLoader._loadedBeatmapSaveData.Clear();
-
             foreach (var (levelID, loadedSaveData) in LoadedBeatmapSaveData)
             {
-                _customLevelLoader._loadedBeatmapSaveData.Add(levelID, loadedSaveData);
+                _customLevelLoader._loadedBeatmapSaveData[levelID] = loadedSaveData;
             }
 
             LoadedBeatmapSaveData.Clear();
@@ -840,6 +837,7 @@ namespace SongCore
                     }
 
                     CustomLevelsById.TryRemove(level.levelID, out _);
+                    _customLevelLoader._loadedBeatmapSaveData.Remove(level.levelID);
                 }
 
                 //Delete the directory
