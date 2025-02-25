@@ -1,17 +1,15 @@
 using System;
 using System.Collections.Generic;
-using IPA.Utilities;
+using SongCore.Utilities;
 
 namespace SongCore.OverrideClasses
 {
     public class SongCoreBeatmapLevelsRepository : BeatmapLevelsRepository
     {
-        private static readonly FieldAccessor<BeatmapLevelsRepository, BeatmapLevelPack[]>.Accessor BeatmapLevelPacksAccessor =
-            FieldAccessor<BeatmapLevelsRepository, BeatmapLevelPack[]>.GetAccessor(nameof(_beatmapLevelPacks));
+        private readonly List<BeatmapLevelPack> _customBeatmapLevelPacks = new();
 
-        private readonly List<BeatmapLevelPack> _customBeatmapLevelPacks = new List<BeatmapLevelPack>();
-
-        private SongCoreBeatmapLevelsRepository(IEnumerable<BeatmapLevelPack> beatmapLevelPacks) : base(beatmapLevelPacks)
+        private SongCoreBeatmapLevelsRepository(IEnumerable<BeatmapLevelPack> beatmapLevelPacks)
+            : base(beatmapLevelPacks)
         {
         }
 
@@ -50,11 +48,11 @@ namespace SongCore.OverrideClasses
             _beatmapLevelIdToBeatmapLevelPackId.Clear();
 
             var that = (BeatmapLevelsRepository)this;
-            BeatmapLevelPacksAccessor(ref that) = _customBeatmapLevelPacks.ToArray();
-            foreach (BeatmapLevelPack beatmapLevelPack in _beatmapLevelPacks)
+            Accessors.BeatmapLevelPacksAccessor(ref that) = _customBeatmapLevelPacks.ToArray();
+            foreach (var beatmapLevelPack in _beatmapLevelPacks)
             {
                 _idToBeatmapLevelPack.Add(beatmapLevelPack.packID, beatmapLevelPack);
-                foreach (BeatmapLevel beatmapLevel in beatmapLevelPack.AllBeatmapLevels())
+                foreach (var beatmapLevel in beatmapLevelPack.AllBeatmapLevels())
                 {
                     _beatmapLevelIdToBeatmapLevelPackId.TryAdd(beatmapLevel.levelID, beatmapLevelPack.packID);
                     _idToBeatmapLevel.TryAdd(beatmapLevel.levelID, beatmapLevel);
