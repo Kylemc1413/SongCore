@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatmapDataLoaderVersion4;
 using BeatmapLevelSaveDataVersion4;
 using BeatmapSaveDataVersion4;
 using BeatSaberMarkupLanguage.Settings;
@@ -194,7 +195,7 @@ namespace SongCore
                 _loadingTaskCancellationTokenSource.Cancel();
                 AreSongsLoading = false;
                 LoadingProgress = 0;
-                _progressBar.ShowMessage("Loading cancelled\n<size=80%>Press Ctrl+R to refresh</size>", false);
+                _progressBar.ShowMessage("Loading cancelled\n<size=80%>Press R to resume</size>", false);
             }
         }
 
@@ -203,7 +204,7 @@ namespace SongCore
             if (_loadingTaskCancellationTokenSource.IsCancellationRequested && nextScene.name == "MainMenu")
             {
                 Plugin.Log.Notice("Song loading was cancelled. Resuming...");
-                RefreshSongs();
+                RefreshSongs(false);
             }
         }
 
@@ -271,12 +272,9 @@ namespace SongCore
             _beatmapLevelsModel._customLevelsRepository = CustomLevelsRepository;
             _beatmapLevelsModel.LoadAllBeatmapLevelPacks();
 
-            // TODO: This will wipe all existing levels if this method is called manually from outside SongCore.
-            _customLevelLoader._loadedBeatmapSaveData.Clear();
-
             foreach (var (levelID, loadedSaveData) in LoadedBeatmapSaveData)
             {
-                _customLevelLoader._loadedBeatmapSaveData.Add(levelID, loadedSaveData);
+                _customLevelLoader._loadedBeatmapSaveData[levelID] = loadedSaveData;
             }
 
             LoadedBeatmapSaveData.Clear();
@@ -553,7 +551,7 @@ namespace SongCore
 
                     // Load beatmaps in separate song folders (created in folders.xml or by other mods)
                     // Assign beatmaps to their respective pack (custom levels, wip levels, or separate)
-                    UnityMainThreadTaskScheduler.Factory.StartNew(() => _progressBar.ShowMessage($"Loading {SeparateSongFolders.Count} Additional Song folders", true));
+                    UnityMainThreadTaskScheduler.Factory.StartNew(() => _progressBar.ShowMessage($"Loading {SeparateSongFolders.Count} separate folders", true));
                     foreach (var entry in SeparateSongFolders)
                     {
                         try
@@ -839,6 +837,7 @@ namespace SongCore
                     }
 
                     CustomLevelsById.TryRemove(level.levelID, out _);
+                    _customLevelLoader._loadedBeatmapSaveData.Remove(level.levelID);
                 }
 
                 //Delete the directory
@@ -1006,7 +1005,7 @@ namespace SongCore
                             }
                         }
 
-                        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+                        Task.Run(() =>
                         {
                             try
                             {
@@ -1111,6 +1110,7 @@ namespace SongCore
                     return null;
                 }
 
+                BeatmapLevelSaveDataUtils.MigrateBeatmapLevelSaveData(beatmapLevelSaveData);
                 loadedSaveData = new CustomLevelLoader.LoadedSaveData { customLevelFolderInfo = customLevelFolderInfo, beatmapLevelSaveData = beatmapLevelSaveData };
             }
 

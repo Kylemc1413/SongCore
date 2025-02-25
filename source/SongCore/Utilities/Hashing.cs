@@ -231,7 +231,7 @@ namespace SongCore.Utilities
                 return songHash;
             }
 
-            var prependBytes = BeatmapLevelDataUtils.kUtf8Encoding.GetBytes(customLevelFolderInfo.levelInfoJsonString);
+            var prependBytes = Encoding.UTF8.GetBytes(customLevelFolderInfo.levelInfoJsonString);
             var audioDataPath = Path.Combine(customLevelFolderInfo.folderPath, beatmapLevelSaveData.audio.audioDataFilename);
             var files = beatmapLevelSaveData.difficultyBeatmaps.SelectMany(difficultyBeatmap => new[]
             {
@@ -300,7 +300,7 @@ namespace SongCore.Utilities
         }
 
         // Black magic https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa/14333437#14333437
-        static string ByteToHexBitFiddle(byte[] bytes)
+        private static string ByteToHexBitFiddle(byte[] bytes)
         {
             char[] c = new char[bytes.Length * 2];
             int b;
@@ -314,72 +314,25 @@ namespace SongCore.Utilities
             return new string(c);
         }
 
-        public static string CreateSha1FromString(string input)
-        {
-            // Use input string to calculate MD5 hash
-            using var sha1 = SHA1.Create();
-            var inputBytes = Encoding.ASCII.GetBytes(input);
-            var hashBytes = sha1.ComputeHash(inputBytes);
 
-            return ByteToHexBitFiddle(hashBytes);
-        }
-
-        public static string CreateSha1FromBytes(byte[] input)
-        {
-            // Use input string to calculate MD5 hash
-            using var sha1 = SHA1.Create();
-            var hashBytes = sha1.ComputeHash(input);
-
-            return ByteToHexBitFiddle(hashBytes);
-        }
-
-        public static bool CreateSha1FromFile(string path, out string hash)
-        {
-            hash = string.Empty;
-            if (!File.Exists(path))
-            {
-                return false;
-            }
-
-            using var sha1 = SHA1.Create();
-            using var stream = File.OpenRead(path);
-            var hashBytes = sha1.ComputeHash(stream);
-            hash = ByteToHexBitFiddle(hashBytes);
-            return true;
-        }
-
-        public static string CreateSha1FromFilesWithPrependBytes(IEnumerable<byte> prependBytes, IEnumerable<string> files)
+        private static string CreateSha1FromFilesWithPrependBytes(byte[] prependBytes, IEnumerable<string> files)
         {
             using var sha1 = SHA1.Create();
-            var buffer = new byte[4096];
-            var bufferIndex = 0;
+            var buffer = new byte[8192];
 
-            foreach (var prependByte in prependBytes)
-            {
-                buffer[bufferIndex++] = prependByte;
-                if (bufferIndex == buffer.Length)
-                {
-                    sha1.TransformBlock(buffer, 0, buffer.Length, null, 0);
-                    bufferIndex = 0;
-                }
-            }
+            sha1.TransformBlock(prependBytes, 0, prependBytes.Length, null, 0);
 
             foreach (var file in files)
             {
                 using var fileStream = File.Open(file, FileMode.Open);
                 int bytesRead;
-                while ((bytesRead = fileStream.Read(buffer, bufferIndex, buffer.Length - bufferIndex)) > 0)
+                while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    bufferIndex += bytesRead;
-                    if (bufferIndex == buffer.Length)
-                    {
-                        sha1.TransformBlock(buffer, 0, buffer.Length, null, 0);
-                        bufferIndex = 0;
-                    }
+                    sha1.TransformBlock(buffer, 0, bytesRead, null, 0);
                 }
             }
 
-            sha1.TransformFinalBlock(buffer, 0, bufferIndex);
+            sha1.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
 
             return ByteToHexBitFiddle(sha1.Hash);
         }

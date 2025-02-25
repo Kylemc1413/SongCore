@@ -25,12 +25,13 @@ namespace SongCore.Patches
             return _showRotationNoteSpawnLines ?? true;
         }
 
-        [AffinityPatch(typeof(SaberManager.InitData), "ctor", AffinityMethodType.Constructor, null, typeof(bool), typeof(SaberType))]
-        private void ForceOneSaber(SaberManager.InitData __instance)
+        [AffinityPatch(typeof(SaberManager), nameof(SaberManager.Start))]
+        [AffinityPrefix]
+        private void ForceOneSaber(SaberManager __instance)
         {
             if (_oneSaber.HasValue)
             {
-                Accessors.OneSaberModeAccessor(ref __instance) = _oneSaber.Value;
+                Accessors.SaberManagerInitDataAccessor(ref __instance) = new SaberManager.InitData(_oneSaber.Value, __instance._initData.oneSaberType);
             }
         }
     }
