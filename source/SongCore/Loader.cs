@@ -1005,7 +1005,7 @@ namespace SongCore
                             }
                         }
 
-                        UnityMainThreadTaskScheduler.Factory.StartNew(() =>
+                        Task.Run(() =>
                         {
                             try
                             {
