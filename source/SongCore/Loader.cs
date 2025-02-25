@@ -195,7 +195,7 @@ namespace SongCore
                 _loadingTaskCancellationTokenSource.Cancel();
                 AreSongsLoading = false;
                 LoadingProgress = 0;
-                _progressBar.ShowMessage("Loading cancelled\n<size=80%>Press Ctrl+R to refresh</size>", false);
+                _progressBar.ShowMessage("Loading cancelled\n<size=80%>Press R to resume</size>", false);
             }
         }
 
@@ -204,7 +204,7 @@ namespace SongCore
             if (_loadingTaskCancellationTokenSource.IsCancellationRequested && nextScene.name == "MainMenu")
             {
                 Plugin.Log.Notice("Song loading was cancelled. Resuming...");
-                RefreshSongs();
+                RefreshSongs(false);
             }
         }
 
@@ -551,7 +551,7 @@ namespace SongCore
 
                     // Load beatmaps in separate song folders (created in folders.xml or by other mods)
                     // Assign beatmaps to their respective pack (custom levels, wip levels, or separate)
-                    UnityMainThreadTaskScheduler.Factory.StartNew(() => _progressBar.ShowMessage($"Loading {SeparateSongFolders.Count} Additional Song folders", true));
+                    UnityMainThreadTaskScheduler.Factory.StartNew(() => _progressBar.ShowMessage($"Loading {SeparateSongFolders.Count} separate folders", true));
                     foreach (var entry in SeparateSongFolders)
                     {
                         try
