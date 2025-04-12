@@ -455,12 +455,18 @@ namespace SongCore
                                     .Where(d => d.Exists && !d.Attributes.HasFlag(FileAttributes.Hidden))
                                     .Select(d => d.FullName)))
                             .ToHashSet();
+                        List<string> folderPathsToRemove = [];
                         foreach (var loadedSaveData in _customLevelLoader._loadedBeatmapSaveData.Values)
                         {
                             if (!folders.Contains(loadedSaveData.customLevelFolderInfo.folderPath))
                             {
-                                DeleteSingleSong(loadedSaveData.customLevelFolderInfo.folderPath, false);
+                                folderPathsToRemove.Add(loadedSaveData.customLevelFolderInfo.folderPath);
                             }
+                        }
+
+                        foreach (string? folderPath in folderPathsToRemove)
+                        {
+                            DeleteSingleSong(folderPath, false);
                         }
                     }
 
