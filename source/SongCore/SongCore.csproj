@@ -65,7 +65,7 @@
     <Reference Include="SiraUtil" HintPath="$(BeatSaberDir)\Plugins\SiraUtil.dll" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="Tweening" />
-    <Reference Include="Unity.TextMeshPro" />
+    <Reference Include="Unity.TextMeshPro" Publicize="true" />
     <Reference Include="UnityEngine" />
     <Reference Include="UnityEngine.CoreModule" />
     <Reference Include="UnityEngine.ImageConversionModule" />

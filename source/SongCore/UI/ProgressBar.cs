@@ -25,7 +25,7 @@ namespace SongCore.UI
 
         private Canvas? _canvas;
         private CanvasGroup? _canvasGroup;
-        private FloatTween? _floatTween;
+        private Tweening.FloatTween? _floatTween;
         private TMP_Text? _pluginNameText;
         private TMP_Text? _headerText;
         private Image? _loadingBackg;
@@ -77,12 +77,12 @@ namespace SongCore.UI
         {
             if (_floatTween != null)
             {
-                FloatTween.Pool.Despawn(_floatTween);
+                Tweening.FloatTween.Pool.Despawn(_floatTween);
                 _floatTween = null;
             }
 
             var startAlpha = _canvasGroup.alpha;
-            _floatTween = FloatTween.Pool.Spawn(startAlpha, endAlpha, alpha =>
+            _floatTween = Tweening.FloatTween.Pool.Spawn(startAlpha, endAlpha, alpha =>
             {
                 _canvasGroup.alpha = alpha;
             }, 0.25f, EaseType.OutQuad, 0f);
@@ -100,7 +100,7 @@ namespace SongCore.UI
                     _canvas.enabled = false;
                 }
 
-                FloatTween.Pool.Despawn(_floatTween);
+                Tweening.FloatTween.Pool.Despawn(_floatTween);
                 _floatTween = null;
             };
 

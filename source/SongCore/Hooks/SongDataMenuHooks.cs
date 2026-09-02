@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -49,7 +49,7 @@ namespace SongCore.Hooks
         public void Initialize()
         {
             _getSongDataHook = new Hook(typeof(LevelCollectionViewController).GetMethod(nameof(LevelCollectionViewController.HandleLevelCollectionTableViewDidSelectLevel), BindingFlags.Instance | BindingFlags.NonPublic)!, HandleDidSelectLevel, true);
-            _textSizeLimitHook = new Hook(typeof(BeatmapDifficultySegmentedControlController).GetMethod(nameof(BeatmapDifficultySegmentedControlController.Awake), BindingFlags.Instance | BindingFlags.NonPublic)!, LimitTextSize, true);
+            _textSizeLimitHook = new Hook(typeof(BeatmapDifficultySegmentedControlController).GetMethod(nameof(BeatmapDifficultySegmentedControlController.SetData))!, LimitTextSize, true);
             _customDifficultyLabelsHook = new Hook(typeof(BeatmapDifficultySegmentedControlController).GetMethod(nameof(BeatmapDifficultySegmentedControlController.SetData))!, SetData, true);
             _customDifficultyTextHook = new Hook(typeof(LevelBar).GetMethod(nameof(LevelBar.SetupData), BindingFlags.Instance | BindingFlags.NonPublic)!, SetupData, true);
             _defaultCharacteristicHook = new Hook(typeof(BeatmapCharacteristicSegmentedControlController).GetMethod(nameof(BeatmapCharacteristicSegmentedControlController.SetData))!, SelectDefaultCharacteristic, true);
@@ -103,11 +103,32 @@ namespace SongCore.Hooks
         }
 
         // TODO: Add Hover Hints that shows full text when text is too large?
-        private void LimitTextSize(Action<BeatmapDifficultySegmentedControlController> original, BeatmapDifficultySegmentedControlController instance)
+        private void LimitTextSize(Action<BeatmapDifficultySegmentedControlController, IEnumerable<BeatmapDifficulty>, BeatmapDifficulty, BeatmapDifficultyMask> original, BeatmapDifficultySegmentedControlController instance, IEnumerable<BeatmapDifficulty> difficultyBeatmaps, BeatmapDifficulty selectedDifficulty, BeatmapDifficultyMask allowedBeatmapDifficultyMask)
         {
-            original(instance);
-            instance._difficultySegmentedControl._enableWordWrapping = false;
-            instance._difficultySegmentedControl._textOverflowMode = TextOverflowModes.Ellipsis;
+            original(instance, difficultyBeatmaps, selectedDifficulty, allowedBeatmapDifficultyMask);
+
+            if (_songData == null || !_config.DisplayDiffLabels)
+            {
+                return;
+            }
+
+            for (var i = 0; i < instance._difficultySegmentedControl._texts.Count; i++)
+            {
+                var cell = (TextSegmentedControlCell)instance._difficultySegmentedControl.cells[i];
+
+                if (cell._text.alignment == TextAlignmentOptions.Midline)
+                {
+                    continue;
+                }
+
+                cell._text.enableAutoSizing = true;
+                cell._text.fontSizeMin = 2.125f;
+                cell._text.fontSizeMax = 3f;
+                cell._text.alignment = TextAlignmentOptions.Midline;
+                cell._text.m_textAlignment = TextAlignmentOptions.Converted; // needed to stop Awake() from resetting alignment
+                cell._text.rectTransform.sizeDelta = new Vector2(0f, 1.2f);
+                cell._text.overflowMode = TextOverflowModes.Ellipsis;
+            }
         }
 
         private void SetData(Action<BeatmapDifficultySegmentedControlController, IEnumerable<BeatmapDifficulty>, BeatmapDifficulty, BeatmapDifficultyMask> original, BeatmapDifficultySegmentedControlController instance, IEnumerable<BeatmapDifficulty> difficultyBeatmaps, BeatmapDifficulty selectedDifficulty, BeatmapDifficultyMask allowedBeatmapDifficultyMask)
