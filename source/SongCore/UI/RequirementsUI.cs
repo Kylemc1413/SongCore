@@ -236,7 +236,7 @@ namespace SongCore.UI
                     var environmentInfoName = songData._environmentNames.ElementAtOrDefault(diffData._environmentNameIdx.Value);
                     if (environmentInfoName != null)
                     {
-                        if (environmentInfoName != beatmapLevel.GetEnvironmentName(beatmapKey.Value.beatmapCharacteristic, beatmapKey.Value.difficulty))
+                        if (environmentInfoName != beatmapLevel.GetEnvironmentName(beatmapKey.Value))
                         {
                             environmentName = _environmentsListModel.GetEnvironmentInfoBySerializedNameSafe(environmentInfoName).environmentName;
                         }
@@ -280,7 +280,7 @@ namespace SongCore.UI
                 if (customListTableData.Data.Count > 0)
                 {
                     if (environmentName == null && beatmapLevel != null)
-                        environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.Value.beatmapCharacteristic, beatmapKey.Value.difficulty);
+                        environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.Value);
                     customListTableData.Data.Add(new CustomCellInfo("<size=75%>Environment Info", $"This Map uses the Environment: {environmentName}", EnvironmentIcon));
 
                 }

@@ -39,7 +39,7 @@ namespace SongCore.Hooks
 
         private void ShowError()
         {
-            _standardLevelDetailViewController.ShowContent(StandardLevelDetailViewController.ContentType.Error, Localization.Get(StandardLevelDetailViewController.kLoadingDataErrorLocalizationKey));
+            _standardLevelDetailViewController.ShowContent(StandardLevelDetailViewController.ContentType.Error, Localization.Get("ERROR_LOADING_DATA"));
         }
     }
 }

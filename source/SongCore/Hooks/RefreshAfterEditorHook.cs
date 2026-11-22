@@ -30,7 +30,7 @@ namespace SongCore.Hooks
             _handleBeatmapEditorSceneDidFinishHook.Dispose();
         }
 
-        private void RefreshSongs(Action<MenuTransitionsHelper, BeatmapEditorScenesTransitionSetupDataSO> original, MenuTransitionsHelper instance, BeatmapEditorScenesTransitionSetupDataSO beatmapEditorScenesTransitionSetupData)
+        private void RefreshSongs(Action<MenuTransitionsHelper, BeatmapEditorScenesTransitionSetupData> original, MenuTransitionsHelper instance, BeatmapEditorScenesTransitionSetupData beatmapEditorScenesTransitionSetupData)
         {
             original(instance, beatmapEditorScenesTransitionSetupData);
             _loader.RefreshSongs();

@@ -17,6 +17,10 @@ namespace SongCore
         private static readonly List<string> _capabilities = new List<string>();
         private static readonly List<BeatmapCharacteristicSO> _customCharacteristics = new List<BeatmapCharacteristicSO>();
 
+        private const int kCustomCharacteristicBaseValue = 1000;
+        private static readonly Dictionary<string, BeatmapCharacteristic> _customCharacteristicsBySerializedName = new Dictionary<string, BeatmapCharacteristic>();
+        private static readonly Dictionary<BeatmapCharacteristic, BeatmapCharacteristicSO> _customCharacteristicScriptableObjects = new Dictionary<BeatmapCharacteristic, BeatmapCharacteristicSO>();
+
         internal static readonly string DataPath = Path.Combine(UnityGame.UserDataPath, nameof(SongCore), "SongCoreExtraData.dat");
         internal static readonly ConcurrentDictionary<string, string> LevelHashDictionary = new ConcurrentDictionary<string, string>();
         internal static readonly ConcurrentDictionary<string, List<string>> HashLevelDictionary = new ConcurrentDictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
@@ -68,8 +72,8 @@ namespace SongCore
             }
 
             var diffData = songData?._difficulties.FirstOrDefault(x =>
-                x._difficulty == beatmapKey.difficulty && (x._beatmapCharacteristicName == beatmapKey.beatmapCharacteristic.characteristicNameLocalizationKey ||
-                                                           x._beatmapCharacteristicName == beatmapKey.beatmapCharacteristic.serializedName));
+                x._difficulty == beatmapKey.difficulty && (x._beatmapCharacteristicName == beatmapKey.characteristic.NameLocalizationKey() ||
+                                                           x._beatmapCharacteristicName == beatmapKey.characteristic.SerializedName()));
 
             return diffData;
         }
@@ -130,11 +134,25 @@ namespace SongCore
 
             if (_customCharacteristics.All(x => x.serializedName != newChar.serializedName))
             {
+                var characteristic = (BeatmapCharacteristic)(kCustomCharacteristicBaseValue + _customCharacteristics.Count);
                 _customCharacteristics.Add(newChar);
+                _customCharacteristicsBySerializedName.Add(serializedName, characteristic);
+                _customCharacteristicScriptableObjects.Add(characteristic, newChar);
                 return newChar;
             }
 
             return null;
+        }
+
+        internal static bool TryGetCustomCharacteristic(string? serializedName, out BeatmapCharacteristic characteristic)
+        {
+            characteristic = default;
+            return serializedName != null && _customCharacteristicsBySerializedName.TryGetValue(serializedName, out characteristic);
+        }
+
+        internal static bool TryGetCustomCharacteristicData(BeatmapCharacteristic characteristic, out BeatmapCharacteristicSO data)
+        {
+            return _customCharacteristicScriptableObjects.TryGetValue(characteristic, out data);
         }
 
         public static SeparateSongFolder AddSeparateSongFolder(string name, string folderPath, FolderLevelPack pack, Sprite? image = null, bool wip = false, bool cachezips = false)
